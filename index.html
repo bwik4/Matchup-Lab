@@ -150,7 +150,7 @@
       </div>
       <div class="card">
         <h2>This season's game log</h2>
-        <p class="note">Opponent rank = how much that defense allows of this stat to this position (1 = allows the most).</p>
+        <p class="note">Opp rk = how that defense ranks against this stat for this position: 1 = toughest (allows the least), 32 = easiest (allows the most).</p>
         <div class="scroll" style="max-height: 24rem"><table class="t-plog"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
@@ -167,7 +167,7 @@
       </div>
       <p class="note">Every player with 3+ games this season: average, median, last-3 average and this week's matchup for the stat you pick. Click a player to open his prop card above.</p>
       <div class="scroll"><table class="t-finder"><thead></thead><tbody></tbody></table></div>
-      <div class="legend"><span class="lg">Soft matchup (opponent rank 1–8)</span><span class="lr">Tough matchup (25–32)</span></div>
+      <div class="legend"><span class="lr">Tough matchup (opponent rank 1–8)</span><span class="lg">Easy matchup (25–32)</span></div>
     </div>
   </section>
 
@@ -185,9 +185,9 @@
           </div>
         </div>
       </div>
-      <p class="note">Totals from every player at that position against the defense, divided by its games. "Rk" ranks all 32 defenses: 1 = allows the most (best spot for overs), 32 = allows the least. Click a defense for its week-by-week numbers.</p>
+      <p class="note">Totals from every player at that position against the defense, divided by its games. "Rk" ranks all 32 defenses: 1 = toughest (allows the least), 32 = easiest (allows the most, best spot for overs). For INTs and sacks, 1 = forces the most. Click a defense for its week-by-week numbers.</p>
       <div class="scroll"><table class="t-match"><thead></thead><tbody></tbody></table></div>
-      <div class="legend"><span class="lg">Allows the most (rank 1–8)</span><span class="lr">Allows the least (25–32)</span></div>
+      <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (25–32)</span></div>
     </div>
     <div class="card" id="m-detail">
       <div class="bar">
@@ -260,6 +260,8 @@ const clean = (r) => {
 const show = (v) => (v == null || Number.isNaN(v) ? '—' : typeof v === 'number' && !Number.isInteger(v) ? String(Math.round(v * 10) / 10) : String(v));
 const pct = (v) => (v == null ? '—' : `${Math.round(v)}%`);
 const rankCls = (r) => (r == null ? 'rk' : r <= 8 ? 'rk rk-g' : r >= 25 ? 'rk rk-r' : 'rk');
+// opponent / defense ranks: 1 = toughest matchup (red), 32 = easiest (green)
+const rankClsOpp = (r) => (r == null ? 'rk' : r <= 8 ? 'rk rk-r' : r >= 25 ? 'rk rk-g' : 'rk');
 const fpKey = () => `fp_${S.fmt}`;
 const statLabel = (k) => (k.startsWith('fp_') ? `Fantasy pts (${FMT_NAME[S.fmt]})` : STATS[k] || k);
 const posStats = (pos) => [...POS_STATS[pos], ...(S.fantasy ? [fpKey()] : [])];
@@ -305,7 +307,7 @@ function table(el, name, cols, data, opts = {}) {
       const td = document.createElement('td');
       const v = r[c.f];
       td.textContent = c.fmt ? c.fmt(v, r) : show(v);
-      td.className = [c.l ? 'l' : '', c.rank ? rankCls(v) : '', c.cls ? c.cls(v, r) : ''].join(' ').trim();
+      td.className = [c.l ? 'l' : '', c.rank ? (c.rank === 'opp' ? rankClsOpp(v) : rankCls(v)) : '', c.cls ? c.cls(v, r) : ''].join(' ').trim();
       row.appendChild(td);
     });
     frag.appendChild(row);
@@ -551,7 +553,7 @@ function renderProps() {
     [show(median(vals)), 'Median'],
     [vals.length ? `${show(Math.min(...vals))}–${show(Math.max(...vals))}` : '—', 'Low–high'],
   ];
-  if (mr) tiles.push([show(mr.per_game), `${opp} allows to ${p.position}s /g (rank ${mr.rank}${mr3 ? `, last 3: ${mr3.rank}` : ''})`]);
+  if (mr) tiles.push([show(mr.per_game), `${opp} allows to ${p.position}s /g (rank ${mr.rank} of 32${mr3 ? `, last 3: ${mr3.rank}` : ''}; 1 = toughest)`]);
   const st = $('.p-stats'); st.replaceChildren();
   tiles.forEach(([v, k]) => { const d = document.createElement('div'); d.className = 'stat'; const a = document.createElement('div'); a.className = 'v'; a.textContent = v; const b = document.createElement('div'); b.className = 'k'; b.textContent = k; d.append(a, b); st.appendChild(d); });
   bars($('.p-chart'), games.map((r) => ({
@@ -569,7 +571,7 @@ function renderProps() {
   const hl = (v) => (v == null ? '' : v > line ? 'g' : v < line ? 'r' : '');
   statCols.forEach((c) => { if (c.f === stat) c.cls = hl; });
   const cur = games.slice().map((r) => ({ ...r, opp_rank: (mrow(r.opp, p.position, stat) || {}).rank }));
-  table($('.t-plog'), 'plog', [{ f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'opp_rank', label: 'Opp rk', rank: true }, ...statCols],
+  table($('.t-plog'), 'plog', [{ f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, ...statCols],
     cur, { sort: { f: 'week', dir: 'desc' } });
   $('.p-vs-title').textContent = opp === 'BYE' ? 'History vs next opponent' : `History vs ${opp}`;
   const vs = opp === 'BYE' ? [] : (IDX.logs.get(p.player_id) || []).filter((r) => r.opp === opp);
@@ -591,7 +593,7 @@ function renderFinder() {
   table($('.t-finder'), 'finder', [
     { f: 'player', label: 'Player', l: true }, { f: 'team', label: 'Team', l: true }, { f: 'next_opp', label: 'Opp', l: true },
     { f: 'games', label: 'GP' }, { f: 'avg', label: `Avg ${statLabel(stat)}` }, { f: 'med', label: 'Median' }, { f: 'l3', label: 'Last 3 avg' },
-    { f: 'opp_allows', label: 'Opp allows /g' }, { f: 'opp_rank', label: 'Opp rk', rank: true }, { f: 'team_implied', label: 'Team implied' },
+    { f: 'opp_allows', label: 'Opp allows /g' }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, { f: 'team_implied', label: 'Team implied' },
   ], rows, { sort: { f: 'avg', dir: 'desc' }, limit: 200, onClick: (p) => openProp(p.player_id, stat) });
 }
 
@@ -605,10 +607,10 @@ function renderMatchups() {
     return o;
   });
   const cols = [{ f: 'defense', label: 'Defense', l: true }, { f: 'games', label: 'GP' }];
-  keys.forEach((k) => cols.push({ f: k, label: statLabel(k).replace(/ \(.*\)/, '') }, { f: `${k}_rk`, label: 'Rk', rank: true }));
-  if (!S.mDef) S.mDef = rows.slice().sort((a, b) => (a[`${keys[0]}_rk`] ?? 99) - (b[`${keys[0]}_rk`] ?? 99))[0].defense;
+  keys.forEach((k) => cols.push({ f: k, label: statLabel(k).replace(/ \(.*\)/, '') }, { f: `${k}_rk`, label: 'Rk', rank: 'opp' }));
+  if (!S.mDef) S.mDef = rows.slice().sort((a, b) => (b[`${keys[0]}_rk`] ?? 0) - (a[`${keys[0]}_rk`] ?? 0))[0].defense;
   table($('.t-match'), 'match' + S.mPos, cols, rows, {
-    sort: { f: keys[0], dir: 'desc' },
+    sort: { f: `${keys[0]}_rk`, dir: 'asc' },
     onClick: (r) => { S.mDef = r.defense; render(); $('#m-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
     selected: (r) => r.defense === S.mDef,
   });

@@ -6,7 +6,7 @@ Every output is a plain CSV in --out (default ./data).
 
   matchups.csv         defense vs position, long format: one row per defense / window /
                        position / stat with the per-game amount allowed and a 1-32 rank
-                       (1 = allows the most = softest matchup). Windows: season, last3.
+                       (1 = toughest defense, 32 = easiest matchup). Windows: season, last3.
                        Stats include real box-score stats plus fantasy points (std/half/ppr).
   matchups_weekly.csv  what each defense allowed to each position, every week
   logs.csv             every QB/RB/WR/TE game (this season + last) with box score,
@@ -148,7 +148,10 @@ def build(season, out):
         pg = tot.div(gp, axis=0, level="defense")
         for stat in MATCHUP_STATS:
             s = pg[stat].round(2).rename("per_game").reset_index()
-            s["rank"] = s.groupby("position")["per_game"].rank(ascending=False, method="min").astype("Int64")
+            # 1 = toughest defense (allows the least), 32 = easiest (allows the most).
+            # For interceptions and sacks a defense that forces more is tougher, so flip those.
+            tougher_when_high = stat in ("passing_interceptions", "sacks_suffered")
+            s["rank"] = s.groupby("position")["per_game"].rank(ascending=not tougher_when_high, method="min").astype("Int64")
             s["stat"] = stat
             s["window"] = label
             s["games"] = s["defense"].map(gp)
