@@ -1,0 +1,4 @@
+season=2026
+through_week=6
+upcoming_week=7
+built_at=2026-10-22T17:10:24+00:00
