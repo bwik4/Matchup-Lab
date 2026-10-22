@@ -3,7 +3,7 @@ name: Update NFL data
 on:
   schedule:
     # Every Tuesday at 14:30 UTC (8:30am Central in winter, 9:30am in summer)
-    - cron: "30 14 * * 2"
+    - cron: "30 13 * * *"
   workflow_dispatch: {}
 
 permissions:
