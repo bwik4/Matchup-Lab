@@ -9,22 +9,20 @@
   /* ---------- theme: edit these to restyle the whole site ---------- */
   :root {
     --bg: #f6f5f1; --panel: #ffffff; --fg: #1b1b1a; --muted: #6b6a66; --line: #e3e1da;
-    --ok: #18794e; --bad: #c2410c; --grid: #ecebe6;
+    --ok: #18794e; --bad: #c2410c; --grid: #ecebe6; --accent: #2563eb;
     --c1: #2563eb; --c2: #d97706; --c3: #059669; --c4: #9333ea;
     --radius: 10px; --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --serif: Georgia, "Times New Roman", serif;
   }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #161615; --panel: #1f1f1e; --fg: #ecebe6; --muted: #a3a29c; --line: #34332f;
-      --ok: #4ade80; --bad: #fb923c; --grid: #2b2a27; --c1: #60a5fa; --c2: #fbbf24; --c3: #34d399; --c4: #c084fc; }
+      --ok: #4ade80; --bad: #fb923c; --grid: #2b2a27; --accent: #60a5fa; --c1: #60a5fa; --c2: #fbbf24; --c3: #34d399; --c4: #c084fc; }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-variant-numeric: tabular-nums; }
-  .ml { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 20px; }
+  .ml { max-width: 1240px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 18px; }
   h1 { font-family: var(--serif); font-weight: 400; font-size: 2rem; margin: 0; }
   .sub { color: var(--muted); margin: 4px 0 0; }
-  .take { margin: 10px 0 0; }
-  .take b { font-weight: 600; }
   .bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
   .tabs, .seg { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
   .tabs button, .seg button { font: inherit; font-size: .8rem; border: 0; background: transparent; color: var(--muted); padding: 5px 10px; border-radius: 8px; cursor: pointer; }
@@ -32,10 +30,13 @@
   .tabs button[aria-pressed=true], .seg button[aria-pressed=true] { background: var(--bg); color: var(--fg); box-shadow: 0 0 0 1px var(--line); }
   .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .lbl { font-size: .8rem; color: var(--muted); }
+  .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; cursor: pointer; user-select: none; }
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; min-width: 0; }
   .card h2 { font-size: 1.05rem; font-weight: 600; margin: 0; }
-  .note { color: var(--muted); font-size: .8rem; margin: 4px 0 12px; }
+  .card h3 { font-size: .9rem; font-weight: 600; margin: 16px 0 4px; }
+  .note { color: var(--muted); font-size: .8rem; margin: 4px 0 12px; line-height: 1.4; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 14px; }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
   .scroll { max-height: 34rem; overflow: auto; }
   table { width: 100%; border-collapse: collapse; font-size: .8rem; }
   th { position: sticky; top: 0; background: var(--panel); text-align: right; font-weight: 600; color: var(--muted); padding: 5px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; z-index: 1; }
@@ -47,169 +48,220 @@
   tbody tr.click:hover, tbody tr.sel { background: var(--bg); }
   tbody tr.sel { box-shadow: inset 3px 0 0 var(--fg); }
   td.rk { font-weight: 600; }
+  .g { color: var(--ok); }
+  .r { color: var(--bad); }
   td.rk-g { color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
   td.rk-r { color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); }
-  .search { font: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); color: var(--fg); width: min(100%, 18rem); }
+  input.search, select, input.num { font: inherit; font-size: .9rem; padding: 5px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); color: var(--fg); }
+  input.search { width: min(100%, 18rem); }
+  input.num { width: 6rem; }
   .chart { position: relative; min-height: 180px; }
-  .minis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 14px; }
-  .mini h3 { font-size: .8rem; font-weight: 600; margin: 0 0 4px; }
   .tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.12); padding: 5px 8px; font-size: .78rem; white-space: nowrap; display: none; z-index: 3; }
   .tip .t { color: var(--muted); }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 14px; margin: 14px 0; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 14px; margin: 14px 0; }
   .stat .v { font-family: var(--serif); font-size: 1.8rem; line-height: 1.1; }
   .stat .k { font-size: .78rem; color: var(--muted); }
-  .empty { color: var(--muted); }
+  .empty { color: var(--muted); font-size: .9rem; }
   .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .78rem; color: var(--muted); margin-top: 8px; }
   .legend span::before { content: ""; display: inline-block; width: .7rem; height: .7rem; border-radius: 2px; margin-right: .35rem; vertical-align: -1px; }
-  .legend .g::before { background: color-mix(in srgb, var(--ok) 40%, transparent); }
-  .legend .r::before { background: color-mix(in srgb, var(--bad) 35%, transparent); }
-  .page[hidden] { display: none; }
+  .legend .lg::before { background: color-mix(in srgb, var(--ok) 40%, transparent); }
+  .legend .lr::before { background: color-mix(in srgb, var(--bad) 35%, transparent); }
+  .cmp td:first-child { text-align: left; color: var(--muted); }
+  .cmp td.better { font-weight: 700; color: var(--ok); }
+  .pill { display: inline-block; font-size: .72rem; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+  .edges { margin: 8px 0 0; padding-left: 18px; font-size: .85rem; line-height: 1.6; }
+  .page[hidden], [hidden] { display: none !important; }
   footer { color: var(--muted); font-size: .75rem; }
   footer a { color: inherit; }
 </style>
 </head>
 <body>
 <div class="ml">
-  <header>
-    <h1>NFL Matchup Lab</h1>
-    <p class="sub"><span class="season">—</span> regular season through week <span class="thru">—</span> · week <span class="upwk">—</span> lines and matchups</p>
-    <p class="take">Softest defenses by <span class="fmtname">PPR</span> points allowed per game: <span class="soft">loading…</span></p>
-  </header>
-
-  <div class="bar">
-    <div class="tabs" role="group" aria-label="Pages">
-      <button data-tab="dvp">Defense vs position</button>
-      <button data-tab="week">This week</button>
-      <button data-tab="player">Player vs team</button>
-      <button data-tab="teams">Team stats</button>
+  <header class="bar">
+    <div>
+      <h1>NFL Matchup Lab</h1>
+      <p class="sub"><span class="season">—</span> regular season through week <span class="thru">—</span> · week <span class="upwk">—</span> lines</p>
     </div>
     <div class="controls">
-      <span class="lbl">Scoring</span>
-      <div class="seg fmt" role="group" aria-label="Scoring">
-        <button data-v="std">Standard</button><button data-v="half">Half PPR</button><button data-v="ppr">PPR</button>
+      <label class="toggle"><input type="checkbox" class="fantasy-toggle"> Show fantasy</label>
+      <div class="seg fmt" role="group" aria-label="Fantasy scoring" hidden>
+        <button data-v="std">Std</button><button data-v="half">Half</button><button data-v="ppr">PPR</button>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Defense vs position -->
-  <section class="page" data-page="dvp">
+  <nav class="tabs" role="group" aria-label="Pages">
+    <button data-tab="games">Games &amp; lines</button>
+    <button data-tab="props">Player props</button>
+    <button data-tab="matchups">Defense vs position</button>
+    <button data-tab="teams">Team stats</button>
+  </nav>
+
+  <!-- ================= GAMES ================= -->
+  <section class="page stack" data-page="games">
     <div class="card">
       <div class="bar">
-        <h2>Fantasy points allowed per game, by position</h2>
+        <h2>Week <span class="g-week">—</span> board</h2>
+        <div class="controls"><span class="lbl">Week</span><select class="g-weeksel" aria-label="Week"></select></div>
+      </div>
+      <p class="note g-note">Closing lines from nflverse. Implied team total = (total ± spread) ÷ 2. Win % is from the moneylines with the bookmaker's cut removed. Kickoff times are Eastern. Click a game for the full team comparison.</p>
+      <div class="scroll" style="max-height: 30rem"><table class="t-games"><thead></thead><tbody></tbody></table></div>
+    </div>
+    <div class="card" id="game-detail">
+      <h2 class="gd-title">Pick a game</h2>
+      <p class="note">Season stats for both teams. Ranks run 1–32 where 1 is best; the better number in each row is highlighted.</p>
+      <ul class="edges gd-edges"></ul>
+      <div class="scroll" style="max-height: none"><table class="cmp t-cmp"><thead></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ================= PROPS ================= -->
+  <section class="page stack" data-page="props" hidden>
+    <div class="card">
+      <div class="bar">
+        <h2 class="p-title">Pick a player</h2>
         <div class="controls">
-          <div class="seg pos" role="group" aria-label="Position">
-            <button data-v="ALL">All</button><button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button>
+          <input class="search p-search" type="search" list="plist" placeholder="Search player" aria-label="Find player">
+          <datalist id="plist"></datalist>
+          <select class="p-stat" aria-label="Stat"></select>
+          <span class="lbl">Line</span>
+          <input class="num p-line" type="number" step="0.5" aria-label="Prop line">
+        </div>
+      </div>
+      <p class="note p-note">Type the sportsbook's line to see how often he's gone over it. It starts at his season average.</p>
+      <div class="stats p-stats"></div>
+      <div class="chart p-chart"></div>
+      <div class="legend"><span class="lg">Over the line</span><span class="lr">Under the line</span></div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h2 class="p-vs-title">History vs next opponent</h2>
+        <p class="note">Every game against this week's opponent, this season and last.</p>
+        <div class="scroll" style="max-height: 24rem"><table class="t-pvs"><thead></thead><tbody></tbody></table></div>
+        <p class="empty p-vs-empty" hidden>No games against them in the last two seasons.</p>
+      </div>
+      <div class="card">
+        <h2>This season's game log</h2>
+        <p class="note">Opponent rank = how much that defense allows of this stat to this position (1 = allows the most).</p>
+        <div class="scroll" style="max-height: 24rem"><table class="t-plog"><thead></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="bar">
+        <h2>Prop finder</h2>
+        <div class="controls">
+          <div class="seg f-pos" role="group" aria-label="Position">
+            <button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button>
           </div>
-          <div class="seg win" role="group" aria-label="Window">
+          <select class="f-stat" aria-label="Stat"></select>
+          <input class="search f-q" type="search" placeholder="Filter player or team" aria-label="Filter players">
+        </div>
+      </div>
+      <p class="note">Every player with 3+ games this season: average, median, last-3 average and this week's matchup for the stat you pick. Click a player to open his prop card above.</p>
+      <div class="scroll"><table class="t-finder"><thead></thead><tbody></tbody></table></div>
+      <div class="legend"><span class="lg">Soft matchup (opponent rank 1–8)</span><span class="lr">Tough matchup (25–32)</span></div>
+    </div>
+  </section>
+
+  <!-- ================= MATCHUPS ================= -->
+  <section class="page stack" data-page="matchups" hidden>
+    <div class="card">
+      <div class="bar">
+        <h2>What each defense allows per game</h2>
+        <div class="controls">
+          <div class="seg m-pos" role="group" aria-label="Position">
+            <button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button>
+          </div>
+          <div class="seg m-win" role="group" aria-label="Window">
             <button data-v="season">Season</button><button data-v="last3">Last 3 wks</button>
           </div>
         </div>
       </div>
-      <p class="note">Everything players at each position scored against that defense, divided by its games played. Rank 1 = gives up the most (softest matchup), 32 = toughest. Click a defense for its week-by-week breakdown.</p>
-      <div class="scroll"><table class="t-dvp"><thead></thead><tbody></tbody></table></div>
-      <div class="legend"><span class="g">Top 8 softest (target)</span><span class="r">Top 8 toughest (avoid)</span></div>
+      <p class="note">Totals from every player at that position against the defense, divided by its games. "Rk" ranks all 32 defenses: 1 = allows the most (best spot for overs), 32 = allows the least. Click a defense for its week-by-week numbers.</p>
+      <div class="scroll"><table class="t-match"><thead></thead><tbody></tbody></table></div>
+      <div class="legend"><span class="lg">Allows the most (rank 1–8)</span><span class="lr">Allows the least (25–32)</span></div>
     </div>
-    <div class="card" id="dvp-detail" style="margin-top: 14px">
-      <h2 class="dd-title">Pick a defense above</h2>
-      <p class="note">Fantasy points allowed to each position, every week, labelled with the offense they faced.</p>
-      <div class="minis dd-minis"></div>
-      <h2 style="margin-top: 20px">Best games against them this season</h2>
-      <p class="note">Top individual scoring games versus this defense.</p>
-      <div class="scroll" style="max-height: 22rem"><table class="t-ddtop"><thead></thead><tbody></tbody></table></div>
+    <div class="card" id="m-detail">
+      <div class="bar">
+        <h2 class="md-title">Pick a defense</h2>
+        <select class="md-stat" aria-label="Stat"></select>
+      </div>
+      <p class="note">Each week's total allowed to the position, labelled with the offense they faced.</p>
+      <div class="chart md-chart"></div>
+      <h3>Biggest games against them this season</h3>
+      <div class="scroll" style="max-height: 22rem"><table class="t-mtop"><thead></thead><tbody></tbody></table></div>
     </div>
   </section>
 
-  <!-- This week -->
-  <section class="page" data-page="week" hidden>
+  <!-- ================= TEAMS ================= -->
+  <section class="page stack" data-page="teams" hidden>
     <div class="card">
-      <h2>Week <span class="upwk">—</span> games and Vegas lines</h2>
-      <p class="note">Closing lines from nflverse; implied team total = (total ± spread) ÷ 2. Kickoff times are Eastern.</p>
-      <div class="scroll" style="max-height: 26rem"><table class="t-games"><thead></thead><tbody></tbody></table></div>
-    </div>
-    <div class="card" style="margin-top: 14px">
       <div class="bar">
-        <h2>Player matchups this week</h2>
-        <div class="controls">
-          <div class="seg wpos" role="group" aria-label="Position">
-            <button data-v="ALL">All</button><button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button>
-          </div>
-          <input class="search wq" type="search" placeholder="Search player or team" aria-label="Search players">
+        <h2 class="t-title">Betting records</h2>
+        <div class="seg t-view" role="group" aria-label="View">
+          <button data-v="betting">Betting records</button><button data-v="offense">Offense</button><button data-v="defense">Defense</button>
         </div>
       </div>
-      <p class="note">Per-game averages (players with 3+ games), next opponent, and that defense's season rank vs the player's position. Click a player to open their matchup page.</p>
-      <div class="scroll"><table class="t-match"><thead></thead><tbody></tbody></table></div>
-    </div>
-  </section>
-
-  <!-- Player vs team -->
-  <section class="page" data-page="player" hidden>
-    <div class="card">
-      <div class="bar">
-        <h2 class="p-title">Pick a player</h2>
-        <input class="search pq" type="search" list="plist" placeholder="Type a player name" aria-label="Find player">
-        <datalist id="plist"></datalist>
-      </div>
-      <p class="note p-note">Search any QB, RB, WR or TE, or click one on the This week page.</p>
-      <div class="stats p-stats"></div>
-      <div class="chart p-chart"></div>
-    </div>
-    <div class="grid" style="margin-top: 14px">
-      <div class="card">
-        <h2 class="vs-title">History vs next opponent</h2>
-        <p class="note">Every game against this week's opponent, this season and last.</p>
-        <table class="t-vs"><thead></thead><tbody></tbody></table>
-        <p class="empty vs-empty" hidden>No games against them in the last two seasons.</p>
-      </div>
-      <div class="card">
-        <h2>This season's game log</h2>
-        <p class="note">Each game with the opponent's season rank vs this position (1 = softest).</p>
-        <div class="scroll" style="max-height: 24rem"><table class="t-log"><thead></thead><tbody></tbody></table></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Teams -->
-  <section class="page" data-page="teams" hidden>
-    <div class="card">
-      <h2>Team offense and defense, per game</h2>
-      <p class="note">Season averages. Yards are from player stat lines (sack yardage not subtracted). Takeaways and sacks are what each defense forced. Ranks: offense by points scored, defense by points allowed.</p>
+      <p class="note t-note"></p>
       <div class="scroll"><table class="t-teams"><thead></thead><tbody></tbody></table></div>
+      <div class="legend"><span class="lg">Top 8 (rank 1–8)</span><span class="lr">Bottom 8 (25–32)</span></div>
     </div>
   </section>
 
-  <footer>Data: <a href="https://github.com/nflverse/nflverse-data">nflverse</a> · built <span class="built">—</span></footer>
+  <footer>Data: <a href="https://github.com/nflverse/nflverse-data">nflverse</a> · built <span class="built">—</span> · Not betting advice.</footer>
 </div>
 
 <script>
-// ===================== data loading =====================
-const FILES = ['dvp', 'dvp_weekly', 'logs', 'player_season', 'team_season', 'upcoming'];
-const DATA = {};
-const NUMERIC = /^-?\d+(\.\d+)?$/;
-const clean = (r) => {
-  const o = {};
-  for (const k in r) { const v = r[k]; o[k] = v === '' || v == null ? null : (k !== 'player_id' && NUMERIC.test(v) ? Number(v) : v); }
-  return o;
-};
-
+// ===================== config =====================
+const FILES = ['matchups', 'matchups_weekly', 'logs', 'players', 'games', 'teams'];
 const POS = ['QB', 'RB', 'WR', 'TE'];
-const COLORS = ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)'];
-const FMT_NAME = { std: 'standard', half: 'half-PPR', ppr: 'PPR' };
-const POS_STATS = {
-  QB: [['pass_yds', 'Pass yds'], ['pass_td', 'Pass TD'], ['int', 'INT'], ['rush_yds', 'Rush yds']],
-  RB: [['rush_yds', 'Rush yds'], ['rush_td', 'Rush TD'], ['rec', 'Rec'], ['rec_yds', 'Rec yds']],
-  WR: [['tgt', 'Targets'], ['rec', 'Rec'], ['rec_yds', 'Rec yds'], ['rec_td', 'Rec TD']],
-  TE: [['tgt', 'Targets'], ['rec', 'Rec'], ['rec_yds', 'Rec yds'], ['rec_td', 'Rec TD']],
+const STATS = {
+  passing_yards: 'Pass yds', attempts: 'Pass att', completions: 'Completions', passing_tds: 'Pass TD',
+  passing_interceptions: 'INT', pass_rush_yds: 'Pass+rush yds', sacks_suffered: 'Sacks taken',
+  rushing_yards: 'Rush yds', carries: 'Carries', rushing_tds: 'Rush TD', rush_rec_yds: 'Rush+rec yds',
+  receptions: 'Receptions', receiving_yards: 'Rec yds', targets: 'Targets', receiving_tds: 'Rec TD',
+  rz_targets: 'RZ targets', rz_carries: 'RZ carries',
+  fp_std: 'Fantasy pts', fp_half: 'Fantasy pts', fp_ppr: 'Fantasy pts',
 };
-const S = { tab: 'dvp', fmt: 'ppr', pos: 'ALL', win: 'season', def: null, wpos: 'ALL', wq: '', player: null, sorts: {}, season: null };
+const POS_STATS = {
+  QB: ['passing_yards', 'attempts', 'completions', 'passing_tds', 'passing_interceptions', 'rushing_yards', 'pass_rush_yds'],
+  RB: ['rushing_yards', 'carries', 'rushing_tds', 'receptions', 'receiving_yards', 'rush_rec_yds', 'targets', 'rz_carries'],
+  WR: ['receptions', 'receiving_yards', 'targets', 'receiving_tds', 'rz_targets'],
+  TE: ['receptions', 'receiving_yards', 'targets', 'receiving_tds', 'rz_targets'],
+};
+const FMT_NAME = { std: 'standard', half: 'half-PPR', ppr: 'PPR' };
+
+const DATA = {};
+const S = {
+  tab: 'games', fantasy: false, fmt: 'ppr', season: null, upWeek: null,
+  gWeek: null, game: null,
+  player: null, pStat: null, pLine: null,
+  fPos: 'WR', fStat: 'receiving_yards', fq: '',
+  mPos: 'WR', mWin: 'season', mDef: null, mdStat: null,
+  tView: 'betting', sorts: {},
+};
 
 // ===================== helpers =====================
 const $ = (s) => document.querySelector(s);
-const show = (v) => (v == null || Number.isNaN(v) ? '—' : String(v));
-const rankCls = (r) => (r == null ? '' : r <= 8 ? 'rk rk-g' : r >= 25 ? 'rk rk-r' : 'rk');
+const NUMERIC = /^-?\d+(\.\d+)?$/;
+const clean = (r) => {
+  const o = {};
+  for (const k in r) { const v = r[k]; o[k] = v === '' || v == null ? null : (k !== 'player_id' && k !== 'game_id' && NUMERIC.test(v) ? Number(v) : v); }
+  return o;
+};
+const show = (v) => (v == null || Number.isNaN(v) ? '—' : typeof v === 'number' && !Number.isInteger(v) ? String(Math.round(v * 10) / 10) : String(v));
+const pct = (v) => (v == null ? '—' : `${Math.round(v)}%`);
+const rankCls = (r) => (r == null ? 'rk' : r <= 8 ? 'rk rk-g' : r >= 25 ? 'rk rk-r' : 'rk');
+const fpKey = () => `fp_${S.fmt}`;
+const statLabel = (k) => (k.startsWith('fp_') ? `Fantasy pts (${FMT_NAME[S.fmt]})` : STATS[k] || k);
+const posStats = (pos) => [...POS_STATS[pos], ...(S.fantasy ? [fpKey()] : [])];
+const median = (a) => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+const mean = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+const lineFor = (avg) => (avg == null ? 0.5 : Math.max(0.5, Math.floor(avg) + 0.5));
 
-// sortable table. cols: {f, label, l?, rank?}
+// sortable table. cols: {f, label, l?, rank?, fmt?(v,row), cls?(v,row)}
 function table(el, name, cols, data, opts = {}) {
-  const st = S.sorts[name] || opts.sort || null;
+  const st = S.sorts[name] && cols.some((c) => c.f === S.sorts[name].f) ? S.sorts[name] : opts.sort || null;
   let list = data.slice();
   if (st) {
     list.sort((a, b) => {
@@ -224,11 +276,12 @@ function table(el, name, cols, data, opts = {}) {
   cols.forEach((c) => {
     const th = document.createElement('th');
     if (c.l) th.className = 'l';
+    if (c.title) th.title = c.title;
     if (st && st.f === c.f) th.setAttribute('aria-sort', st.dir === 'asc' ? 'ascending' : 'descending');
     const b = document.createElement('button');
     b.textContent = c.label + (st && st.f === c.f ? (st.dir === 'asc' ? ' ↑' : ' ↓') : '');
     b.addEventListener('click', () => {
-      const cur = S.sorts[name] || opts.sort;
+      const cur = st;
       S.sorts[name] = cur && cur.f === c.f ? { f: c.f, dir: cur.dir === 'asc' ? 'desc' : 'asc' } : { f: c.f, dir: c.l || c.rank ? 'asc' : 'desc' };
       render();
     });
@@ -242,8 +295,9 @@ function table(el, name, cols, data, opts = {}) {
     if (opts.selected && opts.selected(r)) row.classList.add('sel');
     cols.forEach((c) => {
       const td = document.createElement('td');
-      td.textContent = show(r[c.f]);
-      td.className = ((c.l ? 'l ' : '') + (c.rank ? rankCls(r[c.f]) : '')).trim();
+      const v = r[c.f];
+      td.textContent = c.fmt ? c.fmt(v, r) : show(v);
+      td.className = [c.l ? 'l' : '', c.rank ? rankCls(v) : '', c.cls ? c.cls(v, r) : ''].join(' ').trim();
       row.appendChild(td);
     });
     frag.appendChild(row);
@@ -251,12 +305,14 @@ function table(el, name, cols, data, opts = {}) {
   el.tBodies[0].replaceChildren(frag);
 }
 
-// bar chart with tooltip. data: [{x, y, color, tipTitle, tipBody}]
+// bar chart with tooltip and optional horizontal line. data: [{x, y, color, tipTitle, tipBody}]
 function bars(box, data, o = {}) {
   box.replaceChildren();
-  const W = Math.max(220, box.clientWidth || 300), H = o.height || 170;
+  if (!data.length) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = 'No games yet.'; box.appendChild(p); return; }
+  const W = Math.max(240, box.clientWidth || 300), H = o.height || 200;
   const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).style('display', 'block');
-  const y = d3.scaleLinear([0, d3.max(data, (d) => d.y) || 1], [H - 22, 8]).nice();
+  const top = Math.max(d3.max(data, (d) => d.y) || 1, o.line || 0);
+  const y = d3.scaleLinear([Math.min(0, d3.min(data, (d) => d.y)), top], [H - 22, 10]).nice();
   const yAxis = svg.append('g').call(d3.axisLeft(y).ticks(4).tickSize(0)).attr('font-size', null).attr('font-family', null);
   yAxis.select('.domain').remove();
   yAxis.selectAll('text').attr('fill', 'var(--muted)').style('font-size', '11px');
@@ -269,13 +325,13 @@ function bars(box, data, o = {}) {
   const xa = svg.append('g').attr('transform', `translate(0,${H - 20})`).call(d3.axisBottom(x).tickSize(0)).attr('font-size', null).attr('font-family', null);
   xa.select('.domain').attr('stroke', 'var(--line)');
   xa.selectAll('text').attr('fill', 'var(--muted)').style('font-size', '11px');
-  const every = Math.ceil((data.length * 30) / Math.max(1, W - left));
+  const every = Math.ceil((data.length * 44) / Math.max(1, W - left));
   if (every > 1) xa.selectAll('.tick').filter((d, i) => i % every).remove();
   const tip = document.createElement('div'); tip.className = 'tip'; box.appendChild(tip);
   svg.append('g').selectAll('rect').data(data).join('rect')
     .attr('x', (d) => x(d.x)).attr('width', x.bandwidth())
-    .attr('y', (d) => y(Math.max(0, d.y))).attr('height', (d) => Math.max(0, y(0) - y(Math.max(0, d.y))))
-    .attr('rx', 4).style('fill', (d) => d.color || COLORS[0])
+    .attr('y', (d) => y(Math.max(0, d.y))).attr('height', (d) => Math.abs(y(0) - y(d.y)))
+    .attr('rx', 4).style('fill', (d) => d.color || 'var(--c1)')
     .on('mousemove', function (ev, d) {
       d3.select(this).style('opacity', 0.8);
       tip.replaceChildren();
@@ -287,15 +343,45 @@ function bars(box, data, o = {}) {
       tip.style.top = Math.max(0, my - 40) + 'px';
     })
     .on('mouseleave', function () { d3.select(this).style('opacity', null); tip.style.display = 'none'; });
+  if (o.line != null) {
+    svg.append('line').attr('x1', left).attr('x2', W - 4).attr('y1', y(o.line)).attr('y2', y(o.line))
+      .attr('stroke', 'var(--fg)').attr('stroke-width', 1.5).attr('stroke-dasharray', '5 4');
+    svg.append('text').attr('x', W - 6).attr('y', y(o.line) - 5).attr('text-anchor', 'end')
+      .attr('fill', 'var(--fg)').style('font-size', '11px').text(`Line ${o.line}`);
+  }
 }
 
+// ===================== lookups =====================
+let IDX = {};
+function buildIndexes() {
+  IDX.match = new Map(); // `${def}|${win}|${pos}|${stat}` -> row
+  DATA.matchups.forEach((r) => IDX.match.set(`${r.defense}|${r.window}|${r.position}|${r.stat}`, r));
+  IDX.team = new Map(DATA.teams.map((t) => [t.team, t]));
+  IDX.player = new Map(DATA.players.map((p) => [p.player_id, p]));
+  IDX.logs = new Map();
+  DATA.logs.forEach((r) => { if (!IDX.logs.has(r.player_id)) IDX.logs.set(r.player_id, []); IDX.logs.get(r.player_id).push(r); });
+  IDX.logs.forEach((a) => a.sort((x, y) => x.season - y.season || x.week - y.week));
+}
+const mrow = (def, pos, stat, win = 'season') => IDX.match.get(`${def}|${win}|${pos}|${stat}`);
+const curGames = (pid) => (IDX.logs.get(pid) || []).filter((r) => r.season === S.season);
+
 // ===================== controls =====================
-function seg(sel, key) {
+function seg(sel, key, after) {
   const el = $(sel);
-  el.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; S[key] = b.dataset.v; render(); });
+  el.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; S[key] = b.dataset.v; if (after) after(); render(); });
   return () => el.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === S[key])));
 }
-const segs = [seg('.fmt', 'fmt'), seg('.pos', 'pos'), seg('.win', 'win'), seg('.wpos', 'wpos')];
+const segs = [
+  seg('.fmt', 'fmt', () => { ['pStat', 'fStat', 'mdStat'].forEach((k) => { if (S[k] && S[k].startsWith('fp_')) S[k] = fpKey(); }); }), seg('.m-win', 'mWin'), seg('.t-view', 'tView'),
+  seg('.f-pos', 'fPos', () => { if (!posStats(S.fPos).includes(S.fStat)) S.fStat = POS_STATS[S.fPos][0]; }),
+  seg('.m-pos', 'mPos', () => { S.mdStat = null; }),
+];
+$('.fantasy-toggle').addEventListener('change', (e) => {
+  S.fantasy = e.target.checked;
+  $('.fmt').hidden = !S.fantasy;
+  if (!S.fantasy) { if (S.pStat && S.pStat.startsWith('fp_')) S.pStat = null; if (S.fStat.startsWith('fp_')) S.fStat = POS_STATS[S.fPos][0]; if (S.mdStat && S.mdStat.startsWith('fp_')) S.mdStat = null; }
+  render();
+});
 function showTab(t) {
   S.tab = t;
   document.querySelectorAll('.page').forEach((p) => { p.hidden = p.dataset.page !== t; });
@@ -304,177 +390,294 @@ function showTab(t) {
   render();
 }
 $('.tabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) showTab(b.dataset.tab); });
-$('.wq').addEventListener('input', (e) => { S.wq = e.target.value.trim().toLowerCase(); render(); });
-$('.pq').addEventListener('change', (e) => {
-  const ps = DATA.player_season || [];
+$('.g-weeksel').addEventListener('change', (e) => { S.gWeek = Number(e.target.value); S.game = null; render(); });
+$('.p-search').addEventListener('change', (e) => {
   const v = e.target.value.trim().toLowerCase();
+  const ps = DATA.players;
   const hit = ps.find((p) => `${p.player} (${p.position}, ${p.team})`.toLowerCase() === v) || ps.find((p) => p.player.toLowerCase() === v) || ps.find((p) => p.player.toLowerCase().includes(v));
-  if (hit) { S.player = hit.player_id; e.target.value = ''; render(); }
+  if (hit) { openProp(hit.player_id, null); e.target.value = ''; }
 });
-const openPlayer = (p) => { S.player = p.player_id; showTab('player'); };
+$('.p-stat').addEventListener('change', (e) => { S.pStat = e.target.value; S.pLine = null; render(); });
+$('.p-line').addEventListener('input', (e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) { S.pLine = v; render(); } });
+$('.f-stat').addEventListener('change', (e) => { S.fStat = e.target.value; render(); });
+$('.f-q').addEventListener('input', (e) => { S.fq = e.target.value.trim().toLowerCase(); render(); });
+$('.md-stat').addEventListener('change', (e) => { S.mdStat = e.target.value; render(); });
 window.addEventListener('resize', () => { clearTimeout(window._rt); window._rt = setTimeout(render, 150); });
 
-// ===================== pages =====================
-function renderHeader() {
-  $('.fmtname').textContent = FMT_NAME[S.fmt];
-  const box = $('.soft'); box.replaceChildren();
-  const season = DATA.dvp.filter((r) => r.window === 'season');
-  POS.forEach((p, j) => {
-    const k = `${p.toLowerCase()}_${S.fmt}_pg`;
-    const r = season.slice().sort((a, b) => b[k] - a[k])[0];
-    if (j) box.append(', ');
-    const t = document.createElement('b'); t.textContent = r.defense;
-    box.append(`${p} `, t, ` (${r[k]})`);
-  });
-  box.append('.');
+function openProp(pid, stat) {
+  S.player = pid; S.pStat = stat; S.pLine = null;
+  if (S.tab !== 'props') showTab('props'); else render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
-function renderDvp() {
-  const data = DATA.dvp.filter((r) => r.window === S.win);
-  const cols = [{ f: 'defense', label: 'Defense', l: true }, { f: 'games', label: 'GP' }];
-  let defSort;
-  if (S.pos === 'ALL') {
-    POS.forEach((p) => { const k = `${p.toLowerCase()}_${S.fmt}`; cols.push({ f: `${k}_pg`, label: `${p} pts/g` }, { f: `${k}_rank`, label: `${p} rk`, rank: true }); });
-    defSort = { f: `wr_${S.fmt}_pg`, dir: 'desc' };
-  } else {
-    const k = S.pos.toLowerCase();
-    cols.push({ f: `${k}_${S.fmt}_pg`, label: `${S.pos} pts/g` }, { f: `${k}_${S.fmt}_rank`, label: 'Rank', rank: true });
-    POS_STATS[S.pos].forEach(([s, lab]) => cols.push({ f: `${k}_${s}_pg`, label: `${lab}/g` }));
-    defSort = { f: `${k}_${S.fmt}_pg`, dir: 'desc' };
+function fillSelect(el, keys, value) {
+  const sig = keys.join(',') + '|' + S.fmt;
+  if (el.dataset.sig !== sig) {
+    el.replaceChildren(...keys.map((k) => { const o = document.createElement('option'); o.value = k; o.textContent = statLabel(k); return o; }));
+    el.dataset.sig = sig;
   }
-  if (S.sorts.dvp && !cols.some((c) => c.f === S.sorts.dvp.f)) delete S.sorts.dvp;
-  if (!S.def) S.def = data.slice().sort((a, b) => b[`wr_${S.fmt}_pg`] - a[`wr_${S.fmt}_pg`])[0].defense;
-  table($('.t-dvp'), 'dvp', cols, data, {
-    sort: defSort,
-    onClick: (r) => { S.def = r.defense; render(); $('#dvp-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
-    selected: (r) => r.defense === S.def,
-  });
-
-  $('.dd-title').textContent = `${S.def} defense, week by week (${FMT_NAME[S.fmt]})`;
-  const minis = $('.dd-minis'); minis.replaceChildren();
-  POS.forEach((p, i) => {
-    const wrap = document.createElement('div'); wrap.className = 'mini';
-    const h = document.createElement('h3'); h.textContent = `${p} points allowed`;
-    const box = document.createElement('div'); box.className = 'chart'; box.style.minHeight = '150px';
-    wrap.append(h, box); minis.appendChild(wrap);
-    const d = DATA.dvp_weekly.filter((r) => r.defense === S.def && r.position === p).sort((a, b) => a.week - b.week)
-      .map((r) => ({ x: `W${r.week}`, y: r[`fp_${S.fmt}`], color: COLORS[i], tipTitle: `Week ${r.week} vs ${r.offense}`, tipBody: `${r[`fp_${S.fmt}`]} pts allowed to ${p}s` }));
-    bars(box, d, { height: 150 });
-  });
-  table($('.t-ddtop'), 'ddtop', [
-    { f: 'player', label: 'Player', l: true }, { f: 'position', label: 'Pos', l: true }, { f: 'team', label: 'Team', l: true },
-    { f: 'week', label: 'Wk' }, { f: 'passing_yards', label: 'Pass yds' }, { f: 'rushing_yards', label: 'Rush yds' },
-    { f: 'receptions', label: 'Rec' }, { f: 'receiving_yards', label: 'Rec yds' }, { f: `fp_${S.fmt}`, label: 'Fantasy pts' },
-  ], DATA.logs.filter((r) => r.season === S.season && r.opp === S.def), { sort: { f: `fp_${S.fmt}`, dir: 'desc' }, limit: 12, onClick: openPlayer });
+  el.value = value;
 }
 
-function renderWeek() {
-  table($('.t-games'), 'games', [
-    { f: 'matchup', label: 'Game', l: true }, { f: 'kickoff', label: 'Kickoff (ET)', l: true }, { f: 'favorite', label: 'Favorite', l: true },
-    { f: 'total_line', label: 'Total' }, { f: 'away_implied', label: 'Away implied' }, { f: 'home_implied', label: 'Home implied' },
-    { f: 'away_moneyline', label: 'Away ML' }, { f: 'home_moneyline', label: 'Home ML' },
-  ], DATA.upcoming, {});
-  let d = DATA.player_season.filter((p) => p.games >= 3 && p.next_opp !== 'BYE');
-  if (S.wpos !== 'ALL') d = d.filter((p) => p.position === S.wpos);
-  if (S.wq) d = d.filter((p) => `${p.player} ${p.team} ${p.next_opp}`.toLowerCase().includes(S.wq));
-  const f = S.fmt;
-  table($('.t-match'), 'match', [
-    { f: 'player', label: 'Player', l: true }, { f: 'position', label: 'Pos', l: true }, { f: 'team', label: 'Team', l: true },
-    { f: 'next_opp', label: 'Opp', l: true }, { f: `fp_${f}_pg`, label: 'Pts/g' }, { f: `opp_rank_${f}`, label: 'Opp rk vs pos', rank: true },
-    { f: `opp_allowed_${f}`, label: 'Opp allows/g' }, { f: 'team_implied', label: 'Team implied' }, { f: 'tgt_share', label: 'Tgt share %' },
-    { f: 'games', label: 'GP' },
-  ], d, { sort: { f: `fp_${f}_pg`, dir: 'desc' }, limit: 250, onClick: openPlayer });
+// ===================== GAMES =====================
+function renderGames() {
+  const weeks = [...new Set(DATA.games.map((g) => g.week))].sort((a, b) => a - b);
+  const sel = $('.g-weeksel');
+  if (sel.childElementCount !== weeks.length) sel.replaceChildren(...weeks.map((w) => { const o = document.createElement('option'); o.value = w; o.textContent = `Week ${w}${w === S.upWeek ? ' (next)' : ''}`; return o; }));
+  if (S.gWeek == null) S.gWeek = weeks.includes(S.upWeek) ? S.upWeek : weeks[weeks.length - 1];
+  sel.value = S.gWeek;
+  $('.g-week').textContent = S.gWeek;
+  const list = DATA.games.filter((g) => g.week === S.gWeek).map((g) => {
+    const a = IDX.team.get(g.away_team) || {}, h = IDX.team.get(g.home_team) || {};
+    return { ...g, rest: `${g.away_rest}/${g.home_rest}`, away_ats: a.ats, home_ats: h.ats, away_ou: a.ou, home_ou: h.ou, div: g.div_game ? 'Div' : '' };
+  });
+  const final = list.some((g) => g.status === 'final');
+  const cols = [
+    { f: 'matchup', label: 'Game', l: true }, { f: 'kickoff', label: 'Kickoff (ET)', l: true },
+    { f: 'favorite', label: 'Spread', l: true }, { f: 'total_line', label: 'Total' },
+    { f: 'away_implied', label: 'Away pts' }, { f: 'home_implied', label: 'Home pts' },
+    { f: 'away_win_pct', label: 'Away win', fmt: pct }, { f: 'home_win_pct', label: 'Home win', fmt: pct },
+  ];
+  if (final) cols.push({ f: 'final', label: 'Final', l: true }, { f: 'ats_winner', label: 'Covered', l: true }, { f: 'ou_result', label: 'O/U', l: true });
+  else cols.push({ f: 'away_ats', label: 'Away ATS', l: true }, { f: 'home_ats', label: 'Home ATS', l: true }, { f: 'away_ou', label: 'Away O/U', l: true }, { f: 'home_ou', label: 'Home O/U', l: true },
+    { f: 'rest', label: 'Rest days', l: true, title: 'Days since last game, away/home' }, { f: 'div', label: 'Div', l: true }, { f: 'roof', label: 'Roof', l: true });
+  if (!S.game || !list.some((g) => g.game_id === S.game)) S.game = list[0] && list[0].game_id;
+  table($('.t-games'), 'games' + (final ? 'f' : 'u'), cols, list, { onClick: (g) => { S.game = g.game_id; render(); $('#game-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, selected: (g) => g.game_id === S.game });
+  renderGameDetail(list.find((g) => g.game_id === S.game));
 }
 
-function renderPlayer() {
-  const players = DATA.player_season;
+const CMP = [
+  ['Record', 'su'], ['Against the spread', 'ats'], ['ATS as favorite', 'ats_fav'], ['ATS as underdog', 'ats_dog'],
+  ['ATS home / away', (t) => `${t.ats_home} / ${t.ats_away}`], ['Over/under', 'ou'],
+  ['Avg cover margin', 'avg_cover_margin', 'hi'], ['Avg total vs line', 'avg_total_vs_line', null],
+  ['Points scored /g', 'pts_for', 'hi', 'pts_for_rank'], ['Points allowed /g', 'pts_against', 'lo', 'pts_against_rank'],
+  ['Offense EPA/play', 'off_epa_play', 'hi', 'off_epa_play_rank', 2], ['Defense EPA/play allowed', 'def_epa_play', 'lo', 'def_epa_play_rank', 2],
+  ['Offense success rate %', 'off_success', 'hi', 'off_success_rank'], ['Defense success rate % allowed', 'def_success', 'lo', 'def_success_rank'],
+  ['Yards/play', 'off_ypp', 'hi', 'off_ypp_rank'], ['Yards/play allowed', 'def_ypp', 'lo', 'def_ypp_rank'],
+  ['Plays/game (pace)', 'off_plays_pg', null, 'off_plays_pg_rank'], ['Neutral pass rate %', 'off_neutral_pass_rate', null],
+  ['Red-zone TD %', 'off_rz_td_pct', 'hi', 'off_rz_td_pct_rank'], ['Red-zone TD % allowed', 'def_rz_td_pct', 'lo', 'def_rz_td_pct_rank'],
+  ['3rd-down conversion %', 'off_3rd_pct', 'hi', 'off_3rd_pct_rank'], ['3rd-down % allowed', 'def_3rd_pct', 'lo', 'def_3rd_pct_rank'],
+  ['Explosive play %', 'off_explosive', 'hi', 'off_explosive_rank'], ['Explosive % allowed', 'def_explosive', 'lo', 'def_explosive_rank'],
+  ['Turnover margin /g', 'to_margin', 'hi', 'to_margin_rank'], ['Sacks /g', 'sacks', 'hi', 'sacks_rank'],
+  ['Pass defense rank (EPA)', 'def_pass_epa_rank', 'lo'], ['Run defense rank (EPA)', 'def_rush_epa_rank', 'lo'], ['Defense type', 'funnel'],
+];
+function renderGameDetail(g) {
+  const tb = $('.t-cmp');
+  if (!g) { $('.gd-title').textContent = 'Pick a game'; tb.tHead.replaceChildren(); tb.tBodies[0].replaceChildren(); return; }
+  const A = IDX.team.get(g.away_team), H = IDX.team.get(g.home_team);
+  $('.gd-title').textContent = `${g.matchup} · ${g.favorite || ''}${g.total_line ? ` · O/U ${g.total_line}` : ''}`;
+  const tr = document.createElement('tr');
+  ['', `${g.away_team} (away)`, `${g.home_team} (home)`].forEach((h, i) => { const th = document.createElement('th'); th.textContent = h; if (!i) th.className = 'l'; tr.appendChild(th); });
+  tb.tHead.replaceChildren(tr);
+  const frag = document.createDocumentFragment();
+  CMP.forEach(([label, key, better, rankKey, dp]) => {
+    const row = document.createElement('tr');
+    const td0 = document.createElement('td'); td0.textContent = label; row.appendChild(td0);
+    const vals = [A, H].map((t) => (t ? (typeof key === 'function' ? key(t) : t[key]) : null));
+    vals.forEach((v, i) => {
+      const t = [A, H][i];
+      const td = document.createElement('td');
+      let s = v == null ? '—' : typeof v === 'number' ? (dp ? v.toFixed(dp) : show(v)) : v;
+      if (rankKey && t && t[rankKey] != null) s += `  (#${t[rankKey]})`;
+      td.textContent = s;
+      if (better && typeof vals[0] === 'number' && typeof vals[1] === 'number' && vals[0] !== vals[1]) {
+        const win = better === 'hi' ? (vals[i] > vals[1 - i]) : (vals[i] < vals[1 - i]);
+        if (win) td.className = 'better';
+      }
+      row.appendChild(td);
+    });
+    frag.appendChild(row);
+  });
+  tb.tBodies[0].replaceChildren(frag);
+  // quick matchup notes
+  const ul = $('.gd-edges'); ul.replaceChildren();
+  if (!A || !H) return;
+  const notes = [];
+  const unit = (o, d) => {
+    const gap = d.def_epa_play_rank - o.off_epa_play_rank;
+    if (o.off_epa_play_rank <= 10 && d.def_epa_play_rank >= 20) notes.push(`${o.team}'s offense (#${o.off_epa_play_rank} in EPA/play) faces a weak ${d.team} defense (#${d.def_epa_play_rank}).`);
+    else if (o.off_epa_play_rank >= 22 && d.def_epa_play_rank <= 10) notes.push(`${o.team}'s offense (#${o.off_epa_play_rank}) faces a top ${d.team} defense (#${d.def_epa_play_rank}).`);
+    if (d.funnel !== 'Balanced') notes.push(`${d.team} is a ${d.funnel.toLowerCase()} (pass D #${d.def_pass_epa_rank}, run D #${d.def_rush_epa_rank}), so ${o.team} may lean ${d.funnel === 'Pass funnel' ? 'on the pass' : 'on the run'}.`);
+    return gap;
+  };
+  unit(A, H); unit(H, A);
+  if (g.away_rest != null && g.home_rest != null && Math.abs(g.away_rest - g.home_rest) >= 3) notes.push(`Rest edge: ${g.away_rest > g.home_rest ? g.away_team : g.home_team} has ${Math.abs(g.away_rest - g.home_rest)} more days of rest.`);
+  const paceSum = (A.off_plays_pg || 0) + (H.off_plays_pg || 0);
+  if (paceSum) notes.push(`Combined pace: ${paceSum.toFixed(1)} plays per game (league average is about ${(mean(DATA.teams.map((t) => t.off_plays_pg).filter((x) => x != null)) * 2).toFixed(1)}).`);
+  notes.forEach((n) => { const li = document.createElement('li'); li.textContent = n; ul.appendChild(li); });
+}
+
+// ===================== PROPS =====================
+function renderProps() {
+  const ps = DATA.players;
   const dl = $('#plist');
-  if (dl.childElementCount !== players.length) {
-    dl.replaceChildren(...players.map((p) => { const o = document.createElement('option'); o.value = `${p.player} (${p.position}, ${p.team})`; return o; }));
-  }
-  if (!S.player) S.player = players[0].player_id;
-  const p = players.find((x) => x.player_id === S.player);
+  if (dl.childElementCount !== ps.length) dl.replaceChildren(...ps.map((p) => { const o = document.createElement('option'); o.value = `${p.player} (${p.position}, ${p.team})`; return o; }));
+  if (!S.player) { const top = ps.filter((p) => p.position === 'WR' && p.games >= 3).sort((a, b) => b.receiving_yards - a.receiving_yards)[0]; S.player = top.player_id; }
+  const p = IDX.player.get(S.player);
+  renderFinder();
   if (!p) return;
-  const f = S.fmt;
-  $('.p-title').textContent = `${p.player} · ${p.position} · ${p.team}`;
-  $('.p-note').textContent = p.next_opp === 'BYE' ? 'On bye this week.' : `Next: ${p.home ? 'vs' : '@'} ${p.next_opp}. Bars are ${FMT_NAME[f]} points each game this season; green = soft opponent (rank 1–8), red = tough (25–32).`;
-  const stats = $('.p-stats'); stats.replaceChildren();
-  const tiles = [[`fp_${f}_pg`, `${FMT_NAME[f]} pts/g`], ['games', 'Games'], [`opp_rank_${f}`, `${p.next_opp} rank vs ${p.position}`], [`opp_allowed_${f}`, `${p.next_opp} allows to ${p.position}s/g`], ['team_implied', 'Team implied total']];
-  if (p.position === 'QB') tiles.push(['passing_yards_pg', 'Pass yds/g'], ['passing_tds_pg', 'Pass TD/g'], ['rushing_yards_pg', 'Rush yds/g']);
-  else if (p.position === 'RB') tiles.push(['carries_pg', 'Carries/g'], ['rushing_yards_pg', 'Rush yds/g'], ['receptions_pg', 'Rec/g']);
-  else tiles.push(['targets_pg', 'Targets/g'], ['receptions_pg', 'Rec/g'], ['receiving_yards_pg', 'Rec yds/g'], ['tgt_share', 'Target share %']);
-  tiles.forEach(([fld, lab]) => {
-    if (p[fld] == null) return;
-    const d = document.createElement('div'); d.className = 'stat';
-    const v = document.createElement('div'); v.className = 'v'; v.textContent = p[fld];
-    const k = document.createElement('div'); k.className = 'k'; k.textContent = lab;
-    d.append(v, k); stats.appendChild(d);
-  });
-  const season = new Map(DATA.dvp.filter((r) => r.window === 'season').map((r) => [r.defense, r]));
-  const rk = (opp) => { const r = season.get(opp); return r ? r[`${p.position.toLowerCase()}_${f}_rank`] : null; };
-  const mine = DATA.logs.filter((r) => r.player_id === p.player_id);
-  const cur = mine.filter((r) => r.season === S.season).sort((a, b) => a.week - b.week).map((r) => ({ ...r, opp_rank: rk(r.opp) }));
-  bars($('.p-chart'), cur.map((r) => ({
-    x: `W${r.week} ${r.opp}`, y: r[`fp_${f}`],
-    color: r.opp_rank == null ? COLORS[0] : r.opp_rank <= 8 ? 'var(--ok)' : r.opp_rank >= 25 ? 'var(--bad)' : 'var(--muted)',
-    tipTitle: `Week ${r.week} vs ${r.opp} (rank ${show(r.opp_rank)} vs ${p.position})`, tipBody: `${r[`fp_${f}`]} ${FMT_NAME[f]} pts`,
-  })), { height: 200 });
-
-  const statCols = p.position === 'QB'
-    ? [{ f: 'completions', label: 'Cmp' }, { f: 'attempts', label: 'Att' }, { f: 'passing_yards', label: 'Pass yds' }, { f: 'passing_tds', label: 'TD' }, { f: 'passing_interceptions', label: 'INT' }, { f: 'rushing_yards', label: 'Rush yds' }]
-    : p.position === 'RB'
-      ? [{ f: 'carries', label: 'Car' }, { f: 'rushing_yards', label: 'Rush yds' }, { f: 'rushing_tds', label: 'Rush TD' }, { f: 'targets', label: 'Tgt' }, { f: 'receptions', label: 'Rec' }, { f: 'receiving_yards', label: 'Rec yds' }]
-      : [{ f: 'targets', label: 'Tgt' }, { f: 'receptions', label: 'Rec' }, { f: 'receiving_yards', label: 'Rec yds' }, { f: 'receiving_tds', label: 'TD' }, { f: 'target_share', label: 'Tgt %' }];
-  table($('.t-log'), 'plog', [{ f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'opp_rank', label: 'Opp rk', rank: true }, ...statCols, { f: `fp_${f}`, label: 'Pts' }],
-    cur, { sort: { f: 'week', dir: 'desc' } });
-
+  const keys = posStats(p.position);
+  if (!S.pStat || !keys.includes(S.pStat)) { S.pStat = keys[0]; S.pLine = null; }
+  fillSelect($('.p-stat'), keys, S.pStat);
+  const stat = S.pStat;
+  const games = curGames(p.player_id);
+  const vals = games.map((r) => r[stat]).filter((v) => v != null);
+  const avg = mean(vals);
+  if (S.pLine == null) S.pLine = lineFor(avg);
+  const lineEl = $('.p-line');
+  if (document.activeElement !== lineEl) lineEl.value = S.pLine;
+  const line = S.pLine;
+  const hit = (arr) => { const o = arr.filter((v) => v > line).length, pu = arr.filter((v) => v === line).length; return { o, n: arr.length, pu }; };
+  const fmtHit = (h) => (h.n ? `${h.o}/${h.n}` : '—');
+  const pctHit = (h) => (h.n ? `${Math.round((h.o / (h.n - h.pu || 1)) * 100)}%` : '');
+  const hs = hit(vals), h5 = hit(vals.slice(-5)), h3 = hit(vals.slice(-3));
   const opp = p.next_opp;
-  $('.vs-title').textContent = opp === 'BYE' ? 'History vs next opponent' : `History vs ${opp}`;
-  const vs = opp === 'BYE' ? [] : mine.filter((r) => r.opp === opp);
-  $('.vs-empty').hidden = vs.length > 0;
-  $('.t-vs').hidden = vs.length === 0;
-  table($('.t-vs'), 'pvs', [{ f: 'season', label: 'Season' }, { f: 'week', label: 'Wk' }, { f: 'team', label: 'For', l: true }, ...statCols, { f: `fp_${f}`, label: 'Pts' }],
-    vs, { sort: { f: 'season', dir: 'desc' } });
+  const mr = opp !== 'BYE' ? mrow(opp, p.position, stat) : null;
+  const mr3 = opp !== 'BYE' ? mrow(opp, p.position, stat, 'last3') : null;
+  $('.p-title').textContent = `${p.player} · ${p.position} · ${p.team}`;
+  $('.p-note').textContent = opp === 'BYE' ? 'On bye this week.' : `Next: ${p.home ? 'vs' : '@'} ${opp}${p.team_implied != null ? ` · ${p.team} implied total ${p.team_implied}` : ''}. Bars are each game this season; the dashed line is the prop line.`;
+  const tiles = [
+    [fmtHit(hs), `Over ${line} this season ${pctHit(hs)}`],
+    [fmtHit(h5), `Last 5 games ${pctHit(h5)}`],
+    [fmtHit(h3), `Last 3 games ${pctHit(h3)}`],
+    [show(avg), `Average ${statLabel(stat).toLowerCase()}`],
+    [show(median(vals)), 'Median'],
+    [vals.length ? `${show(Math.min(...vals))}–${show(Math.max(...vals))}` : '—', 'Low–high'],
+  ];
+  if (mr) tiles.push([show(mr.per_game), `${opp} allows to ${p.position}s /g (rank ${mr.rank}${mr3 ? `, last 3: ${mr3.rank}` : ''})`]);
+  const st = $('.p-stats'); st.replaceChildren();
+  tiles.forEach(([v, k]) => { const d = document.createElement('div'); d.className = 'stat'; const a = document.createElement('div'); a.className = 'v'; a.textContent = v; const b = document.createElement('div'); b.className = 'k'; b.textContent = k; d.append(a, b); st.appendChild(d); });
+  bars($('.p-chart'), games.map((r) => ({
+    x: `W${r.week} ${r.opp}`, y: r[stat] ?? 0,
+    color: (r[stat] ?? 0) > line ? 'var(--ok)' : (r[stat] ?? 0) === line ? 'var(--muted)' : 'var(--bad)',
+    tipTitle: `Week ${r.week} vs ${r.opp}`, tipBody: `${show(r[stat])} ${statLabel(stat).toLowerCase()}`,
+  })), { height: 220, line });
+
+  const extra = p.position === 'QB' ? ['completions', 'attempts', 'passing_yards', 'passing_tds', 'passing_interceptions', 'carries', 'rushing_yards']
+    : p.position === 'RB' ? ['carries', 'rushing_yards', 'rushing_tds', 'targets', 'receptions', 'receiving_yards', 'rz_carries']
+      : ['targets', 'receptions', 'receiving_yards', 'receiving_tds', 'receiving_air_yards', 'rz_targets', 'target_share'];
+  const lab = { receiving_air_yards: 'Air yds', target_share: 'Tgt %' };
+  const statCols = extra.map((k) => ({ f: k, label: lab[k] || STATS[k] }));
+  if (!extra.includes(stat)) statCols.unshift({ f: stat, label: statLabel(stat) });
+  const hl = (v) => (v == null ? '' : v > line ? 'g' : v < line ? 'r' : '');
+  statCols.forEach((c) => { if (c.f === stat) c.cls = hl; });
+  const cur = games.slice().map((r) => ({ ...r, opp_rank: (mrow(r.opp, p.position, stat) || {}).rank }));
+  table($('.t-plog'), 'plog', [{ f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'opp_rank', label: 'Opp rk', rank: true }, ...statCols],
+    cur, { sort: { f: 'week', dir: 'desc' } });
+  $('.p-vs-title').textContent = opp === 'BYE' ? 'History vs next opponent' : `History vs ${opp}`;
+  const vs = opp === 'BYE' ? [] : (IDX.logs.get(p.player_id) || []).filter((r) => r.opp === opp);
+  $('.p-vs-empty').hidden = vs.length > 0; $('.t-pvs').parentElement.hidden = vs.length === 0;
+  table($('.t-pvs'), 'pvs', [{ f: 'season', label: 'Season' }, { f: 'week', label: 'Wk' }, { f: 'team', label: 'For', l: true }, ...statCols], vs, { sort: { f: 'season', dir: 'desc' } });
 }
 
+function renderFinder() {
+  const keys = posStats(S.fPos);
+  if (!keys.includes(S.fStat)) S.fStat = keys[0];
+  fillSelect($('.f-stat'), keys, S.fStat);
+  const stat = S.fStat;
+  let rows = DATA.players.filter((p) => p.position === S.fPos && p.games >= 3).map((p) => {
+    const vals = curGames(p.player_id).map((r) => r[stat]).filter((v) => v != null);
+    const mr = p.next_opp !== 'BYE' ? mrow(p.next_opp, p.position, stat) : null;
+    return { ...p, avg: mean(vals), med: median(vals), l3: mean(vals.slice(-3)), opp_allows: mr ? mr.per_game : null, opp_rank: mr ? mr.rank : null };
+  });
+  if (S.fq) rows = rows.filter((p) => `${p.player} ${p.team} ${p.next_opp}`.toLowerCase().includes(S.fq));
+  table($('.t-finder'), 'finder', [
+    { f: 'player', label: 'Player', l: true }, { f: 'team', label: 'Team', l: true }, { f: 'next_opp', label: 'Opp', l: true },
+    { f: 'games', label: 'GP' }, { f: 'avg', label: `Avg ${statLabel(stat)}` }, { f: 'med', label: 'Median' }, { f: 'l3', label: 'Last 3 avg' },
+    { f: 'opp_allows', label: 'Opp allows /g' }, { f: 'opp_rank', label: 'Opp rk', rank: true }, { f: 'team_implied', label: 'Team implied' },
+  ], rows, { sort: { f: 'avg', dir: 'desc' }, limit: 200, onClick: (p) => openProp(p.player_id, stat) });
+}
+
+// ===================== MATCHUPS =====================
+function renderMatchups() {
+  const keys = posStats(S.mPos);
+  const defs = [...new Set(DATA.matchups.map((r) => r.defense))].sort();
+  const rows = defs.map((d) => {
+    const o = { defense: d };
+    keys.forEach((k) => { const r = mrow(d, S.mPos, k, S.mWin); if (r) { o[k] = r.per_game; o[`${k}_rk`] = r.rank; o.games = r.games; } });
+    return o;
+  });
+  const cols = [{ f: 'defense', label: 'Defense', l: true }, { f: 'games', label: 'GP' }];
+  keys.forEach((k) => cols.push({ f: k, label: statLabel(k).replace(/ \(.*\)/, '') }, { f: `${k}_rk`, label: 'Rk', rank: true }));
+  if (!S.mDef) S.mDef = rows.slice().sort((a, b) => (a[`${keys[0]}_rk`] ?? 99) - (b[`${keys[0]}_rk`] ?? 99))[0].defense;
+  table($('.t-match'), 'match' + S.mPos, cols, rows, {
+    sort: { f: keys[0], dir: 'desc' },
+    onClick: (r) => { S.mDef = r.defense; render(); $('#m-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
+    selected: (r) => r.defense === S.mDef,
+  });
+  if (!S.mdStat || !keys.includes(S.mdStat)) S.mdStat = keys[0];
+  fillSelect($('.md-stat'), keys, S.mdStat);
+  const stat = S.mdStat;
+  $('.md-title').textContent = `${S.mDef} vs ${S.mPos}s: ${statLabel(stat).toLowerCase()} allowed by week`;
+  const wk = DATA.matchups_weekly.filter((r) => r.defense === S.mDef && r.position === S.mPos).sort((a, b) => a.week - b.week);
+  const mr = mrow(S.mDef, S.mPos, stat);
+  bars($('.md-chart'), wk.map((r) => ({ x: `W${r.week} ${r.offense}`, y: r[stat] ?? 0, color: 'var(--c1)', tipTitle: `Week ${r.week} vs ${r.offense}`, tipBody: `${show(r[stat])} ${statLabel(stat).toLowerCase()} by ${S.mPos}s` })),
+    { height: 200, line: mr ? Math.round(mr.per_game * 10) / 10 : null });
+  const top = DATA.logs.filter((r) => r.season === S.season && r.opp === S.mDef && r.position === S.mPos);
+  table($('.t-mtop'), 'mtop', [{ f: 'player', label: 'Player', l: true }, { f: 'team', label: 'Team', l: true }, { f: 'week', label: 'Wk' },
+    ...keys.map((k) => ({ f: k, label: statLabel(k).replace(/ \(.*\)/, '') }))], top,
+  { sort: { f: stat, dir: 'desc' }, limit: 12, onClick: (r) => openProp(r.player_id, stat) });
+}
+
+// ===================== TEAMS =====================
 function renderTeams() {
-  table($('.t-teams'), 'teams', [
-    { f: 'team', label: 'Team', l: true }, { f: 'record', label: 'Record', l: true }, { f: 'pts_for', label: 'Pts for' }, { f: 'off_rank', label: 'Off rk', rank: true },
-    { f: 'pts_against', label: 'Pts against' }, { f: 'def_rank', label: 'Def rk', rank: true }, { f: 'point_diff_pg', label: 'Diff' },
-    { f: 'pass_yds', label: 'Pass yds' }, { f: 'rush_yds', label: 'Rush yds' }, { f: 'turnovers', label: 'Giveaways' },
-    { f: 'pass_yds_allowed', label: 'Pass yds allowed' }, { f: 'rush_yds_allowed', label: 'Rush yds allowed' }, { f: 'takeaways', label: 'Takeaways' }, { f: 'sacks', label: 'Sacks' },
-    { f: 'next_opp', label: 'Next', l: true },
-  ], DATA.team_season, { sort: { f: 'point_diff_pg', dir: 'desc' } });
+  const V = {
+    betting: {
+      title: 'Betting records', note: 'Records against the closing spread and total. "Avg cover margin" = how many points per game a team beat (+) or missed (−) the spread by. "Avg total vs line" = how far over (+) or under (−) the total its games finished.',
+      cols: [{ f: 'su', label: 'Record', l: true }, { f: 'ats', label: 'ATS', l: true }, { f: 'ats_pct', label: 'ATS %', fmt: pct }, { f: 'ats_home', label: 'ATS home', l: true }, { f: 'ats_away', label: 'ATS away', l: true },
+        { f: 'ats_fav', label: 'ATS fav', l: true }, { f: 'ats_dog', label: 'ATS dog', l: true }, { f: 'avg_cover_margin', label: 'Avg cover margin' },
+        { f: 'ou', label: 'O/U', l: true }, { f: 'over_pct', label: 'Over %', fmt: pct }, { f: 'avg_total_vs_line', label: 'Avg total vs line' }, { f: 'point_diff', label: 'Pt diff /g' }],
+      sort: { f: 'ats_pct', dir: 'desc' },
+    },
+    offense: {
+      title: 'Offense', note: 'EPA/play = expected points added per play, the standard all-in-one efficiency number (higher is better). Success rate = share of plays that gained enough to stay on schedule. Neutral pass rate = how often they pass on 1st/2nd down when the game is close. Ranks: 1 = best.',
+      cols: [{ f: 'pts_for', label: 'Pts /g' }, { f: 'pts_for_rank', label: 'Rk', rank: true }, { f: 'off_epa_play', label: 'EPA/play', fmt: (v) => (v == null ? '—' : v.toFixed(2)) }, { f: 'off_epa_play_rank', label: 'Rk', rank: true },
+        { f: 'off_success', label: 'Success %' }, { f: 'off_ypp', label: 'Yds/play' }, { f: 'off_plays_pg', label: 'Plays /g' }, { f: 'off_neutral_pass_rate', label: 'Neutral pass %' },
+        { f: 'off_rz_td_pct', label: 'RZ TD %' }, { f: 'off_rz_td_pct_rank', label: 'Rk', rank: true }, { f: 'off_3rd_pct', label: '3rd down %' }, { f: 'off_explosive', label: 'Explosive %' },
+        { f: 'giveaways', label: 'Giveaways /g' }, { f: 'to_margin', label: 'TO margin /g' }],
+      sort: { f: 'off_epa_play', dir: 'desc' },
+    },
+    defense: {
+      title: 'Defense', note: 'Lower EPA/play allowed is better. Pass and run defense ranks show where a defense is weak: a "pass funnel" stops the run but gives up more through the air, so opponents tend to throw more. Ranks: 1 = best.',
+      cols: [{ f: 'pts_against', label: 'Pts allowed /g' }, { f: 'pts_against_rank', label: 'Rk', rank: true }, { f: 'def_epa_play', label: 'EPA/play', fmt: (v) => (v == null ? '—' : v.toFixed(2)) }, { f: 'def_epa_play_rank', label: 'Rk', rank: true },
+        { f: 'def_pass_epa_rank', label: 'Pass D rk', rank: true }, { f: 'def_rush_epa_rank', label: 'Run D rk', rank: true }, { f: 'funnel', label: 'Type', l: true },
+        { f: 'def_success', label: 'Success % allowed' }, { f: 'def_ypp', label: 'Yds/play allowed' }, { f: 'def_rz_td_pct', label: 'RZ TD % allowed' }, { f: 'def_3rd_pct', label: '3rd down % allowed' },
+        { f: 'def_explosive', label: 'Explosive % allowed' }, { f: 'takeaways', label: 'Takeaways /g' }, { f: 'sacks', label: 'Sacks /g' }],
+      sort: { f: 'def_epa_play', dir: 'asc' },
+    },
+  }[S.tView];
+  $('.t-title').textContent = V.title;
+  $('.t-note').textContent = V.note;
+  table($('.t-teams'), 'teams-' + S.tView, [{ f: 'team', label: 'Team', l: true }, ...V.cols, { f: 'next_opp', label: 'Next', l: true }], DATA.teams, { sort: V.sort });
 }
 
+// ===================== render =====================
 function render() {
-  if (!DATA.dvp) return;
+  if (!DATA.teams) return;
   segs.forEach((s) => s());
-  renderHeader();
-  if (S.tab === 'dvp') renderDvp();
-  if (S.tab === 'week') renderWeek();
-  if (S.tab === 'player') renderPlayer();
+  if (S.tab === 'games') renderGames();
+  if (S.tab === 'props') renderProps();
+  if (S.tab === 'matchups') renderMatchups();
   if (S.tab === 'teams') renderTeams();
 }
 
-// ===================== start =====================
 const start = location.hash.slice(1);
-if (['dvp', 'week', 'player', 'teams'].includes(start)) S.tab = start;
+if (['games', 'props', 'matchups', 'teams'].includes(start)) S.tab = start;
 document.querySelectorAll('.page').forEach((p) => { p.hidden = p.dataset.page !== S.tab; });
 document.querySelectorAll('.tabs button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tab === S.tab)));
 
+const bust = `?v=${Date.now()}`;
 Promise.all([
-  ...FILES.map((n) => d3.csv(`data/${n}.csv?v=${Date.now()}`).then((rows) => { DATA[n] = rows.map(clean); })),
-  fetch(`data/meta.txt?v=${Date.now()}`).then((r) => r.text()).then((t) => {
+  ...FILES.map((n) => d3.csv(`data/${n}.csv${bust}`).then((rows) => { DATA[n] = rows.map(clean); })),
+  fetch(`data/meta.txt${bust}`).then((r) => r.text()).then((t) => {
     const m = Object.fromEntries(t.trim().split('\n').map((l) => l.split('=')));
-    S.season = Number(m.season);
-    document.querySelector('.season').textContent = m.season;
-    document.querySelector('.thru').textContent = m.through_week;
-    document.querySelectorAll('.upwk').forEach((e) => { e.textContent = m.upcoming_week; });
-    document.querySelector('.built').textContent = (m.built_at || '').replace('T', ' ').replace('+00:00', ' UTC');
+    S.season = Number(m.season); S.upWeek = Number(m.upcoming_week);
+    $('.season').textContent = m.season; $('.thru').textContent = m.through_week; $('.upwk').textContent = m.upcoming_week;
+    $('.built').textContent = (m.built_at || '').replace('T', ' ').replace('+00:00', ' UTC');
   }),
-]).then(render).catch((err) => {
-  document.querySelector('.soft').textContent = 'Could not load the data files. If you opened index.html by double-clicking it, run it through a local server instead (see README).';
+]).then(() => { buildIndexes(); render(); }).catch((err) => {
+  const p = document.createElement('p'); p.className = 'card';
+  p.textContent = 'Could not load the data files. If you opened index.html by double-clicking it, run it through a local server instead (see README).';
+  document.querySelector('.ml').prepend(p);
   console.error(err);
 });
 </script>

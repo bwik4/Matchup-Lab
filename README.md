@@ -1,6 +1,6 @@
 # NFL Matchup Lab
 
-Defense-vs-position rankings, weekly matchups with Vegas lines, player-vs-team history and team stats. Free NFL data from [nflverse](https://github.com/nflverse/nflverse-data), rebuilt automatically every Tuesday.
+Betting research for the NFL: game lines with against-the-spread and over/under records, player prop hit rates, stat-by-stat defense vs position rankings, and team efficiency stats (EPA/play, success rate, pace, red zone). Fantasy points are available behind a toggle. Free NFL data from [nflverse](https://github.com/nflverse/nflverse-data), rebuilt automatically every Tuesday.
 
 ## What's in here
 

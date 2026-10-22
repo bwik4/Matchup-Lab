@@ -1,0 +1,273 @@
+game_id,week,weekday,away_team,home_team,away_score,home_score,spread_line,total_line,away_moneyline,home_moneyline,away_rest,home_rest,div_game,roof,surface,matchup,kickoff,home_implied,away_implied,favorite,home_win_pct,away_win_pct,status,final,ats_winner,total_points,ou_result
+2026_01_NE_SEA,1,Wednesday,NE,SEA,10.0,13.0,3.0,44.5,140.0,-166.0,7,7,0,outdoors,fieldturf,NE @ SEA,Wed Sep 9 20:20,23.8,20.8,SEA -3,60.0,40.0,final,"NE 10, SEA 13",PUSH,23.0,UNDER
+2026_01_SF_LA,1,Thursday,SF,LA,27.0,7.0,3.5,47.5,180.0,-218.0,7,7,1,dome,grass,SF @ LA,Thu Sep 10 20:35,25.5,22.0,LA -3.5,65.7,34.3,final,"SF 27, LA 7",SF,34.0,UNDER
+2026_01_CHI_CAR,1,Sunday,CHI,CAR,59.0,37.0,-3.0,47.5,-166.0,140.0,7,7,0,outdoors,grass,CHI @ CAR,Sun Sep 13 13:00,22.2,25.2,CHI -3,40.0,60.0,final,"CHI 59, CAR 37",CHI,96.0,OVER
+2026_01_TB_CIN,1,Sunday,TB,CIN,27.0,33.0,3.5,50.5,170.0,-205.0,7,7,0,outdoors,fieldturf,TB @ CIN,Sun Sep 13 13:00,27.0,23.5,CIN -3.5,64.5,35.5,final,"TB 27, CIN 33",CIN,60.0,OVER
+2026_01_NO_DET,1,Sunday,NO,DET,30.0,31.0,7.0,49.5,260.0,-325.0,7,7,0,dome,fieldturf,NO @ DET,Sun Sep 13 13:00,28.2,21.2,DET -7,73.4,26.6,final,"NO 30, DET 31",NO,61.0,OVER
+2026_01_BUF_HOU,1,Sunday,BUF,HOU,36.0,31.0,-1.5,44.5,-112.0,-108.0,7,7,0,closed,astroturf,BUF @ HOU,Sun Sep 13 13:00,21.5,23.0,BUF -1.5,49.6,50.4,final,"BUF 36, HOU 31",BUF,67.0,OVER
+2026_01_BAL_IND,1,Sunday,BAL,IND,41.0,23.0,-3.0,48.5,-162.0,136.0,7,7,0,closed,fieldturf,BAL @ IND,Sun Sep 13 13:00,22.8,25.8,BAL -3,40.7,59.3,final,"BAL 41, IND 23",BAL,64.0,OVER
+2026_01_CLE_JAX,1,Sunday,CLE,JAX,10.0,34.0,8.5,40.5,360.0,-470.0,7,7,0,outdoors,grass,CLE @ JAX,Sun Sep 13 13:00,24.5,16.0,JAX -8.5,79.1,20.9,final,"CLE 10, JAX 34",JAX,44.0,OVER
+2026_01_ATL_PIT,1,Sunday,ATL,PIT,13.0,20.0,6.5,40.5,240.0,-298.0,7,7,0,outdoors,grass,ATL @ PIT,Sun Sep 13 13:00,23.5,17.0,PIT -6.5,71.8,28.2,final,"ATL 13, PIT 20",PIT,33.0,UNDER
+2026_01_NYJ_TEN,1,Sunday,NYJ,TEN,23.0,10.0,1.5,39.5,-102.0,-118.0,7,7,0,outdoors,grass,NYJ @ TEN,Sun Sep 13 13:00,20.5,19.0,TEN -1.5,51.7,48.3,final,"NYJ 23, TEN 10",NYJ,33.0,UNDER
+2026_01_ARI_LAC,1,Sunday,ARI,LAC,26.0,14.0,8.5,47.5,350.0,-455.0,7,7,0,dome,matrixturf,ARI @ LAC,Sun Sep 13 16:25,28.0,19.5,LAC -8.5,78.7,21.3,final,"ARI 26, LAC 14",ARI,40.0,UNDER
+2026_01_MIA_LV,1,Sunday,MIA,LV,13.0,27.0,3.0,40.5,142.0,-170.0,7,7,0,dome,grass,MIA @ LV,Sun Sep 13 16:25,21.8,18.8,LV -3,60.4,39.6,final,"MIA 13, LV 27",LV,40.0,UNDER
+2026_01_GB_MIN,1,Sunday,GB,MIN,22.0,39.0,1.5,46.5,105.0,-125.0,7,7,1,dome,sportturf,GB @ MIN,Sun Sep 13 16:25,24.0,22.5,MIN -1.5,53.2,46.8,final,"GB 22, MIN 39",MIN,61.0,OVER
+2026_01_WAS_PHI,1,Sunday,WAS,PHI,22.0,24.0,6.0,43.5,200.0,-245.0,7,7,1,outdoors,grass,WAS @ PHI,Sun Sep 13 16:25,24.8,18.8,PHI -6,68.1,31.9,final,"WAS 22, PHI 24",WAS,46.0,OVER
+2026_01_DAL_NYG,1,Sunday,DAL,NYG,20.0,28.0,-3.0,47.5,-166.0,140.0,7,7,1,outdoors,fieldturf,DAL @ NYG,Sun Sep 13 20:20,22.2,25.2,DAL -3,40.0,60.0,final,"DAL 20, NYG 28",NYG,48.0,OVER
+2026_01_DEN_KC,1,Monday,DEN,KC,10.0,31.0,2.5,42.5,110.0,-130.0,7,7,1,outdoors,grass,DEN @ KC,Mon Sep 14 20:15,22.5,20.0,KC -2.5,54.3,45.7,final,"DEN 10, KC 31",KC,41.0,UNDER
+2026_02_DET_BUF,2,Thursday,DET,BUF,31.0,41.0,5.5,54.5,195.0,-238.0,4,4,0,outdoors,grass,DET @ BUF,Thu Sep 17 20:15,30.0,24.5,BUF -5.5,67.5,32.5,final,"DET 31, BUF 41",BUF,72.0,OVER
+2026_02_CAR_ATL,2,Sunday,CAR,ATL,34.0,3.0,-2.5,43.5,-155.0,130.0,7,7,1,closed,fieldturf,CAR @ ATL,Sun Sep 20 13:00,20.5,23.0,CAR -2.5,41.7,58.3,final,"CAR 34, ATL 3",CAR,37.0,UNDER
+2026_02_NO_BAL,2,Sunday,NO,BAL,24.0,17.0,8.5,45.5,295.0,-375.0,7,7,0,outdoors,grass,NO @ BAL,Sun Sep 20 13:00,27.0,18.5,BAL -8.5,75.7,24.3,final,"NO 24, BAL 17",NO,41.0,UNDER
+2026_02_MIN_CHI,2,Sunday,MIN,CHI,9.0,3.0,4.5,46.5,180.0,-218.0,7,7,1,outdoors,grass,MIN @ CHI,Sun Sep 20 13:00,25.5,21.0,CHI -4.5,65.7,34.3,final,"MIN 9, CHI 3",MIN,12.0,UNDER
+2026_02_CIN_HOU,2,Sunday,CIN,HOU,20.0,6.0,3.0,45.5,124.0,-148.0,7,7,0,closed,astroturf,CIN @ HOU,Sun Sep 20 13:00,24.2,21.2,HOU -3,57.2,42.8,final,"CIN 20, HOU 6",CIN,26.0,UNDER
+2026_02_PIT_NE,2,Sunday,PIT,NE,3.0,20.0,4.5,41.5,185.0,-225.0,7,11,0,outdoors,fieldturf,PIT @ NE,Sun Sep 20 13:00,23.0,18.5,NE -4.5,66.4,33.6,final,"PIT 3, NE 20",NE,23.0,UNDER
+2026_02_GB_NYJ,2,Sunday,GB,NYJ,20.0,17.0,-3.5,44.5,-185.0,154.0,7,7,0,outdoors,fieldturf,GB @ NYJ,Sun Sep 20 13:00,20.5,24.0,GB -3.5,37.8,62.2,final,"GB 20, NYJ 17",NYJ,37.0,UNDER
+2026_02_CLE_TB,2,Sunday,CLE,TB,23.0,19.0,8.5,41.5,330.0,-425.0,7,7,0,outdoors,grass,CLE @ TB,Sun Sep 20 13:00,25.0,16.5,TB -8.5,77.7,22.3,final,"CLE 23, TB 19",CLE,42.0,OVER
+2026_02_PHI_TEN,2,Sunday,PHI,TEN,24.0,20.0,-7.0,39.5,-325.0,260.0,7,7,0,outdoors,grass,PHI @ TEN,Sun Sep 20 13:00,16.2,23.2,PHI -7,26.6,73.4,final,"PHI 24, TEN 20",TEN,44.0,OVER
+2026_02_JAX_DEN,2,Sunday,JAX,DEN,13.0,20.0,2.5,45.5,124.0,-148.0,7,6,0,outdoors,grass,JAX @ DEN,Sun Sep 20 16:05,24.0,21.5,DEN -2.5,57.2,42.8,final,"JAX 13, DEN 20",DEN,33.0,UNDER
+2026_02_LV_LAC,2,Sunday,LV,LAC,26.0,14.0,6.5,43.5,260.0,-325.0,7,7,1,dome,matrixturf,LV @ LAC,Sun Sep 20 16:05,25.0,18.5,LAC -6.5,73.4,26.6,final,"LV 26, LAC 14",LV,40.0,UNDER
+2026_02_SEA_ARI,2,Sunday,SEA,ARI,31.0,7.0,-3.5,40.5,-218.0,180.0,11,7,1,closed,grass,SEA @ ARI,Sun Sep 20 16:25,18.5,22.0,SEA -3.5,34.3,65.7,final,"SEA 31, ARI 7",SEA,38.0,UNDER
+2026_02_WAS_DAL,2,Sunday,WAS,DAL,20.0,37.0,3.5,51.5,180.0,-218.0,7,7,1,closed,matrixturf,WAS @ DAL,Sun Sep 20 16:25,27.5,24.0,DAL -3.5,65.7,34.3,final,"WAS 20, DAL 37",DAL,57.0,OVER
+2026_02_MIA_SF,2,Sunday,MIA,SF,13.0,35.0,12.5,44.5,600.0,-900.0,7,10,0,outdoors,grass,MIA @ SF,Sun Sep 20 16:25,28.5,16.0,SF -12.5,86.3,13.7,final,"MIA 13, SF 35",SF,48.0,OVER
+2026_02_IND_KC,2,Sunday,IND,KC,30.0,33.0,6.0,46.5,215.0,-265.0,7,6,0,outdoors,grass,IND @ KC,Sun Sep 20 20:20,26.2,20.2,KC -6,69.6,30.4,final,"IND 30, KC 33",IND,63.0,OVER
+2026_02_NYG_LA,2,Monday,NYG,LA,6.0,28.0,6.5,47.5,240.0,-298.0,8,11,0,dome,matrixturf,NYG @ LA,Mon Sep 21 20:15,27.0,20.5,LA -6.5,71.8,28.2,final,"NYG 6, LA 28",LA,34.0,UNDER
+2026_03_ATL_GB,3,Thursday,ATL,GB,35.0,14.0,4.5,43.5,190.0,-230.0,4,4,0,outdoors,grass,ATL @ GB,Thu Sep 24 20:15,24.0,19.5,GB -4.5,66.9,33.1,final,"ATL 35, GB 14",ATL,49.0,OVER
+2026_03_LAC_BUF,3,Sunday,LAC,BUF,16.0,24.0,7.0,50.5,260.0,-325.0,7,10,0,outdoors,grass,LAC @ BUF,Sun Sep 27 13:00,28.8,21.8,BUF -7,73.4,26.6,final,"LAC 16, BUF 24",BUF,40.0,UNDER
+2026_03_CAR_CLE,3,Sunday,CAR,CLE,18.0,21.0,-2.5,41.5,-135.0,114.0,7,7,0,outdoors,grass,CAR @ CLE,Sun Sep 27 13:00,19.5,22.0,CAR -2.5,44.9,55.1,final,"CAR 18, CLE 21",CLE,39.0,UNDER
+2026_03_NYJ_DET,3,Sunday,NYJ,DET,24.0,31.0,7.0,49.5,260.0,-325.0,7,10,0,dome,fieldturf,NYJ @ DET,Sun Sep 27 13:00,28.2,21.2,DET -7,73.4,26.6,final,"NYJ 24, DET 31",PUSH,55.0,OVER
+2026_03_HOU_IND,3,Sunday,HOU,IND,17.0,19.0,-1.5,41.5,-125.0,105.0,7,7,1,open,fieldturf,HOU @ IND,Sun Sep 27 13:00,20.0,21.5,HOU -1.5,46.8,53.2,final,"HOU 17, IND 19",IND,36.0,UNDER
+2026_03_NE_JAX,3,Sunday,NE,JAX,6.0,35.0,3.0,46.5,136.0,-162.0,7,7,0,outdoors,grass,NE @ JAX,Sun Sep 27 13:00,24.8,21.8,JAX -3,59.3,40.7,final,"NE 6, JAX 35",JAX,41.0,UNDER
+2026_03_KC_MIA,3,Sunday,KC,MIA,24.0,10.0,-10.0,45.5,-600.0,440.0,7,7,0,outdoors,grass,KC @ MIA,Sun Sep 27 13:00,17.8,27.8,KC -10,17.8,82.2,final,"KC 24, MIA 10",KC,34.0,UNDER
+2026_03_TEN_NYG,3,Sunday,TEN,NYG,7.0,12.0,2.5,37.5,110.0,-130.0,7,6,0,outdoors,fieldturf,TEN @ NYG,Sun Sep 27 13:00,20.0,17.5,NYG -2.5,54.3,45.7,final,"TEN 7, NYG 12",NYG,19.0,UNDER
+2026_03_CIN_PIT,3,Sunday,CIN,PIT,27.0,30.0,-3.5,42.5,-180.0,150.0,7,7,1,outdoors,grass,CIN @ PIT,Sun Sep 27 13:00,19.5,23.0,CIN -3.5,38.4,61.6,final,"CIN 27, PIT 30",PIT,57.0,OVER
+2026_03_SEA_WAS,3,Sunday,SEA,WAS,31.0,33.0,-8.5,40.5,-410.0,320.0,7,7,0,outdoors,grass,SEA @ WAS,Sun Sep 27 13:00,16.0,24.5,SEA -8.5,22.8,77.2,final,"SEA 31, WAS 33",WAS,64.0,OVER
+2026_03_ARI_SF,3,Sunday,ARI,SF,30.0,36.0,7.5,48.5,310.0,-395.0,7,7,1,outdoors,grass,ARI @ SF,Sun Sep 27 16:05,28.0,20.5,SF -7.5,76.6,23.4,final,"ARI 30, SF 36",ARI,66.0,OVER
+2026_03_MIN_TB,3,Sunday,MIN,TB,23.0,16.0,-1.5,42.5,-112.0,-108.0,7,7,0,outdoors,grass,MIN @ TB,Sun Sep 27 16:05,20.5,22.0,MIN -1.5,49.6,50.4,final,"MIN 23, TB 16",MIN,39.0,UNDER
+2026_03_BAL_DAL,3,Sunday,BAL,DAL,34.0,31.0,-3.0,53.5,-170.0,142.0,7,7,0,open,grass,BAL @ DAL,Sun Sep 27 16:25,25.2,28.2,BAL -3,39.6,60.4,final,"BAL 34, DAL 31",PUSH,65.0,OVER
+2026_03_LV_NO,3,Sunday,LV,NO,35.0,27.0,3.5,43.5,160.0,-192.0,7,7,0,dome,sportturf,LV @ NO,Sun Sep 27 16:25,23.5,20.0,NO -3.5,63.1,36.9,final,"LV 35, NO 27",LV,62.0,OVER
+2026_03_LA_DEN,3,Sunday,LA,DEN,26.0,30.0,1.5,43.5,-108.0,-112.0,6,7,0,outdoors,grass,LA @ DEN,Sun Sep 27 20:20,22.5,21.0,DEN -1.5,50.4,49.6,final,"LA 26, DEN 30",DEN,56.0,OVER
+2026_03_PHI_CHI,3,Monday,PHI,CHI,7.0,27.0,-3.5,42.5,-198.0,164.0,8,8,0,outdoors,grass,PHI @ CHI,Mon Sep 28 20:15,19.5,23.0,PHI -3.5,36.3,63.7,final,"PHI 7, CHI 27",CHI,34.0,UNDER
+2026_04_PIT_CLE,4,Thursday,PIT,CLE,24.0,27.0,-2.5,38.5,-148.0,124.0,4,4,1,outdoors,grass,PIT @ CLE,Thu Oct 1 20:15,18.0,20.5,PIT -2.5,42.8,57.2,final,"PIT 24, CLE 27",CLE,51.0,OVER
+2026_04_IND_WAS,4,Sunday,IND,WAS,30.0,13.0,-4.5,46.5,-230.0,190.0,7,7,0,outdoors,grass,IND @ WAS,Sun Oct 4 09:30,21.0,25.5,IND -4.5,33.1,66.9,final,"IND 30, WAS 13",IND,43.0,UNDER
+2026_04_TEN_BAL,4,Sunday,TEN,BAL,18.0,24.0,11.5,42.5,550.0,-800.0,7,7,0,outdoors,grass,TEN @ BAL,Sun Oct 4 13:00,27.0,15.5,BAL -11.5,85.2,14.8,final,"TEN 18, BAL 24",TEN,42.0,UNDER
+2026_04_NE_BUF,4,Sunday,NE,BUF,29.0,26.0,7.0,49.5,275.0,-345.0,7,7,1,outdoors,grass,NE @ BUF,Sun Oct 4 13:00,28.2,21.2,BUF -7,74.4,25.6,final,"NE 29, BUF 26",NE,55.0,OVER
+2026_04_NYJ_CHI,4,Sunday,NYJ,CHI,12.0,23.0,3.5,43.5,160.0,-192.0,7,6,0,outdoors,grass,NYJ @ CHI,Sun Oct 4 13:00,23.5,20.0,CHI -3.5,63.1,36.9,final,"NYJ 12, CHI 23",CHI,35.0,UNDER
+2026_04_JAX_CIN,4,Sunday,JAX,CIN,22.0,17.0,2.5,51.5,124.0,-148.0,7,7,0,outdoors,fieldturf,JAX @ CIN,Sun Oct 4 13:00,27.0,24.5,CIN -2.5,57.2,42.8,final,"JAX 22, CIN 17",JAX,39.0,UNDER
+2026_04_DAL_HOU,4,Sunday,DAL,HOU,34.0,30.0,3.0,48.5,130.0,-155.0,7,7,0,closed,astroturf,DAL @ HOU,Sun Oct 4 13:00,25.8,22.8,HOU -3,58.3,41.7,final,"DAL 34, HOU 30",DAL,64.0,OVER
+2026_04_ARI_NYG,4,Sunday,ARI,NYG,24.0,36.0,-2.5,44.5,-135.0,114.0,7,7,0,outdoors,fieldturf,ARI @ NYG,Sun Oct 4 13:00,21.0,23.5,ARI -2.5,44.9,55.1,final,"ARI 24, NYG 36",NYG,60.0,OVER
+2026_04_LA_PHI,4,Sunday,LA,PHI,24.0,20.0,-3.5,42.5,-198.0,164.0,7,6,0,outdoors,grass,LA @ PHI,Sun Oct 4 13:00,19.5,23.0,LA -3.5,36.3,63.7,final,"LA 24, PHI 20",LA,44.0,OVER
+2026_04_GB_TB,4,Sunday,GB,TB,17.0,14.0,-3.0,38.5,-155.0,130.0,10,7,0,outdoors,grass,GB @ TB,Sun Oct 4 13:00,17.8,20.8,GB -3,41.7,58.3,final,"GB 17, TB 14",PUSH,31.0,UNDER
+2026_04_MIA_MIN,4,Sunday,MIA,MIN,10.0,15.0,10.0,38.5,400.0,-535.0,7,7,0,dome,sportturf,MIA @ MIN,Sun Oct 4 16:05,24.2,14.2,MIN -10,80.8,19.2,final,"MIA 10, MIN 15",MIA,25.0,UNDER
+2026_04_KC_LV,4,Sunday,KC,LV,30.0,27.0,-4.5,47.5,-225.0,185.0,7,7,1,dome,grass,KC @ LV,Sun Oct 4 16:25,21.5,26.0,KC -4.5,33.6,66.4,final,"KC 30, LV 27",LV,57.0,OVER
+2026_04_LAC_SEA,4,Sunday,LAC,SEA,23.0,30.0,7.0,42.5,275.0,-345.0,7,7,0,outdoors,fieldturf,LAC @ SEA,Sun Oct 4 16:25,24.8,17.8,SEA -7,74.4,25.6,final,"LAC 23, SEA 30",PUSH,53.0,OVER
+2026_04_DEN_SF,4,Sunday,DEN,SF,14.0,24.0,3.0,48.5,140.0,-166.0,7,7,0,outdoors,grass,DEN @ SF,Sun Oct 4 16:25,25.8,22.8,SF -3,60.0,40.0,final,"DEN 14, SF 24",SF,38.0,UNDER
+2026_04_DET_CAR,4,Sunday,DET,CAR,26.0,32.0,-4.5,52.5,-225.0,185.0,7,7,0,outdoors,grass,DET @ CAR,Sun Oct 4 20:20,24.0,28.5,DET -4.5,33.6,66.4,final,"DET 26, CAR 32",CAR,58.0,OVER
+2026_04_ATL_NO,4,Monday,ATL,NO,45.0,24.0,1.5,47.5,-102.0,-118.0,11,8,1,dome,sportturf,ATL @ NO,Mon Oct 5 20:15,24.5,23.0,NO -1.5,51.7,48.3,final,"ATL 45, NO 24",ATL,69.0,OVER
+2026_05_TB_DAL,5,Thursday,TB,DAL,24.0,16.0,9.5,49.5,400.0,-535.0,4,4,0,closed,matrixturf,TB @ DAL,Thu Oct 8 20:15,29.5,20.0,DAL -9.5,80.8,19.2,final,"TB 24, DAL 16",TB,40.0,UNDER
+2026_05_PHI_JAX,5,Sunday,PHI,JAX,17.0,19.0,7.5,41.5,300.0,-380.0,7,7,0,outdoors,,PHI @ JAX,Sun Oct 11 09:30,24.5,17.0,JAX -7.5,76.0,24.0,final,"PHI 17, JAX 19",PHI,36.0,UNDER
+2026_05_CHI_GB,5,Sunday,CHI,GB,7.0,31.0,-1.5,46.5,-125.0,105.0,7,7,1,outdoors,,CHI @ GB,Sun Oct 11 13:00,22.5,24.0,CHI -1.5,46.8,53.2,final,"CHI 7, GB 31",GB,38.0,UNDER
+2026_05_CIN_MIA,5,Sunday,CIN,MIA,31.0,24.0,-7.0,44.5,-355.0,280.0,7,7,0,outdoors,,CIN @ MIA,Sun Oct 11 13:00,18.8,25.8,CIN -7,25.2,74.8,final,"CIN 31, MIA 24",PUSH,55.0,OVER
+2026_05_LV_NE,5,Sunday,LV,NE,17.0,45.0,3.5,45.5,150.0,-180.0,7,7,0,outdoors,,LV @ NE,Sun Oct 11 13:00,24.5,21.0,NE -3.5,61.6,38.4,final,"LV 17, NE 45",NE,62.0,OVER
+2026_05_MIN_NO,5,Sunday,MIN,NO,23.0,13.0,-2.5,41.5,-142.0,120.0,7,6,0,dome,,MIN @ NO,Sun Oct 11 13:00,19.5,22.0,MIN -2.5,43.7,56.3,final,"MIN 23, NO 13",MIN,36.0,UNDER
+2026_05_CLE_NYJ,5,Sunday,CLE,NYJ,12.0,17.0,2.5,38.5,120.0,-142.0,10,7,0,outdoors,,CLE @ NYJ,Sun Oct 11 13:00,20.5,18.0,NYJ -2.5,56.3,43.7,final,"CLE 12, NYJ 17",NYJ,29.0,UNDER
+2026_05_IND_PIT,5,Sunday,IND,PIT,22.0,34.0,3.0,41.5,136.0,-162.0,7,10,0,outdoors,,IND @ PIT,Sun Oct 11 13:00,22.2,19.2,PIT -3,59.3,40.7,final,"IND 22, PIT 34",PIT,56.0,OVER
+2026_05_HOU_TEN,5,Sunday,HOU,TEN,26.0,3.0,-6.5,37.5,-310.0,250.0,7,7,1,outdoors,,HOU @ TEN,Sun Oct 11 13:00,15.5,22.0,HOU -6.5,27.4,72.6,final,"HOU 26, TEN 3",HOU,29.0,UNDER
+2026_05_NYG_WAS,5,Sunday,NYG,WAS,27.0,27.0,3.5,41.5,150.0,-180.0,7,7,1,outdoors,,NYG @ WAS,Sun Oct 11 13:00,22.5,19.0,WAS -3.5,61.6,38.4,final,"NYG 27, WAS 27",NYG,54.0,OVER
+2026_05_DEN_LAC,5,Sunday,DEN,LAC,23.0,17.0,-3.5,42.5,-192.0,160.0,7,7,1,dome,,DEN @ LAC,Sun Oct 11 16:05,19.5,23.0,DEN -3.5,36.9,63.1,final,"DEN 23, LAC 17",DEN,40.0,UNDER
+2026_05_DET_ARI,5,Sunday,DET,ARI,45.0,21.0,-5.5,55.5,-265.0,215.0,7,7,0,closed,,DET @ ARI,Sun Oct 11 16:25,25.0,30.5,DET -5.5,30.4,69.6,final,"DET 45, ARI 21",DET,66.0,OVER
+2026_05_SF_SEA,5,Sunday,SF,SEA,32.0,29.0,3.0,46.5,140.0,-166.0,7,7,1,outdoors,,SF @ SEA,Sun Oct 11 16:25,24.8,21.8,SEA -3,60.0,40.0,final,"SF 32, SEA 29",SF,61.0,OVER
+2026_05_BAL_ATL,5,Sunday,BAL,ATL,30.0,23.0,3.5,44.5,145.0,-175.0,7,6,0,open,,BAL @ ATL,Sun Oct 11 20:20,24.0,20.5,ATL -3.5,60.9,39.1,final,"BAL 30, ATL 23",BAL,53.0,OVER
+2026_05_BUF_LA,5,Monday,BUF,LA,37.0,34.0,3.5,55.5,154.0,-185.0,8,8,0,dome,,BUF @ LA,Mon Oct 12 20:15,29.5,26.0,LA -3.5,62.2,37.8,final,"BUF 37, LA 34",BUF,71.0,OVER
+2026_06_SEA_DEN,6,Thursday,SEA,DEN,14.0,17.0,-2.5,40.5,-155.0,130.0,4,4,0,outdoors,,SEA @ DEN,Thu Oct 15 20:15,19.0,21.5,SEA -2.5,41.7,58.3,final,"SEA 14, DEN 17",DEN,31.0,UNDER
+2026_06_HOU_JAX,6,Sunday,HOU,JAX,34.0,31.0,2.5,42.5,120.0,-142.0,7,7,1,outdoors,,HOU @ JAX,Sun Oct 18 09:30,22.5,20.0,JAX -2.5,56.3,43.7,final,"HOU 34, JAX 31",HOU,65.0,OVER
+2026_06_CHI_ATL,6,Sunday,CHI,ATL,31.0,23.0,-1.5,51.5,-118.0,-102.0,7,7,0,closed,,CHI @ ATL,Sun Oct 18 13:00,25.0,26.5,CHI -1.5,48.3,51.7,final,"CHI 31, ATL 23",CHI,54.0,OVER
+2026_06_BAL_CLE,6,Sunday,BAL,CLE,10.0,13.0,-3.0,39.5,-170.0,142.0,7,7,1,outdoors,,BAL @ CLE,Sun Oct 18 13:00,18.2,21.2,BAL -3,39.6,60.4,final,"BAL 10, CLE 13",CLE,23.0,UNDER
+2026_06_TEN_IND,6,Sunday,TEN,IND,26.0,20.0,6.5,43.5,240.0,-298.0,7,7,1,open,,TEN @ IND,Sun Oct 18 13:00,25.0,18.5,IND -6.5,71.8,28.2,final,"TEN 26, IND 20",TEN,46.0,OVER
+2026_06_NYJ_NE,6,Sunday,NYJ,NE,19.0,26.0,7.5,43.5,275.0,-345.0,7,7,1,outdoors,,NYJ @ NE,Sun Oct 18 13:00,25.5,18.0,NE -7.5,74.4,25.6,final,"NYJ 19, NE 26",NYJ,45.0,OVER
+2026_06_NO_NYG,6,Sunday,NO,NYG,34.0,27.0,-1.5,46.5,-108.0,-112.0,7,7,0,outdoors,,NO @ NYG,Sun Oct 18 13:00,22.5,24.0,NO -1.5,50.4,49.6,final,"NO 34, NYG 27",NO,61.0,OVER
+2026_06_CAR_PHI,6,Sunday,CAR,PHI,25.0,14.0,-3.0,39.5,-162.0,136.0,14,7,0,outdoors,,CAR @ PHI,Sun Oct 18 13:00,18.2,21.2,CAR -3,40.7,59.3,final,"CAR 25, PHI 14",CAR,39.0,UNDER
+2026_06_PIT_TB,6,Sunday,PIT,TB,26.0,19.0,-2.5,38.5,-142.0,120.0,7,10,0,outdoors,,PIT @ TB,Sun Oct 18 13:00,18.0,20.5,PIT -2.5,43.7,56.3,final,"PIT 26, TB 19",PIT,45.0,OVER
+2026_06_ARI_LA,6,Sunday,ARI,LA,18.0,16.0,12.5,51.5,500.0,-700.0,7,6,1,dome,,ARI @ LA,Sun Oct 18 16:05,32.0,19.5,LA -12.5,84.0,16.0,final,"ARI 18, LA 16",ARI,34.0,UNDER
+2026_06_LAC_KC,6,Sunday,LAC,KC,6.0,22.0,7.5,41.5,350.0,-455.0,7,14,1,outdoors,,LAC @ KC,Sun Oct 18 16:25,24.5,17.0,KC -7.5,78.7,21.3,final,"LAC 6, KC 22",KC,28.0,UNDER
+2026_06_BUF_LV,6,Sunday,BUF,LV,33.0,30.0,-5.5,53.5,-238.0,195.0,6,7,0,dome,,BUF @ LV,Sun Oct 18 16:25,24.0,29.5,BUF -5.5,32.5,67.5,final,"BUF 33, LV 30",LV,63.0,OVER
+2026_06_DAL_GB,6,Sunday,DAL,GB,13.0,23.0,-1.5,53.5,-115.0,-105.0,10,7,0,outdoors,,DAL @ GB,Sun Oct 18 20:20,26.0,27.5,DAL -1.5,48.9,51.1,final,"DAL 13, GB 23",GB,36.0,UNDER
+2026_06_WAS_SF,6,Monday,WAS,SF,17.0,23.0,7.5,51.5,310.0,-395.0,8,8,0,outdoors,,WAS @ SF,Mon Oct 19 20:15,29.5,22.0,SF -7.5,76.6,23.4,final,"WAS 17, SF 23",WAS,40.0,UNDER
+2026_07_NE_CHI,7,Thursday,NE,CHI,,,3.0,50.5,130.0,-155.0,4,4,0,outdoors,grass,NE @ CHI,Thu Oct 22 20:15,26.8,23.8,CHI -3,58.3,41.7,upcoming,,,,
+2026_07_PIT_NO,7,Sunday,PIT,NO,,,-3.5,44.5,-175.0,145.0,7,7,0,dome,sportturf,PIT @ NO,Sun Oct 25 09:30,20.5,24.0,PIT -3.5,39.1,60.9,upcoming,,,,
+2026_07_SF_ATL,7,Sunday,SF,ATL,,,-2.5,49.5,-148.0,124.0,6,7,0,,fieldturf,SF @ ATL,Sun Oct 25 13:00,23.5,26.0,SF -2.5,42.8,57.2,upcoming,,,,
+2026_07_CIN_BAL,7,Sunday,CIN,BAL,,,1.5,48.5,-102.0,-118.0,14,7,1,outdoors,grass,CIN @ BAL,Sun Oct 25 13:00,25.0,23.5,BAL -1.5,51.7,48.3,upcoming,,,,
+2026_07_TB_CAR,7,Sunday,TB,CAR,,,3.0,44.5,140.0,-166.0,7,7,1,outdoors,grass,TB @ CAR,Sun Oct 25 13:00,23.8,20.8,CAR -3,60.0,40.0,upcoming,,,,
+2026_07_NYG_HOU,7,Sunday,NYG,HOU,,,10.5,42.5,390.0,-520.0,7,7,0,,astroturf,NYG @ HOU,Sun Oct 25 13:00,26.5,16.0,HOU -10.5,80.4,19.6,upcoming,,,,
+2026_07_IND_MIN,7,Sunday,IND,MIN,,,6.5,41.5,225.0,-278.0,7,14,0,dome,sportturf,IND @ MIN,Sun Oct 25 13:00,24.0,17.5,MIN -6.5,70.5,29.5,upcoming,,,,
+2026_07_MIA_NYJ,7,Sunday,MIA,NYJ,,,4.5,39.5,185.0,-225.0,14,7,1,outdoors,fieldturf,MIA @ NYJ,Sun Oct 25 13:00,22.0,17.5,NYJ -4.5,66.4,33.6,upcoming,,,,
+2026_07_CLE_TEN,7,Sunday,CLE,TEN,,,-1.5,37.5,-130.0,110.0,7,7,0,outdoors,grass,CLE @ TEN,Sun Oct 25 13:00,18.0,19.5,CLE -1.5,45.7,54.3,upcoming,,,,
+2026_07_DEN_ARI,7,Sunday,DEN,ARI,,,-4.5,43.5,-230.0,190.0,10,7,0,,grass,DEN @ ARI,Sun Oct 25 16:05,19.5,24.0,DEN -4.5,33.1,66.9,upcoming,,,,
+2026_07_GB_DET,7,Sunday,GB,DET,,,3.0,53.5,140.0,-166.0,7,14,1,dome,fieldturf,GB @ DET,Sun Oct 25 16:25,28.2,25.2,DET -3,60.0,40.0,upcoming,,,,
+2026_07_LA_LV,7,Sunday,LA,LV,,,-3.5,48.5,-218.0,180.0,7,7,0,dome,grass,LA @ LV,Sun Oct 25 16:25,22.5,26.0,LA -3.5,34.3,65.7,upcoming,,,,
+2026_07_KC_SEA,7,Sunday,KC,SEA,,,3.0,42.5,124.0,-148.0,7,10,0,outdoors,fieldturf,KC @ SEA,Sun Oct 25 20:20,22.8,19.8,SEA -3,57.2,42.8,upcoming,,,,
+2026_07_DAL_PHI,7,Monday,DAL,PHI,,,-4.5,44.5,-225.0,185.0,8,8,1,outdoors,grass,DAL @ PHI,Mon Oct 26 20:15,20.0,24.5,DAL -4.5,33.6,66.4,upcoming,,,,
+2026_08_CAR_GB,8,Thursday,CAR,GB,,,3.0,47.5,130.0,-155.0,4,4,0,outdoors,grass,CAR @ GB,Thu Oct 29 20:15,25.2,22.2,GB -3,58.3,41.7,upcoming,,,,
+2026_08_BAL_BUF,8,Sunday,BAL,BUF,,,3.0,52.5,140.0,-166.0,7,14,0,outdoors,a_turf,BAL @ BUF,Sun Nov 1 13:00,27.8,24.8,BUF -3,60.0,40.0,upcoming,,,,
+2026_08_TEN_CIN,8,Sunday,TEN,CIN,,,10.0,46.5,425.0,-575.0,7,7,0,outdoors,fieldturf,TEN @ CIN,Sun Nov 1 13:00,28.2,18.2,CIN -10,81.7,18.3,upcoming,,,,
+2026_08_ARI_DAL,8,Sunday,ARI,DAL,,,6.5,51.5,250.0,-310.0,7,6,0,,matrixturf,ARI @ DAL,Sun Nov 1 13:00,29.0,22.5,DAL -6.5,72.6,27.4,upcoming,,,,
+2026_08_MIN_DET,8,Sunday,MIN,DET,,,2.5,47.5,130.0,-155.0,7,7,1,dome,fieldturf,MIN @ DET,Sun Nov 1 13:00,25.0,22.5,DET -2.5,58.3,41.7,upcoming,,,,
+2026_08_IND_JAX,8,Sunday,IND,JAX,,,7.5,47.5,295.0,-375.0,7,14,1,outdoors,grass,IND @ JAX,Sun Nov 1 13:00,27.5,20.0,JAX -7.5,75.7,24.3,upcoming,,,,
+2026_08_LV_NYJ,8,Sunday,LV,NYJ,,,-1.5,42.5,-108.0,-112.0,7,7,0,outdoors,fieldturf,LV @ NYJ,Sun Nov 1 13:00,20.5,22.0,LV -1.5,50.4,49.6,upcoming,,,,
+2026_08_CLE_PIT,8,Sunday,CLE,PIT,,,4.5,38.5,170.0,-205.0,7,7,1,outdoors,grass,CLE @ PIT,Sun Nov 1 13:00,21.5,17.0,PIT -4.5,64.5,35.5,upcoming,,,,
+2026_08_ATL_TB,8,Sunday,ATL,TB,,,1.5,44.5,-102.0,-118.0,7,7,1,outdoors,grass,ATL @ TB,Sun Nov 1 13:00,23.0,21.5,TB -1.5,51.7,48.3,upcoming,,,,
+2026_08_LAC_LA,8,Sunday,LAC,LA,,,7.5,46.5,280.0,-355.0,14,7,0,dome,matrixturf,LAC @ LA,Sun Nov 1 16:05,27.0,19.5,LA -7.5,74.8,25.2,upcoming,,,,
+2026_08_KC_DEN,8,Sunday,KC,DEN,,,-1.5,42.5,-122.0,102.0,7,7,1,outdoors,grass,KC @ DEN,Sun Nov 1 16:25,20.5,22.0,KC -1.5,47.4,52.6,upcoming,,,,
+2026_08_NE_MIA,8,Sunday,NE,MIA,,,-7.5,44.5,-425.0,330.0,10,7,1,outdoors,grass,NE @ MIA,Sun Nov 1 16:25,18.5,26.0,NE -7.5,22.3,77.7,upcoming,,,,
+2026_08_PHI_WAS,8,Sunday,PHI,WAS,,,3.5,41.5,154.0,-185.0,6,13,1,outdoors,grass,PHI @ WAS,Sun Nov 1 20:20,22.5,19.0,WAS -3.5,62.2,37.8,upcoming,,,,
+2026_08_CHI_SEA,8,Monday,CHI,SEA,,,3.0,46.5,136.0,-162.0,11,8,0,outdoors,fieldturf,CHI @ SEA,Mon Nov 2 20:15,24.8,21.8,SEA -3,59.3,40.7,upcoming,,,,
+2026_09_JAX_BAL,9,Thursday,JAX,BAL,,,,,,,4,4,0,outdoors,grass,JAX @ BAL,Thu Nov 5 20:15,,,,,,upcoming,,,,
+2026_09_CIN_ATL,9,Sunday,CIN,ATL,,,,,,,7,7,0,,fieldturf,CIN @ ATL,Sun Nov 8 09:30,,,,,,upcoming,,,,
+2026_09_DEN_CAR,9,Sunday,DEN,CAR,,,,,,,7,10,0,outdoors,grass,DEN @ CAR,Sun Nov 8 13:00,,,,,,upcoming,,,,
+2026_09_DAL_IND,9,Sunday,DAL,IND,,,,,,,7,7,0,,fieldturf,DAL @ IND,Sun Nov 8 13:00,,,,,,upcoming,,,,
+2026_09_NYJ_KC,9,Sunday,NYJ,KC,,,,,,,7,7,0,outdoors,grass,NYJ @ KC,Sun Nov 8 13:00,,,,,,upcoming,,,,
+2026_09_DET_MIA,9,Sunday,DET,MIA,,,,,,,7,7,0,outdoors,grass,DET @ MIA,Sun Nov 8 13:00,,,,,,upcoming,,,,
+2026_09_CLE_NO,9,Sunday,CLE,NO,,,,,,,7,14,0,dome,sportturf,CLE @ NO,Sun Nov 8 13:00,,,,,,upcoming,,,,
+2026_09_NYG_PHI,9,Sunday,NYG,PHI,,,,,,,14,7,1,outdoors,grass,NYG @ PHI,Sun Nov 8 13:00,,,,,,upcoming,,,,
+2026_09_LA_WAS,9,Sunday,LA,WAS,,,,,,,7,7,0,outdoors,grass,LA @ WAS,Sun Nov 8 13:00,,,,,,upcoming,,,,
+2026_09_HOU_LAC,9,Sunday,HOU,LAC,,,,,,,14,7,0,dome,matrixturf,HOU @ LAC,Sun Nov 8 16:05,,,,,,upcoming,,,,
+2026_09_LV_SF,9,Sunday,LV,SF,,,,,,,7,14,0,outdoors,grass,LV @ SF,Sun Nov 8 16:05,,,,,,upcoming,,,,
+2026_09_GB_NE,9,Sunday,GB,NE,,,,,,,10,7,0,outdoors,fieldturf,GB @ NE,Sun Nov 8 16:25,,,,,,upcoming,,,,
+2026_09_ARI_SEA,9,Sunday,ARI,SEA,,,,,,,7,6,1,outdoors,fieldturf,ARI @ SEA,Sun Nov 8 16:25,,,,,,upcoming,,,,
+2026_09_TB_CHI,9,Sunday,TB,CHI,,,,,,,7,6,0,outdoors,grass,TB @ CHI,Sun Nov 8 20:20,,,,,,upcoming,,,,
+2026_09_BUF_MIN,9,Monday,BUF,MIN,,,,,,,8,8,0,dome,sportturf,BUF @ MIN,Mon Nov 9 20:15,,,,,,upcoming,,,,
+2026_10_WAS_NYG,10,Thursday,WAS,NYG,,,,,,,4,4,1,outdoors,fieldturf,WAS @ NYG,Thu Nov 12 20:15,,,,,,upcoming,,,,
+2026_10_NE_DET,10,Sunday,NE,DET,,,,,,,7,7,0,dome,fieldturf,NE @ DET,Sun Nov 15 09:30,,,,,,upcoming,,,,
+2026_10_KC_ATL,10,Sunday,KC,ATL,,,,,,,7,7,0,,fieldturf,KC @ ATL,Sun Nov 15 13:00,,,,,,upcoming,,,,
+2026_10_HOU_CLE,10,Sunday,HOU,CLE,,,,,,,7,7,0,outdoors,grass,HOU @ CLE,Sun Nov 15 13:00,,,,,,upcoming,,,,
+2026_10_MIN_GB,10,Sunday,MIN,GB,,,,,,,6,7,1,outdoors,grass,MIN @ GB,Sun Nov 15 13:00,,,,,,upcoming,,,,
+2026_10_MIA_IND,10,Sunday,MIA,IND,,,,,,,7,7,0,,fieldturf,MIA @ IND,Sun Nov 15 13:00,,,,,,upcoming,,,,
+2026_10_CAR_NO,10,Sunday,CAR,NO,,,,,,,7,7,1,dome,sportturf,CAR @ NO,Sun Nov 15 13:00,,,,,,upcoming,,,,
+2026_10_BUF_NYJ,10,Sunday,BUF,NYJ,,,,,,,6,7,1,outdoors,fieldturf,BUF @ NYJ,Sun Nov 15 13:00,,,,,,upcoming,,,,
+2026_10_JAX_TEN,10,Sunday,JAX,TEN,,,,,,,10,14,1,outdoors,grass,JAX @ TEN,Sun Nov 15 13:00,,,,,,upcoming,,,,
+2026_10_LA_ARI,10,Sunday,LA,ARI,,,,,,,7,7,1,,grass,LA @ ARI,Sun Nov 15 16:05,,,,,,upcoming,,,,
+2026_10_SEA_LV,10,Sunday,SEA,LV,,,,,,,7,7,0,dome,grass,SEA @ LV,Sun Nov 15 16:05,,,,,,upcoming,,,,
+2026_10_SF_DAL,10,Sunday,SF,DAL,,,,,,,7,7,0,,matrixturf,SF @ DAL,Sun Nov 15 16:25,,,,,,upcoming,,,,
+2026_10_PIT_CIN,10,Sunday,PIT,CIN,,,,,,,14,7,1,outdoors,fieldturf,PIT @ CIN,Sun Nov 15 20:20,,,,,,upcoming,,,,
+2026_10_LAC_BAL,10,Monday,LAC,BAL,,,,,,,8,11,0,outdoors,grass,LAC @ BAL,Mon Nov 16 20:15,,,,,,upcoming,,,,
+2026_11_IND_HOU,11,Thursday,IND,HOU,,,,,,,4,4,1,,astroturf,IND @ HOU,Thu Nov 19 20:15,,,,,,upcoming,,,,
+2026_11_MIA_BUF,11,Sunday,MIA,BUF,,,,,,,7,7,1,outdoors,a_turf,MIA @ BUF,Sun Nov 22 13:00,,,,,,upcoming,,,,
+2026_11_BAL_CAR,11,Sunday,BAL,CAR,,,,,,,6,7,0,outdoors,grass,BAL @ CAR,Sun Nov 22 13:00,,,,,,upcoming,,,,
+2026_11_NO_CHI,11,Sunday,NO,CHI,,,,,,,7,14,0,outdoors,grass,NO @ CHI,Sun Nov 22 13:00,,,,,,upcoming,,,,
+2026_11_TEN_DAL,11,Sunday,TEN,DAL,,,,,,,7,7,0,,matrixturf,TEN @ DAL,Sun Nov 22 13:00,,,,,,upcoming,,,,
+2026_11_TB_DET,11,Sunday,TB,DET,,,,,,,14,7,0,dome,fieldturf,TB @ DET,Sun Nov 22 13:00,,,,,,upcoming,,,,
+2026_11_ARI_KC,11,Sunday,ARI,KC,,,,,,,7,7,0,outdoors,grass,ARI @ KC,Sun Nov 22 13:00,,,,,,upcoming,,,,
+2026_11_JAX_NYG,11,Sunday,JAX,NYG,,,,,,,7,10,0,outdoors,fieldturf,JAX @ NYG,Sun Nov 22 13:00,,,,,,upcoming,,,,
+2026_11_NYJ_LAC,11,Sunday,NYJ,LAC,,,,,,,7,6,0,dome,matrixturf,NYJ @ LAC,Sun Nov 22 16:05,,,,,,upcoming,,,,
+2026_11_LV_DEN,11,Sunday,LV,DEN,,,,,,,7,14,1,outdoors,grass,LV @ DEN,Sun Nov 22 16:25,,,,,,upcoming,,,,
+2026_11_PIT_PHI,11,Sunday,PIT,PHI,,,,,,,7,14,0,outdoors,grass,PIT @ PHI,Sun Nov 22 16:25,,,,,,upcoming,,,,
+2026_11_MIN_SF,11,Sunday,MIN,SF,,,,,,,7,7,0,outdoors,grass,MIN @ SF,Sun Nov 22 20:20,,,,,,upcoming,,,,
+2026_11_CIN_WAS,11,Monday,CIN,WAS,,,,,,,8,11,0,outdoors,grass,CIN @ WAS,Mon Nov 23 20:15,,,,,,upcoming,,,,
+2026_12_GB_LA,12,Wednesday,GB,LA,,,,,,,10,10,0,dome,matrixturf,GB @ LA,Wed Nov 25 20:00,,,,,,upcoming,,,,
+2026_12_CHI_DET,12,Thursday,CHI,DET,,,,,,,4,4,1,dome,fieldturf,CHI @ DET,Thu Nov 26 13:00,,,,,,upcoming,,,,
+2026_12_PHI_DAL,12,Thursday,PHI,DAL,,,,,,,4,4,1,,matrixturf,PHI @ DAL,Thu Nov 26 16:30,,,,,,upcoming,,,,
+2026_12_KC_BUF,12,Thursday,KC,BUF,,,,,,,4,4,0,outdoors,a_turf,KC @ BUF,Thu Nov 26 20:20,,,,,,upcoming,,,,
+2026_12_DEN_PIT,12,Friday,DEN,PIT,,,,,,,5,5,0,outdoors,grass,DEN @ PIT,Fri Nov 27 15:00,,,,,,upcoming,,,,
+2026_12_NO_CIN,12,Sunday,NO,CIN,,,,,,,7,6,0,outdoors,fieldturf,NO @ CIN,Sun Nov 29 13:00,,,,,,upcoming,,,,
+2026_12_LV_CLE,12,Sunday,LV,CLE,,,,,,,7,14,0,outdoors,grass,LV @ CLE,Sun Nov 29 13:00,,,,,,upcoming,,,,
+2026_12_BAL_HOU,12,Sunday,BAL,HOU,,,,,,,7,10,0,,astroturf,BAL @ HOU,Sun Nov 29 13:00,,,,,,upcoming,,,,
+2026_12_NYG_IND,12,Sunday,NYG,IND,,,,,,,7,10,0,,fieldturf,NYG @ IND,Sun Nov 29 13:00,,,,,,upcoming,,,,
+2026_12_NYJ_MIA,12,Sunday,NYJ,MIA,,,,,,,7,7,1,outdoors,grass,NYJ @ MIA,Sun Nov 29 13:00,,,,,,upcoming,,,,
+2026_12_ATL_MIN,12,Sunday,ATL,MIN,,,,,,,14,7,0,dome,sportturf,ATL @ MIN,Sun Nov 29 13:00,,,,,,upcoming,,,,
+2026_12_TEN_JAX,12,Sunday,TEN,JAX,,,,,,,7,7,1,outdoors,grass,TEN @ JAX,Sun Nov 29 16:05,,,,,,upcoming,,,,
+2026_12_WAS_ARI,12,Sunday,WAS,ARI,,,,,,,6,7,0,,grass,WAS @ ARI,Sun Nov 29 16:25,,,,,,upcoming,,,,
+2026_12_SEA_SF,12,Sunday,SEA,SF,,,,,,,14,7,1,outdoors,grass,SEA @ SF,Sun Nov 29 16:25,,,,,,upcoming,,,,
+2026_12_NE_LAC,12,Sunday,NE,LAC,,,,,,,14,7,0,dome,matrixturf,NE @ LAC,Sun Nov 29 20:20,,,,,,upcoming,,,,
+2026_12_CAR_TB,12,Monday,CAR,TB,,,,,,,8,8,1,outdoors,grass,CAR @ TB,Mon Nov 30 20:15,,,,,,upcoming,,,,
+2026_13_KC_LA,13,Thursday,KC,LA,,,,,,,7,8,0,dome,matrixturf,KC @ LA,Thu Dec 3 20:15,,,,,,upcoming,,,,
+2026_13_DET_ATL,13,Sunday,DET,ATL,,,,,,,10,7,0,,fieldturf,DET @ ATL,Sun Dec 6 13:00,,,,,,upcoming,,,,
+2026_13_JAX_CHI,13,Sunday,JAX,CHI,,,,,,,7,10,0,outdoors,grass,JAX @ CHI,Sun Dec 6 13:00,,,,,,upcoming,,,,
+2026_13_CIN_CLE,13,Sunday,CIN,CLE,,,,,,,7,7,1,outdoors,grass,CIN @ CLE,Sun Dec 6 13:00,,,,,,upcoming,,,,
+2026_13_GB_NO,13,Sunday,GB,NO,,,,,,,11,7,0,dome,sportturf,GB @ NO,Sun Dec 6 13:00,,,,,,upcoming,,,,
+2026_13_SF_NYG,13,Sunday,SF,NYG,,,,,,,7,7,0,outdoors,fieldturf,SF @ NYG,Sun Dec 6 13:00,,,,,,upcoming,,,,
+2026_13_LAC_TB,13,Sunday,LAC,TB,,,,,,,7,6,0,outdoors,grass,LAC @ TB,Sun Dec 6 13:00,,,,,,upcoming,,,,
+2026_13_WAS_TEN,13,Sunday,WAS,TEN,,,,,,,7,7,0,outdoors,grass,WAS @ TEN,Sun Dec 6 13:00,,,,,,upcoming,,,,
+2026_13_PHI_ARI,13,Sunday,PHI,ARI,,,,,,,10,7,0,,grass,PHI @ ARI,Sun Dec 6 16:05,,,,,,upcoming,,,,
+2026_13_MIA_DEN,13,Sunday,MIA,DEN,,,,,,,7,9,0,outdoors,grass,MIA @ DEN,Sun Dec 6 16:05,,,,,,upcoming,,,,
+2026_13_CAR_MIN,13,Sunday,CAR,MIN,,,,,,,6,7,0,dome,sportturf,CAR @ MIN,Sun Dec 6 16:25,,,,,,upcoming,,,,
+2026_13_BUF_NE,13,Sunday,BUF,NE,,,,,,,10,7,1,outdoors,fieldturf,BUF @ NE,Sun Dec 6 16:25,,,,,,upcoming,,,,
+2026_13_HOU_PIT,13,Sunday,HOU,PIT,,,,,,,7,9,0,outdoors,grass,HOU @ PIT,Sun Dec 6 20:20,,,,,,upcoming,,,,
+2026_13_DAL_SEA,13,Monday,DAL,SEA,,,,,,,11,8,0,outdoors,fieldturf,DAL @ SEA,Mon Dec 7 20:15,,,,,,upcoming,,,,
+2026_14_MIN_NE,14,Thursday,MIN,NE,,,,,,,4,4,0,outdoors,fieldturf,MIN @ NE,Thu Dec 10 20:15,,,,,,upcoming,,,,
+2026_14_TB_BAL,14,Sunday,TB,BAL,,,,,,,7,14,0,outdoors,grass,TB @ BAL,Sun Dec 13 13:00,,,,,,upcoming,,,,
+2026_14_NO_CAR,14,Sunday,NO,CAR,,,,,,,7,7,1,outdoors,grass,NO @ CAR,Sun Dec 13 13:00,,,,,,upcoming,,,,
+2026_14_ATL_CLE,14,Sunday,ATL,CLE,,,,,,,7,7,0,outdoors,grass,ATL @ CLE,Sun Dec 13 13:00,,,,,,upcoming,,,,
+2026_14_TEN_DET,14,Sunday,TEN,DET,,,,,,,7,7,0,dome,fieldturf,TEN @ DET,Sun Dec 13 13:00,,,,,,upcoming,,,,
+2026_14_CHI_MIA,14,Sunday,CHI,MIA,,,,,,,7,7,0,outdoors,grass,CHI @ MIA,Sun Dec 13 13:00,,,,,,upcoming,,,,
+2026_14_DEN_NYJ,14,Sunday,DEN,NYJ,,,,,,,7,14,0,outdoors,fieldturf,DEN @ NYJ,Sun Dec 13 13:00,,,,,,upcoming,,,,
+2026_14_IND_PHI,14,Sunday,IND,PHI,,,,,,,14,7,0,outdoors,grass,IND @ PHI,Sun Dec 13 13:00,,,,,,upcoming,,,,
+2026_14_HOU_WAS,14,Sunday,HOU,WAS,,,,,,,7,7,0,outdoors,grass,HOU @ WAS,Sun Dec 13 13:00,,,,,,upcoming,,,,
+2026_14_LAC_LV,14,Sunday,LAC,LV,,,,,,,7,14,1,dome,grass,LAC @ LV,Sun Dec 13 16:05,,,,,,upcoming,,,,
+2026_14_KC_CIN,14,Sunday,KC,CIN,,,,,,,10,7,0,outdoors,fieldturf,KC @ CIN,Sun Dec 13 16:25,,,,,,upcoming,,,,
+2026_14_NYG_SEA,14,Sunday,NYG,SEA,,,,,,,7,6,0,outdoors,fieldturf,NYG @ SEA,Sun Dec 13 16:25,,,,,,upcoming,,,,
+2026_14_LA_SF,14,Sunday,LA,SF,,,,,,,10,7,1,outdoors,grass,LA @ SF,Sun Dec 13 16:25,,,,,,upcoming,,,,
+2026_14_BUF_GB,14,Sunday,BUF,GB,,,,,,,7,7,0,outdoors,grass,BUF @ GB,Sun Dec 13 20:20,,,,,,upcoming,,,,
+2026_14_PIT_JAX,14,Monday,PIT,JAX,,,,,,,8,8,0,outdoors,grass,PIT @ JAX,Mon Dec 14 20:15,,,,,,upcoming,,,,
+2026_15_SF_LAC,15,Thursday,SF,LAC,,,,,,,4,4,0,dome,matrixturf,SF @ LAC,Thu Dec 17 20:15,,,,,,upcoming,,,,
+2026_15_SEA_PHI,15,Saturday,SEA,PHI,,,,,,,6,6,0,outdoors,grass,SEA @ PHI,Sat Dec 19 17:00,,,,,,upcoming,,,,
+2026_15_CHI_BUF,15,Saturday,CHI,BUF,,,,,,,6,6,0,outdoors,a_turf,CHI @ BUF,Sat Dec 19 20:20,,,,,,upcoming,,,,
+2026_15_CIN_CAR,15,Sunday,CIN,CAR,,,,,,,7,7,0,outdoors,grass,CIN @ CAR,Sun Dec 20 13:00,,,,,,upcoming,,,,
+2026_15_MIA_GB,15,Sunday,MIA,GB,,,,,,,7,7,0,outdoors,grass,MIA @ GB,Sun Dec 20 13:00,,,,,,upcoming,,,,
+2026_15_JAX_HOU,15,Sunday,JAX,HOU,,,,,,,6,7,1,,astroturf,JAX @ HOU,Sun Dec 20 13:00,,,,,,upcoming,,,,
+2026_15_CLE_NYG,15,Sunday,CLE,NYG,,,,,,,7,7,0,outdoors,fieldturf,CLE @ NYG,Sun Dec 20 13:00,,,,,,upcoming,,,,
+2026_15_BAL_PIT,15,Sunday,BAL,PIT,,,,,,,7,6,1,outdoors,grass,BAL @ PIT,Sun Dec 20 13:00,,,,,,upcoming,,,,
+2026_15_NO_TB,15,Sunday,NO,TB,,,,,,,7,7,1,outdoors,grass,NO @ TB,Sun Dec 20 13:00,,,,,,upcoming,,,,
+2026_15_IND_TEN,15,Sunday,IND,TEN,,,,,,,7,7,1,outdoors,grass,IND @ TEN,Sun Dec 20 13:00,,,,,,upcoming,,,,
+2026_15_ATL_WAS,15,Sunday,ATL,WAS,,,,,,,7,7,0,outdoors,grass,ATL @ WAS,Sun Dec 20 13:00,,,,,,upcoming,,,,
+2026_15_NYJ_ARI,15,Sunday,NYJ,ARI,,,,,,,7,14,0,,grass,NYJ @ ARI,Sun Dec 20 16:05,,,,,,upcoming,,,,
+2026_15_DAL_LA,15,Sunday,DAL,LA,,,,,,,13,7,0,dome,matrixturf,DAL @ LA,Sun Dec 20 16:25,,,,,,upcoming,,,,
+2026_15_DEN_LV,15,Sunday,DEN,LV,,,,,,,7,7,1,dome,grass,DEN @ LV,Sun Dec 20 16:25,,,,,,upcoming,,,,
+2026_15_DET_MIN,15,Sunday,DET,MIN,,,,,,,7,10,1,dome,sportturf,DET @ MIN,Sun Dec 20 20:20,,,,,,upcoming,,,,
+2026_15_NE_KC,15,Monday,NE,KC,,,,,,,11,8,0,outdoors,grass,NE @ KC,Mon Dec 21 20:15,,,,,,upcoming,,,,
+2026_16_HOU_PHI,16,Thursday,HOU,PHI,,,,,,,4,5,0,outdoors,grass,HOU @ PHI,Thu Dec 24 20:15,,,,,,upcoming,,,,
+2026_16_GB_CHI,16,Friday,GB,CHI,,,,,,,5,6,1,outdoors,grass,GB @ CHI,Fri Dec 25 13:00,,,,,,upcoming,,,,
+2026_16_BUF_DEN,16,Friday,BUF,DEN,,,,,,,6,5,0,outdoors,grass,BUF @ DEN,Fri Dec 25 16:30,,,,,,upcoming,,,,
+2026_16_LA_SEA,16,Friday,LA,SEA,,,,,,,5,6,1,outdoors,fieldturf,LA @ SEA,Fri Dec 25 20:15,,,,,,upcoming,,,,
+2026_16_TB_ATL,16,Sunday,TB,ATL,,,,,,,7,7,1,,fieldturf,TB @ ATL,Sun Dec 27 13:00,,,,,,upcoming,,,,
+2026_16_CLE_BAL,16,Sunday,CLE,BAL,,,,,,,7,7,1,outdoors,grass,CLE @ BAL,Sun Dec 27 13:00,,,,,,upcoming,,,,
+2026_16_CIN_IND,16,Sunday,CIN,IND,,,,,,,7,7,0,,fieldturf,CIN @ IND,Sun Dec 27 13:00,,,,,,upcoming,,,,
+2026_16_LAC_MIA,16,Sunday,LAC,MIA,,,,,,,10,7,0,outdoors,grass,LAC @ MIA,Sun Dec 27 13:00,,,,,,upcoming,,,,
+2026_16_WAS_MIN,16,Sunday,WAS,MIN,,,,,,,7,7,0,dome,sportturf,WAS @ MIN,Sun Dec 27 13:00,,,,,,upcoming,,,,
+2026_16_ARI_NO,16,Sunday,ARI,NO,,,,,,,7,7,0,dome,sportturf,ARI @ NO,Sun Dec 27 13:00,,,,,,upcoming,,,,
+2026_16_NE_NYJ,16,Sunday,NE,NYJ,,,,,,,6,7,1,outdoors,fieldturf,NE @ NYJ,Sun Dec 27 13:00,,,,,,upcoming,,,,
+2026_16_CAR_PIT,16,Sunday,CAR,PIT,,,,,,,7,7,0,outdoors,grass,CAR @ PIT,Sun Dec 27 13:00,,,,,,upcoming,,,,
+2026_16_TEN_LV,16,Sunday,TEN,LV,,,,,,,7,7,0,dome,grass,TEN @ LV,Sun Dec 27 16:05,,,,,,upcoming,,,,
+2026_16_SF_KC,16,Sunday,SF,KC,,,,,,,10,6,0,outdoors,grass,SF @ KC,Sun Dec 27 16:25,,,,,,upcoming,,,,
+2026_16_JAX_DAL,16,Sunday,JAX,DAL,,,,,,,7,7,0,,matrixturf,JAX @ DAL,Sun Dec 27 20:20,,,,,,upcoming,,,,
+2026_16_NYG_DET,16,Monday,NYG,DET,,,,,,,8,8,0,dome,fieldturf,NYG @ DET,Mon Dec 28 20:15,,,,,,upcoming,,,,
+2026_17_BAL_CIN,17,Thursday,BAL,CIN,,,,,,,4,4,1,outdoors,fieldturf,BAL @ CIN,Thu Dec 31 20:15,,,,,,upcoming,,,,
+2026_17_NO_ATL,17,Sunday,NO,ATL,,,,,,,7,7,1,,fieldturf,NO @ ATL,Sun Jan 3 13:00,,,,,,upcoming,,,,
+2026_17_SEA_CAR,17,Sunday,SEA,CAR,,,,,,,9,7,0,outdoors,grass,SEA @ CAR,Sun Jan 3 13:00,,,,,,upcoming,,,,
+2026_17_IND_CLE,17,Sunday,IND,CLE,,,,,,,7,7,0,outdoors,grass,IND @ CLE,Sun Jan 3 13:00,,,,,,upcoming,,,,
+2026_17_NYG_DAL,17,Sunday,NYG,DAL,,,,,,,6,7,1,,matrixturf,NYG @ DAL,Sun Jan 3 13:00,,,,,,upcoming,,,,
+2026_17_WAS_JAX,17,Sunday,WAS,JAX,,,,,,,7,7,0,outdoors,grass,WAS @ JAX,Sun Jan 3 13:00,,,,,,upcoming,,,,
+2026_17_KC_LAC,17,Sunday,KC,LAC,,,,,,,7,7,1,dome,matrixturf,KC @ LAC,Sun Jan 3 13:00,,,,,,upcoming,,,,
+2026_17_BUF_MIA,17,Sunday,BUF,MIA,,,,,,,9,7,1,outdoors,grass,BUF @ MIA,Sun Jan 3 13:00,,,,,,upcoming,,,,
+2026_17_DEN_NE,17,Sunday,DEN,NE,,,,,,,9,7,0,outdoors,fieldturf,DEN @ NE,Sun Jan 3 13:00,,,,,,upcoming,,,,
+2026_17_MIN_NYJ,17,Sunday,MIN,NYJ,,,,,,,7,7,0,outdoors,fieldturf,MIN @ NYJ,Sun Jan 3 13:00,,,,,,upcoming,,,,
+2026_17_LA_TB,17,Sunday,LA,TB,,,,,,,9,7,0,outdoors,grass,LA @ TB,Sun Jan 3 13:00,,,,,,upcoming,,,,
+2026_17_PIT_TEN,17,Sunday,PIT,TEN,,,,,,,7,7,0,outdoors,grass,PIT @ TEN,Sun Jan 3 13:00,,,,,,upcoming,,,,
+2026_17_LV_ARI,17,Sunday,LV,ARI,,,,,,,7,7,0,,grass,LV @ ARI,Sun Jan 3 16:05,,,,,,upcoming,,,,
+2026_17_DET_CHI,17,Sunday,DET,CHI,,,,,,,6,9,1,outdoors,grass,DET @ CHI,Sun Jan 3 16:25,,,,,,upcoming,,,,
+2026_17_PHI_SF,17,Sunday,PHI,SF,,,,,,,10,7,0,outdoors,grass,PHI @ SF,Sun Jan 3 20:20,,,,,,upcoming,,,,
+2026_17_HOU_GB,17,Monday,HOU,GB,,,,,,,11,10,0,outdoors,grass,HOU @ GB,Mon Jan 4 20:15,,,,,,upcoming,,,,
+2026_18_SF_ARI,18,Sunday,SF,ARI,,,,,,,7,7,1,,grass,SF @ ARI,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_PIT_BAL,18,Sunday,PIT,BAL,,,,,,,7,10,1,outdoors,grass,PIT @ BAL,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_NYJ_BUF,18,Sunday,NYJ,BUF,,,,,,,7,7,1,outdoors,a_turf,NYJ @ BUF,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_ATL_CAR,18,Sunday,ATL,CAR,,,,,,,7,7,1,outdoors,grass,ATL @ CAR,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_CLE_CIN,18,Sunday,CLE,CIN,,,,,,,7,10,1,outdoors,fieldturf,CLE @ CIN,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_LAC_DEN,18,Sunday,LAC,DEN,,,,,,,7,7,1,outdoors,grass,LAC @ DEN,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_DET_GB,18,Sunday,DET,GB,,,,,,,7,6,1,outdoors,grass,DET @ GB,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_TEN_HOU,18,Sunday,TEN,HOU,,,,,,,7,6,1,,astroturf,TEN @ HOU,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_JAX_IND,18,Sunday,JAX,IND,,,,,,,7,7,1,,fieldturf,JAX @ IND,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_LV_KC,18,Sunday,LV,KC,,,,,,,7,7,1,outdoors,grass,LV @ KC,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_SEA_LA,18,Sunday,SEA,LA,,,,,,,7,7,1,dome,matrixturf,SEA @ LA,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_CHI_MIN,18,Sunday,CHI,MIN,,,,,,,7,7,1,dome,sportturf,CHI @ MIN,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_MIA_NE,18,Sunday,MIA,NE,,,,,,,7,7,1,outdoors,fieldturf,MIA @ NE,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_TB_NO,18,Sunday,TB,NO,,,,,,,7,7,1,dome,sportturf,TB @ NO,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_PHI_NYG,18,Sunday,PHI,NYG,,,,,,,7,7,1,outdoors,fieldturf,PHI @ NYG,Sun Jan 10 13:00,,,,,,upcoming,,,,
+2026_18_DAL_WAS,18,Sunday,DAL,WAS,,,,,,,7,7,1,outdoors,grass,DAL @ WAS,Sun Jan 10 13:00,,,,,,upcoming,,,,
