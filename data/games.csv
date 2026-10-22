@@ -101,7 +101,7 @@ game_id,week,weekday,away_team,home_team,away_score,home_score,spread_line,total
 2026_07_IND_MIN,7,Sunday,IND,MIN,,,6.5,41.5,225.0,-278.0,7,14,0,dome,sportturf,IND @ MIN,Sun Oct 25 13:00,24.0,17.5,MIN -6.5,70.5,29.5,upcoming,,,,
 2026_07_MIA_NYJ,7,Sunday,MIA,NYJ,,,4.5,39.5,185.0,-225.0,14,7,1,outdoors,fieldturf,MIA @ NYJ,Sun Oct 25 13:00,22.0,17.5,NYJ -4.5,66.4,33.6,upcoming,,,,
 2026_07_CLE_TEN,7,Sunday,CLE,TEN,,,-1.5,37.5,-130.0,110.0,7,7,0,outdoors,grass,CLE @ TEN,Sun Oct 25 13:00,18.0,19.5,CLE -1.5,45.7,54.3,upcoming,,,,
-2026_07_DEN_ARI,7,Sunday,DEN,ARI,,,-4.5,43.5,-230.0,190.0,10,7,0,,grass,DEN @ ARI,Sun Oct 25 16:05,19.5,24.0,DEN -4.5,33.1,66.9,upcoming,,,,
+2026_07_DEN_ARI,7,Sunday,DEN,ARI,,,-4.5,43.5,-238.0,195.0,10,7,0,,grass,DEN @ ARI,Sun Oct 25 16:05,19.5,24.0,DEN -4.5,32.5,67.5,upcoming,,,,
 2026_07_GB_DET,7,Sunday,GB,DET,,,3.0,53.5,140.0,-166.0,7,14,1,dome,fieldturf,GB @ DET,Sun Oct 25 16:25,28.2,25.2,DET -3,60.0,40.0,upcoming,,,,
 2026_07_LA_LV,7,Sunday,LA,LV,,,-3.5,48.5,-218.0,180.0,7,7,0,dome,grass,LA @ LV,Sun Oct 25 16:25,22.5,26.0,LA -3.5,34.3,65.7,upcoming,,,,
 2026_07_KC_SEA,7,Sunday,KC,SEA,,,3.0,42.5,124.0,-148.0,7,10,0,outdoors,fieldturf,KC @ SEA,Sun Oct 25 20:20,22.8,19.8,SEA -3,57.2,42.8,upcoming,,,,

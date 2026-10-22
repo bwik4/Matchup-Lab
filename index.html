@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NFL Matchup Lab</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1b1b1a">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Matchup Lab">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
   /* ---------- theme: edit these to restyle the whole site ---------- */
@@ -76,7 +84,7 @@
 </style>
 </head>
 <body>
-<div class="ml">
+<div class="ml" style="padding-top: max(24px, env(safe-area-inset-top));">
   <header class="bar">
     <div>
       <h1>NFL Matchup Lab</h1>
@@ -680,6 +688,9 @@ Promise.all([
   document.querySelector('.ml').prepend(p);
   console.error(err);
 });
+
+// installable app + offline support
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 </script>
 </body>
 </html>

@@ -119,7 +119,10 @@ def build(season, out):
     sched = games[(games["season"] == season) & (games["game_type"] == "REG")].copy()
 
     last_week = int(stats["week"].max())
-    upcoming_week = last_week + 1
+    # the "current" week is the earliest week that still has an unplayed game, so a
+    # mid-week update (e.g. after Thursday night) doesn't skip ahead
+    unplayed = sched[sched["home_score"].isna()]
+    upcoming_week = int(unplayed["week"].min()) if len(unplayed) else last_week + 1
 
     skill = stats[stats["position"].isin(POSITIONS)].copy()
     rz = red_zone_usage(pbp)
@@ -263,11 +266,20 @@ def build(season, out):
     teams["funnel"] = np.where(teams["def_pass_epa_rank"] > teams["def_rush_epa_rank"] + 5, "Pass funnel",
                                np.where(teams["def_rush_epa_rank"] > teams["def_pass_epa_rank"] + 5, "Run funnel", "Balanced"))
 
-    upg = g[g["week"] == upcoming_week]
+    # each team's next unplayed game (a team that already played this week moves on to its next one)
+    upg = g[g["status"] == "upcoming"].sort_values("week")
     nxt = pd.concat([
-        upg[["home_team", "away_team", "home_implied"]].rename(columns={"home_team": "team", "away_team": "next_opp", "home_implied": "team_implied"}).assign(home=1),
-        upg[["away_team", "home_team", "away_implied"]].rename(columns={"away_team": "team", "home_team": "next_opp", "away_implied": "team_implied"}).assign(home=0),
-    ])
+        upg[["week", "home_team", "away_team", "home_implied"]].rename(columns={"home_team": "team", "away_team": "next_opp", "home_implied": "team_implied"}).assign(home=1),
+        upg[["week", "away_team", "home_team", "away_implied"]].rename(columns={"away_team": "team", "home_team": "next_opp", "away_implied": "team_implied"}).assign(home=0),
+    ]).sort_values("week")
+    nxt = nxt.drop_duplicates("team", keep="first")
+    # a team with no game at all in the current week is on bye (a team that already
+    # played this week, e.g. on Thursday, keeps its next game instead)
+    playing = set(sched.loc[sched["week"] == upcoming_week, "home_team"]) | set(sched.loc[sched["week"] == upcoming_week, "away_team"])
+    bye = ~nxt["team"].isin(playing)
+    nxt.loc[bye, "next_opp"] = None
+    nxt.loc[bye, "team_implied"] = None
+    nxt = nxt.drop(columns="week")
     teams = teams.reset_index().merge(nxt[["team", "next_opp"]], on="team", how="left")
     teams["next_opp"] = teams["next_opp"].fillna("BYE")
     num = teams.select_dtypes("float").columns
