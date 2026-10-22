@@ -1,0 +1,29 @@
+name: Update NFL data
+
+on:
+  schedule:
+    # Every Tuesday at 14:30 UTC (8:30am Central in winter, 9:30am in summer)
+    - cron: "30 14 * * 2"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pandas
+      - run: python pipeline.py --out data
+      - name: Commit new data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Weekly NFL data refresh"
+          git push
