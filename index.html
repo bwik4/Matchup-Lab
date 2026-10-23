@@ -79,6 +79,20 @@
   .pill { display: inline-block; font-size: .72rem; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
   .edges { margin: 8px 0 0; padding-left: 18px; font-size: .85rem; line-height: 1.6; }
   .page[hidden], [hidden] { display: none !important; }
+  /* defense-vs-position table: bolder separators, zebra rows, grouped stat columns */
+  table.dvp { font-size: .85rem; }
+  table.dvp th { padding: 8px 10px; border-bottom: 2px solid color-mix(in srgb, var(--fg) 45%, transparent); }
+  table.dvp td { padding: 8px 10px; border-bottom: 1.5px solid color-mix(in srgb, var(--fg) 18%, transparent); }
+  table.dvp tbody tr:nth-child(even) td:not(.rk-g):not(.rk-r) { background: color-mix(in srgb, var(--fg) 4%, transparent); }
+  table.dvp tbody tr:hover td:not(.rk-g):not(.rk-r) { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  table.dvp tbody tr.sel td:first-child { box-shadow: inset 4px 0 0 var(--accent); }
+  table.dvp .grp { border-left: 2px solid color-mix(in srgb, var(--fg) 15%, transparent); }
+  table.dvp td:first-child { font-weight: 700; position: sticky; left: 0; background: var(--panel); z-index: 1; }
+  table.dvp th:first-child { position: sticky; left: 0; z-index: 2; }
+  table.dvp td.rk { min-width: 2.6rem; text-align: center; }
+  table.dvp th.rkh { text-align: center; }
+  .summary { font-size: .9rem; margin: 0 0 10px; line-height: 1.5; }
+  .summary b.g, .summary b.r { font-weight: 700; }
   footer { color: var(--muted); font-size: .75rem; }
   footer a { color: inherit; }
 </style>
@@ -156,6 +170,22 @@
     </div>
     <div class="card">
       <div class="bar">
+        <h2 class="pd-title">Position vs opponent</h2>
+        <div class="controls">
+          <div class="seg pd-depth" role="group" aria-label="Depth"></div>
+          <div class="seg pd-win" role="group" aria-label="Seasons">
+            <button data-v="both">This + last season</button><button data-v="cur">This season</button>
+          </div>
+        </div>
+      </div>
+      <p class="note pd-note">Every game a player at this position had against this week's opponent. RB1 / WR1 etc. = the most-used player at that position on his team that game (QB by attempts, RB by carries + targets, WR/TE by targets). The highlighted column is colored against your line above.</p>
+      <p class="summary pd-sum"></p>
+      <div class="scroll" style="max-height: 30rem"><table class="t-pdef"><thead></thead><tbody></tbody></table></div>
+      <p class="empty pd-empty" hidden>No games to show.</p>
+      <div class="legend"><span class="lg">Over your line</span><span class="lr">Under your line</span></div>
+    </div>
+    <div class="card">
+      <div class="bar">
         <h2>Prop finder</h2>
         <div class="controls">
           <div class="seg f-pos" role="group" aria-label="Position">
@@ -185,8 +215,8 @@
           </div>
         </div>
       </div>
-      <p class="note">Totals from every player at that position against the defense, divided by its games. "Rk" ranks all 32 defenses: 1 = toughest (allows the least), 32 = easiest (allows the most, best spot for overs). For INTs and sacks, 1 = forces the most. Click a defense for its week-by-week numbers.</p>
-      <div class="scroll"><table class="t-match"><thead></thead><tbody></tbody></table></div>
+      <p class="note">Totals from every player at that position against the defense, divided by its games. "Rk" ranks all 32 defenses: 1 = toughest (allows the least), 32 = easiest (allows the most, best spot for overs). For INTs and sacks, 1 = forces the most. "Long" stats = the average longest play allowed to the position per game. Click a defense for its week-by-week numbers.</p>
+      <div class="scroll"><table class="t-match dvp"><thead></thead><tbody></tbody></table></div>
       <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (25–32)</span></div>
     </div>
     <div class="card" id="m-detail">
@@ -229,13 +259,14 @@ const STATS = {
   rushing_yards: 'Rush yds', carries: 'Carries', rushing_tds: 'Rush TD', rush_rec_yds: 'Rush+rec yds',
   receptions: 'Receptions', receiving_yards: 'Rec yds', targets: 'Targets', receiving_tds: 'Rec TD',
   rz_targets: 'RZ targets', rz_carries: 'RZ carries',
+  long_completion: 'Long completion', long_rush: 'Long rush', long_reception: 'Long reception',
   fp_std: 'Fantasy pts', fp_half: 'Fantasy pts', fp_ppr: 'Fantasy pts',
 };
 const POS_STATS = {
-  QB: ['passing_yards', 'attempts', 'completions', 'passing_tds', 'passing_interceptions', 'rushing_yards', 'pass_rush_yds'],
-  RB: ['rushing_yards', 'carries', 'rushing_tds', 'receptions', 'receiving_yards', 'rush_rec_yds', 'targets', 'rz_carries'],
-  WR: ['receptions', 'receiving_yards', 'targets', 'receiving_tds', 'rz_targets'],
-  TE: ['receptions', 'receiving_yards', 'targets', 'receiving_tds', 'rz_targets'],
+  QB: ['passing_yards', 'attempts', 'completions', 'passing_tds', 'passing_interceptions', 'long_completion', 'rushing_yards', 'pass_rush_yds'],
+  RB: ['rushing_yards', 'carries', 'rushing_tds', 'long_rush', 'receptions', 'receiving_yards', 'long_reception', 'rush_rec_yds', 'targets', 'rz_carries'],
+  WR: ['receptions', 'receiving_yards', 'targets', 'receiving_tds', 'long_reception', 'rz_targets'],
+  TE: ['receptions', 'receiving_yards', 'targets', 'receiving_tds', 'long_reception', 'rz_targets'],
 };
 const FMT_NAME = { std: 'standard', half: 'half-PPR', ppr: 'PPR' };
 
@@ -243,7 +274,7 @@ const DATA = {};
 const S = {
   tab: 'games', fantasy: false, fmt: 'ppr', season: null, upWeek: null,
   gWeek: null, game: null,
-  player: null, pStat: null, pLine: null,
+  player: null, pStat: null, pLine: null, pdDepth: null, pdFor: null, pdWin: 'both',
   fPos: 'WR', fStat: 'receiving_yards', fq: '',
   mPos: 'WR', mWin: 'season', mDef: null, mdStat: null,
   tView: 'betting', sorts: {},
@@ -285,7 +316,7 @@ function table(el, name, cols, data, opts = {}) {
   const tr = document.createElement('tr');
   cols.forEach((c) => {
     const th = document.createElement('th');
-    if (c.l) th.className = 'l';
+    th.className = [c.l ? 'l' : '', c.group ? 'grp' : '', c.rank ? 'rkh' : ''].join(' ').trim();
     if (c.title) th.title = c.title;
     if (st && st.f === c.f) th.setAttribute('aria-sort', st.dir === 'asc' ? 'ascending' : 'descending');
     const b = document.createElement('button');
@@ -307,7 +338,7 @@ function table(el, name, cols, data, opts = {}) {
       const td = document.createElement('td');
       const v = r[c.f];
       td.textContent = c.fmt ? c.fmt(v, r) : show(v);
-      td.className = [c.l ? 'l' : '', c.rank ? (c.rank === 'opp' ? rankClsOpp(v) : rankCls(v)) : '', c.cls ? c.cls(v, r) : ''].join(' ').trim();
+      td.className = [c.l ? 'l' : '', c.group ? 'grp' : '', c.rank ? (c.rank === 'opp' ? rankClsOpp(v) : rankCls(v)) : '', c.cls ? c.cls(v, r) : ''].join(' ').trim();
       row.appendChild(td);
     });
     frag.appendChild(row);
@@ -371,6 +402,12 @@ function buildIndexes() {
   IDX.logs = new Map();
   DATA.logs.forEach((r) => { if (!IDX.logs.has(r.player_id)) IDX.logs.set(r.player_id, []); IDX.logs.get(r.player_id).push(r); });
   IDX.logs.forEach((a) => a.sort((x, y) => x.season - y.season || x.week - y.week));
+  // depth rank within each team-game: 1 = most-used player at the position that game
+  const usage = { QB: (r) => (r.attempts || 0) * 10 + (r.carries || 0), RB: (r) => (r.carries || 0) + (r.targets || 0) + (r.rushing_yards || 0) / 1000,
+    WR: (r) => (r.targets || 0) + (r.receiving_yards || 0) / 1000, TE: (r) => (r.targets || 0) + (r.receiving_yards || 0) / 1000 };
+  const grp = new Map();
+  DATA.logs.forEach((r) => { const k = `${r.season}|${r.week}|${r.team}|${r.position}`; if (!grp.has(k)) grp.set(k, []); grp.get(k).push(r); });
+  grp.forEach((a) => { const u = usage[a[0].position]; a.sort((x, y) => u(y) - u(x)).forEach((r, i) => { r.depth = i + 1; }); });
 }
 const mrow = (def, pos, stat, win = 'season') => IDX.match.get(`${def}|${win}|${pos}|${stat}`);
 const curGames = (pid) => (IDX.logs.get(pid) || []).filter((r) => r.season === S.season);
@@ -384,7 +421,7 @@ function seg(sel, key, after) {
 const segs = [
   seg('.fmt', 'fmt', () => { ['pStat', 'fStat', 'mdStat'].forEach((k) => { if (S[k] && S[k].startsWith('fp_')) S[k] = fpKey(); }); }), seg('.m-win', 'mWin'), seg('.t-view', 'tView'),
   seg('.f-pos', 'fPos', () => { if (!posStats(S.fPos).includes(S.fStat)) S.fStat = POS_STATS[S.fPos][0]; }),
-  seg('.m-pos', 'mPos', () => { S.mdStat = null; }),
+  seg('.m-pos', 'mPos', () => { S.mdStat = null; }), seg('.pd-win', 'pdWin'),
 ];
 $('.fantasy-toggle').addEventListener('change', (e) => {
   S.fantasy = e.target.checked;
@@ -411,6 +448,7 @@ $('.p-stat').addEventListener('change', (e) => { S.pStat = e.target.value; S.pLi
 $('.p-line').addEventListener('input', (e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) { S.pLine = v; render(); } });
 $('.f-stat').addEventListener('change', (e) => { S.fStat = e.target.value; render(); });
 $('.f-q').addEventListener('input', (e) => { S.fq = e.target.value.trim().toLowerCase(); render(); });
+$('.pd-depth').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; S.pdDepth = b.dataset.v; render(); });
 $('.md-stat').addEventListener('change', (e) => { S.mdStat = e.target.value; render(); });
 window.addEventListener('resize', () => { clearTimeout(window._rt); window._rt = setTimeout(render, 150); });
 
@@ -562,10 +600,10 @@ function renderProps() {
     tipTitle: `Week ${r.week} vs ${r.opp}`, tipBody: `${show(r[stat])} ${statLabel(stat).toLowerCase()}`,
   })), { height: 220, line });
 
-  const extra = p.position === 'QB' ? ['completions', 'attempts', 'passing_yards', 'passing_tds', 'passing_interceptions', 'carries', 'rushing_yards']
-    : p.position === 'RB' ? ['carries', 'rushing_yards', 'rushing_tds', 'targets', 'receptions', 'receiving_yards', 'rz_carries']
-      : ['targets', 'receptions', 'receiving_yards', 'receiving_tds', 'receiving_air_yards', 'rz_targets', 'target_share'];
-  const lab = { receiving_air_yards: 'Air yds', target_share: 'Tgt %' };
+  const extra = p.position === 'QB' ? ['completions', 'attempts', 'passing_yards', 'passing_tds', 'passing_interceptions', 'long_completion', 'carries', 'rushing_yards']
+    : p.position === 'RB' ? ['carries', 'rushing_yards', 'rushing_tds', 'long_rush', 'targets', 'receptions', 'receiving_yards', 'long_reception', 'rz_carries']
+      : ['targets', 'receptions', 'receiving_yards', 'receiving_tds', 'long_reception', 'receiving_air_yards', 'rz_targets', 'target_share'];
+  const lab = { receiving_air_yards: 'Air yds', target_share: 'Tgt %', long_completion: 'Long', long_rush: 'Long rush', long_reception: 'Long rec' };
   const statCols = extra.map((k) => ({ f: k, label: lab[k] || STATS[k] }));
   if (!extra.includes(stat)) statCols.unshift({ f: stat, label: statLabel(stat) });
   const hl = (v) => (v == null ? '' : v > line ? 'g' : v < line ? 'r' : '');
@@ -577,6 +615,60 @@ function renderProps() {
   const vs = opp === 'BYE' ? [] : (IDX.logs.get(p.player_id) || []).filter((r) => r.opp === opp);
   $('.p-vs-empty').hidden = vs.length > 0; $('.t-pvs').parentElement.hidden = vs.length === 0;
   table($('.t-pvs'), 'pvs', [{ f: 'season', label: 'Season' }, { f: 'week', label: 'Wk' }, { f: 'team', label: 'For', l: true }, ...statCols], vs, { sort: { f: 'season', dir: 'desc' } });
+  renderPosVsDef(p, opp, stat, line, statCols);
+}
+
+// every game a player at the same position (and depth) had against this player's next opponent
+function renderPosVsDef(p, opp, stat, line, statCols) {
+  const pos = p.position;
+  const depths = { QB: ['1'], RB: ['1', '2', 'all'], WR: ['1', '2', '3', 'all'], TE: ['1', 'all'] }[pos];
+  // default to the role this player usually has on his team (his median depth this season)
+  if (S.pdFor !== p.player_id || !depths.includes(S.pdDepth)) {
+    // the role he held most often this season (ties go to the bigger role)
+    const cnt = {}; curGames(p.player_id).forEach((r) => { if (r.depth != null) cnt[r.depth] = (cnt[r.depth] || 0) + 1; });
+    const best = Object.keys(cnt).map(Number).sort((x, y) => cnt[y] - cnt[x] || x - y)[0];
+    const want = best == null ? '1' : String(best);
+    S.pdDepth = depths.includes(want) ? want : depths[depths.length - 1];
+    S.pdFor = p.player_id;
+  }
+  const dEl = $('.pd-depth');
+  const sig = pos;
+  if (dEl.dataset.sig !== sig) {
+    dEl.replaceChildren(...depths.map((d) => { const b = document.createElement('button'); b.dataset.v = d; b.textContent = d === 'all' ? `All ${pos}s` : `${pos}${d}`; return b; }));
+    dEl.dataset.sig = sig;
+  }
+  dEl.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === S.pdDepth)));
+  const label = S.pdDepth === 'all' ? `${pos}s` : `${pos}${S.pdDepth}s`;
+  if (opp === 'BYE') {
+    $('.pd-title').textContent = `${label} vs next opponent`;
+    $('.pd-sum').textContent = `${p.team} is on bye this week.`;
+    $('.pd-empty').hidden = true; $('.t-pdef').parentElement.hidden = true;
+    return;
+  }
+  $('.pd-title').textContent = `${label} vs ${opp} defense`;
+  const rows = DATA.logs.filter((r) => r.opp === opp && r.position === pos && (S.pdWin === 'both' || r.season === S.season)
+    && (S.pdDepth === 'all' || r.depth === Number(S.pdDepth)))
+    .map((r) => ({ ...r, when: `${r.season} W${String(r.week).padStart(2, '0')}`, depth_lbl: `${pos}${r.depth}`, me: r.player_id === p.player_id }));
+  const has = rows.length > 0;
+  $('.pd-empty').hidden = has; $('.t-pdef').parentElement.hidden = !has;
+  // summary: hit rate against the line for the selected stat
+  const sum = $('.pd-sum'); sum.replaceChildren();
+  if (has) {
+    const vals = rows.map((r) => r[stat]).filter((v) => v != null);
+    const cur = rows.filter((r) => r.season === S.season).map((r) => r[stat]).filter((v) => v != null);
+    const over = (a) => a.filter((v) => v > line).length;
+    const b = (txt, cls) => { const e = document.createElement('b'); e.textContent = txt; if (cls) e.className = cls; return e; };
+    const o = over(vals);
+    sum.append(`${label} vs ${opp} went over ${line} ${statLabel(stat).toLowerCase()} in `,
+      b(`${o} of ${vals.length}`, o / vals.length >= 0.5 ? 'g' : 'r'), ' games');
+    if (S.pdWin === 'both' && cur.length) sum.append(` (this season `, b(`${over(cur)} of ${cur.length}`), ')');
+    sum.append(`. Average `, b(show(mean(vals))), `, median `, b(show(median(vals))), '.');
+  }
+  const cols = [{ f: 'when', label: 'Game', l: true }, { f: 'team', label: 'Team', l: true }, { f: 'player', label: 'Player', l: true }];
+  if (S.pdDepth === 'all' || pos === 'QB') cols.push({ f: 'depth_lbl', label: 'Role', l: true });
+  const hl = (v) => (v == null ? '' : v > line ? 'g rk' : v < line ? 'r rk' : 'rk');
+  cols.push(...statCols.map((c) => ({ ...c, cls: c.f === stat ? hl : undefined })));
+  table($('.t-pdef'), 'pdef', cols, rows, { sort: { f: 'when', dir: 'desc' }, onClick: (r) => openProp(r.player_id, stat), selected: (r) => r.me });
 }
 
 function renderFinder() {
@@ -607,7 +699,7 @@ function renderMatchups() {
     return o;
   });
   const cols = [{ f: 'defense', label: 'Defense', l: true }, { f: 'games', label: 'GP' }];
-  keys.forEach((k) => cols.push({ f: k, label: statLabel(k).replace(/ \(.*\)/, '') }, { f: `${k}_rk`, label: 'Rk', rank: 'opp' }));
+  keys.forEach((k) => cols.push({ f: k, label: statLabel(k).replace(/ \(.*\)/, ''), group: true }, { f: `${k}_rk`, label: 'Rk', rank: 'opp' }));
   if (!S.mDef) S.mDef = rows.slice().sort((a, b) => (b[`${keys[0]}_rk`] ?? 0) - (a[`${keys[0]}_rk`] ?? 0))[0].defense;
   table($('.t-match'), 'match' + S.mPos, cols, rows, {
     sort: { f: `${keys[0]}_rk`, dir: 'asc' },
