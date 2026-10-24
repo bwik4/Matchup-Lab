@@ -83,14 +83,23 @@
   table.dvp { font-size: .85rem; }
   table.dvp th { padding: 8px 10px; border-bottom: 2px solid color-mix(in srgb, var(--fg) 45%, transparent); }
   table.dvp td { padding: 8px 10px; border-bottom: 1.5px solid color-mix(in srgb, var(--fg) 18%, transparent); }
-  table.dvp tbody tr:nth-child(even) td:not(.rk-g):not(.rk-r) { background: color-mix(in srgb, var(--fg) 4%, transparent); }
-  table.dvp tbody tr:hover td:not(.rk-g):not(.rk-r) { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  table.dvp tbody tr:nth-child(even) td:not(.rk-g):not(.rk-r) { background: color-mix(in srgb, var(--fg) 4%, var(--panel)); }
+  table.dvp tbody tr.sel td:not(.rk-g):not(.rk-r) { background: color-mix(in srgb, var(--accent) 9%, var(--panel)); }
+  table.dvp tbody tr:hover td:not(.rk-g):not(.rk-r) { background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
   table.dvp tbody tr.sel td:first-child { box-shadow: inset 4px 0 0 var(--accent); }
   table.dvp .grp { border-left: 2px solid color-mix(in srgb, var(--fg) 15%, transparent); }
   table.dvp td:first-child { font-weight: 700; position: sticky; left: 0; background: var(--panel); z-index: 1; }
   table.dvp th:first-child { position: sticky; left: 0; z-index: 2; }
   table.dvp td.rk { min-width: 2.6rem; text-align: center; }
   table.dvp th.rkh { text-align: center; }
+  .wo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 10px; }
+  .wo input.search { width: min(100%, 16rem); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 10px; border-radius: 999px; font-size: .8rem;
+    background: color-mix(in srgb, var(--accent) 14%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+  .chip button { font: inherit; font-size: 1rem; line-height: 1; border: 0; background: none; color: var(--muted); cursor: pointer; padding: 0 4px; }
+  .chip button:hover { color: var(--fg); }
+  .wo-on { border-left: 3px solid var(--accent); padding-left: 10px; }
   .summary { font-size: .9rem; margin: 0 0 10px; line-height: 1.5; }
   .summary b.g, .summary b.r { font-weight: 700; }
   footer { color: var(--muted); font-size: .75rem; }
@@ -148,8 +157,18 @@
           <select class="p-stat" aria-label="Stat"></select>
           <span class="lbl">Line</span>
           <input class="num p-line" type="number" step="0.5" aria-label="Prop line">
+          <div class="seg p-seas" role="group" aria-label="Seasons">
+            <button data-v="cur">This season</button><button data-v="both">This + last</button>
+          </div>
         </div>
       </div>
+      <div class="wo p-wo">
+        <span class="lbl">Games without</span>
+        <input class="search" type="search" list="p-wo-list" placeholder="Add a teammate who sat out" aria-label="Filter to games a teammate missed">
+        <datalist id="p-wo-list"></datalist>
+        <div class="chips"></div>
+      </div>
+      <p class="summary p-split" hidden></p>
       <p class="note p-note">Type the sportsbook's line to see how often he's gone over it. It starts at his season average.</p>
       <div class="stats p-stats"></div>
       <div class="chart p-chart"></div>
@@ -163,7 +182,7 @@
         <p class="empty p-vs-empty" hidden>No games against them in the last two seasons.</p>
       </div>
       <div class="card">
-        <h2>This season's game log</h2>
+        <h2 class="plog-title">This season's game log</h2>
         <p class="note">Opp rk = how that defense ranks against this stat for this position: 1 = toughest (allows the least), 32 = easiest (allows the most).</p>
         <div class="scroll" style="max-height: 24rem"><table class="t-plog"><thead></thead><tbody></tbody></table></div>
       </div>
@@ -216,6 +235,13 @@
         </div>
       </div>
       <p class="note">Totals from every player at that position against the defense, divided by its games. "Rk" ranks all 32 defenses: 1 = toughest (allows the least), 32 = easiest (allows the most, best spot for overs). For INTs and sacks, 1 = forces the most. "Long" stats = the average longest play allowed to the position per game. Click a defense for its week-by-week numbers.</p>
+      <div class="wo m-wo">
+        <span class="lbl">Games without</span>
+        <input class="search" type="search" list="m-wo-list" placeholder="Add a player who sat out (e.g. a CB)" aria-label="Filter defenses to games a player missed">
+        <datalist id="m-wo-list"></datalist>
+        <div class="chips"></div>
+      </div>
+      <p class="summary m-split" hidden></p>
       <div class="scroll"><table class="t-match dvp"><thead></thead><tbody></tbody></table></div>
       <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (25–32)</span></div>
     </div>
@@ -224,7 +250,7 @@
         <h2 class="md-title">Pick a defense</h2>
         <select class="md-stat" aria-label="Stat"></select>
       </div>
-      <p class="note">Each week's total allowed to the position, labelled with the offense they faced.</p>
+      <p class="note">Each week's total allowed to the position, labelled with the offense they faced. With a "games without" filter on this defense, orange bars are the games the player sat out.</p>
       <div class="chart md-chart"></div>
       <h3>Biggest games against them this season</h3>
       <div class="scroll" style="max-height: 22rem"><table class="t-mtop"><thead></thead><tbody></tbody></table></div>
@@ -236,13 +262,29 @@
     <div class="card">
       <div class="bar">
         <h2 class="t-title">Betting records</h2>
-        <div class="seg t-view" role="group" aria-label="View">
-          <button data-v="betting">Betting records</button><button data-v="offense">Offense</button><button data-v="defense">Defense</button>
+        <div class="controls">
+          <div class="seg t-view" role="group" aria-label="View">
+            <button data-v="betting">Betting records</button><button data-v="offense">Offense</button><button data-v="defense">Defense</button>
+          </div>
+          <div class="seg t-seas" role="group" aria-label="Seasons">
+            <button data-v="cur">This season</button><button data-v="both">This + last</button>
+          </div>
         </div>
+      </div>
+      <div class="wo t-wo">
+        <span class="lbl">Games without</span>
+        <input class="search" type="search" list="t-wo-list" placeholder="Add a player who sat out" aria-label="Filter teams to games a player missed">
+        <datalist id="t-wo-list"></datalist>
+        <div class="chips"></div>
       </div>
       <p class="note t-note"></p>
       <div class="scroll"><table class="t-teams"><thead></thead><tbody></tbody></table></div>
       <div class="legend"><span class="lg">Top 8 (rank 1–8)</span><span class="lr">Bottom 8 (25–32)</span></div>
+    </div>
+    <div class="card" id="t-split" hidden>
+      <h2>With vs without</h2>
+      <p class="note">Each team's numbers in games the player(s) played versus games they missed. Games where a player wasn't on the team yet don't count toward either side.</p>
+      <div class="grid t-split-body"></div>
     </div>
   </section>
 
@@ -251,7 +293,7 @@
 
 <script>
 // ===================== config =====================
-const FILES = ['matchups', 'matchups_weekly', 'logs', 'players', 'games', 'teams'];
+const FILES = ['matchups', 'matchups_weekly', 'logs', 'players', 'games', 'teams', 'avail', 'team_games'];
 const POS = ['QB', 'RB', 'WR', 'TE'];
 const STATS = {
   passing_yards: 'Pass yds', attempts: 'Pass att', completions: 'Completions', passing_tds: 'Pass TD',
@@ -278,6 +320,7 @@ const S = {
   fPos: 'WR', fStat: 'receiving_yards', fq: '',
   mPos: 'WR', mWin: 'season', mDef: null, mdStat: null,
   tView: 'betting', sorts: {},
+  pSeas: 'cur', pWo: [], pWoFor: null, tSeas: 'cur', tWo: [], mWo: [],
 };
 
 // ===================== helpers =====================
@@ -285,7 +328,7 @@ const $ = (s) => document.querySelector(s);
 const NUMERIC = /^-?\d+(\.\d+)?$/;
 const clean = (r) => {
   const o = {};
-  for (const k in r) { const v = r[k]; o[k] = v === '' || v == null ? null : (k !== 'player_id' && k !== 'game_id' && NUMERIC.test(v) ? Number(v) : v); }
+  for (const k in r) { const v = r[k]; o[k] = v === '' || v == null ? null : (k !== 'player_id' && k !== 'game_id' && k !== 'rost' && k !== 'played' && NUMERIC.test(v) ? Number(v) : v); }
   return o;
 };
 const show = (v) => (v == null || Number.isNaN(v) ? '—' : typeof v === 'number' && !Number.isInteger(v) ? String(Math.round(v * 10) / 10) : String(v));
@@ -402,6 +445,7 @@ function buildIndexes() {
   IDX.logs = new Map();
   DATA.logs.forEach((r) => { if (!IDX.logs.has(r.player_id)) IDX.logs.set(r.player_id, []); IDX.logs.get(r.player_id).push(r); });
   IDX.logs.forEach((a) => a.sort((x, y) => x.season - y.season || x.week - y.week));
+  buildAvail();
   // depth rank within each team-game: 1 = most-used player at the position that game
   const usage = { QB: (r) => (r.attempts || 0) * 10 + (r.carries || 0), RB: (r) => (r.carries || 0) + (r.targets || 0) + (r.rushing_yards || 0) / 1000,
     WR: (r) => (r.targets || 0) + (r.receiving_yards || 0) / 1000, TE: (r) => (r.targets || 0) + (r.receiving_yards || 0) / 1000 };
@@ -409,6 +453,81 @@ function buildIndexes() {
   DATA.logs.forEach((r) => { const k = `${r.season}|${r.week}|${r.team}|${r.position}`; if (!grp.has(k)) grp.set(k, []); grp.get(k).push(r); });
   grp.forEach((a) => { const u = usage[a[0].position]; a.sort((x, y) => u(y) - u(x)).forEach((r, i) => { r.depth = i + 1; }); });
 }
+// ---------- "games without" helpers ----------
+const weekSet = (str) => new Set(String(str || '').split(' ').filter(Boolean).map(Number));
+function buildAvail() {
+  IDX.avail = new Map(); IDX.availTeam = new Map();
+  DATA.avail.forEach((r) => {
+    const a = { ...r, rostW: weekSet(r.rost), playW: weekSet(r.played) };
+    IDX.avail.set(`${r.season}|${r.team}|${r.player_id}`, a);
+    const tk = `${r.season}|${r.team}`;
+    if (!IDX.availTeam.has(tk)) IDX.availTeam.set(tk, []);
+    IDX.availTeam.get(tk).push(a);
+  });
+}
+// 'in' = took a snap, 'out' = on the team but didn't play, null = not on the team that week
+function avStatus(season, team, week, pid) {
+  const a = IDX.avail.get(`${season}|${team}|${pid}`);
+  if (!a || !a.rostW.has(week)) return null;
+  return a.playW.has(week) ? 'in' : 'out';
+}
+// 'without' if every player missed, 'with' if every player played, otherwise null (left out of both)
+function woSplit(season, team, week, pids) {
+  let out = 0, inn = 0;
+  for (const pid of pids) { const st = avStatus(season, team, week, pid); if (st === 'out') out++; else if (st === 'in') inn++; else return null; }
+  return out === pids.length ? 'without' : inn === pids.length ? 'with' : null;
+}
+const POS_ORDER = ['QB', 'RB', 'FB', 'WR', 'TE', 'OL', 'T', 'G', 'C', 'DL', 'DE', 'DT', 'NT', 'LB', 'OLB', 'ILB', 'MLB', 'DB', 'CB', 'S', 'FS', 'SS', 'K', 'P', 'LS'];
+const posIdx = (p) => { const i = POS_ORDER.indexOf(p); return i < 0 ? 99 : i; };
+const seasonsFor = (mode) => (mode === 'both' ? [S.season, S.season - 1] : [S.season]);
+// a player picker: type a name, it becomes a removable chip. getOpts() -> {sig, list: [{k, label, chip}]}
+function picker(sel, key, getOpts, onAdd) {
+  const box = $(sel), inp = box.querySelector('input'), dl = box.querySelector('datalist'), chips = box.querySelector('.chips');
+  let cache = { sig: null, list: [], byLabel: new Map(), byKey: new Map() };
+  inp.addEventListener('change', () => {
+    const v = inp.value.trim(); if (!v) return;
+    let k = cache.byLabel.get(v);
+    if (!k) { const lv = v.toLowerCase(); const hit = cache.list.find((o) => o.label.toLowerCase().startsWith(lv)) || cache.list.find((o) => o.label.toLowerCase().includes(lv)); k = hit && hit.k; }
+    if (k && !S[key].includes(k)) { S[key] = [...S[key], k]; if (onAdd) onAdd(k); }
+    inp.value = ''; render();
+  });
+  chips.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; S[key] = S[key].filter((k) => k !== b.dataset.k); render(); });
+  return () => {
+    const o = getOpts();
+    if (o.sig !== cache.sig) {
+      const list = o.build();
+      cache = { sig: o.sig, list, byLabel: new Map(list.map((x) => [x.label, x.k])), byKey: new Map(list.map((x) => [x.k, x])) };
+      dl.replaceChildren(...list.map((x) => { const e = document.createElement('option'); e.value = x.label; return e; }));
+    }
+    if (S[key].some((k) => !cache.byKey.has(k))) S[key] = S[key].filter((k) => cache.byKey.has(k));
+    chips.replaceChildren(...S[key].map((k) => {
+      const c = document.createElement('span'); c.className = 'chip';
+      c.append(`Without ${cache.byKey.get(k).chip}`);
+      const b = document.createElement('button'); b.dataset.k = k; b.textContent = '×'; b.setAttribute('aria-label', 'Remove'); c.append(b);
+      return c;
+    }));
+    box.classList.toggle('wo-on', S[key].length > 0);
+    return cache;
+  };
+}
+// all players on any roster in the given seasons, one option per player per team
+function leaguePlayers(seasons, posFilter) {
+  const seen = new Map();
+  DATA.avail.forEach((r) => {
+    if (!seasons.includes(r.season) || (posFilter && !posFilter(r.position))) return;
+    const k = `${r.player_id}|${r.team}`;
+    if (!seen.has(k) || r.season > seen.get(k).season) seen.set(k, r);
+  });
+  return [...seen.values()].sort((a, b) => a.team.localeCompare(b.team) || posIdx(a.position) - posIdx(b.position) || a.player.localeCompare(b.player))
+    .map((r) => ({ k: `${r.player_id}|${r.team}`, label: `${r.player} (${r.position}, ${r.team})`, chip: `${r.player} (${r.team})` }));
+}
+// group "pid|team" keys by team
+const woByTeam = (keys) => { const m = new Map(); keys.forEach((k) => { const [pid, team] = k.split('|'); if (!m.has(team)) m.set(team, []); m.get(team).push(pid); }); return m; };
+const woNames = (keys, cache) => keys.map((k) => (cache.byKey.get(k) || {}).chip || k).join(' + ');
+function rankMin(vals, asc) {
+  return vals.map((v) => (v == null || Number.isNaN(v) ? null : 1 + vals.filter((w) => w != null && !Number.isNaN(w) && (asc ? w < v : w > v)).length));
+}
+
 const mrow = (def, pos, stat, win = 'season') => IDX.match.get(`${def}|${win}|${pos}|${stat}`);
 const curGames = (pid) => (IDX.logs.get(pid) || []).filter((r) => r.season === S.season);
 
@@ -421,8 +540,29 @@ function seg(sel, key, after) {
 const segs = [
   seg('.fmt', 'fmt', () => { ['pStat', 'fStat', 'mdStat'].forEach((k) => { if (S[k] && S[k].startsWith('fp_')) S[k] = fpKey(); }); }), seg('.m-win', 'mWin'), seg('.t-view', 'tView'),
   seg('.f-pos', 'fPos', () => { if (!posStats(S.fPos).includes(S.fStat)) S.fStat = POS_STATS[S.fPos][0]; }),
-  seg('.m-pos', 'mPos', () => { S.mdStat = null; }), seg('.pd-win', 'pdWin'),
+  seg('.m-pos', 'mPos', () => { S.mdStat = null; }), seg('.pd-win', 'pdWin'), seg('.p-seas', 'pSeas'), seg('.t-seas', 'tSeas'),
 ];
+const pickP = picker('.p-wo', 'pWo', () => {
+  const p = IDX.player.get(S.player); const seas = seasonsFor(S.pSeas);
+  return { sig: `${S.player}|${S.pSeas}`, build: () => {
+    if (!p) return [];
+    const mine = (IDX.logs.get(p.player_id) || []).filter((g) => seas.includes(g.season) && g.team === p.team);
+    const m = new Map();
+    seas.forEach((yr) => (IDX.availTeam.get(`${yr}|${p.team}`) || []).forEach((a) => { if (a.player_id !== p.player_id && !m.has(a.player_id)) m.set(a.player_id, a); }));
+    return [...m.values()].map((a) => {
+      const st = mine.map((g) => avStatus(g.season, g.team, g.week, a.player_id));
+      return { a, out: st.filter((x) => x === 'out').length, inn: st.filter((x) => x === 'in').length };
+    }).sort((x, y) => posIdx(x.a.position) - posIdx(y.a.position) || y.inn - x.inn || x.a.player.localeCompare(y.a.player))
+      .map(({ a, out }) => ({ k: a.player_id, label: `${a.player} (${a.position})${out ? ` · out ${out} of his games` : ''}`, chip: a.player }));
+  } };
+});
+const pickT = picker('.t-wo', 'tWo', () => ({ sig: S.tSeas, build: () => leaguePlayers(seasonsFor(S.tSeas)) }));
+const DEF_POS = new Set(['DL', 'DE', 'DT', 'NT', 'LB', 'OLB', 'ILB', 'MLB', 'DB', 'CB', 'S', 'FS', 'SS']);
+const pickM = picker('.m-wo', 'mWo', () => ({ sig: 'm', build: () => {
+  const all = leaguePlayers([S.season]);
+  // defenders first, since this page is about defenses
+  return [...all.filter((o) => DEF_POS.has(o.label.match(/\(([^,]+),/)[1])), ...all.filter((o) => !DEF_POS.has(o.label.match(/\(([^,]+),/)[1]))];
+} }), (k) => { S.mDef = k.split('|')[1]; });
 $('.fantasy-toggle').addEventListener('change', (e) => {
   S.fantasy = e.target.checked;
   $('.fmt').hidden = !S.fantasy;
@@ -567,8 +707,31 @@ function renderProps() {
   if (!S.pStat || !keys.includes(S.pStat)) { S.pStat = keys[0]; S.pLine = null; }
   fillSelect($('.p-stat'), keys, S.pStat);
   const stat = S.pStat;
-  const games = curGames(p.player_id);
+  if (S.pWoFor !== p.player_id) { S.pWo = []; S.pWoFor = p.player_id; }
+  const woCache = pickP();
+  const seas = seasonsFor(S.pSeas);
+  const allGames = (IDX.logs.get(p.player_id) || []).filter((r) => seas.includes(r.season));
+  const wo = S.pWo.length > 0;
+  const tagged = allGames.map((r) => ({ r, sp: wo ? woSplit(r.season, r.team, r.week, S.pWo) : null }));
+  const games = wo ? tagged.filter((t) => t.sp === 'without').map((t) => t.r) : allGames;
   const vals = games.map((r) => r[stat]).filter((v) => v != null);
+  const both = S.pSeas === 'both';
+  const gx = (r) => (both ? `'${String(r.season).slice(2)} W${r.week} ${r.opp}` : `W${r.week} ${r.opp}`);
+  const scope = both ? 'this season and last' : 'this season';
+  const split = $('.p-split');
+  split.hidden = !wo; split.replaceChildren();
+  if (wo) {
+    const names = woNames(S.pWo, woCache);
+    const withV = tagged.filter((t) => t.sp === 'with').map((t) => t.r[stat]).filter((v) => v != null);
+    const bb = (txt) => { const e = document.createElement('b'); e.textContent = txt; return e; };
+    const lbl = statLabel(stat).toLowerCase();
+    if (!vals.length) split.append(`No games ${scope} where ${p.player} played and ${names} didn't.`, both ? '' : ' Try "This + last".');
+    else {
+      split.append(`${lbl[0].toUpperCase() + lbl.slice(1)} without ${names}: `, bb(`${show(mean(vals))} avg`), ` in ${vals.length} game${vals.length > 1 ? 's' : ''}`,
+        withV.length ? ` · with: ` : '', withV.length ? bb(`${show(mean(withV))} avg`) : '', withV.length ? ` in ${withV.length}` : '', '.');
+      if (vals.length < 4) split.append(' Small sample, so treat it as a hint, not a trend.');
+    }
+  }
   const avg = mean(vals);
   if (S.pLine == null) S.pLine = lineFor(avg);
   const lineEl = $('.p-line');
@@ -582,9 +745,10 @@ function renderProps() {
   const mr = opp !== 'BYE' ? mrow(opp, p.position, stat) : null;
   const mr3 = opp !== 'BYE' ? mrow(opp, p.position, stat, 'last3') : null;
   $('.p-title').textContent = `${p.player} · ${p.position} · ${p.team}`;
-  $('.p-note').textContent = opp === 'BYE' ? 'On bye this week.' : `Next: ${p.home ? 'vs' : '@'} ${opp}${p.team_implied != null ? ` · ${p.team} implied total ${p.team_implied}` : ''}. Bars are each game this season; the dashed line is the prop line.`;
+  $('.p-note').textContent = (opp === 'BYE' ? 'On bye this week. ' : `Next: ${p.home ? 'vs' : '@'} ${opp}${p.team_implied != null ? ` · ${p.team} implied total ${p.team_implied}` : ''}. `)
+    + `Bars are each game ${scope}${wo ? ' that matches the filter' : ''}; the dashed line is the prop line.`;
   const tiles = [
-    [fmtHit(hs), `Over ${line} this season ${pctHit(hs)}`],
+    [fmtHit(hs), `Over ${line} ${wo ? 'in these games' : scope} ${pctHit(hs)}`],
     [fmtHit(h5), `Last 5 games ${pctHit(h5)}`],
     [fmtHit(h3), `Last 3 games ${pctHit(h3)}`],
     [show(avg), `Average ${statLabel(stat).toLowerCase()}`],
@@ -595,9 +759,9 @@ function renderProps() {
   const st = $('.p-stats'); st.replaceChildren();
   tiles.forEach(([v, k]) => { const d = document.createElement('div'); d.className = 'stat'; const a = document.createElement('div'); a.className = 'v'; a.textContent = v; const b = document.createElement('div'); b.className = 'k'; b.textContent = k; d.append(a, b); st.appendChild(d); });
   bars($('.p-chart'), games.map((r) => ({
-    x: `W${r.week} ${r.opp}`, y: r[stat] ?? 0,
+    x: gx(r), y: r[stat] ?? 0,
     color: (r[stat] ?? 0) > line ? 'var(--ok)' : (r[stat] ?? 0) === line ? 'var(--muted)' : 'var(--bad)',
-    tipTitle: `Week ${r.week} vs ${r.opp}`, tipBody: `${show(r[stat])} ${statLabel(stat).toLowerCase()}`,
+    tipTitle: `${both ? `${r.season} ` : ''}Week ${r.week} vs ${r.opp}`, tipBody: `${show(r[stat])} ${statLabel(stat).toLowerCase()}`,
   })), { height: 220, line });
 
   const extra = p.position === 'QB' ? ['completions', 'attempts', 'passing_yards', 'passing_tds', 'passing_interceptions', 'long_completion', 'carries', 'rushing_yards']
@@ -608,9 +772,11 @@ function renderProps() {
   if (!extra.includes(stat)) statCols.unshift({ f: stat, label: statLabel(stat) });
   const hl = (v) => (v == null ? '' : v > line ? 'g' : v < line ? 'r' : '');
   statCols.forEach((c) => { if (c.f === stat) c.cls = hl; });
-  const cur = games.slice().map((r) => ({ ...r, opp_rank: (mrow(r.opp, p.position, stat) || {}).rank }));
-  table($('.t-plog'), 'plog', [{ f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, ...statCols],
-    cur, { sort: { f: 'week', dir: 'desc' } });
+  // opponent ranks are this season's, so they're left blank for last season's games
+  const cur = games.slice().map((r) => ({ ...r, gkey: r.season * 100 + r.week, opp_rank: r.season === S.season ? (mrow(r.opp, p.position, stat) || {}).rank : null }));
+  $('.plog-title').textContent = `${both ? 'This season + last' : "This season's"} game log${wo ? ` without ${woNames(S.pWo, woCache)}` : ''}`;
+  table($('.t-plog'), 'plog', [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, ...statCols],
+    cur, { sort: { f: 'gkey', dir: 'desc' } });
   $('.p-vs-title').textContent = opp === 'BYE' ? 'History vs next opponent' : `History vs ${opp}`;
   const vs = opp === 'BYE' ? [] : (IDX.logs.get(p.player_id) || []).filter((r) => r.opp === opp);
   $('.p-vs-empty').hidden = vs.length > 0; $('.t-pvs').parentElement.hidden = vs.length === 0;
@@ -698,13 +864,39 @@ function renderMatchups() {
     keys.forEach((k) => { const r = mrow(d, S.mPos, k, S.mWin); if (r) { o[k] = r.per_game; o[`${k}_rk`] = r.rank; o.games = r.games; } });
     return o;
   });
+  // "games without": re-total a defense over only the weeks its player(s) sat out, then re-rank everyone
+  const woCache = pickM();
+  const byTeam = woByTeam(S.mWo);
+  const allWeeks = [...new Set(DATA.matchups_weekly.map((r) => r.week))].sort((a, b) => a - b);
+  const winWeeks = new Set(S.mWin === 'last3' ? allWeeks.slice(-3) : allWeeks);
+  const mSplit = $('.m-split'); mSplit.hidden = !byTeam.size; mSplit.replaceChildren();
+  S.mOut = new Map();
+  if (byTeam.size) {
+    const msgs = [];
+    rows.forEach((o) => {
+      const pids = byTeam.get(o.defense); if (!pids) return;
+      const wk = DATA.matchups_weekly.filter((r) => r.defense === o.defense && winWeeks.has(r.week));
+      const weeks = [...new Set(wk.map((r) => r.week))].filter((w) => woSplit(S.season, o.defense, w, pids) === 'without');
+      S.mOut.set(o.defense, new Set(weeks));
+      o.games = weeks.length; o.wo = true;
+      const pr = wk.filter((r) => r.position === S.mPos && weeks.includes(r.week));
+      keys.forEach((k) => { o[k] = weeks.length ? Math.round((pr.reduce((a, r) => a + (r[k] || 0), 0) / weeks.length) * 100) / 100 : null; });
+      msgs.push(`${o.defense} has ${weeks.length || 'no'} game${weeks.length === 1 ? '' : 's'} without ${woNames(S.mWo.filter((k) => k.endsWith(`|${o.defense}`)), woCache)}${S.mWin === 'last3' ? ' in the last 3 weeks' : ' this season'}`);
+    });
+    keys.forEach((k) => {
+      const flip = k === 'passing_interceptions' || k === 'sacks_suffered';
+      const rk = rankMin(rows.map((o) => o[k] ?? null), !flip);
+      rows.forEach((o, i) => { o[`${k}_rk`] = rk[i]; });
+    });
+    mSplit.textContent = msgs.join('. ') + '. Its numbers and ranks below use only those games; every other defense uses all of its games.';
+  }
   const cols = [{ f: 'defense', label: 'Defense', l: true }, { f: 'games', label: 'GP' }];
   keys.forEach((k) => cols.push({ f: k, label: statLabel(k).replace(/ \(.*\)/, ''), group: true }, { f: `${k}_rk`, label: 'Rk', rank: 'opp' }));
   if (!S.mDef) S.mDef = rows.slice().sort((a, b) => (b[`${keys[0]}_rk`] ?? 0) - (a[`${keys[0]}_rk`] ?? 0))[0].defense;
   table($('.t-match'), 'match' + S.mPos, cols, rows, {
     sort: { f: `${keys[0]}_rk`, dir: 'asc' },
     onClick: (r) => { S.mDef = r.defense; render(); $('#m-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
-    selected: (r) => r.defense === S.mDef,
+    selected: (r) => r.defense === S.mDef || r.wo,
   });
   if (!S.mdStat || !keys.includes(S.mdStat)) S.mdStat = keys[0];
   fillSelect($('.md-stat'), keys, S.mdStat);
@@ -712,7 +904,9 @@ function renderMatchups() {
   $('.md-title').textContent = `${S.mDef} vs ${S.mPos}s: ${statLabel(stat).toLowerCase()} allowed by week`;
   const wk = DATA.matchups_weekly.filter((r) => r.defense === S.mDef && r.position === S.mPos).sort((a, b) => a.week - b.week);
   const mr = mrow(S.mDef, S.mPos, stat);
-  bars($('.md-chart'), wk.map((r) => ({ x: `W${r.week} ${r.offense}`, y: r[stat] ?? 0, color: 'var(--c1)', tipTitle: `Week ${r.week} vs ${r.offense}`, tipBody: `${show(r[stat])} ${statLabel(stat).toLowerCase()} by ${S.mPos}s` })),
+  const outW = S.mOut.get(S.mDef);
+  bars($('.md-chart'), wk.map((r) => ({ x: `W${r.week} ${r.offense}`, y: r[stat] ?? 0, color: outW && outW.has(r.week) ? 'var(--c2)' : 'var(--c1)',
+    tipTitle: `Week ${r.week} vs ${r.offense}${outW && outW.has(r.week) ? ' (player out)' : ''}`, tipBody: `${show(r[stat])} ${statLabel(stat).toLowerCase()} by ${S.mPos}s` })),
     { height: 200, line: mr ? Math.round(mr.per_game * 10) / 10 : null });
   const top = DATA.logs.filter((r) => r.season === S.season && r.opp === S.mDef && r.position === S.mPos);
   table($('.t-mtop'), 'mtop', [{ f: 'player', label: 'Player', l: true }, { f: 'team', label: 'Team', l: true }, { f: 'week', label: 'Wk' },
@@ -721,6 +915,63 @@ function renderMatchups() {
 }
 
 // ===================== TEAMS =====================
+// re-total a team's per-game rows (team_games.csv) into the same numbers as teams.csv
+function aggTeam(gs) {
+  const n = gs.length;
+  if (!n) return { games: 0 };
+  const sum = (f) => gs.reduce((a, g) => a + (g[f] || 0), 0);
+  const avg = (f) => { const v = gs.map((g) => g[f]).filter((x) => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+  const div = (a, b, k = 1) => (b ? (a / b) * k : null);
+  const r1 = (v) => (v == null ? null : Math.round(v * 10) / 10);
+  const rec = (arr) => { const w = arr.filter((x) => x > 0).length, l = arr.filter((x) => x < 0).length, p = arr.filter((x) => x === 0).length; return `${w}-${l}${p ? `-${p}` : ''}`; };
+  const x = gs.map((g) => {
+    const margin = g.pf - g.pa, tot = g.pf + g.pa;
+    return { margin, cover: g.line == null ? null : margin - g.line, ou: g.total_line == null ? null : tot - g.total_line, home: g.home, fav: g.line > 0 };
+  });
+  const cov = x.map((r) => r.cover).filter((v) => v != null), ous = x.map((r) => r.ou).filter((v) => v != null);
+  const o = {
+    games: n, su: rec(x.map((r) => r.margin)), ats: rec(cov),
+    ats_home: rec(x.filter((r) => r.home === 1).map((r) => r.cover).filter((v) => v != null)),
+    ats_away: rec(x.filter((r) => r.home === 0).map((r) => r.cover).filter((v) => v != null)),
+    ats_fav: rec(x.filter((r) => r.fav).map((r) => r.cover).filter((v) => v != null)),
+    ats_dog: rec(x.filter((r) => !r.fav).map((r) => r.cover).filter((v) => v != null)),
+    ou: rec(ous),
+    ats_pct: r1(div(cov.filter((v) => v > 0).length, Math.max(1, cov.filter((v) => v !== 0).length), 100)),
+    over_pct: r1(div(ous.filter((v) => v > 0).length, Math.max(1, ous.filter((v) => v !== 0).length), 100)),
+    avg_cover_margin: r1(mean(cov)), avg_total_vs_line: r1(mean(ous)),
+    pts_for: sum('pf') / n, pts_against: sum('pa') / n, point_diff: (sum('pf') - sum('pa')) / n,
+    giveaways: avg('giveaways'), takeaways: avg('takeaways'), sacks: avg('sacks'), sacks_taken: avg('sacks_taken'),
+  };
+  o.to_margin = o.takeaways != null && o.giveaways != null ? o.takeaways - o.giveaways : null;
+  ['off', 'def'].forEach((sd) => {
+    const f = (k) => sum(`${sd}_${k}`);
+    o[`${sd}_plays_pg`] = f('plays') / n;
+    o[`${sd}_epa_play`] = div(f('epa'), f('epa_n'));
+    o[`${sd}_success`] = div(f('succ'), f('succ_n'), 100);
+    o[`${sd}_ypp`] = div(f('yds'), f('yds_n'));
+    o[`${sd}_explosive`] = div(f('expl'), f('plays'), 100);
+    o[`${sd}_pass_epa`] = div(f('pass_epa'), f('pass_epa_n'));
+    o[`${sd}_rush_epa`] = div(f('rush_epa'), f('rush_epa_n'));
+    o[`${sd}_3rd_pct`] = div(f('third_conv'), f('third_conv') + f('third_fail'), 100);
+    o[`${sd}_rz_td_pct`] = div(f('rz_tds'), f('rz_drives'), 100);
+  });
+  o.off_pass_rate = div(sum('off_pass'), sum('off_plays'), 100);
+  o.off_neutral_pass_rate = div(sum('off_neutral_pass'), sum('off_neutral_n'), 100);
+  return o;
+}
+// same rank rules as the pipeline: 1 = best
+const T_HIGH = ['pts_for', 'point_diff', 'off_epa_play', 'off_success', 'off_ypp', 'off_explosive', 'off_3rd_pct', 'off_rz_td_pct', 'to_margin', 'sacks', 'off_plays_pg', 'off_pass_rate'];
+const T_LOW = ['pts_against', 'def_epa_play', 'def_success', 'def_ypp', 'def_explosive', 'def_3rd_pct', 'def_rz_td_pct'];
+function addTeamRanks(rows) {
+  const put = (f, asc, out = `${f}_rank`) => { const rk = rankMin(rows.map((r) => (r.games ? r[f] : null)), asc); rows.forEach((r, i) => { r[out] = rk[i]; }); };
+  T_HIGH.forEach((f) => put(f, false)); T_LOW.forEach((f) => put(f, true));
+  put('def_pass_epa', true, 'def_pass_epa_rank'); put('def_rush_epa', true, 'def_rush_epa_rank');
+  rows.forEach((r) => {
+    if (!r.games) { r.funnel = null; return; }
+    r.funnel = r.def_pass_epa_rank > r.def_rush_epa_rank + 5 ? 'Pass funnel' : r.def_rush_epa_rank > r.def_pass_epa_rank + 5 ? 'Run funnel' : 'Balanced';
+  });
+}
+
 function renderTeams() {
   const V = {
     betting: {
@@ -748,8 +999,48 @@ function renderTeams() {
     },
   }[S.tView];
   $('.t-title').textContent = V.title;
-  $('.t-note').textContent = V.note;
-  table($('.t-teams'), 'teams-' + S.tView, [{ f: 'team', label: 'Team', l: true }, ...V.cols, { f: 'next_opp', label: 'Next', l: true }], DATA.teams, { sort: V.sort });
+  const woCache = pickT();
+  const seas = seasonsFor(S.tSeas);
+  const byTeam = woByTeam(S.tWo);
+  const tg = DATA.team_games.filter((g) => seas.includes(g.season));
+  const splits = [];
+  const rows = DATA.teams.map((t) => {
+    let gs = tg.filter((g) => g.team === t.team);
+    const pids = byTeam.get(t.team);
+    if (pids) {
+      const w = [], wo = [];
+      gs.forEach((g) => { const sp = woSplit(g.season, g.team, g.week, pids); if (sp === 'with') w.push(g); else if (sp === 'without') wo.push(g); });
+      splits.push({ team: t.team, keys: S.tWo.filter((k) => k.endsWith(`|${t.team}`)), w, wo });
+      gs = wo;
+    }
+    return { team: t.team, next_opp: t.next_opp, ...aggTeam(gs), wo: !!pids };
+  });
+  addTeamRanks(rows);
+  const scope = S.tSeas === 'both' ? 'this season and last' : 'this season';
+  $('.t-note').textContent = V.note + ` Covers ${scope}.` + (splits.length ? ` Highlighted teams only count games the selected player(s) missed, and their ranks are against every other team's full numbers.` : '');
+  table($('.t-teams'), 'teams-' + S.tView, [{ f: 'team', label: 'Team', l: true }, { f: 'games', label: 'GP' }, ...V.cols, { f: 'next_opp', label: 'Next', l: true }], rows,
+    { sort: V.sort, selected: (r) => r.wo });
+  // with vs without comparison for each filtered team
+  const card = $('#t-split'); card.hidden = !splits.length;
+  const body = $('.t-split-body'); body.replaceChildren();
+  splits.forEach(({ team, keys, w, wo }) => {
+    const A = aggTeam(w), B = aggTeam(wo);
+    const box = document.createElement('div');
+    const h = document.createElement('h3'); h.textContent = `${team}: with vs without ${woNames(keys, woCache)}`;
+    const tb = document.createElement('table'); tb.className = 'cmp'; tb.append(document.createElement('thead'), document.createElement('tbody'));
+    const hr = document.createElement('tr');
+    ['', `With (${A.games} g)`, `Without (${B.games} g)`].forEach((x, i) => { const th = document.createElement('th'); th.textContent = x; if (!i) th.className = 'l'; hr.appendChild(th); });
+    tb.tHead.appendChild(hr);
+    V.cols.filter((c) => !c.rank && c.f !== 'funnel').forEach((c) => {
+      const tr = document.createElement('tr');
+      const td0 = document.createElement('td'); td0.textContent = c.label; tr.appendChild(td0);
+      [A, B].forEach((o) => { const td = document.createElement('td'); const v = o.games ? o[c.f] : null; td.textContent = c.fmt ? c.fmt(v, o) : show(v); tr.appendChild(td); });
+      tb.tBodies[0].appendChild(tr);
+    });
+    box.append(h, tb);
+    if (!B.games) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = `No ${scope} games where ${team} played without them${S.tSeas === 'both' ? '' : '. Try "This + last"'}.`; box.appendChild(p); }
+    body.appendChild(box);
+  });
 }
 
 // ===================== render =====================

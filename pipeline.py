@@ -18,6 +18,10 @@ Every output is a plain CSV in --out (default ./data).
   teams.csv            team efficiency (EPA/play, success rate, yards/play, pass rate,
                        pace, red-zone TD %, 3rd-down %, explosive plays, turnover margin)
                        and betting records (straight up, against the spread, over/under)
+  avail.csv            every player on every roster (this season + last): the weeks he was on
+                       the team and the weeks he took a snap, for "games without X" filters
+  team_games.csv       one row per team per game (this season + last) with the score, line and
+                       the offense/defense play totals, so the site can re-total any set of games
   meta.txt             season, last week played, upcoming week, build time
 
 Usage:
@@ -136,6 +140,116 @@ def team_efficiency(pbp):
     return eff.round(3)
 
 
+# ---------------- availability: who was on the roster / who actually played ----------------
+ROSTER_KEEP = {"ACT", "INA", "RES"}  # active, inactive, reserve (IR etc.); practice squad and cuts are ignored
+
+
+def _norm(name):
+    import re
+    n = re.sub(r"\b(jr|sr|ii|iii|iv|v)\b\.?", "", str(name).lower())
+    return re.sub(r"[^a-z]", "", n)
+
+
+def _last_init(name):
+    import re
+    parts = [x for x in re.split(r"\s+", re.sub(r"\b(jr|sr|ii|iii|iv|v)\b\.?", "", str(name), flags=re.I).strip()) if x]
+    return (re.sub(r"[^a-z]", "", parts[-1].lower()) + "|" + parts[0][0].lower()) if parts else ""
+
+
+def availability(season, sched):
+    """One row per player per team-season: weeks he was on the roster and weeks he took a snap.
+    A player "missed" a game when he was on the roster that week but took no snaps."""
+    ros = pd.read_csv(f"{BASE}/weekly_rosters/roster_weekly_{season}.csv", low_memory=False)
+    ros = ros[(ros["game_type"] == "REG") & ros["status"].isin(ROSTER_KEEP) & ros["gsis_id"].notna()]
+    snaps = pd.read_csv(f"{BASE}/snap_counts/snap_counts_{season}.csv")
+    snaps = snaps[snaps["game_type"] == "REG"].copy()
+    snaps["snaps"] = snaps[["offense_snaps", "defense_snaps", "st_snaps"]].fillna(0).sum(axis=1)
+    snaps = snaps[snaps["snaps"] > 0]
+
+    # link snap rows (PFR ids) to roster rows (GSIS ids): by id, then exact name + team,
+    # then last name + first initial + team (catches Mike/Michael style nicknames)
+    ids = ros.dropna(subset=["pfr_id"]).drop_duplicates("pfr_id").set_index("pfr_id")["gsis_id"]
+    ros = ros.assign(k1=ros["team"] + "|" + ros["full_name"].map(_norm), k2=ros["team"] + "|" + ros["full_name"].map(_last_init))
+    by1 = ros.drop_duplicates("k1").set_index("k1")["gsis_id"]
+    u2 = ros.drop_duplicates(["k2", "gsis_id"])
+    by2 = u2[~u2["k2"].duplicated(keep=False)].set_index("k2")["gsis_id"]
+    snaps["gsis_id"] = snaps["pfr_player_id"].map(ids)
+    miss = snaps["gsis_id"].isna()
+    snaps.loc[miss, "gsis_id"] = (snaps.loc[miss, "team"] + "|" + snaps.loc[miss, "player"].map(_norm)).map(by1)
+    miss = snaps["gsis_id"].isna()
+    snaps.loc[miss, "gsis_id"] = (snaps.loc[miss, "team"] + "|" + snaps.loc[miss, "player"].map(_last_init)).map(by2)
+    snaps = snaps.dropna(subset=["gsis_id"])
+
+    # only weeks the team actually played a finished game count
+    fin = sched[sched["home_score"].notna()]
+    team_weeks = set(zip(fin["home_team"], fin["week"])) | set(zip(fin["away_team"], fin["week"]))
+    r = ros[[tw in team_weeks for tw in zip(ros["team"], ros["week"])]]
+    played = snaps[["gsis_id", "team", "week"]].drop_duplicates()
+    onr = pd.concat([r[["gsis_id", "team", "week"]], played]).drop_duplicates()  # played => was on the team
+
+    info = (pd.concat([ros[["gsis_id", "full_name", "position", "week"]],
+                       snaps.rename(columns={"player": "full_name"})[["gsis_id", "full_name", "position", "week"]]])
+            .sort_values("week").groupby("gsis_id")[["full_name", "position"]].last())
+    wk = lambda d: " ".join(str(int(w)) for w in sorted(set(d)))
+    a = onr.groupby(["team", "gsis_id"])["week"].apply(wk).rename("rost").to_frame()
+    a = a.join(played.groupby(["team", "gsis_id"])["week"].apply(wk).rename("played")).reset_index()
+    a = a.join(info, on="gsis_id").rename(columns={"gsis_id": "player_id", "full_name": "player"})
+    a["season"] = season
+    a["played"] = a["played"].fillna("")
+    return a[["season", "team", "player_id", "player", "position", "rost", "played"]]
+
+
+# ---------------- per-game team numbers (the site re-totals these for any set of games) ----------------
+def team_game_rows(season, pbp, sched, stats):
+    fin = sched[sched["home_score"].notna()]
+    tg = pd.concat([
+        pd.DataFrame({"game_id": fin["game_id"], "week": fin["week"], "team": fin["home_team"], "opp": fin["away_team"], "home": 1,
+                      "pf": fin["home_score"], "pa": fin["away_score"], "line": fin["spread_line"], "total_line": fin["total_line"]}),
+        pd.DataFrame({"game_id": fin["game_id"], "week": fin["week"], "team": fin["away_team"], "opp": fin["home_team"], "home": 0,
+                      "pf": fin["away_score"], "pa": fin["home_score"], "line": -fin["spread_line"], "total_line": fin["total_line"]}),
+    ])
+    plays = pbp[pbp["play_type"].isin(["pass", "run"]) & (pbp["two_point_attempt"] != 1)].copy()
+    plays["explosive"] = (((plays["pass"] == 1) & (plays["yards_gained"] >= 20)) | ((plays["rush"] == 1) & (plays["yards_gained"] >= 10))).astype(int)
+    k = ["game_id", "posteam"]
+    g = plays.groupby(k)
+    o = pd.DataFrame({
+        "plays": g.size(), "epa_n": g["epa"].count(), "epa": g["epa"].sum(),
+        "succ_n": g["success"].count(), "succ": g["success"].sum(),
+        "yds_n": g["yards_gained"].count(), "yds": g["yards_gained"].sum(), "expl": g["explosive"].sum(),
+        "pass": g["pass"].sum(),
+    })
+    for lab, m in (("pass", plays["pass"] == 1), ("rush", plays["rush"] == 1)):
+        gg = plays[m].groupby(k)["epa"]
+        o[f"{lab}_epa_n"] = gg.count()
+        o[f"{lab}_epa"] = gg.sum()
+    third = plays[plays["down"] == 3].groupby(k)
+    o["third_conv"] = third["third_down_converted"].sum()
+    o["third_fail"] = third["third_down_failed"].sum()
+    neutral = plays[plays["down"].isin([1, 2]) & plays["wp"].between(0.2, 0.8) & (plays["qtr"] <= 3)].groupby(k)["pass"]
+    o["neutral_n"] = neutral.count()
+    o["neutral_pass"] = neutral.sum()
+    drives = pbp.dropna(subset=["posteam", "fixed_drive"]).groupby(["game_id", "posteam", "defteam", "fixed_drive"]).agg(
+        best=("yardline_100", "min"), result=("fixed_drive_result", "first")).reset_index()
+    rzd = drives[drives["best"] <= 20]
+    o["rz_drives"] = rzd.groupby(k).size()
+    o["rz_tds"] = rzd[rzd["result"] == "Touchdown"].groupby(k).size()
+    o = o.fillna(0).reset_index().rename(columns={"posteam": "team"})
+    off = o.rename(columns={c: f"off_{c}" for c in o.columns if c not in ("game_id", "team")})
+    de = o.rename(columns={"team": "opp", **{c: f"def_{c}" for c in o.columns if c not in ("game_id", "team")}})
+    tg = tg.merge(off, on=["game_id", "team"], how="left").merge(de, on=["game_id", "opp"], how="left")
+    # turnovers and sacks from box scores
+    tw = stats.groupby(["team", "week"]).agg(ints=("passing_interceptions", "sum"), fum=("fumbles_lost_total", "sum"),
+                                             sacks_taken=("sacks_suffered", "sum")).reset_index()
+    tw["giveaways"] = tw["ints"] + tw["fum"]
+    tg = tg.merge(tw[["team", "week", "giveaways", "sacks_taken"]], on=["team", "week"], how="left")
+    tk = tw[["team", "week", "giveaways", "sacks_taken"]].rename(columns={"team": "opp", "giveaways": "takeaways", "sacks_taken": "sacks"})
+    tg = tg.merge(tk, on=["opp", "week"], how="left")
+    tg.insert(0, "season", season)
+    num = tg.select_dtypes("float").columns
+    tg[num] = tg[num].round(4)
+    return tg.sort_values(["week", "team"])
+
+
 def build(season, out):
     os.makedirs(out, exist_ok=True)
     stats = load_week_stats(season)
@@ -144,6 +258,10 @@ def build(season, out):
     except Exception:
         prev = stats.iloc[0:0]
     pbp = load_pbp(season)
+    try:
+        prev_pbp = load_pbp(season - 1)
+    except Exception:
+        prev_pbp = None
     games = pd.read_csv(f"{BASE}/schedules/games.csv")
     sched = games[(games["season"] == season) & (games["game_type"] == "REG")].copy()
 
@@ -192,7 +310,7 @@ def build(season, out):
     # ---------------- game logs ----------------
     prev_skill = prev[prev["position"].isin(POSITIONS)].copy()
     try:
-        prev_skill = add_pbp_usage(prev_skill, load_pbp(season - 1))
+        prev_skill = add_pbp_usage(prev_skill, prev_pbp)
     except Exception:
         for c in ["rz_targets", "rz_carries"] + LONG:
             prev_skill[c] = np.nan
@@ -335,6 +453,22 @@ def build(season, out):
     ps["next_opp"] = ps["next_opp"].fillna("BYE")
     ps = ps.sort_values(["position", "games"], ascending=[True, False])
     ps.to_csv(f"{out}/players.csv", index=False)
+
+    # ---------------- availability + per-game team numbers (this season and last) ----------------
+    av, tgs = [], []
+    for yr, st, pb in ((season, stats, pbp), (season - 1, prev, prev_pbp)):
+        sc = games[(games["season"] == yr) & (games["game_type"] == "REG")]
+        try:
+            av.append(availability(yr, sc))
+        except Exception as e:
+            print(f"availability {yr} skipped: {e}")
+        try:
+            if pb is not None and len(st):
+                tgs.append(team_game_rows(yr, pb, sc, st))
+        except Exception as e:
+            print(f"team games {yr} skipped: {e}")
+    pd.concat(av).to_csv(f"{out}/avail.csv", index=False)
+    pd.concat(tgs).to_csv(f"{out}/team_games.csv", index=False)
 
     with open(f"{out}/meta.txt", "w") as f:
         f.write(f"season={season}\nthrough_week={last_week}\nupcoming_week={upcoming_week}\n"
