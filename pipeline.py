@@ -10,7 +10,8 @@ Every output is a plain CSV in --out (default ./data).
                        Stats include real box-score stats plus fantasy points (std/half/ppr).
   matchups_weekly.csv  what each defense allowed to each position, every week
   logs.csv             every QB/RB/WR/TE game (this season + last) with box score,
-                       red-zone usage, air yards and fantasy points
+                       red-zone usage, longest completion / rush / reception, air yards
+                       and fantasy points
   players.csv          this season's per-game averages, next opponent, team implied total
   games.csv            every game this season: Vegas lines, no-vig win %, implied totals,
                        rest days, roof, final score, and whether it covered / went over
@@ -42,8 +43,10 @@ BOX = [
 ]
 EXTRA = ["passing_air_yards", "receiving_air_yards", "receiving_yards_after_catch"]
 FP = ["fp_std", "fp_half", "fp_ppr"]
+# longest single play in a game (from play-by-play)
+LONG = ["long_completion", "long_rush", "long_reception"]
 # stats ranked on the matchups page (everything a prop could be set on)
-MATCHUP_STATS = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + FP
+MATCHUP_STATS = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + LONG + FP
 
 
 def load_week_stats(season):
@@ -72,6 +75,32 @@ def red_zone_usage(pbp):
     t.index.names = ["player_id", "week"]
     c.index.names = ["player_id", "week"]
     return pd.concat([t, c], axis=1).fillna(0).reset_index()
+
+
+def longest_plays(pbp):
+    """Longest completion (passer), longest rush and longest reception per player per week."""
+    pl = pbp[pbp["play_type"].isin(["pass", "run"]) & (pbp["two_point_attempt"] != 1)]
+    comp = pl[pl["complete_pass"] == 1]
+    out = [
+        comp.dropna(subset=["passer_player_id"]).groupby(["passer_player_id", "week"])["yards_gained"].max().rename("long_completion"),
+        comp.dropna(subset=["receiver_player_id"]).groupby(["receiver_player_id", "week"])["yards_gained"].max().rename("long_reception"),
+        pl[pl["rush"] == 1].dropna(subset=["rusher_player_id"]).groupby(["rusher_player_id", "week"])["yards_gained"].max().rename("long_rush"),
+    ]
+    for o in out:
+        o.index.names = ["player_id", "week"]
+    return pd.concat(out, axis=1).reset_index()
+
+
+def add_pbp_usage(skill, pbp):
+    """Attach red-zone usage and longest plays to a season's player-week stats."""
+    skill = skill.merge(red_zone_usage(pbp), on=["player_id", "week"], how="left")
+    skill[["rz_targets", "rz_carries"]] = skill[["rz_targets", "rz_carries"]].fillna(0)
+    skill = skill.merge(longest_plays(pbp), on=["player_id", "week"], how="left")
+    # a player with no completion / rush / catch that week has a longest of 0
+    skill["long_completion"] = np.where(skill["completions"] > 0, skill["long_completion"].fillna(0), 0)
+    skill["long_rush"] = np.where(skill["carries"] > 0, skill["long_rush"].fillna(0), 0)
+    skill["long_reception"] = np.where(skill["receptions"] > 0, skill["long_reception"].fillna(0), 0)
+    return skill
 
 
 def team_efficiency(pbp):
@@ -124,15 +153,16 @@ def build(season, out):
     unplayed = sched[sched["home_score"].isna()]
     upcoming_week = int(unplayed["week"].min()) if len(unplayed) else last_week + 1
 
-    skill = stats[stats["position"].isin(POSITIONS)].copy()
-    rz = red_zone_usage(pbp)
-    skill = skill.merge(rz, on=["player_id", "week"], how="left")
-    skill[["rz_targets", "rz_carries"]] = skill[["rz_targets", "rz_carries"]].fillna(0)
+    skill = add_pbp_usage(stats[stats["position"].isin(POSITIONS)].copy(), pbp)
 
     # ---------------- defense vs position ----------------
     sums = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + FP
     mw = (skill.groupby(["opponent_team", "position", "week"])[sums].sum().reset_index()
           .rename(columns={"opponent_team": "defense"}))
+    # longest play allowed to the position that week (the max, not a sum)
+    lw = (skill.groupby(["opponent_team", "position", "week"])[LONG].max().reset_index()
+          .rename(columns={"opponent_team": "defense"}))
+    mw = mw.merge(lw, on=["defense", "position", "week"], how="left")
     mw = mw.join(skill.groupby(["opponent_team", "week"])["team"].first().rename("offense"), on=["defense", "week"])
     mw[FP] = mw[FP].round(1)
     mw.to_csv(f"{out}/matchups_weekly.csv", index=False)
@@ -142,7 +172,7 @@ def build(season, out):
     for label, wk in [("season", weeks), ("last3", weeks[-3:])]:
         w = mw[mw["week"].isin(wk)]
         gp = w.groupby("defense")["week"].nunique()
-        tot = w.groupby(["defense", "position"])[sums].sum()
+        tot = w.groupby(["defense", "position"])[sums + LONG].sum()
         full = pd.MultiIndex.from_product([sorted(mw["defense"].unique()), POSITIONS], names=["defense", "position"])
         tot = tot.reindex(full).fillna(0)
         pg = tot.div(gp, axis=0, level="defense")
@@ -161,11 +191,14 @@ def build(season, out):
 
     # ---------------- game logs ----------------
     prev_skill = prev[prev["position"].isin(POSITIONS)].copy()
-    prev_skill["rz_targets"] = np.nan
-    prev_skill["rz_carries"] = np.nan
+    try:
+        prev_skill = add_pbp_usage(prev_skill, load_pbp(season - 1))
+    except Exception:
+        for c in ["rz_targets", "rz_carries"] + LONG:
+            prev_skill[c] = np.nan
     both = pd.concat([skill, prev_skill], ignore_index=True)
     logcols = (["player_id", "player_display_name", "position", "season", "week", "team", "opponent_team", "target_share"]
-               + BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + EXTRA + FP)
+               + BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + LONG + EXTRA + FP)
     logs = both[logcols].rename(columns={"player_display_name": "player", "opponent_team": "opp"})
     logs["target_share"] = (logs["target_share"] * 100).round(1)
     logs[FP] = logs[FP].round(1)
@@ -291,7 +324,7 @@ def build(season, out):
 
     # ---------------- players ----------------
     cur = skill.sort_values("week")
-    avg_cols = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + EXTRA + FP
+    avg_cols = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + LONG + EXTRA + FP
     ps = cur.groupby("player_id").agg(
         player=("player_display_name", "last"), position=("position", "last"), team=("team", "last"),
         games=("week", "nunique"), last_week=("week", "max"), tgt_share=("target_share", "mean"),
