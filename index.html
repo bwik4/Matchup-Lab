@@ -92,6 +92,7 @@
   table.dvp th:first-child { position: sticky; left: 0; z-index: 2; }
   table.dvp td.rk { min-width: 2.6rem; text-align: center; }
   table.dvp th.rkh { text-align: center; }
+  table.t-teams .grp { border-left: 2px solid color-mix(in srgb, var(--fg) 30%, transparent); }
   .wo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 10px; }
   .wo input.search { width: min(100%, 16rem); }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -300,7 +301,7 @@ const STATS = {
   passing_interceptions: 'INT', pass_rush_yds: 'Pass+rush yds', sacks_suffered: 'Sacks taken',
   rushing_yards: 'Rush yds', carries: 'Carries', rushing_tds: 'Rush TD', rush_rec_yds: 'Rush+rec yds',
   receptions: 'Receptions', receiving_yards: 'Rec yds', targets: 'Targets', receiving_tds: 'Rec TD',
-  rz_targets: 'RZ targets', rz_carries: 'RZ carries',
+  rz_targets: 'RZ targets', rz_carries: 'RZ carries', target_share: 'Target share %',
   long_completion: 'Long completion', long_rush: 'Long rush', long_reception: 'Long reception',
   fp_std: 'Fantasy pts', fp_half: 'Fantasy pts', fp_ppr: 'Fantasy pts',
 };
@@ -339,6 +340,8 @@ const rankClsOpp = (r) => (r == null ? 'rk' : r <= 8 ? 'rk rk-r' : r >= 25 ? 'rk
 const fpKey = () => `fp_${S.fmt}`;
 const statLabel = (k) => (k.startsWith('fp_') ? `Fantasy pts (${FMT_NAME[S.fmt]})` : STATS[k] || k);
 const posStats = (pos) => [...POS_STATS[pos], ...(S.fantasy ? [fpKey()] : [])];
+// stats you can pick for a single player (adds target share, which defenses aren't ranked on)
+const propStats = (pos) => { const k = posStats(pos); if (pos === 'QB') return k; const i = k.indexOf('targets'); return [...k.slice(0, i + 1), 'target_share', ...k.slice(i + 1)]; };
 const median = (a) => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const mean = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
 const lineFor = (avg) => (avg == null ? 0.5 : Math.max(0.5, Math.floor(avg) + 0.5));
@@ -539,7 +542,7 @@ function seg(sel, key, after) {
 }
 const segs = [
   seg('.fmt', 'fmt', () => { ['pStat', 'fStat', 'mdStat'].forEach((k) => { if (S[k] && S[k].startsWith('fp_')) S[k] = fpKey(); }); }), seg('.m-win', 'mWin'), seg('.t-view', 'tView'),
-  seg('.f-pos', 'fPos', () => { if (!posStats(S.fPos).includes(S.fStat)) S.fStat = POS_STATS[S.fPos][0]; }),
+  seg('.f-pos', 'fPos', () => { if (!propStats(S.fPos).includes(S.fStat)) S.fStat = POS_STATS[S.fPos][0]; }),
   seg('.m-pos', 'mPos', () => { S.mdStat = null; }), seg('.pd-win', 'pdWin'), seg('.p-seas', 'pSeas'), seg('.t-seas', 'tSeas'),
 ];
 const pickP = picker('.p-wo', 'pWo', () => {
@@ -703,7 +706,7 @@ function renderProps() {
   const p = IDX.player.get(S.player);
   renderFinder();
   if (!p) return;
-  const keys = posStats(p.position);
+  const keys = propStats(p.position);
   if (!S.pStat || !keys.includes(S.pStat)) { S.pStat = keys[0]; S.pLine = null; }
   fillSelect($('.p-stat'), keys, S.pStat);
   const stat = S.pStat;
@@ -755,6 +758,10 @@ function renderProps() {
     [show(median(vals)), 'Median'],
     [vals.length ? `${show(Math.min(...vals))}–${show(Math.max(...vals))}` : '—', 'Low–high'],
   ];
+  if (p.position !== 'QB' && stat !== 'target_share') {
+    const ts = mean(games.map((r) => r.target_share).filter((v) => v != null));
+    tiles.push([ts == null ? '—' : `${show(ts)}%`, `Target share${wo ? ' in these games' : ''} (share of his team's targets)`]);
+  }
   if (mr) tiles.push([show(mr.per_game), `${opp} allows to ${p.position}s /g (rank ${mr.rank} of 32${mr3 ? `, last 3: ${mr3.rank}` : ''}; 1 = toughest)`]);
   const st = $('.p-stats'); st.replaceChildren();
   tiles.forEach(([v, k]) => { const d = document.createElement('div'); d.className = 'stat'; const a = document.createElement('div'); a.className = 'v'; a.textContent = v; const b = document.createElement('div'); b.className = 'k'; b.textContent = k; d.append(a, b); st.appendChild(d); });
@@ -765,7 +772,7 @@ function renderProps() {
   })), { height: 220, line });
 
   const extra = p.position === 'QB' ? ['completions', 'attempts', 'passing_yards', 'passing_tds', 'passing_interceptions', 'long_completion', 'carries', 'rushing_yards']
-    : p.position === 'RB' ? ['carries', 'rushing_yards', 'rushing_tds', 'long_rush', 'targets', 'receptions', 'receiving_yards', 'long_reception', 'rz_carries']
+    : p.position === 'RB' ? ['carries', 'rushing_yards', 'rushing_tds', 'long_rush', 'targets', 'target_share', 'receptions', 'receiving_yards', 'long_reception', 'rz_carries']
       : ['targets', 'receptions', 'receiving_yards', 'receiving_tds', 'long_reception', 'receiving_air_yards', 'rz_targets', 'target_share'];
   const lab = { receiving_air_yards: 'Air yds', target_share: 'Tgt %', long_completion: 'Long', long_rush: 'Long rush', long_reception: 'Long rec' };
   const statCols = extra.map((k) => ({ f: k, label: lab[k] || STATS[k] }));
@@ -838,19 +845,21 @@ function renderPosVsDef(p, opp, stat, line, statCols) {
 }
 
 function renderFinder() {
-  const keys = posStats(S.fPos);
+  const keys = propStats(S.fPos);
   if (!keys.includes(S.fStat)) S.fStat = keys[0];
   fillSelect($('.f-stat'), keys, S.fStat);
   const stat = S.fStat;
   let rows = DATA.players.filter((p) => p.position === S.fPos && p.games >= 3).map((p) => {
-    const vals = curGames(p.player_id).map((r) => r[stat]).filter((v) => v != null);
+    const gs = curGames(p.player_id);
+    const vals = gs.map((r) => r[stat]).filter((v) => v != null);
+    const tsh = mean(gs.map((r) => r.target_share).filter((v) => v != null));
     const mr = p.next_opp !== 'BYE' ? mrow(p.next_opp, p.position, stat) : null;
-    return { ...p, avg: mean(vals), med: median(vals), l3: mean(vals.slice(-3)), opp_allows: mr ? mr.per_game : null, opp_rank: mr ? mr.rank : null };
+    return { ...p, tsh, avg: mean(vals), med: median(vals), l3: mean(vals.slice(-3)), opp_allows: mr ? mr.per_game : null, opp_rank: mr ? mr.rank : null };
   });
   if (S.fq) rows = rows.filter((p) => `${p.player} ${p.team} ${p.next_opp}`.toLowerCase().includes(S.fq));
   table($('.t-finder'), 'finder', [
     { f: 'player', label: 'Player', l: true }, { f: 'team', label: 'Team', l: true }, { f: 'next_opp', label: 'Opp', l: true },
-    { f: 'games', label: 'GP' }, { f: 'avg', label: `Avg ${statLabel(stat)}` }, { f: 'med', label: 'Median' }, { f: 'l3', label: 'Last 3 avg' },
+    { f: 'games', label: 'GP' }, ...(S.fPos === 'QB' ? [] : [{ f: 'tsh', label: 'Tgt share %' }]), { f: 'avg', label: `Avg ${statLabel(stat)}` }, { f: 'med', label: 'Median' }, { f: 'l3', label: 'Last 3 avg' },
     { f: 'opp_allows', label: 'Opp allows /g' }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, { f: 'team_implied', label: 'Team implied' },
   ], rows, { sort: { f: 'avg', dir: 'desc' }, limit: 200, onClick: (p) => openProp(p.player_id, stat) });
 }
@@ -945,6 +954,7 @@ function aggTeam(gs) {
   o.to_margin = o.takeaways != null && o.giveaways != null ? o.takeaways - o.giveaways : null;
   ['off', 'def'].forEach((sd) => {
     const f = (k) => sum(`${sd}_${k}`);
+    ['pass_yds', 'rush_yds', 'total_yds', 'pass_td', 'rush_td'].forEach((k) => { o[`${sd}_${k}`] = avg(`${sd}_${k}`); });
     o[`${sd}_plays_pg`] = f('plays') / n;
     o[`${sd}_epa_play`] = div(f('epa'), f('epa_n'));
     o[`${sd}_success`] = div(f('succ'), f('succ_n'), 100);
@@ -960,8 +970,8 @@ function aggTeam(gs) {
   return o;
 }
 // same rank rules as the pipeline: 1 = best
-const T_HIGH = ['pts_for', 'point_diff', 'off_epa_play', 'off_success', 'off_ypp', 'off_explosive', 'off_3rd_pct', 'off_rz_td_pct', 'to_margin', 'sacks', 'off_plays_pg', 'off_pass_rate'];
-const T_LOW = ['pts_against', 'def_epa_play', 'def_success', 'def_ypp', 'def_explosive', 'def_3rd_pct', 'def_rz_td_pct'];
+const T_HIGH = ['off_total_yds', 'off_pass_yds', 'off_rush_yds', 'takeaways', 'pts_for', 'point_diff', 'off_epa_play', 'off_success', 'off_ypp', 'off_explosive', 'off_3rd_pct', 'off_rz_td_pct', 'to_margin', 'sacks', 'off_plays_pg', 'off_pass_rate'];
+const T_LOW = ['def_total_yds', 'def_pass_yds', 'def_rush_yds', 'giveaways', 'pts_against', 'def_epa_play', 'def_success', 'def_ypp', 'def_explosive', 'def_3rd_pct', 'def_rz_td_pct'];
 function addTeamRanks(rows) {
   const put = (f, asc, out = `${f}_rank`) => { const rk = rankMin(rows.map((r) => (r.games ? r[f] : null)), asc); rows.forEach((r, i) => { r[out] = rk[i]; }); };
   T_HIGH.forEach((f) => put(f, false)); T_LOW.forEach((f) => put(f, true));
@@ -982,20 +992,31 @@ function renderTeams() {
       sort: { f: 'ats_pct', dir: 'desc' },
     },
     offense: {
-      title: 'Offense', note: 'EPA/play = expected points added per play, the standard all-in-one efficiency number (higher is better). Success rate = share of plays that gained enough to stay on schedule. Neutral pass rate = how often they pass on 1st/2nd down when the game is close. Ranks: 1 = best.',
-      cols: [{ f: 'pts_for', label: 'Pts /g' }, { f: 'pts_for_rank', label: 'Rk', rank: true }, { f: 'off_epa_play', label: 'EPA/play', fmt: (v) => (v == null ? '—' : v.toFixed(2)) }, { f: 'off_epa_play_rank', label: 'Rk', rank: true },
+      title: 'Offense', note: 'Per-game box score stats first (pass yards are net of sacks), then advanced stats to the right. EPA/play = expected points added per play, the standard all-in-one efficiency number (higher is better). Success rate = share of plays that gained enough to stay on schedule. Neutral pass rate = how often they pass on 1st/2nd down when the game is close. Ranks: 1 = best.',
+      cols: [{ f: 'pts_for', label: 'Pts /g' }, { f: 'pts_for_rank', label: 'Rk', rank: true },
+        { f: 'off_total_yds', label: 'Yds /g' }, { f: 'off_total_yds_rank', label: 'Rk', rank: true },
+        { f: 'off_pass_yds', label: 'Pass yds /g' }, { f: 'off_pass_yds_rank', label: 'Rk', rank: true },
+        { f: 'off_rush_yds', label: 'Rush yds /g' }, { f: 'off_rush_yds_rank', label: 'Rk', rank: true },
+        { f: 'off_pass_td', label: 'Pass TD /g' }, { f: 'off_rush_td', label: 'Rush TD /g' },
+        { f: 'giveaways', label: 'Giveaways /g' }, { f: 'giveaways_rank', label: 'Rk', rank: true }, { f: 'sacks_taken', label: 'Sacks taken /g' }, { f: 'to_margin', label: 'TO margin /g' },
+        { f: 'off_epa_play', label: 'EPA/play', fmt: (v) => (v == null ? '—' : v.toFixed(2)), group: true }, { f: 'off_epa_play_rank', label: 'Rk', rank: true },
         { f: 'off_success', label: 'Success %' }, { f: 'off_ypp', label: 'Yds/play' }, { f: 'off_plays_pg', label: 'Plays /g' }, { f: 'off_neutral_pass_rate', label: 'Neutral pass %' },
-        { f: 'off_rz_td_pct', label: 'RZ TD %' }, { f: 'off_rz_td_pct_rank', label: 'Rk', rank: true }, { f: 'off_3rd_pct', label: '3rd down %' }, { f: 'off_explosive', label: 'Explosive %' },
-        { f: 'giveaways', label: 'Giveaways /g' }, { f: 'to_margin', label: 'TO margin /g' }],
-      sort: { f: 'off_epa_play', dir: 'desc' },
+        { f: 'off_rz_td_pct', label: 'RZ TD %' }, { f: 'off_rz_td_pct_rank', label: 'Rk', rank: true }, { f: 'off_3rd_pct', label: '3rd down %' }, { f: 'off_explosive', label: 'Explosive %' }],
+      sort: { f: 'pts_for', dir: 'desc' },
     },
     defense: {
-      title: 'Defense', note: 'Lower EPA/play allowed is better. Pass and run defense ranks show where a defense is weak: a "pass funnel" stops the run but gives up more through the air, so opponents tend to throw more. Ranks: 1 = best.',
-      cols: [{ f: 'pts_against', label: 'Pts allowed /g' }, { f: 'pts_against_rank', label: 'Rk', rank: true }, { f: 'def_epa_play', label: 'EPA/play', fmt: (v) => (v == null ? '—' : v.toFixed(2)) }, { f: 'def_epa_play_rank', label: 'Rk', rank: true },
+      title: 'Defense', note: 'Per-game stats allowed first (pass yards are net of sacks), then advanced stats to the right. Lower EPA/play allowed is better. Pass and run defense ranks show where a defense is weak: a "pass funnel" stops the run but gives up more through the air, so opponents tend to throw more. Ranks: 1 = best.',
+      cols: [{ f: 'pts_against', label: 'Pts allowed /g' }, { f: 'pts_against_rank', label: 'Rk', rank: true },
+        { f: 'def_total_yds', label: 'Yds allowed /g' }, { f: 'def_total_yds_rank', label: 'Rk', rank: true },
+        { f: 'def_pass_yds', label: 'Pass yds allowed /g' }, { f: 'def_pass_yds_rank', label: 'Rk', rank: true },
+        { f: 'def_rush_yds', label: 'Rush yds allowed /g' }, { f: 'def_rush_yds_rank', label: 'Rk', rank: true },
+        { f: 'def_pass_td', label: 'Pass TD allowed /g' }, { f: 'def_rush_td', label: 'Rush TD allowed /g' },
+        { f: 'takeaways', label: 'Takeaways /g' }, { f: 'takeaways_rank', label: 'Rk', rank: true }, { f: 'sacks', label: 'Sacks /g' }, { f: 'sacks_rank', label: 'Rk', rank: true },
+        { f: 'def_epa_play', label: 'EPA/play', fmt: (v) => (v == null ? '—' : v.toFixed(2)), group: true }, { f: 'def_epa_play_rank', label: 'Rk', rank: true },
         { f: 'def_pass_epa_rank', label: 'Pass D rk', rank: true }, { f: 'def_rush_epa_rank', label: 'Run D rk', rank: true }, { f: 'funnel', label: 'Type', l: true },
         { f: 'def_success', label: 'Success % allowed' }, { f: 'def_ypp', label: 'Yds/play allowed' }, { f: 'def_rz_td_pct', label: 'RZ TD % allowed' }, { f: 'def_3rd_pct', label: '3rd down % allowed' },
-        { f: 'def_explosive', label: 'Explosive % allowed' }, { f: 'takeaways', label: 'Takeaways /g' }, { f: 'sacks', label: 'Sacks /g' }],
-      sort: { f: 'def_epa_play', dir: 'asc' },
+        { f: 'def_explosive', label: 'Explosive % allowed' }],
+      sort: { f: 'pts_against', dir: 'asc' },
     },
   }[S.tView];
   $('.t-title').textContent = V.title;

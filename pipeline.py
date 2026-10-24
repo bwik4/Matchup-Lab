@@ -238,11 +238,18 @@ def team_game_rows(season, pbp, sched, stats):
     de = o.rename(columns={"team": "opp", **{c: f"def_{c}" for c in o.columns if c not in ("game_id", "team")}})
     tg = tg.merge(off, on=["game_id", "team"], how="left").merge(de, on=["game_id", "opp"], how="left")
     # turnovers and sacks from box scores
-    tw = stats.groupby(["team", "week"]).agg(ints=("passing_interceptions", "sum"), fum=("fumbles_lost_total", "sum"),
-                                             sacks_taken=("sacks_suffered", "sum")).reset_index()
+    st = stats.assign(sack_yds=stats["sack_yards_lost"].fillna(0).abs()) if "sack_yards_lost" in stats.columns else stats.assign(sack_yds=0)
+    tw = st.groupby(["team", "week"]).agg(ints=("passing_interceptions", "sum"), fum=("fumbles_lost_total", "sum"),
+                                          sacks_taken=("sacks_suffered", "sum"), pass_gross=("passing_yards", "sum"), sack_yds=("sack_yds", "sum"),
+                                          rush_yds=("rushing_yards", "sum"), pass_td=("passing_tds", "sum"), rush_td=("rushing_tds", "sum")).reset_index()
     tw["giveaways"] = tw["ints"] + tw["fum"]
-    tg = tg.merge(tw[["team", "week", "giveaways", "sacks_taken"]], on=["team", "week"], how="left")
-    tk = tw[["team", "week", "giveaways", "sacks_taken"]].rename(columns={"team": "opp", "giveaways": "takeaways", "sacks_taken": "sacks"})
+    tw["pass_yds"] = tw["pass_gross"] - tw["sack_yds"]  # net passing yards, like the official team stat
+    tw["total_yds"] = tw["pass_yds"] + tw["rush_yds"]
+    box = ["pass_yds", "rush_yds", "total_yds", "pass_td", "rush_td"]
+    mine = tw[["team", "week", "giveaways", "sacks_taken"] + box].rename(columns={c: f"off_{c}" for c in box})
+    tg = tg.merge(mine, on=["team", "week"], how="left")
+    tk = tw[["team", "week", "giveaways", "sacks_taken"] + box].rename(
+        columns={"team": "opp", "giveaways": "takeaways", "sacks_taken": "sacks", **{c: f"def_{c}" for c in box}})
     tg = tg.merge(tk, on=["opp", "week"], how="left")
     tg.insert(0, "season", season)
     num = tg.select_dtypes("float").columns
