@@ -1,12 +1,16 @@
 # NFL Matchup Lab
 
-Betting research for the NFL: game lines with against-the-spread and over/under records, player prop hit rates, stat-by-stat defense vs position rankings, and team efficiency stats (EPA/play, success rate, pace, red zone). Fantasy points are available behind a toggle. Free NFL data from [nflverse](https://github.com/nflverse/nflverse-data), rebuilt automatically every Tuesday.
+Betting and fantasy research for the NFL, laid out like an app with a sidebar (a bottom tab bar on phones):
+
+- **Home**: every game for the week, grouped by day, with spread, moneyline and total. Tap a game for its research page: **Odds**, **Matchup** (offense vs defense ranks over the last 3, last 5 or full season), **Players** (starting QBs and top receivers/rushers with matchup grades), **Usage share** (target and carry share, overall or red zone) and **Game lines** (each team's ATS and over/under history, plus head to head).
+- **Stats**: team stats and betting records, defense vs position, and player prop cards with hit rates.
+- **Fantasy**: fantasy points each defense allows to QB/RB/WR/TE with every game log against it, and a player outlook with rest-of-season strength of schedule, week-by-week matchup difficulty, past players at his position vs each opponent, and weekly projections. Free NFL data from [nflverse](https://github.com/nflverse/nflverse-data), rebuilt automatically every Tuesday.
 
 ## What's in here
 
 | File | What it does |
 |---|---|
-| `index.html` | The whole website: layout, styles, charts and tables. Edit this to change how it looks or what it shows. |
+| `index.html` | The whole website: layout, styles, charts and tables. Edit this to change how it looks or what it shows. Pages are linked with addresses like `#home`, `#game/2026_08_TEN_CIN/odds`, `#stats/players` and `#fantasy`. |
 | `pipeline.py` | Downloads the raw nflverse data and calculates everything (points allowed, ranks, averages). Edit this to add new stats. |
 | `data/` | The CSV files the pipeline creates. The website reads these. |
 | `.github/workflows/update-data.yml` | Tells GitHub to rerun the pipeline every Tuesday and save the new data. |
@@ -43,6 +47,7 @@ To rebuild the data yourself: install Python from [python.org](https://www.pytho
 
 - Fantasy points come straight from nflverse. Half PPR = the average of standard and PPR.
 - Rank 1 = the defense that allows the most points to that position (best matchup to target).
-- Betting lines are the closing lines in the nflverse schedule, not live odds.
+- Betting lines come from the nflverse schedule (consensus lines, refreshed with each daily update), not live odds from your book.
+- Fantasy projections = the player's points per game (65% season average, 35% last 5 games, leaning on last season early on) × how much each opponent allows to his position vs the league average, with a small home/road bump. They don't account for injuries or role changes.
 - Players who changed teams show their most recent team.
 - The season is detected automatically from the date (from August onward it uses the new season).

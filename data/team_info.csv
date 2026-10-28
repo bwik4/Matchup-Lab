@@ -1,0 +1,33 @@
+team,name,nick,conf,division,color,color2
+ARI,Arizona Cardinals,Cardinals,NFC,NFC West,#97233F,#000000
+ATL,Atlanta Falcons,Falcons,NFC,NFC South,#A71930,#000000
+BAL,Baltimore Ravens,Ravens,AFC,AFC North,#241773,#9E7C0C
+BUF,Buffalo Bills,Bills,AFC,AFC East,#00338D,#C60C30
+CAR,Carolina Panthers,Panthers,NFC,NFC South,#0085CA,#000000
+CHI,Chicago Bears,Bears,NFC,NFC North,#0B162A,#E64100
+CIN,Cincinnati Bengals,Bengals,AFC,AFC North,#FB4F14,#000000
+CLE,Cleveland Browns,Browns,AFC,AFC North,#FF3C00,#311D00
+DAL,Dallas Cowboys,Cowboys,NFC,NFC East,#002244,#B0B7BC
+DEN,Denver Broncos,Broncos,AFC,AFC West,#002244,#FB4F14
+DET,Detroit Lions,Lions,NFC,NFC North,#0076B6,#B0B7BC
+GB,Green Bay Packers,Packers,NFC,NFC North,#203731,#FFB612
+HOU,Houston Texans,Texans,AFC,AFC South,#03202F,#A71930
+IND,Indianapolis Colts,Colts,AFC,AFC South,#002C5F,#a5acaf
+JAX,Jacksonville Jaguars,Jaguars,AFC,AFC South,#006778,#000000
+KC,Kansas City Chiefs,Chiefs,AFC,AFC West,#E31837,#FFB612
+LA,Los Angeles Rams,Rams,NFC,NFC West,#003594,#FFD100
+LAC,Los Angeles Chargers,Chargers,AFC,AFC West,#007BC7,#ffc20e
+LV,Las Vegas Raiders,Raiders,AFC,AFC West,#000000,#A5ACAF
+MIA,Miami Dolphins,Dolphins,AFC,AFC East,#008E97,#F58220
+MIN,Minnesota Vikings,Vikings,NFC,NFC North,#4F2683,#FFC62F
+NE,New England Patriots,Patriots,AFC,AFC East,#002244,#C60C30
+NO,New Orleans Saints,Saints,NFC,NFC South,#D3BC8D,#000000
+NYG,New York Giants,Giants,NFC,NFC East,#0B2265,#A71930
+NYJ,New York Jets,Jets,AFC,AFC East,#003F2D,#000000
+PHI,Philadelphia Eagles,Eagles,NFC,NFC East,#004C54,#A5ACAF
+PIT,Pittsburgh Steelers,Steelers,AFC,AFC North,#000000,#FFB612
+SEA,Seattle Seahawks,Seahawks,NFC,NFC West,#002244,#69be28
+SF,San Francisco 49ers,49ers,NFC,NFC West,#AA0000,#B3995D
+TB,Tampa Bay Buccaneers,Buccaneers,NFC,NFC South,#A71930,#322F2B
+TEN,Tennessee Titans,Titans,AFC,AFC South,#4495D2,#D50A0A
+WAS,Washington Commanders,Commanders,NFC,NFC East,#5A1414,#FFB612

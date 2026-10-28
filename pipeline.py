@@ -13,8 +13,10 @@ Every output is a plain CSV in --out (default ./data).
                        red-zone usage, longest completion / rush / reception, air yards
                        and fantasy points
   players.csv          this season's per-game averages, next opponent, team implied total
-  games.csv            every game this season: Vegas lines, no-vig win %, implied totals,
-                       rest days, roof, final score, and whether it covered / went over
+  games.csv            every game this season: Vegas lines (with the juice on the spread and
+                       total), no-vig win %, implied totals, rest days, roof, listed starting QBs,
+                       final score, and whether it covered / went over
+  team_info.csv        team names and colors (for the team badges on the site)
   teams.csv            team efficiency (EPA/play, success rate, yards/play, pass rate,
                        pace, red-zone TD %, 3rd-down %, explosive plays, turnover margin)
                        and betting records (straight up, against the spread, over/under)
@@ -49,6 +51,8 @@ EXTRA = ["passing_air_yards", "receiving_air_yards", "receiving_yards_after_catc
 FP = ["fp_std", "fp_half", "fp_ppr"]
 # longest single play in a game (from play-by-play)
 LONG = ["long_completion", "long_rush", "long_reception"]
+# extra schedule columns: the juice on the spread and total, and the listed starting QBs
+ODDS_COLS = ["away_spread_odds", "home_spread_odds", "over_odds", "under_odds", "away_qb_name", "home_qb_name"]
 # stats ranked on the matchups page (everything a prop could be set on)
 MATCHUP_STATS = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + LONG + FP
 
@@ -333,7 +337,7 @@ def build(season, out):
     # ---------------- games + lines ----------------
     g = sched[["game_id", "week", "gameday", "weekday", "gametime", "away_team", "home_team", "away_score", "home_score",
                "spread_line", "total_line", "away_moneyline", "home_moneyline", "away_rest", "home_rest", "div_game",
-               "roof", "surface"]].copy()
+               "roof", "surface"] + [c for c in ODDS_COLS if c in sched.columns]].copy()
     g["matchup"] = g["away_team"] + " @ " + g["home_team"]
     g["kickoff"] = pd.to_datetime(g["gameday"]).dt.strftime("%a %b %-d") + " " + g["gametime"].fillna("")
     # nflverse spread_line is from the home team's view: positive = home team favored by that many
@@ -363,7 +367,17 @@ def build(season, out):
     tot = g["home_score"] + g["away_score"]
     g["total_points"] = tot
     g["ou_result"] = np.select([~played, tot > g["total_line"], tot < g["total_line"]], [None, "OVER", "UNDER"], "PUSH")
-    g.drop(columns=["gameday", "gametime"]).to_csv(f"{out}/games.csv", index=False)
+    g.to_csv(f"{out}/games.csv", index=False)
+
+    # ---------------- team names + colors ----------------
+    try:
+        ti = pd.read_csv(f"{BASE}/teams/teams_colors_logos.csv")
+        ti = ti[ti["team_abbr"].isin(set(g["home_team"]) | set(g["away_team"]))]
+        ti = ti.rename(columns={"team_abbr": "team", "team_name": "name", "team_nick": "nick", "team_conf": "conf",
+                                "team_division": "division", "team_color": "color", "team_color2": "color2"})
+        ti[["team", "name", "nick", "conf", "division", "color", "color2"]].to_csv(f"{out}/team_info.csv", index=False)
+    except Exception as e:
+        print(f"team info skipped: {e}")
 
     # ---------------- teams: betting records ----------------
     fin = g[played]
