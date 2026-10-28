@@ -38,7 +38,7 @@ season,team,player_id,player,position,rost,played
 2026,ARI,00-0038640,Jalen Brooks,WR,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,ARI,00-0038663,Starling Thomas V,DB,3 4 5 6 7,3 7
 2026,ARI,00-0038782,Eku Leota,LB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,ARI,00-0038788,Art Green,CB,5,5
+2026,ARI,00-0038788,Art Green,DB,5,5
 2026,ARI,00-0038984,Kei'Trel Clark,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,ARI,00-0039007,Garrett Williams,DB,1 2 3 4 5 6 7,3 4 5 6 7
 2026,ARI,00-0039041,Elijah Higgins,TE,1 2 3 4 5 6 7,1 2 3 4 5 6 7
@@ -101,7 +101,7 @@ season,team,player_id,player,position,rost,played
 2026,ATL,00-0036711,Charles Snowden,LB,7,7
 2026,ATL,00-0036833,Ryan Neuzil,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,ATL,00-0036906,Khalil Herbert,RB,7,7
-2026,ATL,00-0036956,Darren Hall,S,1,
+2026,ATL,00-0036956,Darren Hall,DB,1,
 2026,ATL,00-0036970,Kyle Pitts,TE,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,ATL,00-0036984,Trey Sermon,RB,1 2 3 4 5 6 7,
 2026,ATL,00-0036990,Divine Deablo,LB,1 2 3 4 5 6 7,1 2 3 4 5 6
@@ -116,7 +116,7 @@ season,team,player_id,player,position,rost,played
 2026,ATL,00-0037826,Drake Jackson,LB,5 6 7,5 7
 2026,ATL,00-0038542,Bijan Robinson,RB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,ATL,00-0038580,Yasir Abdullah,LB,1 2 3 4 5 6 7,1 2 3 4
-2026,ATL,00-0038587,Jammie Robinson,DB,4 5 6,4 5 6
+2026,ATL,00-0038587,Jammie Robinson,S,4 5 6,4 5 6
 2026,ATL,00-0038628,DeMarcco Hellams,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,ATL,00-0038980,Zach Harrison,DL,2 3 4 5 6 7,2 3 4 5 6 7
 2026,ATL,00-0039002,Sydney Brown,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
@@ -295,7 +295,7 @@ season,team,player_id,player,position,rost,played
 2026,CAR,00-0036653,Stone Forsythe,OL,1 2 3 4 6 7,1 2 3 4 6
 2026,CAR,00-0036825,Feleipe Franks,TE,1 2 3 4 6 7,1 2 3 4 6 7
 2026,CAR,00-0036903,Bobby Brown III,DL,1 2 3 4 6 7,1 3 4 6 7
-2026,CAR,00-0036904,Robert Rochell,DB,4 6 7,4 6 7
+2026,CAR,00-0036904,Robert Rochell,CB,4 6 7,4 6 7
 2026,CAR,00-0036934,Jaelan Phillips,LB,1 2 3 4 6 7,1 2 3 4 6
 2026,CAR,00-0036944,Jaycee Horn,DB,1 2 3 4 6 7,1 2 3
 2026,CAR,00-0036962,Tre'von Moehrig,DB,1 2 3 4 6 7,1 2 3 4 6 7
@@ -469,7 +469,7 @@ season,team,player_id,player,position,rost,played
 2026,CIN,00-0040180,Jalen Rivers,OL,1 2 3 4 5 7,1 2 3 4 5 7
 2026,CIN,00-0040208,Tahj Brooks,RB,1 2 3 4 5 7,1 2 3 4 5 7
 2026,CIN,00-0040359,Jacob Bayer,OL,1 2 3 4 5 7,1 2 3 4 5 7
-2026,CIN,00-0040372,Bralyn Lux,DB,4,4
+2026,CIN,00-0040372,Bralyn Lux,CB,4,4
 2026,CIN,00-0040379,William Wagner,LS,1 2 3 4 5 7,1 2 3 4 5 7
 2026,CIN,00-0040534,Ke'Shawn Williams,WR,1 2 3,3
 2026,CIN,00-0040723,Jack Kiser,LB,7,7
@@ -500,7 +500,7 @@ season,team,player_id,player,position,rost,played
 2026,CLE,00-0036407,Jerry Jeudy,WR,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,CLE,00-0036443,Rex Sunahara,LS,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,CLE,00-0036630,Tylan Wallace,WR,1 2 3 4 5 6 7,1 2 3 6 7
-2026,CLE,00-0036705,Sam Kamara,DT,5 6 7,5 6 7
+2026,CLE,00-0036705,Sam Kamara,DL,5 6 7,5 6 7
 2026,CLE,00-0036915,Jeremiah Owusu-Koramoah,LB,1 2 3 4 5 6 7,
 2026,CLE,00-0036953,Teven Jenkins,OL,1 2 3 4 5 6 7,
 2026,CLE,00-0036974,Tyson Campbell,DB,1 2 3 4 5 6 7,1 2 4 5 6 7
@@ -582,7 +582,7 @@ season,team,player_id,player,position,rost,played
 2026,DAL,00-0037692,Brandon Aubrey,K,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,DAL,00-0037801,KaVontae Turpin,WR,1 2 3 4 5 6 7,1 2 3 4 5 6
 2026,DAL,00-0037839,Cobie Durant,DB,1 2 3 4 5 6 7,1 2 7
-2026,DAL,00-0037842,Derion Kendrick,DB,6,6
+2026,DAL,00-0037842,Derion Kendrick,CB,6,6
 2026,DAL,00-0038041,Jake Ferguson,TE,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,DAL,00-0038389,Israel Abanikanda,RB,1,
 2026,DAL,00-0038547,Luke Schoonmaker,TE,1 2 3 4 5 6 7,1 2 3 4 5 6 7
@@ -602,7 +602,7 @@ season,team,player_id,player,position,rost,played
 2026,DAL,00-0039352,Marist Liufau,LB,1 2 3 4 5 6 7,
 2026,DAL,00-0039387,Caelen Carson,DB,1 2 3 4 5 6,3 5 6
 2026,DAL,00-0039410,Ryan Flournoy,WR,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,DAL,00-0039465,Reddy Steward,CB,3 4 5,3 4 5
+2026,DAL,00-0039465,Reddy Steward,DB,3 4 5,3 4 5
 2026,DAL,00-0039530,Brevyn Spann-Ford,TE,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,DAL,00-0040007,Tyler Booker,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,DAL,00-0040008,Shavon Revel Jr.,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
@@ -631,7 +631,7 @@ season,team,player_id,player,position,rost,played
 2026,DEN,00-0035248,Zach Allen,DL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,DEN,00-0035264,Jarrett Stidham,QB,1 2 3 4 5 6 7,
 2026,DEN,00-0035406,Lil'Jordan Humphrey,WR,2 3 5 6 7,2 5 6 7
-2026,DEN,00-0035663,Taylor Rapp,S,6 7,6 7
+2026,DEN,00-0035663,Taylor Rapp,DB,6 7,6 7
 2026,DEN,00-0035686,Michael Deiter,OL,1 2 3 4 5 6 7,
 2026,DEN,00-0035763,Malcolm Roach,DL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,DEN,00-0036158,J.K. Dobbins,RB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
@@ -831,7 +831,7 @@ season,team,player_id,player,position,rost,played
 2026,HOU,00-0032726,Ka'imi Fairbairn,K,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,HOU,00-0032759,Sheldon Rankins,DL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,HOU,00-0033854,Dare Ogunbowale,RB,4 5 6 7,4 5 6 7
-2026,HOU,00-0034091,George Odum,S,1 2 3,1 2 3
+2026,HOU,00-0034091,George Odum,DB,1 2 3,1 2 3
 2026,HOU,00-0034278,Tremon Smith,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,HOU,00-0034355,M.J. Stewart,DB,1 2 3 4 5 6 7,5 6 7
 2026,HOU,00-0034383,Dalton Schultz,TE,1 2 3 4 5 6 7,1 2 3 4 5 6 7
@@ -843,7 +843,7 @@ season,team,player_id,player,position,rost,played
 2026,HOU,00-0035166,Azeez Al-Shaair,LB,1 2 3 4 5 6 7,1 2 3 5 6 7
 2026,HOU,00-0035685,David Montgomery,RB,1 2 3 4 5 6 7,1 2 3 4 5
 2026,HOU,00-0036241,Bryce Hall,DB,5 6 7,5 6 7
-2026,HOU,00-0036441,"Kenneth Murray, Jr.",LB,4 5 7,4 5 7
+2026,HOU,00-0036441,Kenneth Murray,LB,4 5 7,4 5 7
 2026,HOU,00-0036554,Nico Collins,WR,1 2 3 4 5 6 7,1 4 5 6 7
 2026,HOU,00-0036556,Brevin Jordan,TE,1 2 3 4 5 6 7,4 5 6 7
 2026,HOU,00-0036883,Tommy Togiai,DT,1 2 3 4 5 6 7,1 2 3 4 5 6 7
@@ -865,12 +865,12 @@ season,team,player_id,player,position,rost,played
 2026,HOU,00-0038977,Tank Dell,WR,1 2 3 4 5 6 7,7
 2026,HOU,00-0039009,Dylan Horton,DL,1 2 3 4 5 6 7,
 2026,HOU,00-0039030,Jake Andrews,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,HOU,00-0039108,Will Anderson Jr.,DL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
+2026,HOU,00-0039108,Will Anderson,DE,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,HOU,00-0039163,C.J. Stroud,QB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,HOU,00-0039343,Kamari Lassiter,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
+2026,HOU,00-0039343,Kamari Lassiter,CB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,HOU,00-0039359,Cade Stover,TE,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,HOU,00-0039395,Jamal Hill,LB,2 3 4 5 6,2 3 4 5 6
-2026,HOU,00-0039402,Jaden Crumedy,DL,1 2 3 4 5 6 7,2 3 4 5 6 7
+2026,HOU,00-0039402,Jaden Crumedy,DT,1 2 3 4 5 6 7,2 3 4 5 6 7
 2026,HOU,00-0039405,Jawhar Jordan,RB,6,6
 2026,HOU,00-0039422,Nathan Thomas,OL,1 2 3 4 5 6 7,
 2026,HOU,00-0039427,Solomon Byrd,DL,1 2 3 4 5 6 7,
@@ -1131,7 +1131,7 @@ season,team,player_id,player,position,rost,played
 2026,LA,00-0037840,Kyren Williams,RB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,LA,00-0037841,Quentin Lake,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,LA,00-0038359,Xavier Smith,WR,1 2 3,1 2 3
-2026,LA,00-0038366,Tanner Ingle,S,1 2 3,1 2 3
+2026,LA,00-0038366,Tanner Ingle,DB,1 2 3,1 2 3
 2026,LA,00-0038905,Blake Grupe,K,6 7,6
 2026,LA,00-0039058,Steve Avila,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,LA,00-0039059,Ethan Evans,P,1 2 3 4 5 6 7,1 2 3 4 5 6 7
@@ -1187,7 +1187,7 @@ season,team,player_id,player,position,rost,played
 2026,LAC,00-0034790,Derwin James,DB,1 2 3 4 5 6,1 2 3
 2026,LAC,00-0035125,Alec Ingold,RB,1 2 3 4 5 6,1 2 3 4 5
 2026,LAC,00-0035202,Del'Shawn Phillips,LB,1 2 3 4 5 6,1 2 3 4 5 6
-2026,LAC,00-0035589,Gary Jennings,WR,2,2
+2026,LAC,00-0035589,Gary Jennings Jr,WR,2,2
 2026,LAC,00-0035688,Trey Pipkins,OL,1 2 3 4 5 6,1
 2026,LAC,00-0036181,Teair Tart,DL,1 2 3 4 5 6,1 2 3 4 5 6
 2026,LAC,00-0036338,Troy Dye,LB,1 2 3 4 5 6,1 2 3 4 5 6
@@ -1315,7 +1315,7 @@ season,team,player_id,player,position,rost,played
 2026,MIA,00-0033862,Zane Gonzalez,K,7,7
 2026,MIA,00-0034285,Zach Sieler,DL,1 2 3 4 5 7,1 2 3 4 5 7
 2026,MIA,00-0034779,Ronnie Harrison,LB,1 2 3 4 5 7,1
-2026,MIA,00-0035692,Clelin Ferrell,DE,1 2 3,1 2 3
+2026,MIA,00-0035692,Clelin Ferrell,DL,1 2 3,1 2 3
 2026,MIA,00-0036159,Joshua Uche,LB,1 2 3 4 5 7,1 2 3 4 5 7
 2026,MIA,00-0036171,Aaron Brewer,OL,1 2 3 4 5 7,1 2 3 4 5 7
 2026,MIA,00-0036248,Austin Jackson,OL,1 2 3 4 5 7,1 2 3 4 5 7
@@ -1334,7 +1334,7 @@ season,team,player_id,player,position,rost,played
 2026,MIA,00-0038521,Reese Taylor,DB,1 2 3 4 5 7,2 3 4
 2026,MIA,00-0038545,Mazi Smith,DL,4,4
 2026,MIA,00-0038603,Rob Beal Jr.,DL,1 2 3 4 5 7,1 2
-2026,MIA,00-0038635,Andre Jones,DE,3 4 5,3 4 5
+2026,MIA,00-0038635,Andre Jones Jr.,LB,3 4 5,3 4 5
 2026,MIA,00-0038728,Jared Wayne,WR,7,7
 2026,MIA,00-0038824,Ryan Miller,WR,1 2 3 4 5,1 2 3 4 5
 2026,MIA,00-0038890,Shaka Heyward,LB,4 5 7,4 5 7
@@ -1545,13 +1545,13 @@ season,team,player_id,player,position,rost,played
 2026,NO,00-0036253,Julian Blackmon,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NO,00-0036321,Chase Young,LB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NO,00-0036408,Cesar Ruiz,OL,1 2 3 4 5 6 7,1 2 3 4 5 6
-2026,NO,00-0036535,Will Sherman,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
+2026,NO,00-0036535,William Sherman,G,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NO,00-0036619,Dillon Radunz,OL,1 2 3 4 5 6 7,
-2026,NO,00-0036867,Chris Rumph II,LB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
+2026,NO,00-0036867,Chris Rumph,LB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NO,00-0036927,Pete Werner,LB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NO,00-0036973,Travis Etienne,RB,1 2 3 4 5 6 7,1 2 3
 2026,NO,00-0037013,Zach Wilson,QB,1 2 3 4 5 6 7,
-2026,NO,00-0037231,Kevin Austin,WR,1 2 3 4,1 2 3 4
+2026,NO,00-0037231,Kevin Austin Jr.,WR,1 2 3 4,1 2 3 4
 2026,NO,00-0037239,Chris Olave,WR,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NO,00-0037250,Martin Emerson,CB,1 2 3 4 5 6 7,1 2 4 5 6 7
 2026,NO,00-0037276,Ty Chandler,RB,1 2 3 4 5 6 7,
@@ -1569,8 +1569,8 @@ season,team,player_id,player,position,rost,played
 2026,NO,00-0038979,Cedric Tillman,WR,5 6 7,5 6 7
 2026,NO,00-0038995,Bryan Bresee,DL,1 2 3 4 5 6 7,
 2026,NO,00-0039288,Jackson Sirmon,LB,4,4
-2026,NO,00-0039339,Taliese Fuaga,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,NO,00-0039357,Decamerion Richardson,DB,1 2 3 4 6 7,1 3 6 7
+2026,NO,00-0039339,Taliese Fuaga,T,1 2 3 4 5 6 7,1 2 3 4 5 6 7
+2026,NO,00-0039357,Decamerion Richardson,CB,1 2 3 4 6 7,1 3 6 7
 2026,NO,00-0039373,Audric Estimé,RB,1 2,
 2026,NO,00-0039376,Spencer Rattler,QB,1 2 3 4 5 6 7,6
 2026,NO,00-0039388,Jaylan Ford,LB,1 2 3 4 5 6 7,5 6 7
@@ -1579,14 +1579,14 @@ season,team,player_id,player,position,rost,played
 2026,NO,00-0039518,Treyton Welch,TE,1 2 3 4 5 6 7,1 2 4 5 6
 2026,NO,00-0039622,Isaiah Stalbird,LB,1 2 3 4 5 6 7,1 3 4 5 6 7
 2026,NO,00-0039623,Mason Tipton,WR,1 2 3 4 5 6 7,
-2026,NO,00-0039725,Jayden Price,CB,1 2 3 4 5,1 2 3 4 5
+2026,NO,00-0039725,Jayden Price,DB,1 2 3 4 5,1 2 3 4 5
 2026,NO,00-0039860,Kool-Aid McKinstry,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NO,00-0040125,Kelvin Banks Jr.,OL,1 2 3 4 5 6 7,1 2
 2026,NO,00-0040155,Danny Stutsman,LB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NO,00-0040166,Quincy Riley,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NO,00-0040202,Devin Neal,RB,1,
 2026,NO,00-0040244,Moliki Matavao,TE,1 2 3 4 5 6 7,
-2026,NO,00-0040249,Fadil Diggs,DE,4,4
+2026,NO,00-0040249,Fadil Diggs,LB,4,4
 2026,NO,00-0040293,Michael Reid,DB,1 2 3 4 5 6 7,1 2 3 4
 2026,NO,00-0040539,Easton Kilty,OL,5 7,5 7
 2026,NO,00-0040642,Vernon Broughton,DL,1 2 3 4 5 6 7,1 2 3 4 6 7
@@ -1598,7 +1598,7 @@ season,team,player_id,player,position,rost,played
 2026,NO,00-0041067,Bryce Lance,WR,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NO,00-0041089,Lorenzo Styles Jr.,DB,1 2 3 4 5 6 7,5 6 7
 2026,NO,00-0041099,Barion Brown,WR,1 2 3 4 5 6 7,1 2 4 5 6 7
-2026,NO,00-0041173,Mason Murphy,OL,1 2 3 4 5 6 7,3 4 5 6 7
+2026,NO,00-0041173,Mason Murphy,T,1 2 3 4 5 6 7,3 4 5 6 7
 2026,NO,00-0041326,CJ Donaldson,RB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NO,00-0041329,Michael Heldman,LB,1,
 2026,NO,00-0041390,Christen Miller,DL,1 2 3 4 5 6 7,1 5 6 7
@@ -1624,8 +1624,8 @@ season,team,player_id,player,position,rost,played
 2026,NYG,00-0036280,Malik Harrison,LB,1 2 3 6 7,1 2 3 6 7
 2026,NYG,00-0036309,Darnell Mooney,WR,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NYG,00-0036386,Andrew Thomas,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,NYG,00-0036502,Jason Pinnock,DB,1 2 3 4 5 6 7,3 4 6 7
-2026,NYG,00-0036587,Ar'Darius Washington,DB,1 2 3 4 5 6 7,1 2 3 5 6 7
+2026,NYG,00-0036502,Jason Pinnock,S,1 2 3 4 5 6 7,3 4 6 7
+2026,NYG,00-0036587,Ar'Darius Washington,S,1 2 3 4 5 6 7,1 2 3 5 6 7
 2026,NYG,00-0036893,Najee Harris,RB,1 2 3 4 5 6,2 3 4 5 6
 2026,NYG,00-0036937,Paulson Adebo,CB,1 2 3 4 5 6 7,1 7
 2026,NYG,00-0036982,Chauncey Golston,DL,1 2 3 4 5 6 7,1 2 3 4
@@ -1642,14 +1642,14 @@ season,team,player_id,player,position,rost,played
 2026,NYG,00-0038401,Jarrick Bernard-Converse,DB,1 2 3 4 5 6 7,
 2026,NYG,00-0038576,Charlie Jones,WR,4 5 6 7,4 5 6 7
 2026,NYG,00-0038938,Jalin Hyatt,WR,7,7
-2026,NYG,00-0038986,Nic Jones,DB,1 2 3 4 5 6 7,2 3 4 5 6 7
+2026,NYG,00-0038986,Nic Jones,CB,1 2 3 4 5 6 7,2 3 4 5 6 7
 2026,NYG,00-0038998,Jake Haener,QB,3 4 5 6 7,
-2026,NYG,00-0039000,Deonte Banks,DB,1 2 3 4 5 6 7,1 4 5 6 7
-2026,NYG,00-0039019,John Michael Schmitz,OL,1 2 3 4 5 6 7,1 2 3 5 7
+2026,NYG,00-0039000,Deonte Banks,CB,1 2 3 4 5 6 7,1 4 5 6 7
+2026,NYG,00-0039019,John Michael Schmitz,C,1 2 3 4 5 6 7,1 2 3 5 7
 2026,NYG,00-0039176,Basil Okoye,DL,1 2 3 4 5 6 7,
 2026,NYG,00-0039337,Malik Nabers,WR,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NYG,00-0039384,Tyrone Tracy Jr.,RB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,NYG,00-0039446,Bryan Hudson,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
+2026,NYG,00-0039446,Bryan Hudson,C,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NYG,00-0039620,Rico Payton,DB,1 2 3 4 5 6 7,
 2026,NYG,00-0039821,Andru Phillips,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,NYG,00-0039847,Theo Johnson,TE,1 2 3 4 5 6 7,1 2 3 4 5
@@ -1814,7 +1814,7 @@ season,team,player_id,player,position,rost,played
 2026,PHI,00-0040867,Makai Lemon,WR,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,PHI,00-0040891,Cole Payton,QB,1 2 3 4 5 6 7,5
 2026,PHI,00-0040897,Micah Morris,OL,1 2 3 4 5 6 7,3 4 5 6 7
-2026,PHI,00-0040905,Cole Wisniewski,S,6,6
+2026,PHI,00-0040905,Cole Wisniewski,DB,6,6
 2026,PHI,00-0040908,Keyshawn James-Newby,LB,6 7,6 7
 2026,PHI,00-0040923,Maximus Pulley,DB,2,2
 2026,PHI,00-0040925,Rocco Underwood,LS,1 2 3 4 5 6 7,1 2 3 4 5 6 7
@@ -1899,7 +1899,7 @@ season,team,player_id,player,position,rost,played
 2026,SEA,00-0034869,Sam Darnold,QB,1 2 3 4 5 6 7,1 3 4 5 6 7
 2026,SEA,00-0034974,Julian Love,DB,1 2 3 4 5 6 7,1 2 4 5 6 7
 2026,SEA,00-0035704,Drew Lock,QB,1 2 3 4 5 6 7,1 2
-2026,SEA,00-0036361,Trevon Diggs,CB,4 5 6 7,4 5 6 7
+2026,SEA,00-0036361,Trevon Diggs,DB,4 5 6 7,4 5 6 7
 2026,SEA,00-0036363,Josh Jones,OL,1 2 3 4 5 6 7,1 2 3 4 6 7
 2026,SEA,00-0036994,Ernest Jones,LB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,SEA,00-0037003,Chazz Surratt,LB,1 2 3 4 5 6 7,1 2 3
@@ -1934,7 +1934,7 @@ season,team,player_id,player,position,rost,played
 2026,SEA,00-0039815,Tyrice Knight,LB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,SEA,00-0039839,Christian Haynes,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,SEA,00-0039926,Jalen Sundell,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,SEA,00-0040026,Maxen Hook,DB,3 4,3 4
+2026,SEA,00-0040026,Maxen Hook,S,3 4,3 4
 2026,SEA,00-0040058,Nick Kallerup,TE,1 2 3 4 5 6 7,2 3 6 7
 2026,SEA,00-0040059,Amari Kight,OL,1,
 2026,SEA,00-0040061,Connor O'Toole,LB,1 2 3 4 5 6 7,1 4 5 6
@@ -1959,7 +1959,7 @@ season,team,player_id,player,position,rost,played
 2026,SF,00-0029892,Kyle Juszczyk,RB,1 2 3 4 5 6 7,1 2 3 4 6 7
 2026,SF,00-0031236,Brandin Cooks,WR,4 5 6 7,4 5 6 7
 2026,SF,00-0031408,Mike Evans,WR,1 2 3 4 5 6 7,1 2 3 4 5 6
-2026,SF,00-0032415,Matt Judon,DL,4,4
+2026,SF,00-0032415,Matthew Judon,LB,4,4
 2026,SF,00-0032701,Jake Brendel,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,SF,00-0032775,Demarcus Robinson,WR,1 2 3 4 5 6 7,1 2
 2026,SF,00-0033280,Christian McCaffrey,RB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
@@ -1998,16 +1998,16 @@ season,team,player_id,player,position,rost,played
 2026,SF,00-0037831,Nick Zakelj,OL,1 2 3 4 5 6 7,
 2026,SF,00-0037834,Brock Purdy,QB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,SF,00-0038039,Jack Jones,CB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,SF,00-0038554,Ji'Ayir Brown,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,SF,00-0038575,Viliami Fehoko,DL,3,3
+2026,SF,00-0038554,Ji'Ayir Brown,S,1 2 3 4 5 6 7,1 2 3 4 5 6 7
+2026,SF,00-0038575,Viliami Fehoko Jr.,DL,3,3
 2026,SF,00-0038615,Jarrett Patterson,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,SF,00-0038643,Brayden Willis,TE,2 3 4 5 6 7,2 3 4 5 6 7
 2026,SF,00-0038648,Jalen Graham,LB,6 7,6 7
 2026,SF,00-0038865,Andrew Farmer II,LB,1 2 3 4 5 6 7,
 2026,SF,00-0039148,Keion White,DL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,SF,00-0039345,Renardo Green,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
+2026,SF,00-0039345,Renardo Green,CB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,SF,00-0039351,Dominick Puni,OL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
-2026,SF,00-0039360,Malik Mustapha,DB,1 2 3 4 5 6 7,1 2 3 4 5 6 7
+2026,SF,00-0039360,Malik Mustapha,S,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,SF,00-0039363,Isaac Guerendo,RB,1 2 3 4 5 6 7,
 2026,SF,00-0039365,Jacob Cowing,WR,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,SF,00-0039435,Tatum Bethune,LB,1 2 3 4 5 6 7,6 7
@@ -2132,7 +2132,7 @@ season,team,player_id,player,position,rost,played
 2026,TEN,00-0038514,Truman Jones,DL,1 2 3 4 5 6 7,1 2 3 4 5 6 7
 2026,TEN,00-0038586,Atonio Mafi,OL,1 2 3 4 5 6 7,4 5 6 7
 2026,TEN,00-0038600,Owen Pappoe,LB,1 2,2
-2026,TEN,00-0038620,Erick Hallett,S,1 2 3 4 5,1 2 3 4 5
+2026,TEN,00-0038620,Erick Hallett,DB,1 2 3 4 5,1 2 3 4 5
 2026,TEN,00-0038703,Kendell Brooks,DB,1 2 3 4 5 6 7,
 2026,TEN,00-0038711,Mohamoud Diabate,LB,1,1
 2026,TEN,00-0039032,Tyjae Spears,RB,1 2 3 4 5 6 7,1 2 3 4 5 6
@@ -2198,7 +2198,7 @@ season,team,player_id,player,position,rost,played
 2026,WAS,00-0036626,Dyami Brown,WR,1 2 3 4 5 6,1 2 3 4 5 6
 2026,WAS,00-0036628,John Bates,TE,1 2 3 4 5 6,1 2 3 4 5 6
 2026,WAS,00-0036940,Odafe Oweh,LB,1 2 3 4 5 6,1 2 3 4 5 6
-2026,WAS,00-0036956,Darren Hall,S,5,5
+2026,WAS,00-0036956,Darren Hall,DB,5,5
 2026,WAS,00-0037092,Chris Paul,OL,1 2 3 4 5 6,1 2 3 4 5 6
 2026,WAS,00-0037256,Rachaad White,RB,1 2 3 4 5 6,1 2 3 5 6
 2026,WAS,00-0037616,Nick Cross,DB,1 2 3 4 5 6,1 2 6
