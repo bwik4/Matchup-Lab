@@ -604,8 +604,9 @@
 
   <!-- ================= FANTASY ================= -->
   <section class="view stack" data-view="fantasy" hidden>
+   <div class="ff-nfl stack">
     <div class="bar">
-      <h2 class="fh">Fantasy</h2>
+      <h2 class="fh">NFL Fantasy</h2>
       <div class="controls">
         <span class="lbl">Scoring</span>
         <div class="seg ff-fmt" role="group" aria-label="Fantasy scoring"><button data-v="std">Std</button><button data-v="half">Half</button><button data-v="ppr">PPR</button></div>
@@ -662,6 +663,59 @@
       <div class="scroll" style="max-height: 28rem"><table class="t-ffvs"><thead></thead><tbody></tbody></table></div>
       <p class="empty ffv-empty" hidden>No games to show.</p>
     </div>
+   </div>
+
+   <div class="ff-nba stack" hidden>
+    <div class="bar">
+      <h2 class="fh">NBA Fantasy</h2>
+      <div class="controls">
+        <span class="lbl">Scoring</span>
+        <div class="seg nf-fmt" role="group" aria-label="Fantasy scoring"><button data-v="dk">DraftKings</button><button data-v="fd">FanDuel / Yahoo</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="bar">
+        <h2>Defense vs fantasy positions</h2>
+        <div class="controls"><div class="seg nf-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="l10">Last 10 games</button></div></div>
+      </div>
+      <p class="note">Fantasy points each defense allows per game to all guards, forwards and centers combined. Rk: 1 = toughest (allows the least), 30 = easiest. Tap a defense to see every game log against it.</p>
+      <div class="scroll"><table class="t-nfdef dvp"><thead></thead><tbody></tbody></table></div>
+      <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (23–30)</span></div>
+    </div>
+
+    <div class="card" id="nf-detail">
+      <div class="bar">
+        <h2 class="nfd-title">Pick a defense</h2>
+        <div class="seg nf-pos" role="group" aria-label="Position"><button data-v="G">Guards</button><button data-v="F">Forwards</button><button data-v="C">Centers</button></div>
+      </div>
+      <p class="note nfd-note"></p>
+      <div class="chart nfd-chart"></div>
+      <h3>Game logs against them this season</h3>
+      <p class="note">Every player at the position who played against them. Tap a player to open his outlook below.</p>
+      <div class="scroll" style="max-height: 28rem"><table class="t-nfdlog"><thead></thead><tbody></tbody></table></div>
+    </div>
+
+    <div class="card" id="nf-player">
+      <div class="bar">
+        <h2 class="nfp-title">Player outlook</h2>
+        <div class="controls">
+          <input class="search nf-search" type="search" list="nflist" placeholder="Search player" aria-label="Find player">
+          <datalist id="nflist"></datalist>
+        </div>
+      </div>
+      <p class="note nfp-note"></p>
+      <div class="stats nfp-tiles"></div>
+      <h3>Last 15 games</h3>
+      <div class="chart nfp-chart"></div>
+      <h3>Next 10 games</h3>
+      <p class="note">Def rank = how many fantasy points that defense allows to his position (1 = toughest of 30). B2B = second night of a back-to-back.</p>
+      <div class="scroll" style="max-height: none"><table class="t-nfsched"><thead></thead><tbody></tbody></table></div>
+      <div class="legend"><span class="lr">Tough matchup (rank 1–8)</span><span class="lg">Easy matchup (23–30)</span></div>
+      <h3>Recent game log</h3>
+      <div class="scroll" style="max-height: 24rem"><table class="t-nflast"><thead></thead><tbody></tbody></table></div>
+    </div>
+   </div>
   </section>
 
   <!-- ================= TRENDS ================= -->
@@ -797,7 +851,7 @@ function table(el, name, cols, data, opts = {}) {
       const td = document.createElement('td');
       const v = r[c.f];
       td.textContent = c.fmt ? c.fmt(v, r) : show(v);
-      td.className = [c.l ? 'l' : '', c.group ? 'grp' : '', c.rank ? (c.rank === 'opp' ? rankClsOpp(v) : rankCls(v)) : '', c.cls ? c.cls(v, r) : ''].join(' ').trim();
+      td.className = [c.l ? 'l' : '', c.group ? 'grp' : '', c.rank ? (c.rank === 'nba' ? (v == null ? 'rk' : v <= 8 ? 'rk rk-r' : v >= 23 ? 'rk rk-g' : 'rk') : c.rank === 'opp' ? rankClsOpp(v) : rankCls(v)) : '', c.cls ? c.cls(v, r) : ''].join(' ').trim();
       row.appendChild(td);
     });
     frag.appendChild(row);
@@ -1504,7 +1558,8 @@ function h(tag, attrs, ...kids) {
   kids.flat(Infinity).forEach((c) => { if (c == null || c === false) return; e.append(c instanceof Node ? c : String(c)); });
   return e;
 }
-const curInfo = () => (S.sport === 'nba' && (S.view === 'home' || S.view === 'trends') && NBA.info ? NBA.info : IDX.info);
+const NBA_VIEWS = ['home', 'trends', 'fantasy'];
+const curInfo = () => (S.sport === 'nba' && NBA_VIEWS.includes(S.view) && NBA.info ? NBA.info : IDX.info);
 const TI = (t) => (curInfo() && curInfo().get(t)) || { team: t, nick: t, name: t, color: '#55534e', color2: '#8a8984' };
 function badge(team, size) {
   const i = TI(team);
@@ -2310,12 +2365,156 @@ function renderNBAHome() {
   }));
 }
 
+
+// ---------- NBA fantasy ----------
+// DraftKings: pts 1, 3PM 0.5, reb 1.25, ast 1.5, stl 2, blk 2, TO -0.5, double-double +1.5, triple-double +3
+// FanDuel / Yahoo: pts 1, reb 1.2, ast 1.5, stl 3, blk 3, TO -1
+function nbaFP(r, fmt) {
+  if (fmt === 'fd') return r.pts + 1.2 * r.reb + 1.5 * r.ast + 3 * r.stl + 3 * r.blk - r.tov;
+  const tens = [r.pts, r.reb, r.ast, r.stl, r.blk].filter((v) => v >= 10).length;
+  return r.pts + 0.5 * r.fg3m + 1.25 * r.reb + 1.5 * r.ast + 2 * r.stl + 2 * r.blk - 0.5 * r.tov + (tens >= 3 ? 3 : tens === 2 ? 1.5 : 0);
+}
+const NF_POS = { G: 'guards', F: 'forwards', C: 'centers' };
+S.nfFmt = 'dk'; S.nfWin = 'season'; S.nfPos = 'G'; S.nfDef = null; S.nfPlayer = null;
+const fp1 = (v) => (v == null ? null : Math.round(v * 10) / 10);
+
+// fantasy points each defense allows per game to each position (season or its last 10 games)
+function nfDefense(fmt, win) {
+  const key = `${fmt}|${win}`; NBA.nfCache = NBA.nfCache || {};
+  if (NBA.nfCache[key]) return NBA.nfCache[key];
+  const cur = NBA.logs.filter((r) => r.season === NBA.season);
+  const gamesOf = new Map();
+  cur.forEach((r) => { if (!gamesOf.has(r.opp)) gamesOf.set(r.opp, new Map()); gamesOf.get(r.opp).set(r.game_id, r.date); });
+  const keep = new Map();
+  gamesOf.forEach((m, d) => { const ids = [...m.entries()].sort((a, b) => (a[1] < b[1] ? -1 : 1)).map((x) => x[0]); keep.set(d, new Set(win === 'l10' ? ids.slice(-10) : ids)); });
+  const tot = new Map();
+  cur.forEach((r) => {
+    if (!keep.get(r.opp).has(r.game_id)) return;
+    if (!tot.has(r.opp)) tot.set(r.opp, { G: 0, F: 0, C: 0 });
+    tot.get(r.opp)[r.position] += nbaFP(r, fmt);
+  });
+  const rows = [...tot.entries()].map(([d, t]) => { const n = keep.get(d).size; return { defense: d, games: n, G: t.G / n, F: t.F / n, C: t.C / n, all: (t.G + t.F + t.C) / n }; });
+  ['G', 'F', 'C', 'all'].forEach((k) => rows.slice().sort((a, b) => a[k] - b[k]).forEach((r, i) => { r[`${k}_rk`] = i + 1; }));
+  const lg = {}; ['G', 'F', 'C'].forEach((k) => { lg[k] = mean(rows.map((r) => r[k])); });
+  return (NBA.nfCache[key] = { rows, by: new Map(rows.map((r) => [r.defense, r])), lg });
+}
+function nbaNextGames(team, n) {
+  const today = etToday();
+  return NBA.games.filter((g) => g.status !== 'final' && g.gameday >= today && (g.away_team === team || g.home_team === team))
+    .sort((a, b) => (a.gameday + a.gametime < b.gameday + b.gametime ? -1 : 1)).slice(0, n);
+}
+const nbaPlayedOn = (team, day) => NBA.games.some((g) => g.gameday === day && (g.away_team === team || g.home_team === team));
+
+function renderNBAFantasy() {
+  const fmt = S.nfFmt, D = nfDefense(fmt, S.nfWin);
+  [['.nf-fmt', 'nfFmt'], ['.nf-win', 'nfWin'], ['.nf-pos', 'nfPos']].forEach(([sel, k]) => {
+    document.querySelectorAll(`${sel} button`).forEach((b) => { b.setAttribute('aria-pressed', String(b.dataset.v === S[k])); b.onclick = () => { S[k] = b.dataset.v; render(); }; });
+  });
+  const nextOf = (t) => { const g = nbaNextGames(t, 1)[0]; return g ? (g.home_team === t ? `vs ${g.away_team}` : `@ ${g.home_team}`) : '—'; };
+  const rows = D.rows.map((r) => ({ ...r, next: nextOf(r.defense) }));
+  if (!S.nfDef || !D.by.has(S.nfDef)) S.nfDef = rows.slice().sort((a, b) => b[`${S.nfPos}_rk`] - a[`${S.nfPos}_rk`])[0].defense;
+  const cols = [{ f: 'defense', label: 'Defense', l: true }, { f: 'games', label: 'GP' }];
+  [['G', 'Guard'], ['F', 'Forward'], ['C', 'Center']].forEach(([k, lbl]) => cols.push({ f: k, label: `${lbl} pts /g`, group: true, fmt: (v) => show(fp1(v)) }, { f: `${k}_rk`, label: 'Rk', rank: 'nba' }));
+  cols.push({ f: 'all', label: 'Total /g', group: true, fmt: (v) => show(fp1(v)) }, { f: 'all_rk', label: 'Rk', rank: 'nba' }, { f: 'next', label: 'Next', l: true, group: true });
+  table($('.t-nfdef'), 'nfdef', cols, rows, {
+    sort: { f: `${S.nfPos}_rk`, dir: 'desc' }, selected: (r) => r.defense === S.nfDef,
+    onClick: (r) => { S.nfDef = r.defense; render(); $('#nf-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
+  });
+  renderNFDef(D);
+  renderNFPlayer(D);
+}
+
+function renderNFDef(D) {
+  const d = S.nfDef, pos = S.nfPos, fmt = S.nfFmt, r = D.by.get(d), lg = D.lg[pos];
+  const t = $('.nfd-title'); t.replaceChildren(badge(d, 'sm'), ` ${TI(d).nick} defense vs ${NF_POS[pos]}`); t.style.cssText = 'display:flex;align-items:center;gap:6px';
+  const fmtName = fmt === 'dk' ? 'DraftKings' : 'FanDuel';
+  $('.nfd-note').textContent = r ? `${d} allows ${show(fp1(r[pos]))} ${fmtName} points per game to ${NF_POS[pos]}, rank ${r[`${pos}_rk`]} of 30 (1 = toughest). League average is ${show(fp1(lg))}. Each bar is one game's total to all ${NF_POS[pos]}; green games were above the league average, red below.` : '';
+  const logs = NBA.logs.filter((x) => x.season === NBA.season && x.opp === d && x.position === pos);
+  const per = new Map();
+  logs.forEach((x) => { if (!per.has(x.game_id)) per.set(x.game_id, { date: x.date, team: x.team, fp: 0 }); per.get(x.game_id).fp += nbaFP(x, fmt); });
+  const gs = [...per.values()].sort((a, b) => (a.date < b.date ? -1 : 1)).slice(-20);
+  bars($('.nfd-chart'), gs.map((g) => ({ x: g.team, y: fp1(g.fp), color: g.fp >= lg ? 'var(--ok)' : 'var(--bad)', tipTitle: `${g.date} vs ${g.team}`, tipBody: `${show(fp1(g.fp))} pts to ${NF_POS[pos]}` })),
+    { height: 200, line: fp1(lg), lineLabel: `League avg ${show(fp1(lg))}` });
+  const rows = logs.map((x) => ({ ...x, fp: fp1(nbaFP(x, fmt)) }));
+  table($('.t-nfdlog'), 'nfdlog', [
+    { f: 'date', label: 'Date', l: true }, { f: 'player', label: 'Player', l: true }, { f: 'team', label: 'Team', l: true }, { f: 'min', label: 'Min' },
+    { f: 'pts', label: 'Pts' }, { f: 'reb', label: 'Reb' }, { f: 'ast', label: 'Ast' }, { f: 'fg3m', label: '3PM' }, { f: 'stl', label: 'Stl' }, { f: 'blk', label: 'Blk' }, { f: 'tov', label: 'TO' },
+    { f: 'fp', label: 'Fantasy pts', group: true },
+  ], rows, { sort: { f: 'fp', dir: 'desc' }, onClick: (x) => { S.nfPlayer = x.player_id; render(); $('#nf-player').scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
+}
+
+function nfBaseline(logs, fmt) {
+  const cur = logs.filter((r) => r.season === NBA.season), prev = logs.filter((r) => r.season === NBA.season - 1);
+  const avg = (a) => mean(a.map((r) => nbaFP(r, fmt)));
+  let szn = avg(cur);
+  // early in the season, lean on last season until he has 10 games
+  if (cur.length < 10 && prev.length >= 5) szn = cur.length ? (szn * cur.length + avg(prev) * (10 - cur.length)) / 10 : avg(prev);
+  const l5 = avg(logs.slice(-5));
+  return szn == null ? l5 : l5 == null ? szn : 0.65 * szn + 0.35 * l5;
+}
+
+function renderNFPlayer(D) {
+  const fmt = S.nfFmt;
+  // search list: everyone who has played this season
+  const active = [...NBA.byPid.entries()].filter(([, a]) => a[a.length - 1].season === NBA.season);
+  const dl = $('#nflist');
+  if (dl.dataset.n !== String(active.length)) { dl.replaceChildren(...active.map(([, a]) => h('option', { value: `${a[a.length - 1].player} (${a[a.length - 1].position}, ${a[a.length - 1].team})` }))); dl.dataset.n = active.length; }
+  if (!S.nfPlayer || !NBA.byPid.has(S.nfPlayer)) {
+    S.nfPlayer = active.map(([pid, a]) => ({ pid, v: a.length >= 3 ? mean(a.filter((r) => r.season === NBA.season).map((r) => nbaFP(r, fmt))) : 0 })).sort((x, y) => y.v - x.v)[0].pid;
+  }
+  const logs = NBA.byPid.get(S.nfPlayer), last = logs[logs.length - 1], pos = last.position, team = last.team;
+  const t = $('.nfp-title'); t.replaceChildren(badge(team, 'sm'), ` ${last.player} · ${pos} · ${team}`); t.style.cssText = 'display:flex;align-items:center;gap:6px';
+  const base = nfBaseline(logs, fmt);
+  const cur = logs.filter((r) => r.season === NBA.season);
+  const next = nbaNextGames(team, 10).map((g) => {
+    const home = g.home_team === team, opp = home ? g.away_team : g.home_team, dr = D.by.get(opp);
+    const raw = dr && D.lg[pos] ? dr[pos] / D.lg[pos] : 1, f = 1 + (raw - 1) * Math.min(1, (dr ? dr.games : 0) / 15);
+    const b2b = nbaPlayedOn(team, dayShift(g.gameday, -1));
+    const proj = base == null ? null : base * f * (home ? 1.01 : 0.99) * (b2b ? 0.96 : 1);
+    return { g, date: g.gameday, day: dayLabel(g.gameday), opp: home ? `vs ${opp}` : `@ ${opp}`, b2b: b2b ? 'B2B' : '', rk: dr ? dr[`${pos}_rk`] : null, allowed: dr ? fp1(dr[pos]) : null, proj: fp1(proj), time: tmTxt(kickDate(g)) };
+  });
+  // games this fantasy week (Mon-Sun, Eastern) and next
+  const today = etToday(), dow = (new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7, mon = dayShift(today, -dow);
+  const inWk = (a, b) => NBA.games.filter((g) => g.gameday >= a && g.gameday <= b && (g.away_team === team || g.home_team === team)).length;
+  const thisWk = inWk(mon, dayShift(mon, 6)), nextWk = inWk(dayShift(mon, 7), dayShift(mon, 13));
+  const easy = next.filter((x) => x.rk >= 23).length, tough = next.filter((x) => x.rk != null && x.rk <= 8).length;
+  $('.nfp-tiles').replaceChildren(
+    tile(show(fp1(mean(cur.map((r) => nbaFP(r, fmt))))), `Fantasy pts /g this season (${cur.length} g)`),
+    tile(show(fp1(mean(logs.slice(-5).map((r) => nbaFP(r, fmt))))), 'Last 5 games avg'),
+    tile(next.length ? show(next[0].proj) : '—', next.length ? `Next game: ${next[0].opp}` : 'No games scheduled'),
+    tile(show(fp1(mean(next.map((x) => x.proj).filter((v) => v != null)))), 'Projected per game, next 10'),
+    tile(`${thisWk} / ${nextWk}`, 'Games this week / next week'),
+    tile(`${easy} / ${tough}`, 'Easy / tough matchups, next 10'));
+  $('.nfp-note').textContent = `Projections use his ${fmt === 'dk' ? 'DraftKings' : 'FanDuel'} points per game (65% season average, 35% last 5 games; early in the season it leans on last season), scaled by how much each opponent allows to ${NF_POS[pos]} compared with the league average, with small home/road and back-to-back adjustments. It doesn't know about injuries, minutes limits or lineup changes, so treat it as a guide.`;
+  const l15 = logs.slice(-15), avg = mean(cur.map((r) => nbaFP(r, fmt)));
+  bars($('.nfp-chart'), l15.map((r) => { const v = fp1(nbaFP(r, fmt)); return { x: `${r.home ? '' : '@'}${r.opp}`, y: v, color: avg == null || v >= avg ? 'var(--ok)' : 'var(--bad)',
+    tipTitle: `${r.date} ${r.home ? 'vs' : '@'} ${r.opp}`, tipBody: `${show(v)} pts · ${r.pts} pts, ${r.reb} reb, ${r.ast} ast in ${r.min} min` }; }),
+  { height: 190, line: avg == null ? null : fp1(avg), lineLabel: avg == null ? '' : `Season avg ${show(fp1(avg))}` });
+  table($('.t-nfsched'), 'nfsched', [
+    { f: 'day', label: 'Date', l: true }, { f: 'time', label: 'Tip', l: true }, { f: 'opp', label: 'Opponent', l: true }, { f: 'b2b', label: 'Rest', l: true },
+    { f: 'allowed', label: `Allows to ${pos} /g` }, { f: 'rk', label: 'Def rank', rank: 'nba' }, { f: 'proj', label: 'Projected', group: true },
+  ], next, { sort: { f: 'date', dir: 'asc' } });
+  table($('.t-nflast'), 'nflast', [
+    { f: 'date', label: 'Date', l: true }, { f: 'vs', label: 'Opponent', l: true }, { f: 'min', label: 'Min' }, { f: 'pts', label: 'Pts' }, { f: 'reb', label: 'Reb' }, { f: 'ast', label: 'Ast' },
+    { f: 'fg3m', label: '3PM' }, { f: 'stl', label: 'Stl' }, { f: 'blk', label: 'Blk' }, { f: 'tov', label: 'TO' }, { f: 'fp', label: 'Fantasy pts', group: true },
+  ], logs.slice(-20).map((r) => ({ ...r, vs: `${r.home ? 'vs' : '@'} ${r.opp}`, fp: fp1(nbaFP(r, fmt)) })), { sort: { f: 'date', dir: 'desc' } });
+}
+$('.nf-search').addEventListener('change', (e) => {
+  const v = e.target.value.trim().toLowerCase(); if (!v || !NBA.byPid) return;
+  let hit = null;
+  NBA.byPid.forEach((a, pid) => { const l = a[a.length - 1]; const full = `${l.player} (${l.position}, ${l.team})`.toLowerCase();
+    if (!hit && (full === v || l.player.toLowerCase() === v)) hit = pid; });
+  if (!hit) NBA.byPid.forEach((a, pid) => { if (!hit && a[a.length - 1].season === NBA.season && a[a.length - 1].player.toLowerCase().includes(v)) hit = pid; });
+  if (hit) { S.nfPlayer = hit; e.target.value = ''; render(); }
+});
+
 // ---------- sport switch ----------
 function syncSport() {
   const nba = S.sport === 'nba';
   document.querySelectorAll('.sport-sw button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.s === S.sport)));
-  $('.sport-sw').hidden = !(S.view === 'home' || S.view === 'trends');
-  document.querySelectorAll('.side-nav button[data-view="stats"], .side-nav button[data-view="fantasy"]').forEach((b) => { b.hidden = nba; });
+  $('.sport-sw').hidden = !NBA_VIEWS.includes(S.view);
+  document.querySelectorAll('.side-nav button[data-view="stats"]').forEach((b) => { b.hidden = nba; });
+  $('.ff-nfl').hidden = nba; $('.ff-nba').hidden = !nba;
   $('.sub-nfl').hidden = nba; $('.sub-nba').hidden = !nba;
   const src = $('.src-link');
   src.textContent = nba ? 'SportsDataverse / ESPN' : 'nflverse';
@@ -2336,11 +2535,13 @@ $('.sport-sw').addEventListener('click', (e) => {
 
 function render() {
   if (!DATA.teams) return;
-  if (S.sport === 'nba' && !['home', 'trends'].includes(S.view)) { S.sport = 'nfl'; try { localStorage.setItem('ml-sport', 'nfl'); } catch (e) { /* storage off */ } }
+  if (S.sport === 'nba' && !NBA_VIEWS.includes(S.view)) { S.sport = 'nfl'; try { localStorage.setItem('ml-sport', 'nfl'); } catch (e) { /* storage off */ } }
   syncSport();
   if (S.sport === 'nba' && !NBA.ready) {
     const msg = h('p', { class: 'empty' }, NBA.error ? 'Could not load the NBA data. Try again in a bit.' : 'Loading NBA…');
-    if (S.view === 'home') { $('.h-days').replaceChildren(); $('.glist').replaceChildren(msg); } else $('.tr-list').replaceChildren(msg);
+    if (S.view === 'home') { $('.h-days').replaceChildren(); $('.glist').replaceChildren(msg); }
+    else if (S.view === 'fantasy') $('.nfp-note').replaceChildren(msg);
+    else $('.tr-list').replaceChildren(msg);
     if (!NBA.error) loadNBA().then(render);
     return;
   }
@@ -2348,7 +2549,7 @@ function render() {
   if (S.view === 'home') renderHome();
   else if (S.view === 'game') renderGame();
   else if (S.view === 'stats') { if (S.statsSub === 'players') renderProps(); else if (S.statsSub === 'dvp') renderMatchups(); else renderTeams(); }
-  else if (S.view === 'fantasy') renderFantasy();
+  else if (S.view === 'fantasy') { if (S.sport === 'nba') renderNBAFantasy(); else renderFantasy(); }
   else if (S.view === 'trends') renderTrends();
   teamTint();
 }
