@@ -2,9 +2,14 @@ name: Update NFL data
 
 on:
   schedule:
-    # Every Tuesday at 14:30 UTC (8:30am Central in winter, 9:30am in summer)
+    # Every day at 13:30 UTC (7:30am Central in winter, 8:30am in summer)
     - cron: "30 13 * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force_props:
+        description: "Pull sportsbook props now (uses Odds API credits)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -19,6 +24,10 @@ jobs:
           python-version: "3.12"
       - run: pip install pandas
       - run: python pipeline.py --out data
+      - name: Sportsbook props (only runs once the ODDS_API_KEY secret is set)
+        run: python props.py --out data ${{ inputs.force_props && '--force' || '' }}
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
       - name: Commit new data
         run: |
           git config user.name "github-actions[bot]"

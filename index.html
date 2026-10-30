@@ -274,6 +274,18 @@
   .tc-pill.mid { background: color-mix(in srgb, var(--mid) 14%, transparent); }
   .tc-pill.lo { background: color-mix(in srgb, var(--bad) 12%, transparent); }
   .gr-a { color: var(--ok); } .gr-b { color: var(--lime); } .gr-c { color: var(--mid); } .gr-d, .gr-f { color: var(--bad); }
+  .seg button:disabled { opacity: .45; cursor: not-allowed; }
+  .tr-range { display: flex; gap: 10px; margin-top: 8px; }
+  .tr-range label { display: flex; align-items: center; gap: 6px; font-size: .84rem; color: var(--muted); }
+  .tr-range select { font: inherit; font-size: .84rem; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px; }
+  .tr-srcnote { margin: 8px 0 0; }
+  .tc-odds { display: flex; gap: 6px; justify-content: flex-end; margin-top: 6px; }
+  .tc-edge, .tc-price { font-size: .82rem; font-weight: 700; padding: 3px 8px; border-radius: 7px; }
+  .tc-edge.pos { color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .tc-edge.neg { color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); }
+  .tc-price { background: var(--bg); border: 1px solid var(--line); }
+  .tc-price small { display: inline; color: var(--muted); font-weight: 500; margin: 0 0 0 4px; font-size: .72rem; }
+  .tc-est { font-size: .72rem; color: var(--muted); border: 1px dashed var(--line); border-radius: 6px; padding: 1px 6px; margin-left: 6px; }
   .tr-more { align-self: center; font: inherit; font-size: .9rem; border: 1px solid var(--line); background: var(--panel); color: var(--fg); padding: 8px 18px; border-radius: var(--radius); cursor: pointer; }
   @media (max-width: 980px) {
     .tr-wrap { grid-template-columns: minmax(0, 1fr); }
@@ -285,6 +297,10 @@
     .tc-wins div { font-size: .7rem; padding: 5px 0; }
     .tc-wins b { font-size: .78rem; }
     .tc-pill { font-size: .95rem; padding: 4px 8px; min-width: 3.4rem; }
+    .tc-top { flex-wrap: wrap; row-gap: 8px; }
+    .tc-hit { order: 3; width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; text-align: left; padding-left: 48px; }
+    .tc-hit small { display: inline; margin: 0; }
+    .tc-odds { margin: 0 0 0 auto; }
   }
   footer { color: var(--muted); font-size: .75rem; }
   footer a { color: inherit; }
@@ -647,7 +663,10 @@
     <div class="tr-wrap">
       <div class="tr-main stack">
         <div class="card tr-head">
-          <div class="seg tr-win" role="group" aria-label="Window"></div>
+          <div class="bar">
+            <div class="seg tr-win" role="group" aria-label="Window"></div>
+            <div class="controls"><span class="lbl">Sort by</span><div class="seg tr-sort" role="group" aria-label="Sort by"></div></div>
+          </div>
           <p class="note tr-note"></p>
         </div>
         <div class="tr-list"></div>
@@ -661,7 +680,10 @@
         <details class="tr-f" open><summary>Matchup grade <span class="tr-sum" data-k="grades"></span></summary><div class="tr-chips tr-grades"></div></details>
         <details class="tr-f" open><summary>Over / Under <span class="tr-sum" data-k="sides"></span></summary><div class="tr-chips tr-sides"></div></details>
         <details class="tr-f" open><summary>Position <span class="tr-sum" data-k="pos"></span></summary><div class="tr-chips tr-pos"></div></details>
-        <details class="tr-f" open><summary>Minimum hit rate</summary><div class="tr-chips tr-min"></div></details>
+        <details class="tr-f" open><summary>Home / Away <span class="tr-sum" data-k="home"></span></summary><div class="tr-chips tr-home"></div></details>
+        <details class="tr-f" open><summary>Hit rate range <span class="tr-sum tr-rsum"></span></summary>
+          <div class="tr-range"><label>From <select class="tr-rmin" aria-label="Lowest hit rate"></select></label><label>To <select class="tr-rmax" aria-label="Highest hit rate"></select></label></div></details>
+        <details class="tr-f" open><summary>Lines <span class="tr-sum" data-k="src"></span></summary><div class="tr-chips tr-src"></div><p class="note tr-srcnote"></p></details>
       </aside>
     </div>
   </section>
@@ -1959,8 +1981,11 @@ const TR_STATS = [
 ];
 const TR_WINS = [['h2h', 'H2H'], ['l3', 'L3'], ['l5', 'L5'], ['l10', 'L10'], ['cur', null], ['prev', null]];
 const TR_GRADES = ['A', 'B', 'C', 'D', 'F'];
-const TR_MINS = [[0, 'Any'], [50, '50%+'], [60, '60%+'], [70, '70%+'], [80, '80%+'], [90, '90%+']];
-const TR_DEF = () => ({ win: 'l5', games: null, stats: null, grades: null, sides: null, pos: null, min: 60 });
+const TR_STEPS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+const TR_DEF = () => ({ win: 'l5', sort: 'hit', games: null, stats: null, grades: null, sides: null, pos: null, home: null, src: null, min: 60, max: 100 });
+const BOOK_ABBR = { draftkings: 'DK', fanduel: 'FD' };
+const implied = (o) => (o == null || o === '' || Number.isNaN(Number(o)) ? null : (o = Number(o)) < 0 ? (-o / (-o + 100)) * 100 : (100 / (o + 100)) * 100);
+const priceTxt = (o) => (o == null || o === '' ? '' : `${Number(o) > 0 ? '+' : ''}${Math.round(Number(o))}`);
 const trLoad = () => { try { const o = JSON.parse(localStorage.getItem('ml-trends') || '{}'); return Object.assign(TR_DEF(), o, { games: null }); } catch (e) { return TR_DEF(); } };
 const trSave = () => { try { const { games, ...rest } = S.tr; localStorage.setItem('ml-trends', JSON.stringify(rest)); } catch (e) { /* storage off */ } };
 S.tr = trLoad(); S.trShown = 40; S.trOpen = null;
@@ -1978,7 +2003,12 @@ function trWeekGames() {
 function buildTrends() {
   const games = trWeekGames();
   const oppOf = new Map();
-  games.forEach(({ g }) => { oppOf.set(g.away_team, { opp: g.home_team, gid: g.game_id }); oppOf.set(g.home_team, { opp: g.away_team, gid: g.game_id }); });
+  games.forEach(({ g }) => { oppOf.set(g.away_team, { opp: g.home_team, gid: g.game_id, home: false }); oppOf.set(g.home_team, { opp: g.away_team, gid: g.game_id, home: true }); });
+  // real sportsbook lines (props.csv), only for this week's games
+  const gids = new Set(games.map((x) => x.g.game_id));
+  const book = new Map();
+  (DATA.props || []).forEach((r) => { if (gids.has(r.game_id)) book.set(`${r.player_id}|${r.stat}`, r); });
+  IDX.trBook = book.size;
   const cutoff = Math.max(...DATA.logs.filter((r) => r.season === S.season).map((r) => r.week)) - 3;
   // each team's starting QB = whoever threw the most passes in its latest game
   const qbOf = new Map();
@@ -1993,16 +2023,18 @@ function buildTrends() {
     const last = logs[logs.length - 1];
     if (!last || last.season !== S.season || last.week < cutoff || last.team !== p.team) return;
     if (p.position === 'QB' && (qbOf.get(p.team) || {}).player_id !== p.player_id) return;
-    const { opp, gid } = oppOf.get(p.team);
+    const { opp, gid, home } = oppOf.get(p.team);
     const sets = { h2h: logs.filter((r) => r.opp === opp), l3: logs.slice(-3), l5: logs.slice(-5), l10: logs.slice(-10),
       cur: logs.filter((r) => r.season === S.season), prev: logs.filter((r) => r.season === S.season - 1) };
     if (sets.l10.length < 3) return;
     TR_STATS.forEach((st) => {
-      const ladder = st.lines[p.position]; if (!ladder) return;
+      const ladder = st.lines[p.position], real = book.get(`${p.player_id}|${st.k}`);
+      if (!ladder && !real) return;
       const val = st.val || ((r) => r[st.k] ?? 0);
       const base = median(sets.l10.map(val));
       let lines;
-      if (st.k === 'anytime_td') { if (mean(sets.l10.map((r) => (val(r) > 0 ? 1 : 0))) < 0.2) return; lines = ladder; }
+      if (real) lines = [Number(real.line)];
+      else if (st.k === 'anytime_td') { if (mean(sets.l10.map((r) => (val(r) > 0 ? 1 : 0))) < 0.2) return; lines = ladder; }
       else {
         const mn = st.min == null ? 0 : typeof st.min === 'object' ? st.min[p.position] : st.min;
         if (base < mn) return;
@@ -2013,12 +2045,15 @@ function buildTrends() {
       const rk = (mrow(opp, p.position, mStat) || {}).rank;
       lines.forEach((line) => ['over', 'under'].forEach((side) => {
         if (side === 'under' && st.overOnly) return;
+        const price = real ? real[`${side}_price`] : null;
+        if (real && (price == null || price === '')) return;
         const hit = side === 'over' ? (v) => v > line : (v) => v < line;
         const w = {};
         TR_WINS.forEach(([k]) => { const a = sets[k]; const n = a.length, hN = a.filter((r) => hit(val(r))).length; w[k] = { n, h: hN, p: n ? (hN / n) * 100 : 0 }; });
         let gr = null;
         if (rk != null) { const r = side === 'over' ? rk : 33 - rk; gr = GRADES[Math.round(((r - 1) / 31) * 12)]; }
-        out.push({ p, opp, gid, st, line, side, w, gr, rk, avg: mean(sets.l10.map(val)) });
+        out.push({ p, opp, gid, home, st, line, side, w, gr, rk, avg: mean(sets.l10.map(val)),
+          real: !!real, price, book: real ? real.book : null, imp: real ? implied(price) : null });
       }));
     });
   });
@@ -2067,23 +2102,43 @@ function renderTrends() {
   trChips($('.tr-grades'), TR_GRADES.map((g) => [g, g]), 'grades');
   trChips($('.tr-sides'), [['over', 'Over'], ['under', 'Under']], 'sides');
   trChips($('.tr-pos'), POS.map((p) => [p, p]), 'pos');
-  trChips($('.tr-min'), TR_MINS, 'min', true);
-  const nOn = ['games', 'stats', 'grades', 'sides', 'pos'].filter((k) => T[k] != null).length + (T.min !== TR_DEF().min ? 1 : 0);
+  trChips($('.tr-home'), [['home', 'Home'], ['away', 'Away']], 'home');
+  trChips($('.tr-src'), [['book', 'Book lines'], ['est', 'Estimated']], 'src');
+  $('.tr-srcnote').textContent = IDX.trBook ? `${IDX.trBook} real lines from the books this week. Estimated lines fill in the rest.`
+    : 'No sportsbook lines loaded yet, so every line is estimated. Real lines and odds show up once the Odds API key is added.';
+  [['.tr-rmin', 'min'], ['.tr-rmax', 'max']].forEach(([sel, k]) => {
+    const el = $(sel);
+    if (!el.childElementCount) { el.replaceChildren(...TR_STEPS.map((v) => h('option', { value: v }, `${v}%`))); el.addEventListener('change', (e) => { const R = S.tr; R[k] = Number(e.target.value); if (R.min > R.max) { if (k === 'min') R.max = R.min; else R.min = R.max; } S.trShown = 40; trSave(); render(); }); }
+    el.value = T[k];
+  });
+  $('.tr-rsum').textContent = `${T.min}% to ${T.max}%`;
+  const anyBook = IDX.trends.some((t) => t.real);
+  if (!anyBook && T.sort === 'edge') T.sort = 'hit';
+  $('.tr-sort').replaceChildren(...[['hit', 'Hit rate'], ['edge', 'Edge']].map(([k, label]) => h('button', {
+    'aria-pressed': String(T.sort === k), disabled: k === 'edge' && !anyBook, title: k === 'edge' && !anyBook ? 'Needs sportsbook odds' : null,
+    onclick: () => { T.sort = k; S.trShown = 40; trSave(); render(); } }, label)));
+  const D = TR_DEF();
+  const nOn = ['games', 'stats', 'grades', 'sides', 'pos', 'home', 'src'].filter((k) => T[k] != null).length + (T.min !== D.min || T.max !== D.max ? 1 : 0);
   $('.tr-fcount').textContent = nOn ? nOn : '';
 
   // filter + sort
   const rows = IDX.trends.filter((t) => {
     const x = t.w[W];
-    if (x.n < trMinN(W) || x.p < T.min) return false;
+    if (x.n < trMinN(W) || x.p < T.min || x.p > T.max) return false;
+    if (T.home && !T.home.includes(t.home ? 'home' : 'away')) return false;
+    if (T.src && !T.src.includes(t.real ? 'book' : 'est')) return false;
     if (T.games && !T.games.includes(t.gid)) return false;
     if (T.stats && !T.stats.includes(t.st.k)) return false;
     if (T.sides && !T.sides.includes(t.side)) return false;
     if (T.pos && !T.pos.includes(t.p.position)) return false;
     if (T.grades && !(t.gr && T.grades.includes(t.gr[0]))) return false;
     return true;
-  }).sort((a, b) => b.w[W].p - a.w[W].p || b.w[W].n - a.w[W].n || b.w.l10.p - a.w.l10.p || b.w.cur.p - a.w.cur.p);
-  $('.tr-note').textContent = `${rows.length} trends for week ${gs.length ? gs[0].g.week : ''}, sorted by ${W === 'h2h' ? 'head-to-head' : trWinLabel(W)} hit rate. `
-    + 'Lines are the standard sportsbook steps closest to each player\'s recent median, so check your book for the exact line and odds. Matchup grade is how much this defense allows for that stat (A = easiest for the bet). Tap a card for the full game log.';
+  }).sort((a, b) => (T.sort === 'edge' ? (b.imp != null) - (a.imp != null) || (a.imp != null ? (b.w[W].p - b.imp) - (a.w[W].p - a.imp) : 0) : 0)
+    || b.w[W].p - a.w[W].p || b.w[W].n - a.w[W].n || b.w.l10.p - a.w.l10.p || b.w.cur.p - a.w.cur.p);
+  const wl = W === 'h2h' ? 'head-to-head' : trWinLabel(W);
+  $('.tr-note').textContent = `${rows.length} trends for week ${gs.length ? gs[0].g.week : ''}, sorted by ${T.sort === 'edge' ? `edge (${wl} hit rate minus the odds' implied chance)` : `${wl} hit rate`}. `
+    + (IDX.trBook ? 'Book lines and odds come from DraftKings (FanDuel when DK has none), pulled once a week, so check your book before betting. ' : '')
+    + 'Lines marked "est." are the standard book steps closest to the player\'s recent median. Matchup grade is how much this defense allows for that stat (A = easiest for the bet). Tap a card for the full game log.';
   const shown = rows.slice(0, S.trShown);
   $('.tr-list').replaceChildren(...shown.map((t) => trCard(t, W)));
   $('.tr-more').hidden = rows.length <= S.trShown;
@@ -2105,12 +2160,14 @@ function trCard(t, W) {
       badge(p.team),
       h('div', { class: 'tc-who' },
         h('div', { class: 'tc-name' }, p.player, h('small', null, `${p.position} · ${p.team}`)),
-        h('div', { class: 'tc-prop' }, prop),
+        h('div', { class: 'tc-prop' }, prop, t.real ? null : h('span', { class: 'tc-est', title: 'Estimated line: the standard book step closest to his recent median' }, 'est.')),
         h('div', { class: `tc-vs ${grCls}` }, `vs ${t.opp}${t.gr ? ` (${t.gr} matchup)` : ''}`)),
       h('div', { class: 'tc-hit' },
         h('span', { class: `tc-pill ${trCls(x)}` }, trPctTxt(x)),
-        h('small', null, `${x.h} of ${x.n} · ${trWinLabel(W)}`),
-        h('small', null, `L10 avg ${show(t.avg)}`))),
+        h('small', null, `${x.h} of ${x.n} · ${trWinLabel(W)} · L10 avg ${show(t.avg)}`),
+        t.real ? h('div', { class: 'tc-odds' },
+          x.n ? h('span', { class: `tc-edge ${x.p - t.imp >= 0 ? 'pos' : 'neg'}`, title: `Hit rate minus the ${Math.round(t.imp)}% the odds imply` }, `${x.p - t.imp >= 0 ? '+' : ''}${Math.round(x.p - t.imp)}% edge`) : null,
+          h('span', { class: 'tc-price' }, priceTxt(t.price), h('small', null, BOOK_ABBR[t.book] || t.book))) : null)),
     h('div', { class: 'tc-wins' }, ...TR_WINS.map(([k]) => {
       const y = t.w[k];
       return h('div', { class: k === W ? 'on' : null, title: y.n ? `${y.h} of ${y.n} games` : 'No games' }, h('span', null, trWinLabel(k)), h('b', { class: trCls(y) }, trPctTxt(y)));
@@ -2137,6 +2194,8 @@ Promise.all([
   ...FILES.map((n) => d3.csv(`data/${n}.csv${bust}`).then((rows) => { DATA[n] = rows.map(clean); })),
   // team names + colors (optional: badges fall back to gray if the file isn't there yet)
   d3.csv(`data/team_info.csv${bust}`).then((rows) => { DATA.team_info = rows.map(clean); }).catch(() => { DATA.team_info = []; }),
+  // sportsbook prop lines + odds (optional: only there once the Odds API key is set up)
+  d3.csv(`data/props.csv${bust}`).then((rows) => { DATA.props = rows.map(clean); }).catch(() => { DATA.props = []; }),
   fetch(`data/meta.txt${bust}`).then((r) => r.text()).then((t) => {
     const m = Object.fromEntries(t.trim().split('\n').map((l) => l.split('=')));
     S.season = Number(m.season); S.upWeek = Number(m.upcoming_week);

@@ -53,3 +53,7 @@ To rebuild the data yourself: install Python from [python.org](https://www.pytho
 - The season is detected automatically from the date (from August onward it uses the new season).
 
 - Trends = hit rates for the standard sportsbook line steps closest to each player's median over his last 10 games, over and under, across H2H, last 3/5/10 and both seasons. Matchup grade comes from how much the opponent allows for that stat (A = easiest for the bet). No live odds, so check your book for the exact line and price.
+
+## Sportsbook lines and odds (optional)
+
+`props.py` pulls real player prop lines and odds from [The Odds API](https://the-odds-api.com) into `data/props.csv`, which the Trends tab uses for book lines, odds and the Edge sort. It only runs when the repo secret `ODDS_API_KEY` is set, and it pulls the whole week once, on the morning of the week's first game, to stay inside the free plan's 500 credits a month. To pull right away, run the "Update NFL data" workflow by hand with "Pull sportsbook props now" checked.
