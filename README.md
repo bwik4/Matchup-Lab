@@ -10,7 +10,7 @@ Betting and fantasy research for the NFL, laid out like an app with a sidebar (a
 
 | File | What it does |
 |---|---|
-| `index.html` | The whole website: layout, styles, charts and tables. Edit this to change how it looks or what it shows. Pages are linked with addresses like `#home`, `#game/2026_08_TEN_CIN/odds`, `#stats/players` and `#fantasy`. |
+| `index.html` | The whole website: layout, styles, charts and tables. Edit this to change how it looks or what it shows. Pages are linked with addresses like `#home`, `#game/2026_08_TEN_CIN/odds`, `#stats/players`, `#fantasy` and `#trends`. |
 | `pipeline.py` | Downloads the raw nflverse data and calculates everything (points allowed, ranks, averages). Edit this to add new stats. |
 | `data/` | The CSV files the pipeline creates. The website reads these. |
 | `.github/workflows/update-data.yml` | Tells GitHub to rerun the pipeline every Tuesday and save the new data. |
@@ -51,3 +51,5 @@ To rebuild the data yourself: install Python from [python.org](https://www.pytho
 - Fantasy projections = the player's points per game (65% season average, 35% last 5 games, leaning on last season early on) × how much each opponent allows to his position vs the league average, with a small home/road bump. They don't account for injuries or role changes.
 - Players who changed teams show their most recent team.
 - The season is detected automatically from the date (from August onward it uses the new season).
+
+- Trends = hit rates for the standard sportsbook line steps closest to each player's median over his last 10 games, over and under, across H2H, last 3/5/10 and both seasons. Matchup grade comes from how much the opponent allows for that stat (A = easiest for the bet). No live odds, so check your book for the exact line and price.

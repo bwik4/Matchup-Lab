@@ -227,6 +227,65 @@
   .legend .ln::before { background: color-mix(in srgb, var(--fg) 25%, transparent); }
   h2.fh { font-family: var(--serif); font-weight: 400; font-size: 1.5rem; }
   td.diff-g { color: var(--ok); font-weight: 600; } td.diff-r { color: var(--bad); font-weight: 600; }
+  /* ---------- trends ---------- */
+  .tr-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 14px; align-items: start; }
+  .tr-filters { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; display: flex; flex-direction: column; gap: 4px; }
+  .tr-ftoggle { display: none; font: inherit; font-size: .85rem; border: 1px solid var(--line); background: var(--panel); color: var(--fg); padding: 6px 12px; border-radius: var(--radius); cursor: pointer; }
+  .tr-fcount { display: inline-grid; place-items: center; min-width: 1.3rem; height: 1.3rem; border-radius: 999px; background: var(--accent); color: #fff; font-size: .72rem; margin-left: 4px; }
+  .tr-fcount:empty { display: none; }
+  .linkish { font: inherit; font-size: .85rem; border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; }
+  .tr-f { border-top: 1px solid var(--line); padding: 10px 0 6px; }
+  .tr-f summary { cursor: pointer; font-size: .9rem; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  .tr-f summary::-webkit-details-marker { display: none; }
+  .tr-f summary::after { content: '▾'; color: var(--muted); font-weight: 400; }
+  .tr-f[open] summary::after { content: '▴'; }
+  .tr-sum { margin-left: auto; margin-right: 8px; font-weight: 400; font-size: .78rem; color: var(--muted); }
+  .tr-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tr-chips button { font: inherit; font-size: .8rem; border: 1px solid var(--line); background: var(--panel); color: var(--muted); padding: 4px 10px; border-radius: 999px; cursor: pointer; }
+  .tr-chips button[aria-pressed=true] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tr-games { display: flex; flex-direction: column; gap: 2px; margin-top: 8px; }
+  .tr-games label { display: flex; align-items: center; gap: 8px; font-size: .84rem; padding: 4px 2px; cursor: pointer; }
+  .tr-games label small { color: var(--muted); margin-left: auto; }
+  .tr-games label.all { font-weight: 600; border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 2px; }
+  .tr-head { padding: 12px 14px; }
+  .tr-head .note { margin: 8px 0 0; }
+  .tr-list { display: flex; flex-direction: column; gap: 12px; }
+  .tcard { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); overflow: hidden; cursor: pointer; }
+  .tcard:hover { border-color: color-mix(in srgb, var(--fg) 30%, var(--line)); }
+  .tcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tc-top { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+  .tc-top .badge { flex: none; }
+  .tc-who { min-width: 0; flex: 1; }
+  .tc-name { font-weight: 600; }
+  .tc-name small { color: var(--muted); font-weight: 400; margin-left: 4px; }
+  .tc-prop { color: var(--muted); font-size: .9rem; margin-top: 1px; }
+  .tc-vs { font-size: .85rem; margin-top: 2px; }
+  .tc-hit { text-align: right; flex: none; }
+  .tc-pill { display: inline-block; font-weight: 700; font-size: 1.05rem; padding: 5px 12px; border-radius: 9px; min-width: 4.2rem; text-align: center; }
+  .tc-hit small { display: block; color: var(--muted); font-size: .74rem; margin-top: 4px; }
+  .tc-wins { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border-top: 1px solid var(--line); background: var(--bg); }
+  .tc-wins div { text-align: center; padding: 6px 2px; font-size: .78rem; }
+  .tc-wins div + div { border-left: 1px solid var(--line); }
+  .tc-wins b { display: block; font-weight: 600; font-size: .86rem; }
+  .tc-wins div.on { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  .tc-wins span { color: var(--muted); }
+  .hi { color: var(--ok); } .mid { color: #a16207; } .lo { color: var(--bad); } .na { color: var(--muted); }
+  .tc-pill.hi { background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .tc-pill.mid { background: color-mix(in srgb, #ca8a04 16%, transparent); }
+  .tc-pill.lo { background: color-mix(in srgb, var(--bad) 12%, transparent); }
+  .gr-a { color: var(--ok); } .gr-b { color: #4d7c0f; } .gr-c { color: #a16207; } .gr-d, .gr-f { color: var(--bad); }
+  .tr-more { align-self: center; font: inherit; font-size: .9rem; border: 1px solid var(--line); background: var(--panel); color: var(--fg); padding: 8px 18px; border-radius: var(--radius); cursor: pointer; }
+  @media (max-width: 980px) {
+    .tr-wrap { grid-template-columns: minmax(0, 1fr); }
+    .tr-ftoggle { display: inline-block; }
+    .tr-filters { position: static; max-height: none; order: -1; }
+    .tr-filters.closed { display: none; }
+  }
+  @media (max-width: 560px) {
+    .tc-wins div { font-size: .7rem; padding: 5px 0; }
+    .tc-wins b { font-size: .78rem; }
+    .tc-pill { font-size: .95rem; padding: 4px 8px; min-width: 3.4rem; }
+  }
   footer { color: var(--muted); font-size: .75rem; }
   footer a { color: inherit; }
 </style>
@@ -239,6 +298,7 @@
     <button data-view="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg><span>Home</span></button>
     <button data-view="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="12" width="4.5" height="8.5" rx="1"/><rect x="9.75" y="7" width="4.5" height="13.5" rx="1"/><rect x="16" y="3.5" width="4.5" height="17" rx="1"/></svg><span>Stats</span></button>
     <button data-view="fantasy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M8.5 20.5h7M10 17h4"/></svg><span>Fantasy</span></button>
+    <button data-view="trends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Trends</span></button>
   </nav>
 </aside>
 <main class="ml">
@@ -578,6 +638,34 @@
     </div>
   </section>
 
+  <!-- ================= TRENDS ================= -->
+  <section class="view stack" data-view="trends" hidden>
+    <div class="bar">
+      <h2 class="fh">Trends</h2>
+      <button class="tr-ftoggle" aria-expanded="false">Filters <span class="tr-fcount"></span></button>
+    </div>
+    <div class="tr-wrap">
+      <div class="tr-main stack">
+        <div class="card tr-head">
+          <div class="seg tr-win" role="group" aria-label="Window"></div>
+          <p class="note tr-note"></p>
+        </div>
+        <div class="tr-list"></div>
+        <button class="tr-more" hidden>Show more</button>
+        <p class="empty tr-empty" hidden>No trends match these filters.</p>
+      </div>
+      <aside class="card tr-filters" aria-label="Filters">
+        <div class="bar"><h2>Filters</h2><button class="tr-reset linkish">Reset</button></div>
+        <details class="tr-f" open><summary>Games <span class="tr-sum" data-k="games"></span></summary><div class="tr-games"></div></details>
+        <details class="tr-f" open><summary>Stat type <span class="tr-sum" data-k="stats"></span></summary><div class="tr-chips tr-stats"></div></details>
+        <details class="tr-f" open><summary>Matchup grade <span class="tr-sum" data-k="grades"></span></summary><div class="tr-chips tr-grades"></div></details>
+        <details class="tr-f" open><summary>Over / Under <span class="tr-sum" data-k="sides"></span></summary><div class="tr-chips tr-sides"></div></details>
+        <details class="tr-f" open><summary>Position <span class="tr-sum" data-k="pos"></span></summary><div class="tr-chips tr-pos"></div></details>
+        <details class="tr-f" open><summary>Minimum hit rate</summary><div class="tr-chips tr-min"></div></details>
+      </aside>
+    </div>
+  </section>
+
   <footer>Data: <a href="https://github.com/nflverse/nflverse-data">nflverse</a> · built <span class="built">—</span> · Not betting advice.</footer>
 </main>
 </div>
@@ -883,6 +971,7 @@ function applyRoute() {
   if (v === 'game' && a) { S.view = 'game'; S.game = a; S.gameTab = GTABS.includes(b) ? b : 'odds'; }
   else if (v === 'stats') { S.view = 'stats'; if (SUBS.includes(a)) S.statsSub = a; }
   else if (v === 'fantasy') S.view = 'fantasy';
+  else if (v === 'trends') S.view = 'trends';
   else S.view = 'home';
   if (S.view !== 'game') S.fromHome = false;
   document.querySelectorAll('section.view').forEach((sec) => { sec.hidden = sec.dataset.view !== S.view; });
@@ -1848,6 +1937,189 @@ function renderFFVs(p, x, base) {
 }
 
 // ===================== render =====================
+// ===================== TRENDS =====================
+// Hit rates for common prop lines. Lines come from each stat's usual sportsbook ladder, keeping the
+// three closest to the player's median over his last 10 games, so every card is a line a book would offer.
+const TR_STATS = [
+  { k: 'passing_yards', label: 'Pass Yds', lines: { QB: [149.5, 174.5, 199.5, 224.5, 249.5, 274.5, 299.5, 324.5] }, min: 120 },
+  { k: 'attempts', label: 'Pass Attempts', lines: { QB: [24.5, 26.5, 28.5, 30.5, 32.5, 34.5, 36.5, 38.5] }, min: 15 },
+  { k: 'completions', label: 'Completions', lines: { QB: [14.5, 16.5, 18.5, 20.5, 22.5, 24.5, 26.5] }, min: 10 },
+  { k: 'passing_tds', label: 'Pass TDs', lines: { QB: [0.5, 1.5, 2.5] }, min: 0 },
+  { k: 'passing_interceptions', label: 'Interceptions', lines: { QB: [0.5] }, min: 0 },
+  { k: 'pass_rush_yds', label: 'Pass+Rush Yds', lines: { QB: [174.5, 199.5, 224.5, 249.5, 274.5, 299.5] }, min: 130 },
+  { k: 'rushing_yards', label: 'Rush Yds', lines: { QB: [9.5, 14.5, 19.5, 24.5, 29.5, 39.5], RB: [19.5, 29.5, 39.5, 49.5, 59.5, 69.5, 79.5, 89.5, 99.5] }, min: { QB: 8, RB: 15 } },
+  { k: 'carries', label: 'Carries', lines: { RB: [6.5, 8.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 19.5] }, min: 5 },
+  { k: 'receptions', label: 'Receptions', lines: { RB: [1.5, 2.5, 3.5, 4.5, 5.5], WR: [1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5], TE: [1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5] }, min: 1.5 },
+  { k: 'receiving_yards', label: 'Rec Yds', lines: { RB: [9.5, 14.5, 19.5, 24.5, 29.5, 39.5], WR: [19.5, 24.5, 29.5, 34.5, 39.5, 44.5, 49.5, 54.5, 59.5, 64.5, 69.5, 74.5, 79.5, 89.5, 99.5], TE: [14.5, 19.5, 24.5, 29.5, 34.5, 39.5, 44.5, 49.5, 54.5, 59.5, 69.5, 79.5] }, min: 12 },
+  { k: 'rush_rec_yds', label: 'Rush+Rec Yds', lines: { RB: [39.5, 49.5, 59.5, 69.5, 79.5, 89.5, 99.5, 109.5, 119.5] }, min: 30 },
+  { k: 'anytime_td', label: 'Anytime TD', lines: { RB: [0.5], WR: [0.5], TE: [0.5] }, overOnly: true, val: (r) => (r.rushing_tds || 0) + (r.receiving_tds || 0), m: { RB: 'rushing_tds', WR: 'receiving_tds', TE: 'receiving_tds' } },
+  { k: 'long_reception', label: 'Longest Rec', lines: { RB: [9.5, 14.5], WR: [14.5, 19.5, 24.5, 29.5], TE: [12.5, 14.5, 19.5, 24.5] }, min: 9 },
+  { k: 'long_rush', label: 'Longest Rush', lines: { RB: [9.5, 14.5, 19.5] }, min: 8 },
+  { k: 'long_completion', label: 'Longest Comp', lines: { QB: [29.5, 34.5, 39.5, 44.5] }, min: 25 },
+];
+const TR_WINS = [['h2h', 'H2H'], ['l3', 'L3'], ['l5', 'L5'], ['l10', 'L10'], ['cur', null], ['prev', null]];
+const TR_GRADES = ['A', 'B', 'C', 'D', 'F'];
+const TR_MINS = [[0, 'Any'], [50, '50%+'], [60, '60%+'], [70, '70%+'], [80, '80%+'], [90, '90%+']];
+const TR_DEF = () => ({ win: 'l5', games: null, stats: null, grades: null, sides: null, pos: null, min: 60 });
+const trLoad = () => { try { const o = JSON.parse(localStorage.getItem('ml-trends') || '{}'); return Object.assign(TR_DEF(), o, { games: null }); } catch (e) { return TR_DEF(); } };
+const trSave = () => { try { const { games, ...rest } = S.tr; localStorage.setItem('ml-trends', JSON.stringify(rest)); } catch (e) { /* storage off */ } };
+S.tr = trLoad(); S.trShown = 40; S.trOpen = null;
+const trWinLabel = (w) => (w === 'cur' ? `'${String(S.season).slice(2)}` : w === 'prev' ? `'${String(S.season - 1).slice(2)}` : TR_WINS.find((x) => x[0] === w)[1]);
+const trCls = (x) => (!x || !x.n ? 'na' : x.p >= 70 ? 'hi' : x.p >= 50 ? 'mid' : 'lo');
+const trPctTxt = (x) => (!x || !x.n ? 'N/A' : `${Math.round(x.p)}%`);
+const trMinN = (w) => (w === 'h2h' ? 1 : w === 'l3' ? 2 : 3);
+
+function trWeekGames() {
+  const open = DATA.games.filter((g) => g.status !== 'final');
+  const wk = open.some((g) => g.week === S.upWeek) ? S.upWeek : Math.min(...open.map((g) => g.week));
+  return open.filter((g) => g.week === wk).map((g) => ({ g, d: kickDate(g) })).sort((a, b) => (a.d || 0) - (b.d || 0));
+}
+
+function buildTrends() {
+  const games = trWeekGames();
+  const oppOf = new Map();
+  games.forEach(({ g }) => { oppOf.set(g.away_team, { opp: g.home_team, gid: g.game_id }); oppOf.set(g.home_team, { opp: g.away_team, gid: g.game_id }); });
+  const cutoff = Math.max(...DATA.logs.filter((r) => r.season === S.season).map((r) => r.week)) - 3;
+  // each team's starting QB = whoever threw the most passes in its latest game
+  const qbOf = new Map();
+  DATA.logs.filter((r) => r.season === S.season && r.position === 'QB').forEach((r) => {
+    const c = qbOf.get(r.team);
+    if (!c || r.week > c.week || (r.week === c.week && (r.attempts || 0) > (c.attempts || 0))) qbOf.set(r.team, r);
+  });
+  const out = [];
+  DATA.players.forEach((p) => {
+    if (!POS.includes(p.position) || !oppOf.has(p.team)) return;
+    const logs = IDX.logs.get(p.player_id) || [];
+    const last = logs[logs.length - 1];
+    if (!last || last.season !== S.season || last.week < cutoff || last.team !== p.team) return;
+    if (p.position === 'QB' && (qbOf.get(p.team) || {}).player_id !== p.player_id) return;
+    const { opp, gid } = oppOf.get(p.team);
+    const sets = { h2h: logs.filter((r) => r.opp === opp), l3: logs.slice(-3), l5: logs.slice(-5), l10: logs.slice(-10),
+      cur: logs.filter((r) => r.season === S.season), prev: logs.filter((r) => r.season === S.season - 1) };
+    if (sets.l10.length < 3) return;
+    TR_STATS.forEach((st) => {
+      const ladder = st.lines[p.position]; if (!ladder) return;
+      const val = st.val || ((r) => r[st.k] ?? 0);
+      const base = median(sets.l10.map(val));
+      let lines;
+      if (st.k === 'anytime_td') { if (mean(sets.l10.map((r) => (val(r) > 0 ? 1 : 0))) < 0.2) return; lines = ladder; }
+      else {
+        const mn = st.min == null ? 0 : typeof st.min === 'object' ? st.min[p.position] : st.min;
+        if (base < mn) return;
+        const lo = Math.min(base * 0.55, base - 1), hi = Math.max(base * 1.35, base + 1);
+        lines = ladder.filter((l) => l >= lo && l <= hi).sort((a, b) => Math.abs(a - base) - Math.abs(b - base)).slice(0, 3);
+      }
+      const mStat = (st.m && st.m[p.position]) || st.k;
+      const rk = (mrow(opp, p.position, mStat) || {}).rank;
+      lines.forEach((line) => ['over', 'under'].forEach((side) => {
+        if (side === 'under' && st.overOnly) return;
+        const hit = side === 'over' ? (v) => v > line : (v) => v < line;
+        const w = {};
+        TR_WINS.forEach(([k]) => { const a = sets[k]; const n = a.length, hN = a.filter((r) => hit(val(r))).length; w[k] = { n, h: hN, p: n ? (hN / n) * 100 : 0 }; });
+        let gr = null;
+        if (rk != null) { const r = side === 'over' ? rk : 33 - rk; gr = GRADES[Math.round(((r - 1) / 31) * 12)]; }
+        out.push({ p, opp, gid, st, line, side, w, gr, rk, avg: mean(sets.l10.map(val)) });
+      }));
+    });
+  });
+  IDX.trends = out; IDX.trGames = games;
+}
+
+function trChips(el, opts, key, single) {
+  const cur = S.tr[key];
+  el.replaceChildren(...opts.map(([v, label]) => {
+    const on = single ? cur === v : cur == null || cur.includes(v);
+    return h('button', { 'aria-pressed': String(on), onclick: () => {
+      if (single) S.tr[key] = v;
+      else {
+        let a = cur == null ? opts.map((o) => o[0]) : cur.slice();
+        a = a.includes(v) ? a.filter((x) => x !== v) : [...a, v];
+        S.tr[key] = a.length === opts.length ? null : a;
+      }
+      S.trShown = 40; trSave(); render();
+    } }, label);
+  }));
+  const sum = document.querySelector(`.tr-sum[data-k="${key}"]`);
+  if (sum && !single) sum.textContent = cur == null ? 'All' : `${cur.length} of ${opts.length}`;
+}
+
+function renderTrends() {
+  if (!IDX.trends) buildTrends();
+  const T = S.tr, W = T.win;
+  if (S.trOpen == null) S.trOpen = window.innerWidth > 980;
+  $('.tr-filters').classList.toggle('closed', !S.trOpen);
+  $('.tr-ftoggle').setAttribute('aria-expanded', String(S.trOpen));
+  // window tabs
+  $('.tr-win').replaceChildren(...TR_WINS.map(([k]) => h('button', { 'aria-pressed': String(k === W), onclick: () => { T.win = k; S.trShown = 40; trSave(); render(); } }, trWinLabel(k))));
+  // games
+  const gs = IDX.trGames, allIds = gs.map((x) => x.g.game_id), sel = T.games;
+  const setGames = (ids) => { T.games = ids.length === allIds.length ? null : ids; S.trShown = 40; render(); };
+  const allBox = h('input', { type: 'checkbox', onchange: (e) => setGames(e.target.checked ? allIds : []) });
+  allBox.checked = sel == null; allBox.indeterminate = sel != null && sel.length > 0;
+  $('.tr-games').replaceChildren(h('label', { class: 'all' }, allBox, 'All games'),
+    ...gs.map(({ g, d }) => {
+      const cb = h('input', { type: 'checkbox', onchange: (e) => { const cur = sel == null ? allIds.slice() : sel.slice(); setGames(e.target.checked ? [...cur, g.game_id] : cur.filter((x) => x !== g.game_id)); } });
+      cb.checked = sel == null || sel.includes(g.game_id);
+      return h('label', null, cb, `${g.away_team} @ ${g.home_team}`, h('small', null, `${d ? d.toLocaleDateString([], { weekday: 'short' }) : ''} ${tmTxt(d)}`));
+    }));
+  document.querySelector('.tr-sum[data-k="games"]').textContent = sel == null ? 'All' : `${sel.length} of ${allIds.length}`;
+  trChips($('.tr-stats'), TR_STATS.map((s) => [s.k, s.label]), 'stats');
+  trChips($('.tr-grades'), TR_GRADES.map((g) => [g, g]), 'grades');
+  trChips($('.tr-sides'), [['over', 'Over'], ['under', 'Under']], 'sides');
+  trChips($('.tr-pos'), POS.map((p) => [p, p]), 'pos');
+  trChips($('.tr-min'), TR_MINS, 'min', true);
+  const nOn = ['games', 'stats', 'grades', 'sides', 'pos'].filter((k) => T[k] != null).length + (T.min !== TR_DEF().min ? 1 : 0);
+  $('.tr-fcount').textContent = nOn ? nOn : '';
+
+  // filter + sort
+  const rows = IDX.trends.filter((t) => {
+    const x = t.w[W];
+    if (x.n < trMinN(W) || x.p < T.min) return false;
+    if (T.games && !T.games.includes(t.gid)) return false;
+    if (T.stats && !T.stats.includes(t.st.k)) return false;
+    if (T.sides && !T.sides.includes(t.side)) return false;
+    if (T.pos && !T.pos.includes(t.p.position)) return false;
+    if (T.grades && !(t.gr && T.grades.includes(t.gr[0]))) return false;
+    return true;
+  }).sort((a, b) => b.w[W].p - a.w[W].p || b.w[W].n - a.w[W].n || b.w.l10.p - a.w.l10.p || b.w.cur.p - a.w.cur.p);
+  $('.tr-note').textContent = `${rows.length} trends for week ${gs.length ? gs[0].g.week : ''}, sorted by ${W === 'h2h' ? 'head-to-head' : trWinLabel(W)} hit rate. `
+    + 'Lines are the standard sportsbook steps closest to each player\'s recent median, so check your book for the exact line and odds. Matchup grade is how much this defense allows for that stat (A = easiest for the bet). Tap a card for the full game log.';
+  const shown = rows.slice(0, S.trShown);
+  $('.tr-list').replaceChildren(...shown.map((t) => trCard(t, W)));
+  $('.tr-more').hidden = rows.length <= S.trShown;
+  $('.tr-more').textContent = `Show more (${rows.length - S.trShown} left)`;
+  $('.tr-empty').hidden = rows.length > 0;
+}
+
+function trCard(t, W) {
+  const x = t.w[W], p = t.p;
+  const open = () => {
+    const propK = t.st.k === 'anytime_td' ? null : t.st.k;
+    S.player = p.player_id; S.pStat = propK && propStats(p.position).includes(propK) ? propK : null; S.pLine = S.pStat ? t.line : null;
+    go('stats/players'); window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const grCls = t.gr ? `gr-${t.gr[0].toLowerCase()}` : 'na';
+  const prop = t.st.k === 'anytime_td' ? 'Anytime TD' : `${t.side === 'over' ? 'Over' : 'Under'} ${t.line} ${t.st.label}`;
+  return h('div', { class: 'tcard', ...pressable(open), 'aria-label': `${p.player} ${prop}, ${trPctTxt(x)} ${trWinLabel(W)}` },
+    h('div', { class: 'tc-top' },
+      badge(p.team),
+      h('div', { class: 'tc-who' },
+        h('div', { class: 'tc-name' }, p.player, h('small', null, `${p.position} · ${p.team}`)),
+        h('div', { class: 'tc-prop' }, prop),
+        h('div', { class: `tc-vs ${grCls}` }, `vs ${t.opp}${t.gr ? ` (${t.gr} matchup)` : ''}`)),
+      h('div', { class: 'tc-hit' },
+        h('span', { class: `tc-pill ${trCls(x)}` }, trPctTxt(x)),
+        h('small', null, `${x.h} of ${x.n} · ${trWinLabel(W)}`),
+        h('small', null, `L10 avg ${show(t.avg)}`))),
+    h('div', { class: 'tc-wins' }, ...TR_WINS.map(([k]) => {
+      const y = t.w[k];
+      return h('div', { class: k === W ? 'on' : null, title: y.n ? `${y.h} of ${y.n} games` : 'No games' }, h('span', null, trWinLabel(k)), h('b', { class: trCls(y) }, trPctTxt(y)));
+    })));
+}
+$('.tr-more').addEventListener('click', () => { S.trShown += 40; render(); });
+$('.tr-reset').addEventListener('click', () => { S.tr = TR_DEF(); S.trShown = 40; trSave(); render(); });
+$('.tr-ftoggle').addEventListener('click', () => { S.trOpen = !S.trOpen; render(); });
+
 function render() {
   if (!DATA.teams) return;
   segs.forEach((sg) => sg());
@@ -1855,6 +2127,7 @@ function render() {
   else if (S.view === 'game') renderGame();
   else if (S.view === 'stats') { if (S.statsSub === 'players') renderProps(); else if (S.statsSub === 'dvp') renderMatchups(); else renderTeams(); }
   else if (S.view === 'fantasy') renderFantasy();
+  else if (S.view === 'trends') renderTrends();
 }
 
 applyRoute();
