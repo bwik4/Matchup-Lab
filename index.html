@@ -5,22 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NFL Matchup Lab</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0b0d10">
+<meta name="theme-color" content="#f2f3f5">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Matchup Lab">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
   /* ---------- theme: edit these to restyle the whole site ---------- */
-  /* Midnight: near-black with bright blue accents */
+  /* Silver: pale silver with steel blue accents */
   :root {
-    color-scheme: dark;
-    --bg: #0b0d10; --panel: #15181d; --fg: #e8eaed; --muted: #9aa1ab; --line: #262b33;
-    --ok: #4ade80; --bad: #f87171; --mid: #facc15; --lime: #a3e635; --grid: #1f242b; --accent: #3b82f6;
-    --c1: #60a5fa; --c2: #fbbf24; --c3: #34d399; --c4: #c084fc;
+    color-scheme: light;
+    --bg: #f2f3f5; --panel: #ffffff; --fg: #1f2329; --muted: #5f6670; --line: #d6d9de;
+    --ok: #15803d; --bad: #b91c1c; --mid: #a16207; --lime: #4d7c0f; --grid: #e6e8eb; --accent: #3a6ea5;
+    --c1: #3a6ea5; --c2: #c2700a; --c3: #0f8a6a; --c4: #7c4dbd;
     --radius: 10px; --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --serif: Georgia, "Times New Roman", serif;
   }
@@ -63,7 +63,7 @@
   input.search { width: min(100%, 18rem); }
   input.num { width: 6rem; }
   .chart { position: relative; min-height: 180px; }
-  .tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.5); padding: 5px 8px; font-size: .78rem; white-space: nowrap; display: none; z-index: 3; }
+  .tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.12); padding: 5px 8px; font-size: .78rem; white-space: nowrap; display: none; z-index: 3; }
   .tip .t { color: var(--muted); }
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 14px; margin: 14px 0; }
   .stat .v { font-family: var(--serif); font-size: 1.8rem; line-height: 1.1; }
@@ -104,20 +104,20 @@
   .summary b.g, .summary b.r { font-weight: 700; }
 
   /* ---------- sidebar (bottom tab bar on phones) ---------- */
-  .side { position: sticky; top: 0; height: 100vh; background: #050608; color: #8b929c; display: flex; flex-direction: column; align-items: center;
-    gap: 6px; padding: max(18px, env(safe-area-inset-top)) 8px 18px; z-index: 20; border-right: 1px solid #1c2128; }
+  .side { position: sticky; top: 0; height: 100vh; background: #d9dce1; color: #5f6670; display: flex; flex-direction: column; align-items: center;
+    gap: 6px; padding: max(18px, env(safe-area-inset-top)) 8px 18px; z-index: 20; border-right: 1px solid #c9ced5; }
   .brand { width: 44px; height: 44px; border-radius: 12px; background: var(--accent); color: #fff; display: grid; place-items: center;
     font-weight: 800; font-size: .95rem; letter-spacing: .02em; margin-bottom: 18px; }
   .side-nav { display: flex; flex-direction: column; gap: 6px; width: 100%; }
   .side-nav button { font: inherit; border: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;
-    padding: 10px 4px; border-radius: 12px; font-size: .78rem; color: #8b929c; width: 100%; }
+    padding: 10px 4px; border-radius: 12px; font-size: .78rem; color: #5f6670; width: 100%; }
   .side-nav button svg { width: 24px; height: 24px; }
-  .side-nav button:hover { color: #e8eaed; background: rgba(59,130,246,.08); }
-  .side-nav button[aria-current=page] { color: #93c5fd; background: rgba(59,130,246,.18); }
+  .side-nav button:hover { color: #1f2329; background: rgba(58,110,165,.10); }
+  .side-nav button[aria-current=page] { color: #1f4e80; background: rgba(58,110,165,.20); }
   .side-nav button:focus-visible, .subnav button:focus-visible, .gcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   @media (max-width: 760px) {
     .app { grid-template-columns: minmax(0, 1fr); }
-    .side { position: fixed; top: auto; bottom: 0; left: 0; right: 0; height: auto; flex-direction: row; border-right: 0; border-top: 1px solid #1c2128;
+    .side { position: fixed; top: auto; bottom: 0; left: 0; right: 0; height: auto; flex-direction: row; border-right: 0; border-top: 1px solid #c9ced5;
       padding: 4px 8px calc(4px + env(safe-area-inset-bottom)); }
     .brand { display: none; }
     .side-nav { flex-direction: row; justify-content: space-around; }
