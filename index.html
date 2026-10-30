@@ -5,26 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NFL Matchup Lab</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#1b1b1a">
+<meta name="theme-color" content="#e7e9ec">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Matchup Lab">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
   /* ---------- theme: edit these to restyle the whole site ---------- */
+  /* Fog steel: light grey, steel blue accents, dark sidebar */
   :root {
-    --bg: #f6f5f1; --panel: #ffffff; --fg: #1b1b1a; --muted: #6b6a66; --line: #e3e1da;
-    --ok: #18794e; --bad: #c2410c; --grid: #ecebe6; --accent: #2563eb;
-    --c1: #2563eb; --c2: #d97706; --c3: #059669; --c4: #9333ea;
+    color-scheme: light;
+    --bg: #e7e9ec; --panel: #f5f6f8; --fg: #1c2128; --muted: #5d6570; --line: #cfd3d9;
+    --ok: #15803d; --bad: #b91c1c; --grid: #dde0e4; --accent: #3a6ea5;
+    --c1: #3a6ea5; --c2: #c2700a; --c3: #0f8a6a; --c4: #7c4dbd;
     --radius: 10px; --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --serif: Georgia, "Times New Roman", serif;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #161615; --panel: #1f1f1e; --fg: #ecebe6; --muted: #a3a29c; --line: #34332f;
-      --ok: #4ade80; --bad: #fb923c; --grid: #2b2a27; --accent: #60a5fa; --c1: #60a5fa; --c2: #fbbf24; --c3: #34d399; --c4: #c084fc; }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-variant-numeric: tabular-nums; }
@@ -106,20 +104,20 @@
   .summary b.g, .summary b.r { font-weight: 700; }
 
   /* ---------- sidebar (bottom tab bar on phones) ---------- */
-  .side { position: sticky; top: 0; height: 100vh; background: #0f0f0e; color: #9d9c96; display: flex; flex-direction: column; align-items: center;
-    gap: 6px; padding: max(18px, env(safe-area-inset-top)) 8px 18px; z-index: 20; border-right: 1px solid #262522; }
+  .side { position: sticky; top: 0; height: 100vh; background: #2a2f38; color: #9aa3af; display: flex; flex-direction: column; align-items: center;
+    gap: 6px; padding: max(18px, env(safe-area-inset-top)) 8px 18px; z-index: 20; border-right: 1px solid #2a2f38; }
   .brand { width: 44px; height: 44px; border-radius: 12px; background: var(--accent); color: #fff; display: grid; place-items: center;
     font-weight: 800; font-size: .95rem; letter-spacing: .02em; margin-bottom: 18px; }
   .side-nav { display: flex; flex-direction: column; gap: 6px; width: 100%; }
   .side-nav button { font: inherit; border: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;
-    padding: 10px 4px; border-radius: 12px; font-size: .78rem; color: #9d9c96; width: 100%; }
+    padding: 10px 4px; border-radius: 12px; font-size: .78rem; color: #9aa3af; width: 100%; }
   .side-nav button svg { width: 24px; height: 24px; }
-  .side-nav button:hover { color: #ecebe6; background: rgba(255,255,255,.05); }
-  .side-nav button[aria-current=page] { color: #fff; background: rgba(255,255,255,.1); }
+  .side-nav button:hover { color: #ffffff; background: rgba(255,255,255,.07); }
+  .side-nav button[aria-current=page] { color: #ffffff; background: rgba(255,255,255,.14); }
   .side-nav button:focus-visible, .subnav button:focus-visible, .gcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   @media (max-width: 760px) {
     .app { grid-template-columns: minmax(0, 1fr); }
-    .side { position: fixed; top: auto; bottom: 0; left: 0; right: 0; height: auto; flex-direction: row; border-right: 0; border-top: 1px solid #262522;
+    .side { position: fixed; top: auto; bottom: 0; left: 0; right: 0; height: auto; flex-direction: row; border-right: 0; border-top: 1px solid #3a404b;
       padding: 4px 8px calc(4px + env(safe-area-inset-bottom)); }
     .brand { display: none; }
     .side-nav { flex-direction: row; justify-content: space-around; }
