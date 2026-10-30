@@ -1,7 +1,7 @@
 // Service worker: lets the site install as an app and open offline.
 // Always tries the network first so you see the newest data, and falls back
 // to the last saved copy when there's no connection.
-const CACHE = 'matchup-lab-v4';
+const CACHE = 'matchup-lab-v5';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
