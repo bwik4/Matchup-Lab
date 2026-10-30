@@ -302,6 +302,7 @@
     .tc-hit small { display: inline; margin: 0; }
     .tc-odds { margin: 0 0 0 auto; }
   }
+  td.tm { font-weight: 700; }
   footer { color: var(--muted); font-size: .75rem; }
   footer a { color: inherit; }
 </style>
@@ -2177,6 +2178,20 @@ $('.tr-more').addEventListener('click', () => { S.trShown += 40; render(); });
 $('.tr-reset').addEventListener('click', () => { S.tr = TR_DEF(); S.trShown = 40; trSave(); render(); });
 $('.tr-ftoggle').addEventListener('click', () => { S.trOpen = !S.trOpen; render(); });
 
+// shade table cells that name a team (BUF, @ BUF, vs BUF) with that team's color, fading left to right
+const TEAM_CELL = /^(?:@\s?|vs\.?\s)?([A-Z]{2,3})$/;
+function teamTint() {
+  if (!IDX.info) return;
+  document.querySelectorAll('section.view:not([hidden]) td').forEach((td) => {
+    const txt = td.textContent.trim();
+    if (td.dataset.tm === txt) return;
+    const m = txt.match(TEAM_CELL), i = m && IDX.info.get(m[1]);
+    td.dataset.tm = txt;
+    if (!i) { if (td.classList.contains('tm')) { td.classList.remove('tm'); td.style.backgroundImage = ''; } return; }
+    td.classList.add('tm');
+    td.style.backgroundImage = `linear-gradient(90deg, color-mix(in srgb, ${i.color} 60%, transparent) 0%, color-mix(in srgb, ${i.color} 22%, transparent) 55%, transparent 100%)`;
+  });
+}
 function render() {
   if (!DATA.teams) return;
   segs.forEach((sg) => sg());
@@ -2185,6 +2200,7 @@ function render() {
   else if (S.view === 'stats') { if (S.statsSub === 'players') renderProps(); else if (S.statsSub === 'dvp') renderMatchups(); else renderTeams(); }
   else if (S.view === 'fantasy') renderFantasy();
   else if (S.view === 'trends') renderTrends();
+  teamTint();
 }
 
 applyRoute();
