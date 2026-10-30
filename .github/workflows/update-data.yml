@@ -22,8 +22,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pandas
+      - run: pip install pandas pyarrow
       - run: python pipeline.py --out data
+      - name: NBA data (a failure here never blocks the NFL update)
+        run: python nba_pipeline.py --out data/nba
+        continue-on-error: true
       - name: Sportsbook props (only runs once the ODDS_API_KEY secret is set)
         run: python props.py --out data ${{ inputs.force_props && '--force' || '' }}
         env:
@@ -34,5 +37,5 @@ jobs:
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git add data
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "Weekly NFL data refresh"
+          git commit -m "Daily NFL + NBA data refresh"
           git push

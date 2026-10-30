@@ -1,4 +1,4 @@
-# NFL Matchup Lab
+# Matchup Lab
 
 Betting and fantasy research for the NFL, laid out like an app with a sidebar (a bottom tab bar on phones):
 
@@ -57,3 +57,7 @@ To rebuild the data yourself: install Python from [python.org](https://www.pytho
 ## Sportsbook lines and odds (optional)
 
 `props.py` pulls real player prop lines and odds from [The Odds API](https://the-odds-api.com) into `data/props.csv`, which the Trends tab uses for book lines, odds and the Edge sort. It only runs when the repo secret `ODDS_API_KEY` is set, and it pulls the whole week once, on the morning of the week's first game, to stay inside the free plan's 500 credits a month. To pull right away, run the "Update NFL data" workflow by hand with "Pull sportsbook props now" checked.
+
+## NBA
+
+Use the NFL / NBA buttons at the top of Home or Trends. `nba_pipeline.py` builds `data/nba/` every morning from SportsDataverse's free hoopR data (ESPN box scores and schedule): player game logs for this season and last, the schedule with records, defense vs position ranks for guards, forwards and centers, and team colors. Spreads, totals and moneylines come from ESPN's scoreboard when it has them. NBA Trends uses estimated lines (the half-point steps around each player's L10 median) for points, rebounds, assists, threes and the common combos.

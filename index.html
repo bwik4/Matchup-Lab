@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>NFL Matchup Lab</title>
+<title>Matchup Lab</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#f2f3f5">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -302,7 +302,15 @@
     .tc-hit small { display: inline; margin: 0; }
     .tc-odds { margin: 0 0 0 auto; }
   }
-  td.tm { font-weight: 700; }
+  td.tm { font-weight: 700; padding-left: 12px; }
+  /* NFL / NBA switch: same look as the ML box */
+  .sport-sw { display: flex; gap: 10px; }
+  .sport-sw[hidden] { display: none; }
+  .sport-sw button { height: 44px; min-width: 66px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--accent); color: #fff;
+    font: inherit; font-weight: 800; font-size: .95rem; letter-spacing: .02em; cursor: pointer; opacity: .42; transition: opacity .15s; }
+  .sport-sw button:hover { opacity: .7; }
+  .sport-sw button[aria-pressed=true] { opacity: 1; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); }
+  .tcard.nba { cursor: default; }
   footer { color: var(--muted); font-size: .75rem; }
   footer a { color: inherit; }
 </style>
@@ -321,9 +329,10 @@
 <main class="ml">
   <header class="bar">
     <div>
-      <h1>NFL Matchup Lab</h1>
-      <p class="sub"><span class="season">—</span> regular season through week <span class="thru">—</span> · week <span class="upwk">—</span> lines</p>
+      <h1>Matchup Lab</h1>
+      <p class="sub"><span class="sub-nfl">NFL · <span class="season">—</span> regular season through week <span class="thru">—</span> · week <span class="upwk">—</span> lines</span><span class="sub-nba" hidden>NBA · <span class="nba-season">—</span> season through <span class="nba-thru">—</span></span></p>
     </div>
+    <div class="sport-sw" role="group" aria-label="Sport"><button data-s="nfl">NFL</button><button data-s="nba">NBA</button></div>
   </header>
 
   <!-- ================= HOME ================= -->
@@ -658,7 +667,7 @@
   <!-- ================= TRENDS ================= -->
   <section class="view stack" data-view="trends" hidden>
     <div class="bar">
-      <h2 class="fh">Trends</h2>
+      <h2 class="fh tr-title">Trends</h2>
       <button class="tr-ftoggle" aria-expanded="false">Filters <span class="tr-fcount"></span></button>
     </div>
     <div class="tr-wrap">
@@ -689,7 +698,7 @@
     </div>
   </section>
 
-  <footer>Data: <a href="https://github.com/nflverse/nflverse-data">nflverse</a> · built <span class="built">—</span> · Not betting advice.</footer>
+  <footer>Data: <a class="src-link" href="https://github.com/nflverse/nflverse-data">nflverse</a> · built <span class="built">—</span> · Not betting advice.</footer>
 </main>
 </div>
 
@@ -1495,7 +1504,8 @@ function h(tag, attrs, ...kids) {
   kids.flat(Infinity).forEach((c) => { if (c == null || c === false) return; e.append(c instanceof Node ? c : String(c)); });
   return e;
 }
-const TI = (t) => (IDX.info && IDX.info.get(t)) || { team: t, nick: t, name: t, color: '#55534e', color2: '#8a8984' };
+const curInfo = () => (S.sport === 'nba' && (S.view === 'home' || S.view === 'trends') && NBA.info ? NBA.info : IDX.info);
+const TI = (t) => (curInfo() && curInfo().get(t)) || { team: t, nick: t, name: t, color: '#55534e', color2: '#8a8984' };
 function badge(team, size) {
   const i = TI(team);
   const b = h('span', { class: `badge${size ? ` ${size}` : ''}`, title: i.name }, team);
@@ -1532,7 +1542,7 @@ function oddsRow(g, side) {
   const sc = g[`${side}_score`], oth = g[`${home ? 'away' : 'home'}_score`];
   const cell = (big, small) => h('div', { class: 'odd' }, h('b', null, big), small ? h('small', null, small) : null);
   return h('div', { class: 'grow' },
-    h('div', { class: 'team' }, badge(t), h('div', null, h('div', { class: 'nm' }, h('span', { class: 'ab' }, `${t} `), TI(t).nick), h('div', { class: 'rec' }, recOf(t))),
+    h('div', { class: 'team' }, badge(t), h('div', null, h('div', { class: 'nm' }, h('span', { class: 'ab' }, `${t} `), TI(t).nick), h('div', { class: 'rec' }, g[`${side}_record`] || (S.sport === 'nba' ? '' : recOf(t)))),
       g.status === 'final' ? h('span', { class: `sc${sc > oth ? ' win' : ''}` }, show(sc)) : null),
     cell(spreadTxt(sp), oddsTxt(g[`${side}_spread_odds`])),
     cell(g[`${side}_moneyline`] == null ? '—' : oddsTxt(g[`${side}_moneyline`])),
@@ -1547,6 +1557,11 @@ function resultTxt(g) {
 
 // ===================== HOME =====================
 function renderHome() {
+  $('.h-week').closest('.controls').hidden = S.sport === 'nba';
+  $('.h-note').textContent = S.sport === 'nba'
+    ? 'Spreads, totals and moneylines come from ESPN when they are posted (refreshed each morning), so check your book before betting. Tip-off times are in your time zone.'
+    : 'Lines are the market consensus from nflverse and move until kickoff, so check your book before betting. Kickoff times are in your time zone. Tap a game to research it.';
+  if (S.sport === 'nba') { renderNBAHome(); return; }
   const weeks = [...new Set(DATA.games.map((g) => g.week))].sort((a, b) => a - b);
   if (S.hWeek == null || !weeks.includes(S.hWeek)) S.hWeek = weeks.includes(S.upWeek) ? S.upWeek : weeks[weeks.length - 1];
   const sel = $('.h-week');
@@ -1983,14 +1998,25 @@ const TR_STATS = [
 const TR_WINS = [['h2h', 'H2H'], ['l3', 'L3'], ['l5', 'L5'], ['l10', 'L10'], ['cur', null], ['prev', null]];
 const TR_GRADES = ['A', 'B', 'C', 'D', 'F'];
 const TR_STEPS = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-const TR_DEF = () => ({ win: 'l5', sort: 'hit', games: null, stats: null, grades: null, sides: null, pos: null, home: null, src: null, min: 60, max: 100 });
+const TR_DEF = (sp = S.sport) => ({ win: sp === 'nba' ? 'l10' : 'l5', sort: 'hit', games: null, stats: null, grades: null, sides: null, pos: null, home: null, src: null, min: 60, max: 100 });
 const BOOK_ABBR = { draftkings: 'DK', fanduel: 'FD' };
 const implied = (o) => (o == null || o === '' || Number.isNaN(Number(o)) ? null : (o = Number(o)) < 0 ? (-o / (-o + 100)) * 100 : (100 / (o + 100)) * 100);
 const priceTxt = (o) => (o == null || o === '' ? '' : `${Number(o) > 0 ? '+' : ''}${Math.round(Number(o))}`);
-const trLoad = () => { try { const o = JSON.parse(localStorage.getItem('ml-trends') || '{}'); return Object.assign(TR_DEF(), o, { games: null }); } catch (e) { return TR_DEF(); } };
-const trSave = () => { try { const { games, ...rest } = S.tr; localStorage.setItem('ml-trends', JSON.stringify(rest)); } catch (e) { /* storage off */ } };
-S.tr = trLoad(); S.trShown = 40; S.trOpen = null;
-const trWinLabel = (w) => (w === 'cur' ? `'${String(S.season).slice(2)}` : w === 'prev' ? `'${String(S.season - 1).slice(2)}` : TR_WINS.find((x) => x[0] === w)[1]);
+const trKey = (sp) => (sp === 'nba' ? 'ml-trends-nba' : 'ml-trends');
+const trLoad = (sp) => { try { const o = JSON.parse(localStorage.getItem(trKey(sp)) || '{}'); return Object.assign(TR_DEF(sp), o, { games: null }); } catch (e) { return TR_DEF(sp); } };
+const trSave = () => { try { const { games, ...rest } = S.tr; localStorage.setItem(trKey(S.sport), JSON.stringify(rest)); } catch (e) { /* storage off */ } };
+S.sport = (() => { try { return localStorage.getItem('ml-sport') === 'nba' ? 'nba' : 'nfl'; } catch (e) { return 'nfl'; } })();
+S.trBy = { nfl: trLoad('nfl'), nba: trLoad('nba') }; S.tr = S.trBy[S.sport]; S.trShown = 40; S.trOpen = null;
+const trWins = () => (S.sport === 'nba' ? NBA_WINS : TR_WINS);
+const yy = (n) => String(n).slice(2);
+const trWinLabel = (w) => {
+  if (S.sport === 'nba' && (w === 'cur' || w === 'prev')) { const e = w === 'cur' ? NBA.season : NBA.season - 1; return `${yy(e - 1)}-${yy(e)}`; }
+  return w === 'cur' ? `'${yy(S.season)}` : w === 'prev' ? `'${yy(S.season - 1)}` : trWins().find((x) => x[0] === w)[1];
+};
+function trData() {
+  if (S.sport === 'nba') { if (!NBA.trends) nbaBuildTrends(); return NBA.trends; }
+  if (!IDX.trX) buildTrends(); return IDX.trX;
+}
 const trCls = (x) => (!x || !x.n ? 'na' : x.p >= 70 ? 'hi' : x.p >= 50 ? 'mid' : 'lo');
 const trPctTxt = (x) => (!x || !x.n ? 'N/A' : `${Math.round(x.p)}%`);
 const trMinN = (w) => (w === 'h2h' ? 1 : w === 'l3' ? 2 : 3);
@@ -2009,7 +2035,6 @@ function buildTrends() {
   const gids = new Set(games.map((x) => x.g.game_id));
   const book = new Map();
   (DATA.props || []).forEach((r) => { if (gids.has(r.game_id)) book.set(`${r.player_id}|${r.stat}`, r); });
-  IDX.trBook = book.size;
   const cutoff = Math.max(...DATA.logs.filter((r) => r.season === S.season).map((r) => r.week)) - 3;
   // each team's starting QB = whoever threw the most passes in its latest game
   const qbOf = new Map();
@@ -2058,7 +2083,7 @@ function buildTrends() {
       }));
     });
   });
-  IDX.trends = out; IDX.trGames = games;
+  IDX.trX = { items: out, games, book: book.size };
 }
 
 function trChips(el, opts, key, single) {
@@ -2080,15 +2105,16 @@ function trChips(el, opts, key, single) {
 }
 
 function renderTrends() {
-  if (!IDX.trends) buildTrends();
-  const T = S.tr, W = T.win;
+  S.tr = S.trBy[S.sport];
+  const X = trData(), T = S.tr, W = T.win, nba = S.sport === 'nba';
+  $('.tr-title').textContent = `${nba ? 'NBA' : 'NFL'} Trends`;
   if (S.trOpen == null) S.trOpen = window.innerWidth > 980;
   $('.tr-filters').classList.toggle('closed', !S.trOpen);
   $('.tr-ftoggle').setAttribute('aria-expanded', String(S.trOpen));
   // window tabs
-  $('.tr-win').replaceChildren(...TR_WINS.map(([k]) => h('button', { 'aria-pressed': String(k === W), onclick: () => { T.win = k; S.trShown = 40; trSave(); render(); } }, trWinLabel(k))));
+  $('.tr-win').replaceChildren(...trWins().map(([k]) => h('button', { 'aria-pressed': String(k === W), onclick: () => { T.win = k; S.trShown = 40; trSave(); render(); } }, trWinLabel(k))));
   // games
-  const gs = IDX.trGames, allIds = gs.map((x) => x.g.game_id), sel = T.games;
+  const gs = X.games, allIds = gs.map((x) => x.g.game_id), sel = T.games;
   const setGames = (ids) => { T.games = ids.length === allIds.length ? null : ids; S.trShown = 40; render(); };
   const allBox = h('input', { type: 'checkbox', onchange: (e) => setGames(e.target.checked ? allIds : []) });
   allBox.checked = sel == null; allBox.indeterminate = sel != null && sel.length > 0;
@@ -2099,13 +2125,14 @@ function renderTrends() {
       return h('label', null, cb, `${g.away_team} @ ${g.home_team}`, h('small', null, `${d ? d.toLocaleDateString([], { weekday: 'short' }) : ''} ${tmTxt(d)}`));
     }));
   document.querySelector('.tr-sum[data-k="games"]').textContent = sel == null ? 'All' : `${sel.length} of ${allIds.length}`;
-  trChips($('.tr-stats'), TR_STATS.map((s) => [s.k, s.label]), 'stats');
+  trChips($('.tr-stats'), (nba ? NBA_STATS : TR_STATS).map((s) => [s.k, s.label]), 'stats');
   trChips($('.tr-grades'), TR_GRADES.map((g) => [g, g]), 'grades');
   trChips($('.tr-sides'), [['over', 'Over'], ['under', 'Under']], 'sides');
-  trChips($('.tr-pos'), POS.map((p) => [p, p]), 'pos');
+  trChips($('.tr-pos'), (nba ? ['G', 'F', 'C'] : POS).map((p) => [p, p]), 'pos');
+  $('.tr-src').closest('details').hidden = nba;
   trChips($('.tr-home'), [['home', 'Home'], ['away', 'Away']], 'home');
   trChips($('.tr-src'), [['book', 'Book lines'], ['est', 'Estimated']], 'src');
-  $('.tr-srcnote').textContent = IDX.trBook ? `${IDX.trBook} real lines from the books this week. Estimated lines fill in the rest.`
+  $('.tr-srcnote').textContent = X.book ? `${X.book} real lines from the books this week. Estimated lines fill in the rest.`
     : 'No sportsbook lines loaded yet, so every line is estimated. Real lines and odds show up once the Odds API key is added.';
   [['.tr-rmin', 'min'], ['.tr-rmax', 'max']].forEach(([sel, k]) => {
     const el = $(sel);
@@ -2113,7 +2140,7 @@ function renderTrends() {
     el.value = T[k];
   });
   $('.tr-rsum').textContent = `${T.min}% to ${T.max}%`;
-  const anyBook = IDX.trends.some((t) => t.real);
+  const anyBook = X.items.some((t) => t.real);
   if (!anyBook && T.sort === 'edge') T.sort = 'hit';
   $('.tr-sort').replaceChildren(...[['hit', 'Hit rate'], ['edge', 'Edge']].map(([k, label]) => h('button', {
     'aria-pressed': String(T.sort === k), disabled: k === 'edge' && !anyBook, title: k === 'edge' && !anyBook ? 'Needs sportsbook odds' : null,
@@ -2123,7 +2150,7 @@ function renderTrends() {
   $('.tr-fcount').textContent = nOn ? nOn : '';
 
   // filter + sort
-  const rows = IDX.trends.filter((t) => {
+  const rows = X.items.filter((t) => {
     const x = t.w[W];
     if (x.n < trMinN(W) || x.p < T.min || x.p > T.max) return false;
     if (T.home && !T.home.includes(t.home ? 'home' : 'away')) return false;
@@ -2137,9 +2164,10 @@ function renderTrends() {
   }).sort((a, b) => (T.sort === 'edge' ? (b.imp != null) - (a.imp != null) || (a.imp != null ? (b.w[W].p - b.imp) - (a.w[W].p - a.imp) : 0) : 0)
     || b.w[W].p - a.w[W].p || b.w[W].n - a.w[W].n || b.w.l10.p - a.w.l10.p || b.w.cur.p - a.w.cur.p);
   const wl = W === 'h2h' ? 'head-to-head' : trWinLabel(W);
-  $('.tr-note').textContent = `${rows.length} trends for week ${gs.length ? gs[0].g.week : ''}, sorted by ${T.sort === 'edge' ? `edge (${wl} hit rate minus the odds' implied chance)` : `${wl} hit rate`}. `
-    + (IDX.trBook ? 'Book lines and odds come from DraftKings (FanDuel when DK has none), pulled once a week, so check your book before betting. ' : '')
-    + 'Lines marked "est." are the standard book steps closest to the player\'s recent median. Matchup grade is how much this defense allows for that stat (A = easiest for the bet). Tap a card for the full game log.';
+  $('.tr-note').textContent = `${rows.length} trends for ${nba ? (gs.length ? `${dayTxt(gs[0].d)} games` : 'the next slate') : `week ${gs.length ? gs[0].g.week : ''}`}, sorted by ${T.sort === 'edge' ? `edge (${wl} hit rate minus the odds' implied chance)` : `${wl} hit rate`}. `
+    + (X.book ? 'Book lines and odds come from DraftKings (FanDuel when DK has none), pulled once a week, so check your book before betting. ' : '')
+    + 'Lines marked "est." are the standard book steps closest to the player\'s recent median. Matchup grade is how much this defense allows for that stat (A = easiest for the bet).'
+    + (nba ? ' Positions are ESPN\'s guard / forward / center.' : ' Tap a card for the full game log.');
   const shown = rows.slice(0, S.trShown);
   $('.tr-list').replaceChildren(...shown.map((t) => trCard(t, W)));
   $('.tr-more').hidden = rows.length <= S.trShown;
@@ -2156,7 +2184,7 @@ function trCard(t, W) {
   };
   const grCls = t.gr ? `gr-${t.gr[0].toLowerCase()}` : 'na';
   const prop = t.st.k === 'anytime_td' ? 'Anytime TD' : `${t.side === 'over' ? 'Over' : 'Under'} ${t.line} ${t.st.label}`;
-  return h('div', { class: 'tcard', ...pressable(open), 'aria-label': `${p.player} ${prop}, ${trPctTxt(x)} ${trWinLabel(W)}` },
+  return h('div', { class: S.sport === 'nba' ? 'tcard nba' : 'tcard', ...(S.sport === 'nba' ? {} : pressable(open)), 'aria-label': `${p.player} ${prop}, ${trPctTxt(x)} ${trWinLabel(W)}` },
     h('div', { class: 'tc-top' },
       badge(p.team),
       h('div', { class: 'tc-who' },
@@ -2169,31 +2197,153 @@ function trCard(t, W) {
         t.real ? h('div', { class: 'tc-odds' },
           x.n ? h('span', { class: `tc-edge ${x.p - t.imp >= 0 ? 'pos' : 'neg'}`, title: `Hit rate minus the ${Math.round(t.imp)}% the odds imply` }, `${x.p - t.imp >= 0 ? '+' : ''}${Math.round(x.p - t.imp)}% edge`) : null,
           h('span', { class: 'tc-price' }, priceTxt(t.price), h('small', null, BOOK_ABBR[t.book] || t.book))) : null)),
-    h('div', { class: 'tc-wins' }, ...TR_WINS.map(([k]) => {
+    h('div', { class: 'tc-wins' }, ...trWins().map(([k]) => {
       const y = t.w[k];
       return h('div', { class: k === W ? 'on' : null, title: y.n ? `${y.h} of ${y.n} games` : 'No games' }, h('span', null, trWinLabel(k)), h('b', { class: trCls(y) }, trPctTxt(y)));
     })));
 }
 $('.tr-more').addEventListener('click', () => { S.trShown += 40; render(); });
-$('.tr-reset').addEventListener('click', () => { S.tr = TR_DEF(); S.trShown = 40; trSave(); render(); });
+$('.tr-reset').addEventListener('click', () => { S.tr = S.trBy[S.sport] = TR_DEF(); S.trShown = 40; trSave(); render(); });
 $('.tr-ftoggle').addEventListener('click', () => { S.trOpen = !S.trOpen; render(); });
 
-// shade table cells that name a team (BUF, @ BUF, vs BUF) with that team's color, fading left to right
+// mark table cells that name a team (BUF, @ BUF, vs BUF) with a thick stripe of that team's color on the left
 const TEAM_CELL = /^(?:@\s?|vs\.?\s)?([A-Z]{2,3})$/;
 function teamTint() {
-  if (!IDX.info) return;
+  const info = curInfo(); if (!info) return;
   document.querySelectorAll('section.view:not([hidden]) td').forEach((td) => {
-    const txt = td.textContent.trim();
-    if (td.dataset.tm === txt) return;
-    const m = txt.match(TEAM_CELL), i = m && IDX.info.get(m[1]);
-    td.dataset.tm = txt;
-    if (!i) { if (td.classList.contains('tm')) { td.classList.remove('tm'); td.style.backgroundImage = ''; } return; }
+    const txt = td.textContent.trim(), key = `${S.sport}|${txt}`;
+    if (td.dataset.tm === key) return;
+    const m = txt.match(TEAM_CELL), i = m && info.get(m[1]);
+    td.dataset.tm = key;
+    if (!i) { if (td.classList.contains('tm')) { td.classList.remove('tm'); td.style.boxShadow = ''; } return; }
     td.classList.add('tm');
-    td.style.backgroundImage = `linear-gradient(90deg, color-mix(in srgb, ${i.color} 60%, transparent) 0%, color-mix(in srgb, ${i.color} 22%, transparent) 55%, transparent 100%)`;
+    td.style.boxShadow = `inset 5px 0 0 ${i.color}`;
   });
 }
+// ===================== NBA =====================
+const NBA = { ready: false, loading: null, error: false };
+const NBA_WINS = [['h2h', 'H2H'], ['l5', 'L5'], ['l10', 'L10'], ['l20', 'L20'], ['cur', null], ['prev', null]];
+const NBA_STATS = [
+  { k: 'pts', label: 'Points', min: 6 }, { k: 'reb', label: 'Rebounds', min: 3 }, { k: 'ast', label: 'Assists', min: 2 },
+  { k: 'fg3m', label: '3-Pointers', min: 1 }, { k: 'pra', label: 'Pts+Reb+Ast', min: 12 }, { k: 'pr', label: 'Pts+Reb', min: 9 },
+  { k: 'pa', label: 'Pts+Ast', min: 8 }, { k: 'ra', label: 'Reb+Ast', min: 5 }, { k: 'sb', label: 'Steals+Blocks', min: 1.5 },
+];
+const nbaVal = (r, k) => (k === 'pra' ? r.pts + r.reb + r.ast : k === 'pr' ? r.pts + r.reb : k === 'pa' ? r.pts + r.ast : k === 'ra' ? r.reb + r.ast : k === 'sb' ? r.stl + r.blk : r[k] || 0);
+const ET_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' });
+const etToday = () => ET_DAY.format(new Date());
+const dayShift = (d, n) => { const [y, m, dd] = d.split('-').map(Number); const x = new Date(Date.UTC(y, m - 1, dd + n)); return x.toISOString().slice(0, 10); };
+const dayLabel = (d) => { const [y, m, dd] = d.split('-').map(Number); const lbl = new Date(y, m - 1, dd).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }); return d === etToday() ? `Today · ${lbl}` : lbl; };
+
+function loadNBA() {
+  if (NBA.loading) return NBA.loading;
+  const b = `?v=${Date.now()}`;
+  NBA.loading = Promise.all([
+    ...['logs', 'games', 'dvp', 'teams'].map((n) => d3.csv(`data/nba/${n}.csv${b}`).then((rows) => { NBA[n] = rows.map(clean); })),
+    fetch(`data/nba/meta.txt${b}`).then((r) => r.text()).then((t) => { NBA.meta = Object.fromEntries(t.trim().split('\n').map((l) => l.split('='))); NBA.season = Number(NBA.meta.season); }),
+  ]).then(() => {
+    NBA.info = new Map(NBA.teams.map((t) => [t.team, t]));
+    NBA.byPid = new Map();
+    NBA.logs.forEach((r) => { if (!NBA.byPid.has(r.player_id)) NBA.byPid.set(r.player_id, []); NBA.byPid.get(r.player_id).push(r); });
+    NBA.byPid.forEach((a) => a.sort((x, y) => (x.date < y.date ? -1 : x.date > y.date ? 1 : 0)));
+    NBA.dv = new Map(NBA.dvp.map((r) => [`${r.defense}|${r.position}|${r.stat}`, r]));
+    NBA.ready = true;
+  }).catch((err) => { NBA.error = true; console.error(err); });
+  return NBA.loading;
+}
+
+// next slate = the first day (Eastern) that still has games to play
+function nbaSlate() {
+  const today = etToday();
+  const open = NBA.games.filter((g) => g.status !== 'final' && g.gameday >= today);
+  if (!open.length) return [];
+  const day = open.map((g) => g.gameday).sort()[0];
+  return open.filter((g) => g.gameday === day).map((g) => ({ g, d: kickDate(g) })).sort((a, b) => (a.d || 0) - (b.d || 0));
+}
+
+function nbaBuildTrends() {
+  const games = nbaSlate();
+  const oppOf = new Map();
+  games.forEach(({ g }) => { oppOf.set(g.away_team, { opp: g.home_team, gid: g.game_id, home: false }); oppOf.set(g.home_team, { opp: g.away_team, gid: g.game_id, home: true }); });
+  const slateDay = games.length ? games[0].g.gameday : etToday();
+  const out = [];
+  NBA.byPid.forEach((logs, pid) => {
+    const last = logs[logs.length - 1];
+    if (!oppOf.has(last.team) || last.date < dayShift(slateDay, -14)) return;
+    const l5 = logs.slice(-5), l10 = logs.slice(-10);
+    if (l10.length < 3 || median(l5.map((r) => r.min)) < 14) return;
+    const { opp, gid, home } = oppOf.get(last.team);
+    const p = { player_id: pid, player: last.player, position: last.position, team: last.team };
+    const sets = { h2h: logs.filter((r) => r.opp === opp), l5, l10, l20: logs.slice(-20),
+      cur: logs.filter((r) => r.season === NBA.season), prev: logs.filter((r) => r.season === NBA.season - 1) };
+    NBA_STATS.forEach((st) => {
+      const vals = l10.map((r) => nbaVal(r, st.k)), base = median(vals);
+      if (st.k === 'fg3m' ? mean(vals) < 0.8 : base < st.min) return;
+      const lines = [];
+      // books post lines near a player's usual output, so skip steps far below or above his median
+      const lo = base * 0.5, hi = Math.max(base * 1.5, base + 1);
+      for (let i = Math.floor(base) - 3; i <= Math.floor(base) + 3; i += 1) if (i >= 0 && i + 0.5 >= lo && i + 0.5 <= hi) lines.push(i + 0.5);
+      lines.sort((a, b) => Math.abs(a - base) - Math.abs(b - base));
+      const rk = (NBA.dv.get(`${opp}|${p.position}|${st.k}`) || {}).rank;
+      lines.slice(0, 3).forEach((line) => ['over', 'under'].forEach((side) => {
+        const hit = side === 'over' ? (v) => v > line : (v) => v < line;
+        const w = {};
+        NBA_WINS.forEach(([k]) => { const a = sets[k]; const n = a.length, hN = a.filter((r) => hit(nbaVal(r, st.k))).length; w[k] = { n, h: hN, p: n ? (hN / n) * 100 : 0 }; });
+        let gr = null;
+        if (rk != null) { const r = side === 'over' ? rk : 31 - rk; gr = GRADES[Math.max(0, Math.min(12, Math.round(((r - 1) / 29) * 12)))]; }
+        out.push({ p, opp, gid, home, st, line, side, w, gr, rk, avg: mean(vals), real: false, price: null, book: null, imp: null });
+      }));
+    });
+  });
+  NBA.trends = { items: out, games, book: 0 };
+}
+
+function renderNBAHome() {
+  const today = etToday();
+  const days = [...new Set(NBA.games.map((g) => g.gameday))].filter((d) => d >= dayShift(today, -1) && d <= dayShift(today, 6)).sort();
+  if (!days.includes(S.nDay)) S.nDay = days.find((d) => d >= today) || days[days.length - 1];
+  $('.h-days').replaceChildren(...days.map((d) => h('button', { 'aria-current': String(d === S.nDay), onclick: () => { S.nDay = d; render(); } }, dayLabel(d))));
+  const list = NBA.games.filter((g) => g.gameday === S.nDay).map((g) => ({ g, d: kickDate(g) })).sort((a, b) => (a.d || 0) - (b.d || 0));
+  if (!list.length) { $('.glist').replaceChildren(h('p', { class: 'empty' }, 'No games.')); return; }
+  $('.glist').replaceChildren(...list.map(({ g, d }) => {
+    const when = h('span'); when.innerHTML = CLOCK; when.append(g.status === 'final' ? 'Final' : tmTxt(d));
+    return h('div', { class: 'gcard' }, oddsRow(g, 'away'), oddsRow(g, 'home'), h('div', { class: 'gfoot' }, when, h('span', { class: 'res' }, '')));
+  }));
+}
+
+// ---------- sport switch ----------
+function syncSport() {
+  const nba = S.sport === 'nba';
+  document.querySelectorAll('.sport-sw button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.s === S.sport)));
+  $('.sport-sw').hidden = !(S.view === 'home' || S.view === 'trends');
+  document.querySelectorAll('.side-nav button[data-view="stats"], .side-nav button[data-view="fantasy"]').forEach((b) => { b.hidden = nba; });
+  $('.sub-nfl').hidden = nba; $('.sub-nba').hidden = !nba;
+  const src = $('.src-link');
+  src.textContent = nba ? 'SportsDataverse / ESPN' : 'nflverse';
+  src.href = nba ? 'https://github.com/sportsdataverse/hoopR' : 'https://github.com/nflverse/nflverse-data';
+  if (nba && NBA.meta) {
+    $('.nba-season').textContent = NBA.meta.season_label;
+    const [y, m, d] = (NBA.meta.through_date || '').split('-').map(Number);
+    $('.nba-thru').textContent = y ? new Date(y, m - 1, d).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '—';
+    $('.built').textContent = (NBA.meta.built_at || '').replace('T', ' ').replace('+00:00', ' UTC');
+  } else if (!nba && S.builtNFL) $('.built').textContent = S.builtNFL;
+}
+$('.sport-sw').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b || b.dataset.s === S.sport) return;
+  S.sport = b.dataset.s; S.trShown = 40;
+  try { localStorage.setItem('ml-sport', S.sport); } catch (err) { /* storage off */ }
+  window.scrollTo(0, 0); render();
+});
+
 function render() {
   if (!DATA.teams) return;
+  if (S.sport === 'nba' && !['home', 'trends'].includes(S.view)) { S.sport = 'nfl'; try { localStorage.setItem('ml-sport', 'nfl'); } catch (e) { /* storage off */ } }
+  syncSport();
+  if (S.sport === 'nba' && !NBA.ready) {
+    const msg = h('p', { class: 'empty' }, NBA.error ? 'Could not load the NBA data. Try again in a bit.' : 'Loading NBA…');
+    if (S.view === 'home') { $('.h-days').replaceChildren(); $('.glist').replaceChildren(msg); } else $('.tr-list').replaceChildren(msg);
+    if (!NBA.error) loadNBA().then(render);
+    return;
+  }
   segs.forEach((sg) => sg());
   if (S.view === 'home') renderHome();
   else if (S.view === 'game') renderGame();
@@ -2216,7 +2366,7 @@ Promise.all([
     const m = Object.fromEntries(t.trim().split('\n').map((l) => l.split('=')));
     S.season = Number(m.season); S.upWeek = Number(m.upcoming_week);
     $('.season').textContent = m.season; $('.thru').textContent = m.through_week; $('.upwk').textContent = m.upcoming_week;
-    $('.built').textContent = (m.built_at || '').replace('T', ' ').replace('+00:00', ' UTC');
+    S.builtNFL = (m.built_at || '').replace('T', ' ').replace('+00:00', ' UTC'); $('.built').textContent = S.builtNFL;
   }),
 ]).then(() => { buildIndexes(); render(); }).catch((err) => {
   const p = document.createElement('p'); p.className = 'card';
