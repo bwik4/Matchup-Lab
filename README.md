@@ -61,3 +61,7 @@ To rebuild the data yourself: install Python from [python.org](https://www.pytho
 ## NBA
 
 Use the NFL / NBA buttons at the top of Home or Trends. `nba_pipeline.py` builds `data/nba/` every morning from SportsDataverse's free hoopR data (ESPN box scores and schedule): player game logs for this season and last, the schedule with records, defense vs position ranks for guards, forwards and centers, and team colors. Spreads, totals and moneylines come from ESPN's scoreboard when it has them. NBA Trends uses estimated lines (the half-point steps around each player's L10 median) for points, rebounds, assists, threes and the common combos.
+
+## College football
+
+Pick CFB with the buttons at the top of Home or Trends. `cfb_pipeline.py` builds `data/cfb/` every morning from SportsDataverse's free ESPN college football data: QB/RB/WR/TE game logs (this season, plus last season for returning players), the FBS schedule with AP ranks, records and lines (closing lines for finished games, ESPN's scoreboard for upcoming ones), defense vs position ranks for every FBS defense, and team colors. CFB Trends uses estimated lines, like NBA.

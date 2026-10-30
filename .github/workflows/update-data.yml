@@ -27,6 +27,9 @@ jobs:
       - name: NBA data (a failure here never blocks the NFL update)
         run: python nba_pipeline.py --out data/nba
         continue-on-error: true
+      - name: College football data (a failure here never blocks the NFL update)
+        run: python cfb_pipeline.py --out data/cfb
+        continue-on-error: true
       - name: Sportsbook props (only runs once the ODDS_API_KEY secret is set)
         run: python props.py --out data ${{ inputs.force_props && '--force' || '' }}
         env:
@@ -37,5 +40,5 @@ jobs:
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git add data
           git diff --cached --quiet && echo "No changes" && exit 0
-          git commit -m "Daily NFL + NBA data refresh"
+          git commit -m "Daily NFL, NBA + CFB data refresh"
           git push

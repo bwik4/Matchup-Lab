@@ -304,7 +304,9 @@
   }
   td.tm { font-weight: 700; padding-left: 12px; }
   /* NFL / NBA switch: same look as the ML box */
-  .sport-sw { display: flex; gap: 10px; }
+  .sport-sw { display: flex; gap: 10px; flex-wrap: wrap; }
+  .h-top[hidden] { display: none; }
+  .nm .rank { color: var(--accent); font-weight: 800; }
   .sport-sw[hidden] { display: none; }
   .sport-sw button { height: 44px; min-width: 66px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--accent); color: #fff;
     font: inherit; font-weight: 800; font-size: .95rem; letter-spacing: .02em; cursor: pointer; opacity: .42; transition: opacity .15s; }
@@ -330,9 +332,9 @@
   <header class="bar">
     <div>
       <h1>Matchup Lab</h1>
-      <p class="sub"><span class="sub-nfl">NFL · <span class="season">—</span> regular season through week <span class="thru">—</span> · week <span class="upwk">—</span> lines</span><span class="sub-nba" hidden>NBA · <span class="nba-season">—</span> season through <span class="nba-thru">—</span></span></p>
+      <p class="sub"><span class="sub-nfl">NFL · <span class="season">—</span> regular season through week <span class="thru">—</span> · week <span class="upwk">—</span> lines</span><span class="sub-nba" hidden>NBA · <span class="nba-season">—</span> season through <span class="nba-thru">—</span></span><span class="sub-cfb" hidden>College football · <span class="cfb-season">—</span> season through week <span class="cfb-thru">—</span> · week <span class="cfb-up">—</span> lines</span></p>
     </div>
-    <div class="sport-sw" role="group" aria-label="Sport"><button data-s="nfl">NFL</button><button data-s="nba">NBA</button></div>
+    <div class="sport-sw" role="group" aria-label="Sport"><button data-s="nfl">NFL</button><button data-s="nba">NBA</button><button data-s="cfb">CFB</button></div>
   </header>
 
   <!-- ================= HOME ================= -->
@@ -340,7 +342,7 @@
     <div class="card">
       <div class="bar">
         <h2>Upcoming games</h2>
-        <div class="controls"><span class="lbl">Week</span><select class="h-week" aria-label="Week"></select></div>
+        <div class="controls"><div class="seg h-top" role="group" aria-label="Which games" hidden><button data-v="all">All FBS</button><button data-v="top">Top 25</button></div><span class="lbl">Week</span><select class="h-week" aria-label="Week"></select></div>
       </div>
       <div class="subnav h-days" role="group" aria-label="Game day"></div>
       <div class="ghead" aria-hidden="true"><span>Match</span><span>Spread</span><span>Moneyline</span><span>Total</span></div>
@@ -1077,7 +1079,7 @@ $('.side-nav').addEventListener('click', (e) => { const bt = e.target.closest('b
 $('.st-tabs').addEventListener('click', (e) => { const bt = e.target.closest('button'); if (bt) { history.replaceState(null, '', `#stats/${bt.dataset.v}`); applyRoute(); } });
 $('.gp-tabs').addEventListener('click', (e) => { const bt = e.target.closest('button'); if (bt) { history.replaceState(null, '', `#game/${S.game}/${bt.dataset.v}`); applyRoute(); } });
 $('.back').addEventListener('click', () => { if (S.fromHome) { S.fromHome = false; history.back(); } else go('home'); });
-$('.h-week').addEventListener('change', (e) => { S.hWeek = Number(e.target.value); S.hDay = null; render(); });
+$('.h-week').addEventListener('change', (e) => { if (S.sport === 'cfb') { S.cWeek = Number(e.target.value); S.cDay = null; } else { S.hWeek = Number(e.target.value); S.hDay = null; } render(); });
 $('.tc-swap').addEventListener('click', () => { S.tcFlip = !S.tcFlip; render(); });
 $('.pl-more').addEventListener('click', () => { S.plMore = !S.plMore; render(); });
 $('.ffv-depth').addEventListener('click', (e) => { const bt = e.target.closest('button'); if (!bt) return; S.ffDepth = bt.dataset.v; render(); });
@@ -1558,8 +1560,15 @@ function h(tag, attrs, ...kids) {
   kids.flat(Infinity).forEach((c) => { if (c == null || c === false) return; e.append(c instanceof Node ? c : String(c)); });
   return e;
 }
-const NBA_VIEWS = ['home', 'trends', 'fantasy'];
-const curInfo = () => (S.sport === 'nba' && NBA_VIEWS.includes(S.view) && NBA.info ? NBA.info : IDX.info);
+// which pages each sport has (NFL has them all)
+const SPORT_VIEWS = { nba: ['home', 'trends', 'fantasy'], cfb: ['home', 'trends'] };
+const SWITCH_VIEWS = ['home', 'trends', 'fantasy'];
+const sportHas = (sp, v) => !SPORT_VIEWS[sp] || SPORT_VIEWS[sp].includes(v);
+const curInfo = () => {
+  if (S.sport === 'nba' && sportHas('nba', S.view) && NBA.info) return NBA.info;
+  if (S.sport === 'cfb' && sportHas('cfb', S.view) && CFB.info) return CFB.info;
+  return IDX.info;
+};
 const TI = (t) => (curInfo() && curInfo().get(t)) || { team: t, nick: t, name: t, color: '#55534e', color2: '#8a8984' };
 function badge(team, size) {
   const i = TI(team);
@@ -1597,7 +1606,7 @@ function oddsRow(g, side) {
   const sc = g[`${side}_score`], oth = g[`${home ? 'away' : 'home'}_score`];
   const cell = (big, small) => h('div', { class: 'odd' }, h('b', null, big), small ? h('small', null, small) : null);
   return h('div', { class: 'grow' },
-    h('div', { class: 'team' }, badge(t), h('div', null, h('div', { class: 'nm' }, h('span', { class: 'ab' }, `${t} `), TI(t).nick), h('div', { class: 'rec' }, g[`${side}_record`] || (S.sport === 'nba' ? '' : recOf(t)))),
+    h('div', { class: 'team' }, badge(t), h('div', null, h('div', { class: 'nm' }, g[`${side}_rank`] ? h('b', { class: 'rank' }, `#${g[`${side}_rank`]} `) : null, h('span', { class: 'ab' }, `${t} `), TI(t).nick), h('div', { class: 'rec' }, g[`${side}_record`] || (S.sport !== 'nfl' ? '' : recOf(t)))),
       g.status === 'final' ? h('span', { class: `sc${sc > oth ? ' win' : ''}` }, show(sc)) : null),
     cell(spreadTxt(sp), oddsTxt(g[`${side}_spread_odds`])),
     cell(g[`${side}_moneyline`] == null ? '—' : oddsTxt(g[`${side}_moneyline`])),
@@ -1613,14 +1622,17 @@ function resultTxt(g) {
 // ===================== HOME =====================
 function renderHome() {
   $('.h-week').closest('.controls').hidden = S.sport === 'nba';
+  $('.h-top').hidden = S.sport !== 'cfb';
   $('.h-note').textContent = S.sport === 'nba'
     ? 'Spreads, totals and moneylines come from ESPN when they are posted (refreshed each morning), so check your book before betting. Tip-off times are in your time zone.'
-    : 'Lines are the market consensus from nflverse and move until kickoff, so check your book before betting. Kickoff times are in your time zone. Tap a game to research it.';
+    : S.sport === 'cfb' ? 'FBS games. Finished games show their closing line; upcoming lines come from ESPN each morning once they are posted, so check your book before betting. #N = AP Top 25 rank. Kickoff times are in your time zone.'
+      : 'Lines are the market consensus from nflverse and move until kickoff, so check your book before betting. Kickoff times are in your time zone. Tap a game to research it.';
   if (S.sport === 'nba') { renderNBAHome(); return; }
+  if (S.sport === 'cfb') { renderCFBHome(); return; }
   const weeks = [...new Set(DATA.games.map((g) => g.week))].sort((a, b) => a - b);
   if (S.hWeek == null || !weeks.includes(S.hWeek)) S.hWeek = weeks.includes(S.upWeek) ? S.upWeek : weeks[weeks.length - 1];
   const sel = $('.h-week');
-  if (sel.childElementCount !== weeks.length) sel.replaceChildren(...weeks.map((w) => h('option', { value: w }, `Week ${w}${w === S.upWeek ? ' (this week)' : ''}`)));
+  if (sel.childElementCount !== weeks.length || sel.dataset.sp !== 'nfl') { sel.replaceChildren(...weeks.map((w) => h('option', { value: w }, `Week ${w}${w === S.upWeek ? ' (this week)' : ''}`))); sel.dataset.sp = 'nfl'; }
   sel.value = S.hWeek;
   const gs = DATA.games.filter((g) => g.week === S.hWeek).map((g) => ({ g, d: kickDate(g) })).sort((a, b) => (a.d || 0) - (b.d || 0));
   const days = [...new Set(gs.map((x) => dayTxt(x.d)))];
@@ -2057,11 +2069,11 @@ const TR_DEF = (sp = S.sport) => ({ win: sp === 'nba' ? 'l10' : 'l5', sort: 'hit
 const BOOK_ABBR = { draftkings: 'DK', fanduel: 'FD' };
 const implied = (o) => (o == null || o === '' || Number.isNaN(Number(o)) ? null : (o = Number(o)) < 0 ? (-o / (-o + 100)) * 100 : (100 / (o + 100)) * 100);
 const priceTxt = (o) => (o == null || o === '' ? '' : `${Number(o) > 0 ? '+' : ''}${Math.round(Number(o))}`);
-const trKey = (sp) => (sp === 'nba' ? 'ml-trends-nba' : 'ml-trends');
+const trKey = (sp) => (sp === 'nfl' ? 'ml-trends' : `ml-trends-${sp}`);
 const trLoad = (sp) => { try { const o = JSON.parse(localStorage.getItem(trKey(sp)) || '{}'); return Object.assign(TR_DEF(sp), o, { games: null }); } catch (e) { return TR_DEF(sp); } };
 const trSave = () => { try { const { games, ...rest } = S.tr; localStorage.setItem(trKey(S.sport), JSON.stringify(rest)); } catch (e) { /* storage off */ } };
-S.sport = (() => { try { return localStorage.getItem('ml-sport') === 'nba' ? 'nba' : 'nfl'; } catch (e) { return 'nfl'; } })();
-S.trBy = { nfl: trLoad('nfl'), nba: trLoad('nba') }; S.tr = S.trBy[S.sport]; S.trShown = 40; S.trOpen = null;
+S.sport = (() => { try { const v = localStorage.getItem('ml-sport'); return ['nba', 'cfb'].includes(v) ? v : 'nfl'; } catch (e) { return 'nfl'; } })();
+S.trBy = { nfl: trLoad('nfl'), nba: trLoad('nba'), cfb: trLoad('cfb') }; S.tr = S.trBy[S.sport]; S.trShown = 40; S.trOpen = null;
 const trWins = () => (S.sport === 'nba' ? NBA_WINS : TR_WINS);
 const yy = (n) => String(n).slice(2);
 const trWinLabel = (w) => {
@@ -2070,6 +2082,7 @@ const trWinLabel = (w) => {
 };
 function trData() {
   if (S.sport === 'nba') { if (!NBA.trends) nbaBuildTrends(); return NBA.trends; }
+  if (S.sport === 'cfb') { if (!CFB.trends) cfbBuildTrends(); return CFB.trends; }
   if (!IDX.trX) buildTrends(); return IDX.trX;
 }
 const trCls = (x) => (!x || !x.n ? 'na' : x.p >= 70 ? 'hi' : x.p >= 50 ? 'mid' : 'lo');
@@ -2161,8 +2174,8 @@ function trChips(el, opts, key, single) {
 
 function renderTrends() {
   S.tr = S.trBy[S.sport];
-  const X = trData(), T = S.tr, W = T.win, nba = S.sport === 'nba';
-  $('.tr-title').textContent = `${nba ? 'NBA' : 'NFL'} Trends`;
+  const X = trData(), T = S.tr, W = T.win, nba = S.sport === 'nba', cfb = S.sport === 'cfb';
+  $('.tr-title').textContent = `${{ nfl: 'NFL', nba: 'NBA', cfb: 'College Football' }[S.sport]} Trends`;
   if (S.trOpen == null) S.trOpen = window.innerWidth > 980;
   $('.tr-filters').classList.toggle('closed', !S.trOpen);
   $('.tr-ftoggle').setAttribute('aria-expanded', String(S.trOpen));
@@ -2180,11 +2193,11 @@ function renderTrends() {
       return h('label', null, cb, `${g.away_team} @ ${g.home_team}`, h('small', null, `${d ? d.toLocaleDateString([], { weekday: 'short' }) : ''} ${tmTxt(d)}`));
     }));
   document.querySelector('.tr-sum[data-k="games"]').textContent = sel == null ? 'All' : `${sel.length} of ${allIds.length}`;
-  trChips($('.tr-stats'), (nba ? NBA_STATS : TR_STATS).map((s) => [s.k, s.label]), 'stats');
+  trChips($('.tr-stats'), (nba ? NBA_STATS : cfb ? CFB_STATS : TR_STATS).map((s) => [s.k, s.label]), 'stats');
   trChips($('.tr-grades'), TR_GRADES.map((g) => [g, g]), 'grades');
   trChips($('.tr-sides'), [['over', 'Over'], ['under', 'Under']], 'sides');
   trChips($('.tr-pos'), (nba ? ['G', 'F', 'C'] : POS).map((p) => [p, p]), 'pos');
-  $('.tr-src').closest('details').hidden = nba;
+  $('.tr-src').closest('details').hidden = S.sport !== 'nfl';
   trChips($('.tr-home'), [['home', 'Home'], ['away', 'Away']], 'home');
   trChips($('.tr-src'), [['book', 'Book lines'], ['est', 'Estimated']], 'src');
   $('.tr-srcnote').textContent = X.book ? `${X.book} real lines from the books this week. Estimated lines fill in the rest.`
@@ -2222,7 +2235,7 @@ function renderTrends() {
   $('.tr-note').textContent = `${rows.length} trends for ${nba ? (gs.length ? `${dayTxt(gs[0].d)} games` : 'the next slate') : `week ${gs.length ? gs[0].g.week : ''}`}, sorted by ${T.sort === 'edge' ? `edge (${wl} hit rate minus the odds' implied chance)` : `${wl} hit rate`}. `
     + (X.book ? 'Book lines and odds come from DraftKings (FanDuel when DK has none), pulled once a week, so check your book before betting. ' : '')
     + 'Lines marked "est." are the standard book steps closest to the player\'s recent median. Matchup grade is how much this defense allows for that stat (A = easiest for the bet).'
-    + (nba ? ' Positions are ESPN\'s guard / forward / center.' : ' Tap a card for the full game log.');
+    + (nba ? ' Positions are ESPN\'s guard / forward / center.' : cfb ? ' FBS games only; positions come from ESPN rosters, and the matchup grade ranks all FBS defenses.' : ' Tap a card for the full game log.');
   const shown = rows.slice(0, S.trShown);
   $('.tr-list').replaceChildren(...shown.map((t) => trCard(t, W)));
   $('.tr-more').hidden = rows.length <= S.trShown;
@@ -2239,7 +2252,7 @@ function trCard(t, W) {
   };
   const grCls = t.gr ? `gr-${t.gr[0].toLowerCase()}` : 'na';
   const prop = t.st.k === 'anytime_td' ? 'Anytime TD' : `${t.side === 'over' ? 'Over' : 'Under'} ${t.line} ${t.st.label}`;
-  return h('div', { class: S.sport === 'nba' ? 'tcard nba' : 'tcard', ...(S.sport === 'nba' ? {} : pressable(open)), 'aria-label': `${p.player} ${prop}, ${trPctTxt(x)} ${trWinLabel(W)}` },
+  return h('div', { class: S.sport !== 'nfl' ? 'tcard nba' : 'tcard', ...(S.sport !== 'nfl' ? {} : pressable(open)), 'aria-label': `${p.player} ${prop}, ${trPctTxt(x)} ${trWinLabel(W)}` },
     h('div', { class: 'tc-top' },
       badge(p.team),
       h('div', { class: 'tc-who' },
@@ -2508,41 +2521,142 @@ $('.nf-search').addEventListener('change', (e) => {
   if (hit) { S.nfPlayer = hit; e.target.value = ''; render(); }
 });
 
+
+// ===================== COLLEGE FOOTBALL =====================
+const CFB = { ready: false, loading: null, error: false };
+const CFB_STATS = TR_STATS.filter((st) => st.k !== 'long_completion');
+function loadCFB() {
+  if (CFB.loading) return CFB.loading;
+  const b = `?v=${Date.now()}`;
+  CFB.loading = Promise.all([
+    ...['logs', 'games', 'dvp', 'teams'].map((n) => d3.csv(`data/cfb/${n}.csv${b}`).then((rows) => { CFB[n] = rows.map(clean); })),
+    fetch(`data/cfb/meta.txt${b}`).then((r) => r.text()).then((t) => { CFB.meta = Object.fromEntries(t.trim().split('\n').map((l) => l.split('='))); CFB.season = Number(CFB.meta.season); CFB.upWeek = Number(CFB.meta.upcoming_week); }),
+  ]).then(() => {
+    CFB.info = new Map(CFB.teams.map((t) => [t.team, t]));
+    CFB.byPid = new Map();
+    CFB.logs.forEach((r) => { r.player_id = String(r.player_id); if (!CFB.byPid.has(r.player_id)) CFB.byPid.set(r.player_id, []); CFB.byPid.get(r.player_id).push(r); });
+    CFB.byPid.forEach((a) => a.sort((x, y) => x.season - y.season || x.week - y.week));
+    CFB.dv = new Map(CFB.dvp.map((r) => [`${r.defense}|${r.position}|${r.stat}`, r]));
+    CFB.nDef = new Set(CFB.dvp.map((r) => r.defense)).size;
+    CFB.ready = true;
+  }).catch((err) => { CFB.error = true; console.error(err); });
+  return CFB.loading;
+}
+const cfbTop = (g) => (g.away_rank || g.home_rank);
+
+function renderCFBHome() {
+  const weeks = [...new Set(CFB.games.map((g) => g.week))].sort((a, b) => a - b);
+  if (S.cWeek == null || !weeks.includes(S.cWeek)) S.cWeek = weeks.includes(CFB.upWeek) ? CFB.upWeek : weeks[weeks.length - 1];
+  const sel = $('.h-week');
+  if (sel.childElementCount !== weeks.length || sel.dataset.sp !== 'cfb') { sel.replaceChildren(...weeks.map((w) => h('option', { value: w }, `Week ${w}${w === CFB.upWeek ? ' (this week)' : ''}`))); sel.dataset.sp = 'cfb'; }
+  sel.value = S.cWeek;
+  S.cTop = S.cTop || 'all';
+  document.querySelectorAll('.h-top button').forEach((b) => { b.setAttribute('aria-pressed', String(b.dataset.v === S.cTop)); b.onclick = () => { S.cTop = b.dataset.v; render(); }; });
+  const gs = CFB.games.filter((g) => g.week === S.cWeek && (S.cTop === 'all' || cfbTop(g))).map((g) => ({ g, d: kickDate(g) }))
+    .sort((a, b) => (a.d || 0) - (b.d || 0) || (Math.min(a.g.away_rank || 99, a.g.home_rank || 99) - Math.min(b.g.away_rank || 99, b.g.home_rank || 99)));
+  const days = [...new Set(gs.map((x) => dayTxt(x.d)))];
+  if (!days.includes(S.cDay)) { const open = gs.find((x) => x.g.status !== 'final'); S.cDay = open ? dayTxt(open.d) : days[0]; }
+  $('.h-days').replaceChildren(...days.map((d) => h('button', { 'aria-current': String(d === S.cDay), onclick: () => { S.cDay = d; render(); } }, `${d} (${gs.filter((x) => dayTxt(x.d) === d).length})`)));
+  const list = gs.filter((x) => dayTxt(x.d) === S.cDay);
+  if (!list.length) { $('.glist').replaceChildren(h('p', { class: 'empty' }, 'No games.')); return; }
+  $('.glist').replaceChildren(...list.map(({ g, d }) => {
+    const when = h('span'); when.innerHTML = CLOCK; when.append(g.status === 'final' ? 'Final' : g.gametime ? tmTxt(d) : 'Time TBA');
+    const res = g.status === 'final' && g.spread_line != null ? (() => { const m = g.home_score - g.away_score - g.spread_line; return m === 0 ? 'Spread push' : `${m > 0 ? g.home_team : g.away_team} covered`; })() : '';
+    const ou = g.status === 'final' && g.total_line != null ? `${g.home_score + g.away_score > g.total_line ? 'Over' : g.home_score + g.away_score < g.total_line ? 'Under' : 'Push'} (${g.home_score + g.away_score})` : '';
+    return h('div', { class: 'gcard' }, oddsRow(g, 'away'), oddsRow(g, 'home'),
+      h('div', { class: 'gfoot' }, when, h('span', { class: 'res' }, [res, ou, g.neutral ? 'Neutral site' : ''].filter(Boolean).join(' · '))));
+  }));
+}
+
+function cfbBuildTrends() {
+  const open = CFB.games.filter((g) => g.status !== 'final');
+  const wk = open.length ? Math.min(...open.map((g) => g.week)) : CFB.upWeek;
+  const games = open.filter((g) => g.week === wk).map((g) => ({ g, d: kickDate(g) })).sort((a, b) => (a.d || 0) - (b.d || 0));
+  const oppOf = new Map();
+  games.forEach(({ g }) => { oppOf.set(g.away_team, { opp: g.home_team, gid: g.game_id, home: false }); oppOf.set(g.home_team, { opp: g.away_team, gid: g.game_id, home: true }); });
+  // each team's starting QB = whoever threw the most passes in its latest game
+  const qbOf = new Map();
+  CFB.logs.filter((r) => r.season === CFB.season && r.position === 'QB').forEach((r) => {
+    const c = qbOf.get(r.team);
+    if (!c || r.week > c.week || (r.week === c.week && r.attempts > c.attempts)) qbOf.set(r.team, r);
+  });
+  const N = Math.max(2, CFB.nDef || 130), out = [];
+  CFB.byPid.forEach((logs, pid) => {
+    const last = logs[logs.length - 1];
+    if (last.season !== CFB.season || last.week < wk - 3 || !oppOf.has(last.team)) return;
+    if (last.position === 'QB' && (qbOf.get(last.team) || {}).player_id !== pid) return;
+    const sets = { l3: logs.slice(-3), l5: logs.slice(-5), l10: logs.slice(-10), cur: logs.filter((r) => r.season === CFB.season), prev: logs.filter((r) => r.season === CFB.season - 1) };
+    if (sets.l10.length < 3) return;
+    const { opp, gid, home } = oppOf.get(last.team);
+    sets.h2h = logs.filter((r) => r.opp === opp);
+    const p = { player_id: pid, player: last.player, position: last.position, team: last.team };
+    CFB_STATS.forEach((st) => {
+      const ladder = st.lines[p.position]; if (!ladder) return;
+      const val = st.val || ((r) => r[st.k] ?? 0);
+      const vals = sets.l10.map(val), base = median(vals);
+      let lines;
+      if (st.k === 'anytime_td') { if (mean(vals.map((v) => (v > 0 ? 1 : 0))) < 0.25) return; lines = ladder; }
+      else {
+        const mn = st.min == null ? 0 : typeof st.min === 'object' ? st.min[p.position] : st.min;
+        if (base < mn) return;
+        const lo = Math.min(base * 0.55, base - 1), hi = Math.max(base * 1.35, base + 1);
+        lines = ladder.filter((l) => l >= lo && l <= hi).sort((a, b) => Math.abs(a - base) - Math.abs(b - base)).slice(0, 3);
+      }
+      const rk = (CFB.dv.get(`${opp}|${p.position}|${(st.m && st.m[p.position]) || st.k}`) || {}).rank;
+      lines.forEach((line) => ['over', 'under'].forEach((side) => {
+        if (side === 'under' && st.overOnly) return;
+        const hit = side === 'over' ? (v) => v > line : (v) => v < line;
+        const w = {};
+        TR_WINS.forEach(([k]) => { const a = sets[k]; const n = a.length, hN = a.filter((r) => hit(val(r))).length; w[k] = { n, h: hN, p: n ? (hN / n) * 100 : 0 }; });
+        let gr = null;
+        if (rk != null) { const r = side === 'over' ? rk : N + 1 - rk; gr = GRADES[Math.max(0, Math.min(12, Math.round(((r - 1) / (N - 1)) * 12)))]; }
+        out.push({ p, opp, gid, home, st, line, side, w, gr, rk, avg: mean(vals), real: false, price: null, book: null, imp: null });
+      }));
+    });
+  });
+  CFB.trends = { items: out, games, book: 0 };
+}
+
 // ---------- sport switch ----------
 function syncSport() {
-  const nba = S.sport === 'nba';
-  document.querySelectorAll('.sport-sw button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.s === S.sport)));
-  $('.sport-sw').hidden = !NBA_VIEWS.includes(S.view);
-  document.querySelectorAll('.side-nav button[data-view="stats"]').forEach((b) => { b.hidden = nba; });
-  $('.ff-nfl').hidden = nba; $('.ff-nba').hidden = !nba;
-  $('.sub-nfl').hidden = nba; $('.sub-nba').hidden = !nba;
+  const sp = S.sport;
+  document.querySelectorAll('.sport-sw button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.s === sp)));
+  $('.sport-sw').hidden = !SWITCH_VIEWS.includes(S.view);
+  document.querySelectorAll('.side-nav button').forEach((b) => { b.hidden = !sportHas(sp, b.dataset.view); });
+  $('.ff-nfl').hidden = sp !== 'nfl'; $('.ff-nba').hidden = sp !== 'nba';
+  ['nfl', 'nba', 'cfb'].forEach((k) => { $(`.sub-${k}`).hidden = sp !== k; });
   const src = $('.src-link');
-  src.textContent = nba ? 'SportsDataverse / ESPN' : 'nflverse';
-  src.href = nba ? 'https://github.com/sportsdataverse/hoopR' : 'https://github.com/nflverse/nflverse-data';
-  if (nba && NBA.meta) {
-    $('.nba-season').textContent = NBA.meta.season_label;
-    const [y, m, d] = (NBA.meta.through_date || '').split('-').map(Number);
+  src.textContent = sp === 'nfl' ? 'nflverse' : 'SportsDataverse / ESPN';
+  src.href = sp === 'nba' ? 'https://github.com/sportsdataverse/hoopR' : sp === 'cfb' ? 'https://github.com/sportsdataverse/cfbfastR' : 'https://github.com/nflverse/nflverse-data';
+  const meta = sp === 'nba' ? NBA.meta : sp === 'cfb' ? CFB.meta : null;
+  if (sp === 'nba' && meta) {
+    $('.nba-season').textContent = meta.season_label;
+    const [y, m, d] = (meta.through_date || '').split('-').map(Number);
     $('.nba-thru').textContent = y ? new Date(y, m - 1, d).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '—';
-    $('.built').textContent = (NBA.meta.built_at || '').replace('T', ' ').replace('+00:00', ' UTC');
-  } else if (!nba && S.builtNFL) $('.built').textContent = S.builtNFL;
+  }
+  if (sp === 'cfb' && meta) { $('.cfb-season').textContent = meta.season; $('.cfb-thru').textContent = meta.through_week; $('.cfb-up').textContent = meta.upcoming_week; }
+  if (meta) $('.built').textContent = (meta.built_at || '').replace('T', ' ').replace('+00:00', ' UTC');
+  else if (S.builtNFL) $('.built').textContent = S.builtNFL;
 }
 $('.sport-sw').addEventListener('click', (e) => {
   const b = e.target.closest('button'); if (!b || b.dataset.s === S.sport) return;
   S.sport = b.dataset.s; S.trShown = 40;
   try { localStorage.setItem('ml-sport', S.sport); } catch (err) { /* storage off */ }
-  window.scrollTo(0, 0); render();
+  window.scrollTo(0, 0);
+  if (!sportHas(S.sport, S.view)) go('home'); else render();
 });
 
 function render() {
   if (!DATA.teams) return;
-  if (S.sport === 'nba' && !NBA_VIEWS.includes(S.view)) { S.sport = 'nfl'; try { localStorage.setItem('ml-sport', 'nfl'); } catch (e) { /* storage off */ } }
+  if (!sportHas(S.sport, S.view)) { S.sport = 'nfl'; try { localStorage.setItem('ml-sport', 'nfl'); } catch (e) { /* storage off */ } }
   syncSport();
-  if (S.sport === 'nba' && !NBA.ready) {
-    const msg = h('p', { class: 'empty' }, NBA.error ? 'Could not load the NBA data. Try again in a bit.' : 'Loading NBA…');
+  const L = { nba: [NBA, loadNBA, 'NBA'], cfb: [CFB, loadCFB, 'college football'] }[S.sport];
+  if (L && !L[0].ready) {
+    const msg = h('p', { class: 'empty' }, L[0].error ? `Could not load the ${L[2]} data. Try again in a bit.` : `Loading ${L[2]}…`);
     if (S.view === 'home') { $('.h-days').replaceChildren(); $('.glist').replaceChildren(msg); }
     else if (S.view === 'fantasy') $('.nfp-note').replaceChildren(msg);
     else $('.tr-list').replaceChildren(msg);
-    if (!NBA.error) loadNBA().then(render);
+    if (!L[0].error) L[1]().then(render);
     return;
   }
   segs.forEach((sg) => sg());

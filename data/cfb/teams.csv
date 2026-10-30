@@ -1,0 +1,267 @@
+team,name,nick,color,color2,fbs
+AAMU,Alabama A&M Bulldogs,Alabama A&M,#790000,#ffffff,0
+ACU,Abilene Christian Wildcats,Abilene Christian,#592d82,#b1b3b3,0
+AF,Air Force Falcons,Air Force,#003594,#ffffff,1
+AKR,Akron Zips,Akron,#041e42,#a89968,1
+ALA,Alabama Crimson Tide,Alabama,#9e1b32,#ffffff,1
+ALCN,Alcorn State Braves,Alcorn State,#4b0058,#46166a,0
+ALST,Alabama State Hornets,Alabama State,#e9a900,#0a0a0a,0
+APP,App State Mountaineers,App State,#000000,#ffcd00,1
+APSU,Austin Peay Governors,Austin Peay,#8e0b0b,#888888,0
+ARIZ,Arizona Wildcats,Arizona,#cc0033,#003366,1
+ARK,Arkansas Razorbacks,Arkansas,#a32136,#ffffff,1
+ARMY,Army Black Knights,Army,#000000,#d3bc8d,1
+ARST,Arkansas State Red Wolves,Arkansas State,#cc092f,#000000,1
+ASU,Arizona State Sun Devils,Arizona State,#ffc627,#8c1d40,1
+AUB,Auburn Tigers,Auburn,#0c2340,#f26522,1
+BALL,Ball State Cardinals,Ball State,#ba0c2f,#ffffff,1
+BAY,Baylor Bears,Baylor,#154734,#ffb81c,1
+BC,Boston College Eagles,Boston College,#8c2232,#dbcca6,1
+BCU,Bethune-Cookman Wildcats,Bethune-Cookman,#7b1831,#e9aa12,0
+BGSU,Bowling Green Falcons,Bowling Green,#fd5000,#4f2c1d,1
+BOIS,Boise State Broncos,Boise State,#0033a0,#d64309,1
+BRWN,Brown Bears,Brown,#411e09,#949300,0
+BRY,Bryant Bulldogs,Bryant,#000000,#9f8343,0
+BTLR,Butler Bulldogs,Butler,#0d1361,#00a3e0,0
+BUCK,Bucknell Bison,Bucknell,#000060,#00316e,0
+BUF,Buffalo Bulls,Buffalo,#005bbb,#ffffff,1
+BYU,BYU Cougars,BYU,#003da5,#002e5d,1
+CAL,California Golden Bears,California,#041e42,#ffc72c,1
+CAM,Campbell Fighting Camels,Campbell,#000000,#888888,0
+CARK,Central Arkansas Bears,Central Arkansas,#a7a9ac,#8e959a,0
+CCSU,Central Connecticut Blue Devils,Central Connecticut,#1B49A2,#d1d5d8,0
+CCU,Coastal Carolina Chanticleers,Coastal Carolina,#006f71,#a27752,1
+CHIC,Chicago State Cougars,Chicago State,#555555,#888888,0
+CHSO,Charleston Southern Buccaneers,Charleston Southern,#2e3192,#ded090,0
+CIN,Cincinnati Bearcats,Cincinnati,#000000,#e00122,1
+CIT,The Citadel Bulldogs,The Citadel,#7badd3,#002856,0
+CLEM,Clemson Tigers,Clemson,#f56600,#522d80,1
+CLT,Charlotte 49ers,Charlotte,#005035,#a49665,1
+CMU,Central Michigan Chippewas,Central Michigan,#6a0032,#ffc82e,1
+COLG,Colgate Raiders,Colgate,#821019,#ffffff,0
+COLO,Colorado Buffaloes,Colorado,#cfb87c,#000000,1
+COLU,Columbia Lions,Columbia,#7ba4db,#183863,0
+CONN,UConn Huskies,UConn,#000e2f,#ffffff,1
+COR,Cornell Big Red,Cornell,#b31b1b,#ffffff,0
+CP,Cal Poly Mustangs,Cal Poly,#1E4D2B,#eed897,0
+CSU,Colorado State Rams,Colorado State,#1e4d2b,#c8c372,1
+DART,Dartmouth Big Green,Dartmouth,#005730,#000000,0
+DAV,Davidson Wildcats,Davidson,#000000,#e51837,0
+DAY,Dayton Flyers,Dayton,#004B8D,#ffffff,0
+DEL,Delaware Blue Hens,Delaware,#00539f,#ffd200,1
+DRKE,Drake Bulldogs,Drake,#005596,#bec0c2,0
+DSU,Delaware State Hornets,Delaware State,#009cdb,#d51c28,0
+DUKE,Duke Blue Devils,Duke,#00539b,#ffffff,1
+DUQ,Duquesne Dukes,Duquesne,#002D62,#b90b2e,0
+ECU,East Carolina Pirates,East Carolina,#592a8a,#fdc82f,1
+EIU,Eastern Illinois Panthers,Eastern Illinois,#000000,#bebab9,0
+EKU,Eastern Kentucky Colonels,Eastern Kentucky,#660819,#f0f0f0,0
+ELON,Elon Phoenix,Elon,#020303,#b59a57,0
+EMU,Eastern Michigan Eagles,Eastern Michigan,#046a38,#ffffff,1
+ETAM,East Texas A&M Lions,East Texas A&M,#000000,#888888,0
+ETSU,East Tennessee State Buccaneers,East Tennessee State,#002d61,#ffc423,0
+EWU,Eastern Washington Eagles,Eastern Washington,#a10022,#abb4bc,0
+FAMU,Florida A&M Rattlers,Florida A&M,#F89728,#00843d,0
+FAU,Florida Atlantic Owls,Florida Atlantic,#003366,#cc0000,1
+FIU,Florida International Panthers,Florida International,#091f3f,#c3993f,1
+FLA,Florida Gators,Florida,#0021a5,#fa4616,1
+FOR,Fordham Rams,Fordham,#830032,#909090,0
+FRES,Fresno State Bulldogs,Fresno State,#c41230,#13284c,1
+FSU,Florida State Seminoles,Florida State,#782f40,#ceb888,1
+FUR,Furman Paladins,Furman,#582c83,#ffffff,0
+GASO,Georgia Southern Eagles,Georgia Southern,#041e42,#ffffff,1
+GAST,Georgia State Panthers,Georgia State,#0039a6,#ffffff,1
+GRAM,Grambling Tigers,Grambling,#ee8601,#ffd10a,0
+GT,Georgia Tech Yellow Jackets,Georgia Tech,#b3a369,#ffffff,1
+GTWN,Georgetown Hoyas,Georgetown,#110E42,#001c58,0
+GWEB,Gardner-Webb Runnin' Bulldogs,Gardner-Webb,#c12535,#909090,0
+HAMP,Hampton Pirates,Hampton,#0067AC,#888888,0
+HARV,Harvard Crimson,Harvard,#990000,#dbdbdb,0
+HAW,Hawai'i Rainbow Warriors,Hawai'i,#024731,#000000,1
+HC,Holy Cross Crusaders,Holy Cross,#582c83,#ffffff,0
+HCU,Houston Christian Huskies,Houston Christian,#00539c,#888888,0
+HOU,Houston Cougars,Houston,#c8102e,#ffffff,1
+HOW,Howard Bison,Howard,#003a63,#e51937,0
+IDHO,Idaho Vandals,Idaho,#000000,#8c6e4a,0
+IDST,Idaho State Bengals,Idaho State,#ef8c00,#e9a126,0
+ILL,Illinois Fighting Illini,Illinois,#ff5f05,#13294b,1
+ILST,Illinois State Redbirds,Illinois State,#CE1126,#ffe716,0
+INST,Indiana State Sycamores,Indiana State,#00669a,#f0f0f0,0
+IOWA,Iowa Hawkeyes,Iowa,#000000,#ffcd00,1
+ISU,Iowa State Cyclones,Iowa State,#c8102e,#f1be48,1
+IU,Indiana Hoosiers,Indiana,#990000,#ffffff,1
+JKST,Jackson State Tigers,Jackson State,#123297,#b5b7ba,0
+JMU,James Madison Dukes,James Madison,#450084,#cbb677,1
+JXST,Jacksonville State Gamecocks,Jacksonville State,#cc0000,#000000,1
+KENN,Kennesaw State Owls,Kennesaw State,#fdbb30,#0b1315,1
+KENT,Kent State Golden Flashes,Kent State,#002664,#eaab00,1
+KSU,Kansas State Wildcats,Kansas State,#512888,#ffffff,1
+KU,Kansas Jayhawks,Kansas,#0051ba,#e8000d,1
+LAF,Lafayette Leopards,Lafayette,#790000,#a59474,0
+LAM,Lamar Cardinals,Lamar,#000000,#ebebeb,0
+LEH,Lehigh Mountain Hawks,Lehigh,#6c2b2a,#b69e70,0
+LIB,Liberty Flames,Liberty,#0a254e,#b72025,1
+LIN,Lindenwood Lions,Lindenwood,#000000,#888888,0
+LIU,Long Island University Sharks,Long Island University,#555555,#888888,0
+LOU,Louisville Cardinals,Louisville,#c9001f,#000000,1
+LSU,LSU Tigers,LSU,#461d7c,#fdd023,1
+LT,Louisiana Tech Bulldogs,Louisiana Tech,#003087,#cb333b,1
+M-OH,Miami (OH) RedHawks,Miami (OH),#c41230,#ffffff,1
+MASS,Massachusetts Minutemen,Massachusetts,#881c1c,#ffffff,1
+MCN,McNeese Cowboys,McNeese,#00529C,#888888,0
+MD,Maryland Terrapins,Maryland,#ce1126,#ffffff,1
+ME,Maine Black Bears,Maine,#127dbe,#888888,0
+MEM,Memphis Tigers,Memphis,#00498f,#9c9ea1,1
+MER,Mercer Bears,Mercer,#ff7f29,#080808,0
+MERC,Mercyhurst Lakers,Mercyhurst,#000000,#888888,0
+MIA,Miami Hurricanes,Miami,#f47321,#005030,1
+MICH,Michigan Wolverines,Michigan,#00274c,#ffcb05,1
+MINN,Minnesota Golden Gophers,Minnesota,#7a0019,#ffcc33,1
+MISS,Ole Miss Rebels,Ole Miss,#13294b,#cf142b,1
+MIZ,Missouri Tigers,Missouri,#f1b82d,#000000,1
+MONM,Monmouth Hawks,Monmouth,#051844,#888888,0
+MONT,Montana Grizzlies,Montana,#751D4A,#666666,0
+MORE,Morehead State Eagles,Morehead State,#094FA3,#fed91a,0
+MORG,Morgan State Bears,Morgan State,#014786,#f47937,0
+MOST,Missouri State Bears,Missouri State,#5e0009,#ffffff,1
+MRMK,Merrimack Warriors,Merrimack,#000000,#888888,0
+MRSH,Marshall Thundering Herd,Marshall,#00b140,#000000,1
+MRST,Marist Red Foxes,Marist,#e53730,#f0f0f0,0
+MSST,Mississippi State Bulldogs,Mississippi State,#5d1725,#c1c6c8,1
+MSU,Michigan State Spartans,Michigan State,#173f35,#ffffff,1
+MTST,Montana State Bobcats,Montana State,#00205c,#bc955c,0
+MTSU,Middle Tennessee Blue Raiders,Middle Tennessee,#036eb7,#ffffff,1
+MUR,Murray State Racers,Murray State,#002148,#000e00,0
+MVSU,Mississippi Valley State Delta Devils,Mississippi Valley State,#005328,#cf2d34,0
+NAU,Northern Arizona Lumberjacks,Northern Arizona,#003976,#1b3069,0
+NAVY,Navy Midshipmen,Navy,#00225b,#b5a67c,1
+NCAT,North Carolina A&T Aggies,North Carolina A&T,#0505aa,#004684,0
+NCCU,North Carolina Central Eagles,North Carolina Central,#880023,#c2c3c0,0
+NCSU,NC State Wolfpack,NC State,#cc0000,#ffffff,1
+ND,Notre Dame Fighting Irish,Notre Dame,#0c2340,#c99700,1
+NDSU,North Dakota State Bison,North Dakota State,#00583d,#ffc425,1
+NEB,Nebraska Cornhuskers,Nebraska,#d00000,#ffffff,1
+NEV,Nevada Wolf Pack,Nevada,#041e42,#8a8d8f,1
+NHVN,New Haven Chargers,New Haven,#041e42,#ffc425,0
+NICH,Nicholls Colonels,Nicholls,#C41230,#f0f0f0,0
+NIU,Northern Illinois Huskies,Northern Illinois,#c8102e,#000000,1
+NMSU,New Mexico State Aggies,New Mexico State,#8c0b42,#ffffff,1
+NORF,Norfolk State Spartans,Norfolk State,#0c8968,#fdb813,0
+NU,Northwestern Wildcats,Northwestern,#582c83,#ffffff,1
+NWST,Northwestern State Demons,Northwestern State,#492F91,#ed6118,0
+ODU,Old Dominion Monarchs,Old Dominion,#043657,#98c5ea,1
+OHIO,Ohio Bobcats,Ohio,#024230,#ffffff,1
+OKST,Oklahoma State Cowboys,Oklahoma State,#fe5c00,#000000,1
+ORE,Oregon Ducks,Oregon,#007030,#fee11a,1
+ORST,Oregon State Beavers,Oregon State,#dc4405,#000000,1
+OSU,Ohio State Buckeyes,Ohio State,#ba0c2f,#a7b1b7,1
+OU,Oklahoma Sooners,Oklahoma,#841617,#ffffff,1
+PENN,Pennsylvania Quakers,Pennsylvania,#082A74,#a6163d,0
+PITT,Pittsburgh Panthers,Pittsburgh,#003594,#ffb81c,1
+PRES,Presbyterian Blue Hose,Presbyterian,#194896,#990134,0
+PRIN,Princeton Tigers,Princeton,#000000,#ff6000,0
+PRST,Portland State Vikings,Portland State,#00311e,#ebebeb,0
+PSU,Penn State Nittany Lions,Penn State,#001e44,#ffffff,1
+PUR,Purdue Boilermakers,Purdue,#ceb888,#000000,1
+PV,Prairie View A&M Panthers,Prairie View A&M,#582c83,#eaaa00,0
+RGV,UT Rio Grande Valley Vaqueros,UT Rio Grande Valley,#555555,#888888,0
+RICE,Rice Owls,Rice,#00205b,#c1c6c8,1
+RICH,Richmond Spiders,Richmond,#9e0712,#b90b2e,0
+RMU,Robert Morris Colonials,Robert Morris,#00214D,#a21d2b,0
+RUTG,Rutgers Scarlet Knights,Rutgers,#ce0e2d,#ffffff,1
+SAC,Sacramento State Hornets,Sacramento State,#00573c,#cdb97d,1
+SAM,Samford Bulldogs,Samford,#005485,#bc0023,0
+SC,South Carolina Gamecocks,South Carolina,#73000a,#000000,1
+SCST,South Carolina State Bulldogs,South Carolina State,#7d1315,#104897,0
+SDAK,South Dakota Coyotes,South Dakota,#CD1241,#f0f0f0,0
+SDST,South Dakota State Jackrabbits,South Dakota State,#0033a0,#ffd100,0
+SDSU,San Diego State Aztecs,San Diego State,#a6192e,#000000,1
+SELA,SE Louisiana Lions,SE Louisiana,#215732,#ffc72c,0
+SEMO,Southeast Missouri State Redhawks,Southeast Missouri State,#c8102e,#000000,0
+SFA,Stephen F. Austin Lumberjacks,Stephen F. Austin,#393996,#bec0c2,0
+SHSU,Sam Houston Bearkats,Sam Houston,#f56423,#ffffff,1
+SHU,Sacred Heart Pioneers,Sacred Heart,#a40012,#c29472,0
+SIU,Southern Illinois Salukis,Southern Illinois,#85283D,#c2c3c0,0
+SJSU,San José State Spartans,San José State,#0055a2,#e5a823,1
+SMU,SMU Mustangs,SMU,#d70000,#0033a1,1
+SOU,Southern Jaguars,Southern,#004B97,#ffc82d,0
+STAN,Stanford Cardinal,Stanford,#8c1515,#ffffff,1
+STBK,Stony Brook Seawolves,Stony Brook,#990000,#888888,0
+STET,Stetson Hatters,Stetson,#0a5640,#56854e,0
+STMN,St. Thomas (MN) Tommies,St. Thomas (MN),#000000,#888888,0
+STO,Stonehill Skyhawks,Stonehill,#000000,#888888,0
+SUU,Southern Utah Thunderbirds,Southern Utah,#c72026,#000000,0
+SYR,Syracuse Orange,Syracuse,#f76900,#000e54,1
+TA&M,Texas A&M Aggies,Texas A&M,#500000,#ffffff,1
+TAR,Tarleton State Texans,Tarleton State,#000000,#888888,0
+TCU,TCU Horned Frogs,TCU,#4d1979,#ffffff,1
+TEM,Temple Owls,Temple,#a41e35,#ffffff,1
+TENN,Tennessee Volunteers,Tennessee,#ff8200,#ffffff,1
+TEX,Texas Longhorns,Texas,#bf5700,#ffffff,1
+TLSA,Tulsa Golden Hurricane,Tulsa,#003595,#d0b787,1
+TNST,Tennessee State Tigers,Tennessee State,#171796,#f0f0f0,0
+TNTC,Tennessee Tech Golden Eagles,Tennessee Tech,#5A4099,#ffde00,0
+TOL,Toledo Rockets,Toledo,#0b2240,#ffcd00,1
+TOW,Towson Tigers,Towson,#FFC229,#888888,0
+TROY,Troy Trojans,Troy,#862633,#b1b1b1,1
+TTU,Texas Tech Red Raiders,Texas Tech,#c30020,#000000,1
+TULN,Tulane Green Wave,Tulane,#006747,#418fde,1
+TXSO,Texas Southern Tigers,Texas Southern,#860038,#ffffff,0
+TXST,Texas State Bobcats,Texas State,#501214,#6a5638,1
+UAB,UAB Blazers,UAB,#1a5632,#fdb913,1
+UALB,UAlbany Great Danes,UAlbany,#3D2777,#ffffff,0
+UAPB,Arkansas-Pine Bluff Golden Lions,Arkansas-Pine Bluff,#e0aa0f,#eaaa00,0
+UCD,UC Davis Aggies,UC Davis,#002855,#c3c4c6,0
+UCF,UCF Knights,UCF,#000000,#b4a169,1
+UCLA,UCLA Bruins,UCLA,#2774ae,#f2a900,1
+UGA,Georgia Bulldogs,Georgia,#ba0c2f,#2c2a29,1
+UIW,Incarnate Word Cardinals,Incarnate Word,#000000,#080808,0
+UK,Kentucky Wildcats,Kentucky,#0033a0,#ffffff,1
+UL,Louisiana Ragin' Cajuns,Louisiana,#ce181e,#000000,1
+ULM,UL Monroe Warhawks,UL Monroe,#840029,#fdb913,1
+UNA,North Alabama Lions,North Alabama,#000000,#888888,0
+UNC,North Carolina Tar Heels,North Carolina,#7bafd4,#13294b,1
+UNCO,Northern Colorado Bears,Northern Colorado,#13558D,#ffc533,0
+UND,North Dakota Fighting Hawks,North Dakota,#00A26B,#c2c3c0,0
+UNH,New Hampshire Wildcats,New Hampshire,#004990,#c3c4c6,0
+UNI,Northern Iowa Panthers,Northern Iowa,#473282,#ffffff,0
+UNLV,UNLV Rebels,UNLV,#cf0a2c,#cac8c8,1
+UNM,New Mexico Lobos,New Mexico,#ba0c2f,#a7a8aa,1
+UNT,North Texas Mean Green,North Texas,#00853e,#ffffff,1
+URI,Rhode Island Rams,Rhode Island,#091f3f,#5ab3e8,0
+USA,South Alabama Jaguars,South Alabama,#00205b,#bf0d3e,1
+USC,USC Trojans,USC,#990000,#ffcc00,1
+USD,San Diego Toreros,San Diego,#2f99d4,#2f99d4,0
+USF,South Florida Bulls,South Florida,#006747,#cfc493,1
+USM,Southern Miss Golden Eagles,Southern Miss,#ffc72c,#231f20,1
+USU,Utah State Aggies,Utah State,#0f2439,#ffffff,1
+UTAH,Utah Utes,Utah,#be0000,#ffffff,1
+UTC,Chattanooga Mocs,Chattanooga,#00386b,#dca71d,0
+UTEP,UTEP Miners,UTEP,#ff8200,#041e42,1
+UTM,UT Martin Skyhawks,UT Martin,#FF6700,#102a5c,0
+UTSA,UTSA Roadrunners,UTSA,#0c2340,#f15a22,1
+UTU,Utah Tech Trailblazers,Utah Tech,#000000,#888888,0
+UVA,Virginia Cavaliers,Virginia,#232d4b,#f84c1e,1
+VAL,Valparaiso Beacons,Valparaiso,#794500,#888888,0
+VAN,Vanderbilt Commodores,Vanderbilt,#000000,#cfae70,1
+VILL,Villanova Wildcats,Villanova,#00205b,#13b5ea,0
+VMI,VMI Keydets,VMI,#ae122a,#ffd619,0
+VT,Virginia Tech Hokies,Virginia Tech,#861f41,#e87722,1
+W&M,William & Mary Tribe,William & Mary,#115740,#f0b323,0
+WAG,Wagner Seahawks,Wagner,#00483A,#ffffff,0
+WAKE,Wake Forest Demon Deacons,Wake Forest,#ceb888,#2c2a29,1
+WASH,Washington Huskies,Washington,#33006f,#e8d3a2,1
+WCU,Western Carolina Catamounts,Western Carolina,#492F91,#bf9e70,0
+WEB,Weber State Wildcats,Weber State,#18005a,#ebebeb,0
+WFL,West Florida Argonauts,West Florida,#555555,#888888,0
+WGA,West Georgia Wolves,West Georgia,#0033a1,#db1a21,0
+WIS,Wisconsin Badgers,Wisconsin,#a00000,#ffffff,1
+WIU,Western Illinois Leathernecks,Western Illinois,#4e1e8a,#ffc90a,0
+WKU,Western Kentucky Hilltoppers,Western Kentucky,#c60c30,#ffffff,1
+WMU,Western Michigan Broncos,Western Michigan,#532e1f,#f1c500,1
+WOF,Wofford Terriers,Wofford,#533B23,#f0f0f0,0
+WSU,Washington State Cougars,Washington State,#a60f2d,#4d4d4d,1
+WVU,West Virginia Mountaineers,West Virginia,#eaaa00,#002855,1
+WYO,Wyoming Cowboys,Wyoming,#492f24,#ffc425,1
+YALE,Yale Bulldogs,Yale,#004a81,#286dc0,0
+YSU,Youngstown State Penguins,Youngstown State,#E51936,#690717,0
