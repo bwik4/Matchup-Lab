@@ -1,0 +1,11 @@
+name: probe
+on: push
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for id in 401856600 401829178; do
+            echo "== core $id"; curl -s "https://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball/events/$id/competitions/$id/odds" | head -c 1500; echo
+            echo "== summary $id"; curl -s "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/summary?event=$id" | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d.get('pickcenter'))[:1500]); print(json.dumps(d.get('odds'))[:300])"
+          done
