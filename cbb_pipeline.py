@@ -30,6 +30,7 @@ import json
 import os
 import re
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from zoneinfo import ZoneInfo
 
 import numpy as np
@@ -43,10 +44,11 @@ STATS = {"points": "pts", "rebounds": "reb", "assists": "ast", "three_point_fiel
 COMBOS = {"pra": ["pts", "reb", "ast"], "pr": ["pts", "reb"], "pa": ["pts", "ast"], "ra": ["reb", "ast"], "sb": ["stl", "blk"]}
 PROP_STATS = ["pts", "reb", "ast", "fg3m", "pra", "pr", "pa", "ra", "sb"]
 POS_MAP = {"G": "G", "PG": "G", "SG": "G", "F": "F", "SF": "F", "PF": "F", "C": "C"}
-LINE_COLS = ["spread_line", "total_line", "away_moneyline", "home_moneyline", "away_spread_odds", "home_spread_odds", "over_odds", "under_odds"]
+LINE_COLS = ["spread_line", "total_line", "away_moneyline", "home_moneyline", "away_spread_odds", "home_spread_odds", "over_odds", "under_odds", "open_total"]
 HCA = 1.4        # home-court edge, points per 100 possessions on each side of the ball
 PRIOR_GAMES = 5  # early in the season, ratings lean on last season as if it were this many games
 MAX_LINE_DAYS = 200  # most scoreboard days to pull per run when backfilling old lines
+MAX_CORE_GAMES = 3000  # most finished games to look up one by one per run (ESPN's scoreboard drops lines once a game is over)
 
 
 def load(kind, name):
@@ -210,6 +212,38 @@ def espn_day(day):
     return out
 
 
+def core_odds(gid):
+    """Closing line for one game from ESPN's odds feed, which keeps lines after the game is over."""
+    url = (f"https://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball/events/{gid}/competitions/{gid}/odds")
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=20) as r:
+            items = json.loads(r.read().decode()).get("items") or []
+    except Exception:
+        return gid, None
+    items = sorted(items, key=lambda x: (x.get("provider") or {}).get("priority", 99))
+    for it in items:
+        row = {}
+        try:
+            if it.get("spread") is not None:
+                row["spread_line"] = -float(it["spread"])
+            if it.get("overUnder") is not None:
+                row["total_line"] = float(it["overUnder"])
+        except (TypeError, ValueError):
+            pass
+        for side in ("home", "away"):
+            t = it.get(f"{side}TeamOdds") or {}
+            row[f"{side}_moneyline"], row[f"{side}_spread_odds"] = american(t.get("moneyLine")), american(t.get("spreadOdds"))
+        row["over_odds"], row["under_odds"] = american(it.get("overOdds")), american(it.get("underOdds"))
+        try:  # opening total, when the feed has it ("o146.5")
+            ot = ((it.get("open") or {}).get("total") or {}).get("alternateDisplayValue")
+            row["open_total"] = float(str(ot).lstrip("ouOU")) if ot not in (None, "") else None
+        except ValueError:
+            pass
+        if row.get("total_line") is not None or row.get("spread_line") is not None:
+            return gid, row
+    return gid, {}
+
+
 def update_lines(out, all_games):
     """Keep a running file of lines. Upcoming days are refreshed every run (lines move until tip),
     finished days are pulled once (closing line), and older days are backfilled a batch at a time."""
@@ -229,6 +263,25 @@ def update_lines(out, all_games):
         found.update(got)
         if d < today - dt.timedelta(days=1):
             done.add(d.isoformat())
+    # finished games: ask ESPN's odds feed for the closing line game by game (newest first, a batch per run)
+    tried_path = f"{out}/lines_tried.txt"
+    tried = set(open(tried_path).read().split()) if os.path.exists(tried_path) else set()
+    # (also finished games whose line was saved before tip, to swap in the closing line)
+    todo = all_games.loc[(all_games["status"] == "final") & ~all_games["game_id"].isin(tried)]
+    todo = todo.sort_values("gameday", ascending=False)["game_id"].tolist()[:MAX_CORE_GAMES]
+    n_core = 0
+    if todo:
+        with ThreadPoolExecutor(max_workers=12) as ex:
+            for gid, row in ex.map(core_odds, todo):
+                if row is None:
+                    continue  # network trouble: try again next run
+                tried.add(gid)
+                if row:
+                    found[gid] = row
+                    n_core += 1
+        with open(tried_path, "w") as f:
+            f.write("\n".join(sorted(tried)) + "\n")
+    print(f"cbb: looked up {len(todo)} finished games one by one, {n_core} had lines")
     if found:
         new = pd.DataFrame.from_dict(found, orient="index").rename_axis("game_id").reset_index()
         lines = pd.concat([lines[~lines["game_id"].isin(new["game_id"])], new], ignore_index=True)
