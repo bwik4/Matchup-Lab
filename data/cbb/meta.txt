@@ -5,4 +5,4 @@ d1_teams=366
 dvp_season=2026
 lg_eff=104.65
 lg_tempo=71.12
-built_at=2026-11-03T19:17:49+00:00
+built_at=2026-11-03T19:22:45+00:00
