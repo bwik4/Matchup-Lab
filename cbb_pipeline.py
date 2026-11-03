@@ -388,7 +388,23 @@ def blended(cur, prev, lg_cur, lg_prev, d1):
     return base[["team", "games", "adj_o", "adj_d", "adj_t", "adj_em"]], lg
 
 
-def project(games, R, lg):
+def calibration(tg, R, lg):
+    """How far the model's totals ran from the real totals over a full season (projected with that season's
+    own ratings). Added back to every projection so the model isn't systematically high or low."""
+    if R.empty:
+        return 0.0
+    r = R.set_index("team")
+    h = tg[(tg["site"] != "A") & tg["team"].isin(r.index) & tg["opp"].isin(r.index)].drop_duplicates("game_id")
+    if h.empty:
+        return 0.0
+    loc = np.where(h["site"] == "N", 0, 1)
+    T = h["team"].map(r["adj_t"]) + h["opp"].map(r["adj_t"]) - lg["tempo"]
+    pt = (h["team"].map(r["adj_o"]) + h["opp"].map(r["adj_d"]) - lg["eff"] + HCA * loc) * T / 100
+    po = (h["opp"].map(r["adj_o"]) + h["team"].map(r["adj_d"]) - lg["eff"] - HCA * loc) * T / 100
+    return float((h["total"] - pt - po).mean())
+
+
+def project(games, R, lg, adj=0.0):
     """Projected score for each game not played yet: tempo = both teams' adjusted tempos combined,
     points = offense rating vs the other side's defense rating, scaled to that tempo, with home court."""
     r = R.set_index("team")
@@ -401,6 +417,7 @@ def project(games, R, lg):
     T = a.map(r["adj_t"]).values + h.map(r["adj_t"]).values - lg["tempo"]
     ph = (h.map(r["adj_o"]).values + a.map(r["adj_d"]).values - lg["eff"] + HCA * loc) * T / 100
     pa = (a.map(r["adj_o"]).values + h.map(r["adj_d"]).values - lg["eff"] - HCA * loc) * T / 100
+    pa, ph = pa + adj / 2, ph + adj / 2
     g.loc[m, "proj_tempo"], g.loc[m, "proj_away"], g.loc[m, "proj_home"] = T.round(1), pa.round(1), ph.round(1)
     g.loc[m, "proj_total"] = (pa + ph).round(1)
     return g
@@ -462,7 +479,8 @@ def build(season, out):
     for c, asc in (("adj_o", False), ("adj_d", True), ("adj_t", False), ("adj_em", False)):
         R[f"{c}_rk"] = R[c].rank(method="min", ascending=asc).astype(int)
     R.round(2).to_csv(f"{out}/ratings.csv", index=False)
-    games = project(games, R, lg)
+    calib = calibration(tg_prev, r_prev, lg_prev) if not r_prev.empty else 0.0
+    games = project(games, R, lg, calib)
     # keep the pre-game projection for games that have finished since the last run (the model's track record)
     old_path = f"{out}/games.csv"
     if os.path.exists(old_path):
@@ -508,7 +526,7 @@ def build(season, out):
     thru = games.loc[games["status"] == "final", "gameday"].max() if (games["status"] == "final").any() else ""
     with open(f"{out}/meta.txt", "w") as f:
         f.write(f"season={season}\nseason_label={season - 1}-{str(season)[2:]}\nthrough_date={thru}\nd1_teams={len(d1)}\n"
-                f"dvp_season={dv_season}\nlg_eff={lg['eff']:.2f}\nlg_tempo={lg['tempo']:.2f}\n"
+                f"dvp_season={dv_season}\ncalibration={calib:.2f}\nlg_eff={lg['eff']:.2f}\nlg_tempo={lg['tempo']:.2f}\n"
                 f"built_at={dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds')}\n")
     n_lines = int(tg["total_line"].notna().sum() // 2)
     print(f"cbb: {len(logs)} player games, {len(games)} games this season, {len(tg) // 2} team games in the totals file "
