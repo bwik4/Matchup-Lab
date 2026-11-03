@@ -65,3 +65,15 @@ Use the NFL / NBA buttons at the top of Home or Trends. `nba_pipeline.py` builds
 ## College football
 
 Pick CFB with the buttons at the top of Home or Trends. `cfb_pipeline.py` builds `data/cfb/` every morning from SportsDataverse's free ESPN college football data: QB/RB/WR/TE game logs (this season, plus last season for returning players), the FBS schedule with AP ranks, records and lines (closing lines for finished games, ESPN's scoreboard for upcoming ones), defense vs position ranks for every FBS defense, and team colors. CFB Trends uses estimated lines, like NBA.
+
+## College basketball
+
+Pick CBB with the buttons at the top of Home, Totals or Trends. `cbb_pipeline.py` builds `data/cbb/` every morning from SportsDataverse's free hoopR men's college basketball data (ESPN box scores and schedule) plus lines from ESPN's scoreboard. There's no fantasy section for CBB.
+
+- **Home**: each day's games with spread, moneyline, total and the model's projected total. Tap a game for **Odds**, **Totals**, **Matchup**, **Players** and **Game lines** (ATS and over/under history).
+- **Totals**: the over/under board for a day (posted total vs the model's projection, pace, each team's O/U record and average game total), the model's track record, and a sortable over/under profile for every D1 team (home / away / neutral, conference / non-conference, last 5 / 10, 1st and 2nd half totals, pace, tempo / offense / defense ranks).
+- **Trends**: player prop hit rates (points, rebounds, assists, threes and combos), same as NBA.
+
+The projected total works like KenPom: each team gets a tempo (possessions per 40 minutes) and points per 100 possessions on offense and defense, adjusted for opponent and home court; early in the season it leans on last season. Projections are saved each morning so finished games can be graded.
+
+Files: `totals.csv` (one row per team per game, this season and last: final total, closing total, O/U result and margin, halves, OT, possessions, efficiency, shooting volume), `games.csv` (schedule, lines, projections), `ratings.csv` (team ratings), `lines.csv` (every line pulled so far; the first few runs backfill last season's closing lines), `logs.csv`, `dvp.csv`, `teams.csv`.
