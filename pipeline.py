@@ -42,6 +42,10 @@ import pandas as pd
 
 BASE = "https://github.com/nflverse/nflverse-data/releases/download"
 POSITIONS = ["QB", "RB", "WR", "TE"]
+# two-way players listed at a defensive spot in nflverse's stats, mapped to their offensive position
+TWO_WAY = {
+    "00-0040718": "WR",  # Travis Hunter (JAX, WR/CB)
+}
 
 BOX = [
     "completions", "attempts", "passing_yards", "passing_tds", "passing_interceptions", "sacks_suffered",
@@ -61,6 +65,8 @@ def load_week_stats(season):
     df = pd.read_csv(f"{BASE}/stats_player/stats_player_week_{season}.csv", low_memory=False)
     df = df[df["season_type"] == "REG"].copy()
     df["position"] = df["position"].replace({"FB": "RB"})
+    # two-way players nflverse files under their defensive position: count their offense
+    df.loc[df["player_id"].isin(TWO_WAY), "position"] = df["player_id"].map(TWO_WAY)
     df[BOX + EXTRA] = df[BOX + EXTRA].fillna(0)
     df["fp_std"] = df["fantasy_points"].fillna(0)
     df["fp_ppr"] = df["fantasy_points_ppr"].fillna(0)
