@@ -91,6 +91,20 @@
   table.dvp th:first-child { position: sticky; left: 0; z-index: 2; }
   table.dvp td.rk { min-width: 2.6rem; text-align: center; }
   table.dvp th.rkh { text-align: center; }
+  td.xres { cursor: pointer; color: var(--accent); font-weight: 600; white-space: nowrap; }
+  td.xres::after { content: ' ▸'; font-size: .8em; }
+  td.xres.open::after { content: ' ▾'; }
+  td.xres:hover { text-decoration: underline; }
+  tr.box-row > td { padding: 12px 10px 16px !important; background: color-mix(in srgb, var(--fg) 3%, var(--panel)) !important; text-align: left; white-space: normal; }
+  .box-teams { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px 22px; }
+  .box-teams h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: .92rem; }
+  .box-row h5 { margin: 10px 0 2px; font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  table.box { width: 100%; font-size: .8rem; border-collapse: collapse; }
+  table.box th, table.box td { padding: 3px 6px !important; text-align: right; border-bottom: 1px solid color-mix(in srgb, var(--fg) 10%, transparent); background: none !important; box-shadow: none !important; position: static !important; font-weight: 400; }
+  table.box th { color: var(--muted); font-weight: 600; }
+  table.box th:first-child, table.box td:first-child { text-align: left; }
+  table.box tr.tot td { font-weight: 700; }
+  .box-note { font-size: .76rem; color: var(--muted); margin: 10px 0 0; }
   sup.skew { color: var(--c2); font-weight: 800; font-size: .8em; margin-left: 1px; cursor: help; }
   details.skew-notes { margin-top: 8px; font-size: .82rem; color: var(--muted); }
   details.skew-notes summary { cursor: pointer; font-weight: 600; color: var(--fg); }
@@ -445,7 +459,7 @@
           <h2>How each team has done against the lines</h2>
           <div class="seg gl-seas" role="group" aria-label="Seasons"><button data-v="cur">This season</button><button data-v="both">This + last</button></div>
         </div>
-        <p class="note">Against the closing spread and total. Spread is from that team's side (−3.5 = favored by 3.5). "Covered by" and "Over by" are how far the result landed from the line.</p>
+        <p class="note">Against the closing spread and total. Spread is from that team's side (−3.5 = favored by 3.5). "Covered by" and "Over by" are how far the result landed from the line. Tap a result to open that game's box score.</p>
         <div class="grid gl-body"></div>
       </div>
       <div class="card">
@@ -810,7 +824,7 @@
 
     <div class="card xg-panel" data-xg="lines" hidden>
       <h2>Against the spread</h2>
-      <p class="note">Every finished game this season with its closing line. Cover margin = how many points the team beat (+) or missed (−) the spread by.</p>
+      <p class="note">Every finished game this season with its closing line. Cover margin = how many points the team beat (+) or missed (−) the spread by. Tap a result to open that game's box score.</p>
       <div class="xg-lines"></div>
     </div>
   </section>
@@ -980,6 +994,7 @@ function table(el, name, cols, data, opts = {}) {
     const row = document.createElement('tr');
     if (opts.onClick) { row.className = 'click'; row.addEventListener('click', () => opts.onClick(r)); }
     if (opts.selected && opts.selected(r)) row.classList.add('sel');
+    const bx = opts.expand && opts.expand.key(r) != null ? `${name}|${opts.expand.key(r)}` : null;
     cols.forEach((c) => {
       const td = document.createElement('td');
       const v = r[c.f];
@@ -987,13 +1002,90 @@ function table(el, name, cols, data, opts = {}) {
       const note = c.mark ? c.mark(r) : null;
       if (note) { td.append(h('sup', { class: 'skew', title: note }, '*')); td.title = note; }
       td.className = [c.l ? 'l' : '', c.group ? 'grp' : '', c.rank ? (c.rank === 'nba' ? (v == null ? 'rk' : v <= 8 ? 'rk rk-r' : v >= 23 ? 'rk rk-g' : 'rk') : c.rank === 'opp' ? rankClsOpp(v) : rankCls(v)) : '', c.cls ? c.cls(v, r) : ''].join(' ').trim();
+      if (bx && c.f === opts.expand.f) {
+        td.classList.add('xres'); if (S.boxOpen.has(bx)) td.classList.add('open');
+        td.title = 'Show the box score'; td.tabIndex = 0; td.setAttribute('role', 'button');
+        const tog = (e) => { e.stopPropagation(); if (S.boxOpen.has(bx)) S.boxOpen.delete(bx); else S.boxOpen.add(bx); render(); };
+        td.addEventListener('click', tog); td.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tog(e); } });
+      }
       row.appendChild(td);
     });
     frag.appendChild(row);
+    if (bx && S.boxOpen.has(bx)) {
+      let body; try { body = opts.expand.render(r); } catch (err) { console.error(err); body = 'Box score unavailable.'; }
+      frag.appendChild(h('tr', { class: 'box-row' }, h('td', { colspan: cols.length }, body)));
+    }
   });
   el.tBodies[0].replaceChildren(frag);
 }
 
+
+
+// ===================== box scores (click a result) =====================
+S.boxOpen = new Set();
+const bxT = (head, rows, tot) => h('table', { class: 'box' }, h('thead', null, h('tr', null, ...head.map((x) => h('th', null, x)))),
+  h('tbody', null, ...rows.map((r) => h('tr', null, ...r.map((x) => h('td', null, x)))), tot ? h('tr', { class: 'tot' }, ...tot.map((x) => h('td', null, x))) : null));
+const bxSum = (rs, k) => rs.reduce((a, r) => a + (r[k] || 0), 0);
+const bxHead = (t, score) => h('h4', null, badge(t, 'sm'), `${TI(t).nick || t}${score != null ? ` ${score}` : ''}`);
+// football: passing / rushing / receiving for each side (skill players only, from the logs)
+function boxFootball(teams, rs, scores, extra) {
+  const side = (t) => {
+    const p = rs.filter((r) => r.team === t && String(r.player || '').trim() !== 'Team' && !(Number(r.player_id) < 0)), out = [bxHead(t, scores[t])];
+    const sk = p.some((r) => r.sacks_suffered != null), lc = p.some((r) => r.long_completion != null);
+    const pass = p.filter((r) => r.attempts > 0).sort((a, b) => b.attempts - a.attempts);
+    if (pass.length) out.push(h('h5', null, 'Passing'), bxT(['', 'C/ATT', 'YDS', 'TD', 'INT', ...(sk ? ['SCK'] : []), ...(lc ? ['LNG'] : [])],
+      pass.map((r) => [r.player, `${r.completions}/${r.attempts}`, r.passing_yards, r.passing_tds, r.passing_interceptions, ...(sk ? [r.sacks_suffered ?? 0] : []), ...(lc ? [show(r.long_completion)] : [])])));
+    const rush = p.filter((r) => r.carries > 0).sort((a, b) => b.rushing_yards - a.rushing_yards);
+    if (rush.length) out.push(h('h5', null, 'Rushing'), bxT(['', 'CAR', 'YDS', 'AVG', 'TD', 'LNG'],
+      rush.map((r) => [r.player, r.carries, r.rushing_yards, show(r.rushing_yards / r.carries), r.rushing_tds, show(r.long_rush)]),
+      ['Total', bxSum(rush, 'carries'), bxSum(rush, 'rushing_yards'), show(bxSum(rush, 'rushing_yards') / Math.max(1, bxSum(rush, 'carries'))), bxSum(rush, 'rushing_tds'), '']));
+    const tg = p.some((r) => r.targets != null);
+    const rec = p.filter((r) => r.receptions > 0 || r.targets > 0).sort((a, b) => b.receiving_yards - a.receiving_yards);
+    if (rec.length) out.push(h('h5', null, 'Receiving'), bxT(['', 'REC', ...(tg ? ['TGT'] : []), 'YDS', 'TD', 'LNG'],
+      rec.map((r) => [r.player, r.receptions, ...(tg ? [r.targets ?? '—'] : []), r.receiving_yards, r.receiving_tds, show(r.long_reception)]),
+      ['Total', bxSum(rec, 'receptions'), ...(tg ? [bxSum(rec, 'targets')] : []), bxSum(rec, 'receiving_yards'), bxSum(rec, 'receiving_tds'), '']));
+    if (out.length === 1) out.push(h('p', { class: 'empty' }, 'No player stats for this game.'));
+    return h('div', null, ...out);
+  };
+  return h('div', null, extra || null, h('div', { class: 'box-teams' }, ...teams.map(side)),
+    h('p', { class: 'box-note' }, 'QBs, RBs, WRs and TEs only (defense and kicking stats aren\'t in the data).'));
+}
+// basketball: every player who logged minutes, starters first
+function boxBasketball(teams, rs, scores) {
+  const K = ['min', 'pts', 'reb', 'ast', 'fg3m', 'stl', 'blk', 'tov'];
+  const side = (t) => {
+    const p = rs.filter((r) => r.team === t && r.min > 0).sort((a, b) => (b.starter || 0) - (a.starter || 0) || b.min - a.min);
+    if (!p.length) return h('div', null, bxHead(t, scores[t]), h('p', { class: 'empty' }, 'No player stats for this game.'));
+    return h('div', null, bxHead(t, scores[t]), bxT(['', 'MIN', 'PTS', 'REB', 'AST', '3PM', 'STL', 'BLK', 'TO'],
+      p.map((r) => [r.starter ? h('b', null, r.player) : r.player, ...K.map((k) => r[k] ?? '—')]), ['Total', ...K.map((k) => (k === 'min' ? '' : bxSum(p, k)))]));
+  };
+  return h('div', null, h('div', { class: 'box-teams' }, ...teams.map(side)), h('p', { class: 'box-note' }, 'Starters in bold.'));
+}
+// NBA / CFB / CBB: one game by its id, from that sport's player logs
+function boxById(sp, gid, teams, scores) {
+  const X = SPX[sp]();
+  if (!X.boxIdx) { X.boxIdx = new Map(); X.logs.forEach((r) => { const k = String(r.game_id); if (!X.boxIdx.has(k)) X.boxIdx.set(k, []); X.boxIdx.get(k).push(r); }); }
+  const rs = X.boxIdx.get(String(gid)) || [];
+  return isBB(sp) ? boxBasketball(teams, rs, scores) : boxFootball(teams, rs, scores);
+}
+// NFL: logs have no game id, so match on season + week + the two teams; add the team stat line from team_games
+function boxNFL(season, week, team, opp) {
+  const rs = DATA.logs.filter((r) => r.season === season && r.week === week && ((r.team === team && r.opp === opp) || (r.team === opp && r.opp === team)));
+  const tg = (t) => DATA.team_games.find((x) => x.season === season && x.week === week && x.team === t);
+  const A = tg(team), B = tg(opp), scores = { [team]: A ? A.pf : null, [opp]: A ? A.pa : null };
+  let extra = null;
+  if (A && B) {
+    const f = (v, d = 0) => (v == null ? '—' : d ? (Math.round(v * 10 ** d) / 10 ** d).toFixed(d) : show(v));
+    const third = (x) => (x.off_third_conv == null ? '—' : `${x.off_third_conv}/${x.off_third_conv + x.off_third_fail}`);
+    const rz = (x) => (x.off_rz_drives == null ? '—' : `${x.off_rz_tds}/${x.off_rz_drives}`);
+    const L = [['Total yards', (x) => f(x.off_total_yds)], ['Pass yards (net)', (x) => f(x.off_pass_yds)], ['Rush yards', (x) => f(x.off_rush_yds)],
+      ['Plays', (x) => f(x.off_plays)], ['Yards per play', (x) => f(x.off_yds_n ? x.off_yds / x.off_yds_n : null, 1)], ['3rd down', third], ['Red zone TDs', rz],
+      ['Turnovers', (x) => f(x.giveaways)], ['Sacks taken', (x) => f(x.sacks_taken)], ['EPA/play', (x) => f(x.off_epa_n ? x.off_epa / x.off_epa_n : null, 2)]];
+    extra = h('div', { style: 'max-width: 460px; margin-bottom: 12px' }, h('h5', { style: 'margin-top:0' }, 'Team stats'),
+      bxT(['', team, opp], L.map(([k, fn]) => [k, fn(A), fn(B)])));
+  }
+  return boxFootball([team, opp], rs, scores, extra);
+}
 
 // ===================== skewed numbers (*) =====================
 // A defense's per-game number gets a * when one big game is carrying it: swapping that game for a typical one
@@ -2052,7 +2144,7 @@ function lineRows(gs) {
   return gs.map((x) => {
     const margin = x.pf - x.pa, cov = x.line == null ? null : margin - x.line, ou = x.total_line == null ? null : x.pf + x.pa - x.total_line;
     return {
-      gkey: x.season * 100 + x.week, season: x.season, week: x.week, opp: `${x.home ? 'vs' : '@'} ${x.opp}`, spread: x.line == null ? null : -x.line, total: x.total_line,
+      gkey: x.season * 100 + x.week, season: x.season, week: x.week, team: x.team, oppT: x.opp, opp: `${x.home ? 'vs' : '@'} ${x.opp}`, spread: x.line == null ? null : -x.line, total: x.total_line,
       res: `${margin > 0 ? 'W' : margin < 0 ? 'L' : 'T'} ${show(x.pf)}–${show(x.pa)}`, cov, ou,
       ats: cov == null ? '—' : cov > 0 ? `Covered by ${show(cov)}` : cov < 0 ? `Missed by ${show(-cov)}` : 'Push',
       ouTxt: ou == null ? '—' : ou > 0 ? `Over by ${show(ou)}` : ou < 0 ? `Under by ${show(-ou)}` : 'Push',
@@ -2080,7 +2172,7 @@ function renderLines(g) {
     table(tb, `gl-${team === g.away_team ? 'a' : 'h'}`, [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true },
       { f: 'spread', label: 'Spread', fmt: spreadTxt }, { f: 'total', label: 'Total' }, { f: 'res', label: 'Result', l: true },
       { f: 'ats', label: 'ATS', l: true, cls: (v, r) => cls(r.cov) }, { f: 'ouTxt', label: 'O/U', l: true, cls: (v, r) => cls(r.ou) }],
-    lineRows(gs), { sort: { f: 'gkey', dir: 'desc' } });
+    lineRows(gs), { sort: { f: 'gkey', dir: 'desc' }, expand: { f: 'res', key: (r) => r.gkey, render: (r) => boxNFL(r.season, r.week, r.team, r.oppT) } });
     box.append(h('div', { class: 'scroll', style: 'max-height: 26rem' }, tb));
     return box;
   }));
@@ -2091,7 +2183,7 @@ function renderLines(g) {
   const rows = lineRows(hh).map((r) => ({ ...r, ats: r.cov == null ? '—' : r.cov > 0 ? `${g.away_team} covered` : r.cov < 0 ? `${g.home_team} covered` : 'Push' }));
   table($('.t-h2h'), 'h2h', [{ f: 'season', label: 'Season' }, { f: 'week', label: 'Wk' }, { f: 'opp', label: `${g.away_team} was`, l: true, fmt: (v) => (v.startsWith('vs') ? 'Home' : 'Away') },
     { f: 'res', label: `${g.away_team} result`, l: true }, { f: 'spread', label: `${g.away_team} spread`, fmt: spreadTxt }, { f: 'ats', label: 'ATS', l: true },
-    { f: 'total', label: 'Total' }, { f: 'ouTxt', label: 'O/U', l: true }], rows, { sort: { f: 'gkey', dir: 'desc' } });
+    { f: 'total', label: 'Total' }, { f: 'ouTxt', label: 'O/U', l: true }], rows, { sort: { f: 'gkey', dir: 'desc' }, expand: { f: 'res', key: (r) => r.gkey, render: (r) => boxNFL(r.season, r.week, r.team, r.oppT) } });
 }
 
 // ===================== FANTASY =====================
@@ -3112,7 +3204,7 @@ function xgTotals(sp, g) {
   const recent = (tm) => {
     let rs = cbbSeasonRows(tm, mode);
     if (mode === 'cur' && rs.length < 5) rs = cbbSeasonRows(tm, 'both');
-    return rs.slice(-10).map((r) => ({ date: r.date, opp: `${r.site === 'H' ? 'vs' : r.site === 'A' ? '@' : 'vs'} ${r.opp}${r.site === 'N' ? ' (N)' : ''}`,
+    return rs.slice(-10).map((r) => ({ game_id: r.game_id, team: tm, oppT: r.opp, pf: r.pf, pa: r.pa, date: r.date, opp: `${r.site === 'H' ? 'vs' : r.site === 'A' ? '@' : 'vs'} ${r.opp}${r.site === 'N' ? ' (N)' : ''}`,
       res: `${r.pf > r.pa ? 'W' : 'L'} ${r.pf}-${r.pa}${r.ot ? ` (${r.ot > 1 ? `${r.ot}OT` : 'OT'})` : ''}`, total: r.total, line: r.total_line, ou: r.ou || '—', mar: r.ou_margin, tempo: r.tempo, h1: r.h1_total }));
   };
   const cols = [{ f: 'date', label: 'Date', l: true, fmt: (v) => { const [y, m, d] = v.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString([], { month: 'short', day: 'numeric', year: y !== new Date().getFullYear() ? '2-digit' : undefined }); } },
@@ -3122,7 +3214,7 @@ function xgTotals(sp, g) {
   $('.xgt-recent').replaceChildren(...[A, H].map((tm) => {
     const tbx = newTable(), wrap = h('div', { class: 'scroll', style: 'max-height: none' }, tbx);
     const rs = recent(tm);
-    table(tbx, `xgt-${tm}`, cols, rs, { sort: { f: 'date', dir: 'desc' } });
+    table(tbx, `xgt-${tm}`, cols, rs, { sort: { f: 'date', dir: 'desc' }, expand: { f: 'res', key: (r) => r.game_id, render: (r) => boxById('cbb', r.game_id, [r.team, r.oppT], { [r.team]: r.pf, [r.oppT]: r.pa }) } });
     return h('div', { class: 'xg-team' }, h('h3', null, badge(tm, 'sm'), TI(tm).name || TI(tm).nick), rs.length ? wrap : h('p', { class: 'empty' }, 'No games yet.'));
   }));
   // ----- head to head -----
@@ -3134,7 +3226,7 @@ function xgTotals(sp, g) {
 
 function xgLinesCBB(sp, g) {
   $('.xg-lines').replaceChildren(...[g.away_team, g.home_team].map((team) => {
-    const rs = cbbSeasonRows(team, 'cur').map((r) => ({ date: r.date, opp: `${r.site === 'A' ? '@' : 'vs'} ${r.opp}`, score: `${r.pf > r.pa ? 'W' : 'L'} ${r.pf}-${r.pa}`,
+    const rs = cbbSeasonRows(team, 'cur').map((r) => ({ game_id: r.game_id, team, oppT: r.opp, pf: r.pf, pa: r.pa, date: r.date, opp: `${r.site === 'A' ? '@' : 'vs'} ${r.opp}`, score: `${r.pf > r.pa ? 'W' : 'L'} ${r.pf}-${r.pa}`,
       spread: r.spread, cov: r.ats_margin, ats: r.ats_margin == null ? '—' : r.ats_margin > 0 ? 'Covered' : r.ats_margin < 0 ? 'Missed' : 'Push', total: r.total_line, oures: r.ou === 'O' ? 'Over' : r.ou === 'U' ? 'Under' : r.ou === 'P' ? 'Push' : '—', fin: r.total }));
     const L = rs.filter((r) => r.cov != null), a = ouSum(cbbSeasonRows(team, 'cur'));
     const sum = h('p', { class: 'xg-sumline' }, `ATS ${L.filter((r) => r.cov > 0).length}-${L.filter((r) => r.cov < 0).length}${L.some((r) => r.cov === 0) ? `-${L.filter((r) => r.cov === 0).length}` : ''} · Over/under ${ouRec(a)} · Avg cover margin ${L.length ? sgn(mean(L.map((r) => r.cov))) : '—'}`);
@@ -3143,13 +3235,13 @@ function xgLinesCBB(sp, g) {
       { f: 'date', label: 'Date', l: true }, { f: 'opp', label: 'Opponent', l: true }, { f: 'score', label: 'Result', l: true },
       { f: 'spread', label: 'Spread', fmt: (v) => (v == null ? '—' : spreadTxt(v)) }, { f: 'cov', label: 'Cover margin', fmt: (v) => sgn(v), cls: (v) => (v > 0 ? 'diff-g' : v < 0 ? 'diff-r' : '') },
       { f: 'ats', label: 'ATS', l: true }, { f: 'total', label: 'Total' }, { f: 'fin', label: 'Final' }, { f: 'oures', label: 'O/U', l: true },
-    ], rs, { sort: { f: 'date', dir: 'desc' } });
+    ], rs, { sort: { f: 'date', dir: 'desc' }, expand: { f: 'score', key: (r) => r.game_id, render: (r) => boxById('cbb', r.game_id, [r.team, r.oppT], { [r.team]: r.pf, [r.oppT]: r.pa }) } });
     return h('div', { class: 'xg-team' }, h('h3', null, badge(team, 'sm'), TI(team).name || TI(team).nick), sum, rs.length ? h('div', { class: 'scroll', style: 'max-height: none' }, tb) : h('p', { class: 'empty' }, 'No games yet this season.'));
   }));
 }
 
 // ===================== NBA / CFB GAME PAGE =====================
-const XG_TABS = { nba: ['odds', 'matchup', 'players'], cfb: ['odds', 'matchup', 'players', 'lines'], cbb: ['odds', 'totals', 'matchup', 'players', 'lines'] };
+const XG_TABS = { nba: ['odds', 'matchup', 'players', 'lines'], cfb: ['odds', 'matchup', 'players', 'lines'], cbb: ['odds', 'totals', 'matchup', 'players', 'lines'] };
 const XG_TAB_NAME = { odds: 'Odds', totals: 'Totals', matchup: 'Matchup', players: 'Players', lines: 'Game lines' };
 S.xgWin = { nba: 'l10', cfb: 'season', cbb: 'season' }; S.xgPWin = { nba: 'l10', cfb: 'l5', cbb: 'l5' }; S.xgFlip = false;
 const xgOpen = (sp, g) => ({ ...pressable(() => { S.fromHome = true; S.xgFlip = false; go(`xgame/${sp}/${g.game_id}/odds`); }), role: 'link', 'aria-label': `${g.away_team} at ${g.home_team}: research` });
@@ -3376,30 +3468,30 @@ function xgPlayers(sp, g) {
 }
 
 // ---------- CFB: against the spread / over-under history ----------
-function xgAtsRows(team) {
-  return CFB.games.filter((x) => x.status === 'final' && (x.away_team === team || x.home_team === team)).sort((a, b) => a.week - b.week).map((x) => {
+function xgAtsRows(team, sp = 'cfb') {
+  return SPX[sp]().games.filter((x) => x.status === 'final' && (x.away_team === team || x.home_team === team)).sort((a, b) => (a.week - b.week) || (a.gameday < b.gameday ? -1 : 1)).map((x) => {
     const home = x.home_team === team, pf = home ? x.home_score : x.away_score, pa = home ? x.away_score : x.home_score;
     const sprd = x.spread_line == null ? null : home ? -x.spread_line : x.spread_line;
     const cov = sprd == null ? null : pf - pa + sprd, ou = x.total_line == null ? null : pf + pa - x.total_line;
-    return { week: x.week, opp: `${home ? 'vs' : '@'} ${home ? x.away_team : x.home_team}`, score: `${pf > pa ? 'W' : 'L'} ${pf}-${pa}`, spread: sprd, cov, total: x.total_line, ou,
+    return { game_id: x.game_id, date: x.gameday, team, oppT: home ? x.away_team : x.home_team, pf, pa, week: x.week, opp: `${home ? 'vs' : '@'} ${home ? x.away_team : x.home_team}`, score: `${pf > pa ? 'W' : 'L'} ${pf}-${pa}`, spread: sprd, cov, total: x.total_line, ou,
       ats: cov == null ? '—' : cov > 0 ? 'Covered' : cov < 0 ? 'Missed' : 'Push', oures: ou == null ? '—' : ou > 0 ? 'Over' : ou < 0 ? 'Under' : 'Push' };
   });
 }
-function xgAts(team) {
-  const r = xgAtsRows(team).filter((x) => x.cov != null);
+function xgAts(team, sp = 'cfb') {
+  const r = xgAtsRows(team, sp).filter((x) => x.cov != null);
   return { n: r.length, w: r.filter((x) => x.cov > 0).length, l: r.filter((x) => x.cov < 0).length, p: r.filter((x) => x.cov === 0).length,
     o: r.filter((x) => x.ou > 0).length, u: r.filter((x) => x.ou < 0).length, m: mean(r.map((x) => x.cov)) };
 }
 function xgLines(sp, g) {
   $('.xg-lines').replaceChildren(...[g.away_team, g.home_team].map((team) => {
-    const a = xgAts(team), tb = newTable();
+    const a = xgAts(team, sp), tb = newTable(), bb = sp === 'nba';
     const sum = h('p', { class: 'xg-sumline' }, `ATS ${a.w}-${a.l}${a.p ? `-${a.p}` : ''} · Over/under ${a.o}-${a.u} · Avg cover margin ${a.m == null ? '—' : `${a.m > 0 ? '+' : ''}${show(a.m)}`}`);
     const wrap = h('div', { class: 'scroll', style: 'max-height: none' }, tb);
     table(tb, `xgl-${team}`, [
-      { f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opponent', l: true }, { f: 'score', label: 'Result', l: true },
+      bb ? { f: 'date', label: 'Date', l: true } : { f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opponent', l: true }, { f: 'score', label: 'Result', l: true },
       { f: 'spread', label: 'Spread', fmt: (v) => (v == null ? '—' : spreadTxt(v)) }, { f: 'cov', label: 'Cover margin', fmt: (v) => (v == null ? '—' : `${v > 0 ? '+' : ''}${show(v)}`), cls: (v) => (v > 0 ? 'diff-g' : v < 0 ? 'diff-r' : '') },
       { f: 'ats', label: 'ATS', l: true }, { f: 'total', label: 'Total' }, { f: 'oures', label: 'O/U', l: true },
-    ], xgAtsRows(team), { sort: { f: 'week', dir: 'desc' } });
+    ], xgAtsRows(team, sp), { sort: { f: bb ? 'date' : 'week', dir: 'desc' }, expand: { f: 'score', key: (r) => r.game_id, render: (r) => boxById(sp, r.game_id, [r.team, r.oppT], { [r.team]: r.pf, [r.oppT]: r.pa }) } });
     return h('div', { class: 'xg-team' }, h('h3', null, badge(team, 'sm'), TI(team).name || TI(team).nick), sum, wrap);
   }));
 }
