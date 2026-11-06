@@ -105,6 +105,17 @@
   table.box th:first-child, table.box td:first-child { text-align: left; }
   table.box tr.tot td { font-weight: 700; }
   .box-note { font-size: .76rem; color: var(--muted); margin: 10px 0 0; }
+  dialog.plog { width: min(1000px, 96vw); max-height: 92vh; border: none; border-radius: 16px; padding: 0; background: var(--panel); color: var(--fg); box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  dialog.plog::backdrop { background: rgba(10, 14, 20, .5); }
+  .plog-in { padding: 18px 20px 22px; max-height: 92vh; overflow: auto; box-sizing: border-box; }
+  .plog-hd { display: flex; align-items: center; gap: 12px; }
+  .plog-hd h2 { margin: 0; font-size: 1.25rem; }
+  .plog-hd small { color: var(--muted); display: block; font-size: .82rem; }
+  .plog-x { margin-left: auto; border: 1px solid var(--line); background: var(--panel); color: var(--fg); border-radius: 50%; width: 34px; height: 34px; font-size: 1.1rem; cursor: pointer; flex: none; }
+  .plog-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0 4px; }
+  .plog-prop { font-weight: 700; }
+  .plog .stats { margin: 10px 0; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); }
+  .plog table td.rk { text-align: center; }
   sup.skew { color: var(--c2); font-weight: 800; font-size: .8em; margin-left: 1px; cursor: help; }
   details.skew-notes { margin-top: 8px; font-size: .82rem; color: var(--muted); }
   details.skew-notes summary { cursor: pointer; font-weight: 600; color: var(--fg); }
@@ -336,7 +347,6 @@
     font: inherit; font-weight: 800; font-size: .95rem; letter-spacing: .02em; cursor: pointer; opacity: .42; transition: opacity .15s; }
   .sport-sw button:hover { opacity: .7; }
   .sport-sw button[aria-pressed=true] { opacity: 1; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent); }
-  .tcard.nba { cursor: default; }
   footer { color: var(--muted); font-size: .75rem; }
   footer a { color: inherit; }
 </style>
@@ -903,6 +913,7 @@
 </main>
 </div>
 
+<dialog class="plog" aria-label="Player game log"><div class="plog-in"></div></dialog>
 <script>
 // ===================== config =====================
 const FILES = ['matchups', 'matchups_weekly', 'logs', 'players', 'games', 'teams', 'avail', 'team_games'];
@@ -984,7 +995,7 @@ function table(el, name, cols, data, opts = {}) {
     b.addEventListener('click', () => {
       const cur = st;
       S.sorts[name] = cur && cur.f === c.f ? { f: c.f, dir: cur.dir === 'asc' ? 'desc' : 'asc' } : { f: c.f, dir: c.l || c.rank ? 'asc' : 'desc' };
-      render();
+      (opts.rerender || render)();
     });
     th.appendChild(b); tr.appendChild(th);
   });
@@ -1005,7 +1016,7 @@ function table(el, name, cols, data, opts = {}) {
       if (bx && c.f === opts.expand.f) {
         td.classList.add('xres'); if (S.boxOpen.has(bx)) td.classList.add('open');
         td.title = 'Show the box score'; td.tabIndex = 0; td.setAttribute('role', 'button');
-        const tog = (e) => { e.stopPropagation(); if (S.boxOpen.has(bx)) S.boxOpen.delete(bx); else S.boxOpen.add(bx); render(); };
+        const tog = (e) => { e.stopPropagation(); if (S.boxOpen.has(bx)) S.boxOpen.delete(bx); else S.boxOpen.add(bx); (opts.rerender || render)(); };
         td.addEventListener('click', tog); td.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tog(e); } });
       }
       row.appendChild(td);
@@ -1020,6 +1031,98 @@ function table(el, name, cols, data, opts = {}) {
 }
 
 
+
+
+// ===================== player game log (NBA / CFB / CBB) =====================
+// opened from a trend card or the Players tab of a game. o: { st (trend stat), line, side } or { rk: stat key to rank the defense by }
+S.plog = null;
+const PLOG_COLS = {
+  QB: [['catt', 'C/ATT'], ['passing_yards', 'Pass yds'], ['passing_tds', 'Pass TD'], ['passing_interceptions', 'INT'], ['carries', 'Car'], ['rushing_yards', 'Rush yds'], ['rushing_tds', 'Rush TD']],
+  RB: [['carries', 'Car'], ['rushing_yards', 'Rush yds'], ['rushing_tds', 'Rush TD'], ['long_rush', 'Long'], ['receptions', 'Rec'], ['receiving_yards', 'Rec yds'], ['receiving_tds', 'Rec TD'], ['rush_rec_yds', 'Rush+rec']],
+  WR: [['receptions', 'Rec'], ['receiving_yards', 'Rec yds'], ['receiving_tds', 'Rec TD'], ['long_reception', 'Long'], ['carries', 'Car'], ['rushing_yards', 'Rush yds']],
+  BB: [['min', 'MIN'], ['pts', 'PTS'], ['reb', 'REB'], ['ast', 'AST'], ['fg3m', '3PM'], ['stl', 'STL'], ['blk', 'BLK'], ['tov', 'TO'], ['pra', 'PRA']],
+};
+PLOG_COLS.TE = PLOG_COLS.WR;
+const PLOG_RK = { QB: 'passing_yards', RB: 'rush_rec_yds', WR: 'receiving_yards', TE: 'receiving_yards', G: 'pts', F: 'pts', C: 'pts' };
+function openLog(sp, pid, o = {}) {
+  S.plog = { sp, pid: String(pid), seas: null, ...o };
+  renderLog();
+  const d = $('.plog'); if (!d.open) d.showModal();
+  d.querySelector('.plog-in').scrollTop = 0;
+}
+$('.plog').addEventListener('close', () => { S.plog = null; });
+$('.plog').addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+function renderLog() {
+  const L = S.plog; if (!L) return;
+  const sp = L.sp, X = SPX[sp](), bb = isBB(sp), box = $('.plog-in');
+  const logs = (X.byPid.get(L.pid) || []);
+  if (!logs.length) { box.replaceChildren(h('p', { class: 'empty' }, 'No games found for this player.')); return; }
+  const last = logs[logs.length - 1], pos = last.position;
+  const seasons = [...new Set(logs.map((r) => r.season))].sort((a, b) => b - a);
+  const seas = seasons.includes(L.seas) ? L.seas : seasons[0];
+  // what the defense rank is based on
+  const st = L.st, val = st ? st.val || (bb ? (r) => nbaVal(r, st.k) : (r) => r[st.k] ?? 0) : null;
+  const rkStat = st ? (st.m && st.m[pos]) || st.k : L.rk || PLOG_RK[pos];
+  const N = sp === 'nba' ? 30 : Math.max(2, X.nDef || 130), band = sp === 'nba' ? [8, 7] : sp === 'cbb' ? [60, 60] : [20, 20];
+  const dvSeason = sp === 'cbb' && X.meta ? Number(X.meta.dvp_season) : X.season;
+  if (!X.gIdx) { X.gIdx = new Map(); X.games.forEach((g) => X.gIdx.set(String(g.game_id), g)); }
+  const resOf = (r) => {
+    const g = X.gIdx.get(String(r.game_id));
+    if (g && g.status === 'final') { const pf = r.home ? g.home_score : g.away_score, pa = r.home ? g.away_score : g.home_score; return { pf, pa }; }
+    if (sp === 'cbb') { const t = (CBB.byTeam.get(r.team) || []).find((x) => String(x.game_id) === String(r.game_id)); if (t) return { pf: t.pf, pa: t.pa }; }
+    return null;
+  };
+  const rows = logs.filter((r) => r.season === seas).map((r) => {
+    const res = resOf(r), dv = r.season === dvSeason ? X.dv.get(`${r.opp}|${pos}|${rkStat}`) : null;
+    const o = { ...r, gkey: bb ? r.date : r.week, when: bb ? `${Number(r.date.slice(5, 7))}/${Number(r.date.slice(8, 10))}` : r.week,
+      opp_txt: `${r.home ? 'vs' : '@'} ${r.opp}`, oppT: r.opp, pf: res ? res.pf : null, pa: res ? res.pa : null,
+      res: res && res.pf != null ? `${res.pf > res.pa ? 'W' : res.pf < res.pa ? 'L' : 'T'} ${show(res.pf)}-${show(res.pa)}` : '—',
+      rk: dv ? dv.rank : null, allow: dv ? dv.per_game : null };
+    if (!bb) o.catt = `${r.completions}/${r.attempts}`;
+    else o.pra = (r.pts || 0) + (r.reb || 0) + (r.ast || 0);
+    if (st) o._t = val(r);
+    return o;
+  });
+  // columns
+  let defs = (bb ? PLOG_COLS.BB : PLOG_COLS[pos] || PLOG_COLS.WR).filter(([k]) => k === 'catt' || k === 'pra' || rows.some((r) => r[k] != null));
+  if (!bb && pos !== 'QB') defs = defs.filter(([k]) => !['carries', 'rushing_yards'].includes(k) || pos === 'RB' || rows.some((r) => r.carries > 0));
+  const hit = st && L.line != null ? (v) => (L.side === 'under' ? v < L.line : v > L.line) : null;
+  const hitCls = (v) => (hit == null || v == null ? '' : hit(v) ? 'diff-g' : 'diff-r');
+  const trendIn = st && defs.some(([k]) => k === st.k);
+  const cols = [{ f: 'gkey', label: bb ? 'Date' : 'Wk', fmt: (v, r) => r.when }, { f: 'opp_txt', label: 'Opp', l: true }, { f: 'res', label: 'Result', l: true },
+    ...(st && !trendIn ? [{ f: '_t', label: st.k === 'anytime_td' ? 'TDs' : st.label, cls: (v) => hitCls(v), group: true }] : []),
+    ...defs.map(([k, label], i) => ({ f: k, label, group: i === 0, cls: st && k === st.k ? (v, r) => hitCls(r._t) : null })),
+    { f: 'rk', label: 'Opp D rank', group: true, cls: (v) => (v == null ? 'rk' : v <= band[0] ? 'rk rk-r' : v >= N - band[1] ? 'rk rk-g' : 'rk'), fmt: (v, r) => (v == null ? '—' : `${v}`) },
+    { f: 'allow', label: 'Allows /g' }];
+  const tb = h('table', { class: 'dvp' }, h('thead'), h('tbody'));
+  table(tb, `plog-${sp}`, cols, rows, { sort: { f: 'gkey', dir: 'desc' }, rerender: renderLog,
+    expand: { f: 'res', key: (r) => r.game_id, render: (r) => boxById(sp, r.game_id, [r.team, r.oppT], { [r.team]: r.pf, [r.oppT]: r.pa }) } });
+  // season averages
+  const avgK = bb ? [['pts', 'Points'], ['reb', 'Rebounds'], ['ast', 'Assists'], ['fg3m', 'Threes'], ['min', 'Minutes']]
+    : pos === 'QB' ? [['passing_yards', 'Pass yds'], ['passing_tds', 'Pass TD'], ['passing_interceptions', 'INT'], ['rushing_yards', 'Rush yds']]
+      : pos === 'RB' ? [['rushing_yards', 'Rush yds'], ['carries', 'Carries'], ['receptions', 'Receptions'], ['receiving_yards', 'Rec yds']]
+        : [['receptions', 'Receptions'], ['receiving_yards', 'Rec yds'], ['receiving_tds', 'Rec TD'], ['long_reception', 'Long rec']];
+  const tiles = [tile(String(rows.length), 'Games'), ...avgK.map(([k, lab]) => tile(show(mean(rows.map((r) => r[k] || 0))), `${lab} /g`))];
+  // trend line summary
+  let prop = null;
+  if (hit) {
+    const hN = rows.filter((r) => hit(r._t)).length;
+    prop = h('p', { class: 'summary' }, h('span', { class: 'plog-prop' }, st.k === 'anytime_td' ? 'Anytime TD' : `${L.side === 'under' ? 'Under' : 'Over'} ${L.line} ${st.label}`),
+      `: hit in ${hN} of ${rows.length} games (${rows.length ? Math.round((hN / rows.length) * 100) : 0}%) in the ${seas === X.season ? 'current' : 'previous'} season. Green = hit, red = miss.`);
+  }
+  const lbl = (y) => (sp === 'cbb' || sp === 'nba' ? `${y - 1}-${String(y).slice(2)}` : String(y));
+  const seg = seasons.length > 1 ? h('div', { class: 'seg', role: 'group', 'aria-label': 'Season' }, ...seasons.map((y) => h('button', { 'aria-pressed': String(y === seas), onclick: () => { L.seas = y; renderLog(); } }, lbl(y)))) : null;
+  const unit = skewUnit(rkStat), noRank = seas !== dvSeason;
+  const posL = { G: 'guards', F: 'forwards', C: 'centers' }[pos] || `${pos}s`;
+  box.replaceChildren(...[
+    h('div', { class: 'plog-hd' }, badge(last.team), h('div', null, h('h2', null, last.player), h('small', null, `${pos} · ${TI(last.team).name || last.team}`)),
+      h('button', { class: 'plog-x', 'aria-label': 'Close', onclick: () => $('.plog').close() }, '×')),
+    h('div', { class: 'plog-bar' }, seg),
+    prop, h('div', { class: 'stats' }, ...tiles),
+    h('p', { class: 'note' }, noRank ? 'Opponent defense ranks are only available for the current season.'
+      : `Opp D rank = how that defense ranks this season against ${posL} in ${unit} allowed per game, among all ${N} ${{ nba: 'teams', cfb: 'FBS defenses', cbb: 'D1 defenses' }[sp]} (1 = toughest, ${N} = easiest). "Allows /g" is that number. Tap a result for the box score.`),
+    h('div', { class: 'scroll', style: 'max-height: none' }, tb)].filter(Boolean));
+}
 
 // ===================== box scores (click a result) =====================
 S.boxOpen = new Set();
@@ -2556,7 +2659,7 @@ function renderTrends() {
   $('.tr-note').textContent = `${rows.length} trends for ${nba ? (gs.length ? `${dayTxt(gs[0].d)} games` : 'the next slate') : `week ${gs.length ? gs[0].g.week : ''}`}, sorted by ${T.sort === 'edge' ? `edge (${wl} hit rate minus the odds' implied chance)` : `${wl} hit rate`}. `
     + (X.book ? 'Book lines and odds come from DraftKings (FanDuel when DK has none), pulled once a week, so check your book before betting. ' : '')
     + 'Lines marked "est." are the standard book steps closest to the player\'s recent median. Matchup grade is how much this defense allows for that stat (A = easiest for the bet).'
-    + (cbb ? ' D1 games only; positions are ESPN\'s guard / forward / center, and the matchup grade ranks all D1 defenses.' : nba ? ' Positions are ESPN\'s guard / forward / center.' : cfb ? ' FBS games only; positions come from ESPN rosters, and the matchup grade ranks all FBS defenses.' : ' Tap a card for the full game log.');
+    + (cbb ? ' D1 games only; positions are ESPN\'s guard / forward / center, and the matchup grade ranks all D1 defenses.' : nba ? ' Positions are ESPN\'s guard / forward / center.' : cfb ? ' FBS games only; positions come from ESPN rosters, and the matchup grade ranks all FBS defenses.' : '') + ' Tap a card for the full game log.';
   const shown = rows.slice(0, S.trShown);
   $('.tr-list').replaceChildren(...shown.map((t) => trCard(t, W)));
   $('.tr-more').hidden = rows.length <= S.trShown;
@@ -2573,7 +2676,8 @@ function trCard(t, W) {
   };
   const grCls = t.gr ? `gr-${t.gr[0].toLowerCase()}` : 'na';
   const prop = t.st.k === 'anytime_td' ? 'Anytime TD' : `${t.side === 'over' ? 'Over' : 'Under'} ${t.line} ${t.st.label}`;
-  return h('div', { class: S.sport !== 'nfl' ? 'tcard nba' : 'tcard', ...(S.sport !== 'nfl' ? {} : pressable(open)), 'aria-label': `${p.player} ${prop}, ${trPctTxt(x)} ${trWinLabel(W)}` },
+  const openX = () => openLog(S.sport, p.player_id, { st: t.st, line: t.line, side: t.side });
+  return h('div', { class: S.sport !== 'nfl' ? 'tcard nba' : 'tcard', ...pressable(S.sport !== 'nfl' ? openX : open), 'aria-label': `${p.player} ${prop}, ${trPctTxt(x)} ${trWinLabel(W)}` },
     h('div', { class: 'tc-top' },
       badge(p.team),
       h('div', { class: 'tc-who' },
@@ -3431,7 +3535,7 @@ function xgPlayers(sp, g) {
   };
   const row = (p, opp, nums, n, st) => {
     const gr = gradeOf(opp, p.position, st);
-    return h('div', { class: 'prow static' },
+    return h('div', { class: 'prow', ...pressable(() => openLog(sp, p.pid, { rk: st })), title: 'Open game log' },
       h('div', { class: 'who' }, badge(p.team, 'sm'), h('div', null, h('b', null, p.player),
         h('small', null, `${p.position} · ${n} g · vs ${opp} `, gr ? h('span', { class: `grade ${gr.cls}`, title: `${opp} ranks ${gr.r} of ${N} against ${p.position}s (${N} = easiest)` }, `${gr.gr} matchup`) : null))),
       ...nums.map(([v, k]) => h('div', { class: 'n' }, h('b', null, v), h('small', null, k))));
@@ -3445,16 +3549,16 @@ function xgPlayers(sp, g) {
     if (isBB(sp)) {
       roster.map((x) => ({ ...x, mins: mean(x.logs.slice(-10).map((r) => r.min)) })).filter((x) => x.mins >= 12).sort((a, b) => b.mins - a.mins).slice(0, 9).forEach((x) => {
         const gs = pick(x.logs, opp); if (!gs.length) return;
-        list.push(row({ player: x.last.player, position: x.last.position, team }, opp,
+        list.push(row({ pid: x.pid, player: x.last.player, position: x.last.position, team }, opp,
           [[show(avg(gs, (r) => r.pts)), 'PTS'], [show(avg(gs, (r) => r.reb)), 'REB'], [show(avg(gs, (r) => r.ast)), 'AST']], gs.length, 'pts'));
       });
     } else {
       const qb = roster.filter((x) => x.last.position === 'QB').sort((a, b) => b.last.week - a.last.week || b.last.attempts - a.last.attempts)[0];
-      if (qb) { const gs = pick(qb.logs, opp); if (gs.length) list.push(row({ player: qb.last.player, position: 'QB', team }, opp, [[show(avg(gs, (r) => r.passing_yards)), 'P YD'], [show(avg(gs, (r) => r.passing_tds)), 'P TD'], [show(avg(gs, (r) => r.passing_interceptions)), 'INT']], gs.length, 'passing_yards')); }
+      if (qb) { const gs = pick(qb.logs, opp); if (gs.length) list.push(row({ pid: qb.pid, player: qb.last.player, position: 'QB', team }, opp, [[show(avg(gs, (r) => r.passing_yards)), 'P YD'], [show(avg(gs, (r) => r.passing_tds)), 'P TD'], [show(avg(gs, (r) => r.passing_interceptions)), 'INT']], gs.length, 'passing_yards')); }
       roster.filter((x) => x.last.position !== 'QB').map((x) => ({ ...x, gs: pick(x.logs, opp) })).filter((x) => x.gs.length)
         .map((x) => ({ ...x, tot: avg(x.gs, (r) => r.rush_rec_yds) })).filter((x) => x.tot >= 15).sort((a, b) => b.tot - a.tot).slice(0, 6).forEach((x) => {
           const pos = x.last.position;
-          list.push(row({ player: x.last.player, position: pos, team }, opp, [[show(x.tot), 'TOT YD'], [show(avg(x.gs, (r) => r.rushing_tds + r.receiving_tds)), 'TD'],
+          list.push(row({ pid: x.pid, player: x.last.player, position: pos, team }, opp, [[show(x.tot), 'TOT YD'], [show(avg(x.gs, (r) => r.rushing_tds + r.receiving_tds)), 'TD'],
             pos === 'RB' ? [show(avg(x.gs, (r) => r.carries)), 'CAR'] : [show(avg(x.gs, (r) => r.receptions)), 'REC']], x.gs.length, pos === 'RB' ? 'rush_rec_yds' : pos === 'QB' ? 'passing_yards' : 'receiving_yards'));
         });
     }
@@ -3462,8 +3566,8 @@ function xgPlayers(sp, g) {
       ...(list.length ? list : [h('p', { class: 'empty' }, win === 'h2h' ? 'No one on this roster has played this opponent in the last two seasons.' : 'No games yet.')])));
   });
   $('.xg-pnote').textContent = isBB(sp)
-    ? 'Each team\'s rotation (12+ minutes a game over the last 10), with averages over the games you pick. Matchup grade = how many points the opponent allows to his position (A = easiest).'
-    : 'Each team\'s starting QB and top playmakers by rush + receiving yards, with averages over the games you pick. Matchup grade = what the opponent allows to his position among FBS defenses (A = easiest).';
+    ? 'Each team\'s rotation (12+ minutes a game over the last 10), with averages over the games you pick. Matchup grade = how many points the opponent allows to his position (A = easiest). Tap a player for his game log.'
+    : 'Each team\'s starting QB and top playmakers by rush + receiving yards, with averages over the games you pick. Matchup grade = what the opponent allows to his position among FBS defenses (A = easiest). Tap a player for his game log.';
   $('.xg-plist').replaceChildren(...out);
 }
 
