@@ -1,6 +1,6 @@
 team,name,nick,color,color2,conf,d1
 AAMU,Alabama A&M Bulldogs,Alabama A&M,#790000,#ffffff,26,1
-ABR,Abraham Baldwin Agricultural College ABRBALD,Abraham Baldwin Agricultural College,#555555,#888888,,0
+ABAC,Abraham Baldwin Agricultural Stallions,Abraham Baldwin Agricultural,#555555,#888888,,0
 ABSU,Albany State Golden Rams,Albany State,#000000,#888888,,0
 ABU,Arlington Baptist Patriots,Arlington Baptist,#555555,#888888,,0
 ACU,Abilene Christian Wildcats,Abilene Christian,#592d82,#b1b3b3,30,1
@@ -21,7 +21,7 @@ ALNU,Allen Yellow Jackets,Allen,#000000,#888888,,0
 ALST,Alabama State Hornets,Alabama State,#e9a900,#0a0a0a,26,1
 AMCC,Texas A&M-Corpus Christi Islanders,Texas A&M-Corpus Christi,#0067c5,#007f3e,25,1
 AMER,American University Eagles,American University,#c41130,#c8102e,22,1
-AND,Andrew Fighting Tigers,Andrew,#555555,#888888,,0
+ANDR,Andrew Fighting Tigers,Andrew,#555555,#888888,,0
 APP,App State Mountaineers,App State,#000000,#ffcd00,27,1
 APPR,Apprentice School Builders,Apprentice School,#000000,#888888,,0
 APSU,Austin Peay Governors,Austin Peay,#8e0b0b,#888888,30,1
@@ -99,7 +99,7 @@ CAPH,Cal Poly Humboldt Lumberjacks,Cal Poly Humboldt,#555555,#888888,,0
 CAPU,Capital Crusaders,Capital,#000000,#888888,,0
 CARK,Central Arkansas Bears,Central Arkansas,#a7a9ac,#8e959a,30,1
 CAT,Catawba Indians,Catawba,#0c233f,#cb152f,,0
-CBMO,Central Bible Saints,Central Bible,#555555,#888888,,0
+CBBL,Central Bible Saints,Central Bible,#555555,#888888,,0
 CBS,College of Biblical Studies Ambassadors,College of Biblical Studies,#555555,#888888,,0
 CBU,California Baptist Lancers,California Baptist,#000080,#888888,9,1
 CBVU,Campbellsville Tigers,Campbellsville,#555555,#888888,,0
@@ -475,7 +475,7 @@ NCCC,Carolina Christian Centurions,Carolina Christian,#555555,#888888,,0
 NCCU,North Carolina Central Eagles,North Carolina Central,#880023,#c2c3c0,16,1
 NCF,New College Mighty Banyans,New College,#555555,#888888,,0
 NCSU,NC State Wolfpack,NC State,#cc0000,#ffffff,2,1
-NCU,North Central Rams,North Central,#555555,#888888,,0
+NCU,North Central (MN) Rams,North Central (MN),#555555,#888888,,0
 NCW,North Carolina Wesleyan Battling Bishops,North Carolina Wesleyan,#000000,#888888,,0
 ND,Notre Dame Fighting Irish,Notre Dame,#062340,#c99700,2,1
 NDMD,Notre Dame (MD) Gators,Notre Dame (MD),#555555,#888888,,0
@@ -645,7 +645,6 @@ SKC,Salish Kootenai Bison,Salish Kootenai,#555555,#888888,,0
 SLC,Sarah Lawrence Gryphons,Sarah Lawrence,#555555,#888888,,0
 SLU,Saint Louis Billikens,Saint Louis,#00539C,#ebebeb,3,1
 SMC,Saint Mary's Gaels,Saint Mary's,#d80024,#003057,29,1
-SMC-130241,Spartanburg Methodist Pioneers,Spartanburg Methodist,#555555,#888888,,0
 SMMD,St. Mary's (MD) Seahawks,St. Mary's (MD),#555555,#888888,,0
 SMU,SMU Mustangs,SMU,#a80000,#0033a1,2,1
 SMWC,Saint Mary of the Woods Pomeroys,Saint Mary of the Woods,#555555,#888888,,0
@@ -657,6 +656,7 @@ SOVA,Southern Virginia Knights,Southern Virginia,#000000,#888888,,0
 SPGN,Spurgeon Knights,Spurgeon,#555555,#888888,,0
 SPLD,Spalding Pelicans,Spalding,#555555,#888888,,0
 SPRH,Spring Hill Badgers,Spring Hill,#000000,#888888,,0
+SPTB,Spartanburg Methodist Pioneers,Spartanburg Methodist,#555555,#888888,,0
 SPU,Saint Peter's Peacocks,Saint Peter's,#004CC2,#888888,13,1
 STAM,St. Ambrose Fighting Bees,St. Ambrose,#000000,#888888,,0
 STAN,Stanford Cardinal,Stanford,#8c1515,#ffffff,2,1
@@ -770,7 +770,7 @@ UNM,New Mexico Lobos,New Mexico,#ba0c2f,#a7a8aa,44,1
 UNT,North Texas Mean Green,North Texas,#068f33,#ffffff,62,1
 UNTD,UNT Dallas Trailblazers,UNT Dallas,#555555,#888888,,0
 UNTN,Union (TN) Bulldogs,Union (TN),#762334,#000000,,0
-UOFO,Ozarks Eagles,Ozarks,#555555,#888888,,0
+UOFO,Ozarks (AR) Eagles,Ozarks (AR),#555555,#888888,,0
 UOO,Olivet Comets,Olivet,#000000,#888888,,0
 UPST,South Carolina Upstate Spartans,South Carolina Upstate,#008545,#000000,6,1
 URI,Rhode Island Rams,Rhode Island,#091f3f,#5ab3e8,3,1
@@ -855,11 +855,11 @@ WORU,Western Oregon Wolves,Western Oregon,#000000,#888888,,0
 WPAC,Warner Pacific Knights,Warner Pacific,#000000,#888888,,0
 WPEA,William Peace Pacers,William Peace,#555555,#888888,,0
 WPU,William Paterson Pioneers,William Paterson,#000000,#f57b21,,0
-WRI,Wright State - Lake Lakers,Wright State - Lake,#555555,#888888,,0
 WRNR,Warner Royals,Warner,#000000,#888888,,0
 WRST,Wright State Raiders,Wright State,#cba052,#cba052,45,1
 WSSU,Winston-Salem State Rams,Winston-Salem State,#bb0100,#888888,,0
 WSU,Washington State Cougars,Washington State,#a60f2d,#4d4d4d,21,1
+WSUL,Wright State-Lake Lakers,Wright State-Lake,#555555,#888888,,0
 WTBG,Wartburg Knights,Wartburg,#f5822b,#000000,,0
 WUDE,Wilmington (DE) Wildcats,Wilmington (DE),#555555,#888888,,0
 WUUT,Westminster (UT) Griffins,Westminster (UT),#555555,#888888,,0
