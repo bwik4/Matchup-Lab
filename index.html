@@ -91,6 +91,12 @@
   table.dvp th:first-child { position: sticky; left: 0; z-index: 2; }
   table.dvp td.rk { min-width: 2.6rem; text-align: center; }
   table.dvp th.rkh { text-align: center; }
+  sup.skew { color: var(--c2); font-weight: 800; font-size: .8em; margin-left: 1px; cursor: help; }
+  details.skew-notes { margin-top: 8px; font-size: .82rem; color: var(--muted); }
+  details.skew-notes summary { cursor: pointer; font-weight: 600; color: var(--fg); }
+  details.skew-notes summary b { color: var(--c2); }
+  details.skew-notes ul { margin: 6px 0 0; padding-left: 18px; }
+  details.skew-notes li { margin: 3px 0; }
   table.t-teams .grp { border-left: 2px solid color-mix(in srgb, var(--fg) 30%, transparent); }
   .wo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 10px; }
   .wo input.search { width: min(100%, 16rem); }
@@ -553,7 +559,7 @@
           </div>
         </div>
       </div>
-      <p class="note">Totals from every player at that position against the defense, divided by its games. "Rk" ranks all 32 defenses: 1 = toughest (allows the least), 32 = easiest (allows the most, best spot for overs). For INTs and sacks, 1 = forces the most. "Long" stats = the average longest play allowed to the position per game. Click a defense for its week-by-week numbers.</p>
+      <p class="note">Totals from every player at that position against the defense, divided by its games. "Rk" ranks all 32 defenses: 1 = toughest (allows the least), 32 = easiest (allows the most, best spot for overs). For INTs and sacks, 1 = forces the most. "Long" stats = the average longest play allowed to the position per game. Click a defense for its week-by-week numbers. <b style="color: var(--c2)">*</b> = one big game is carrying that number (hover or open the list under the table to see which).</p>
       <div class="wo m-wo">
         <span class="lbl">Games without</span>
         <input class="search" type="search" list="m-wo-list" placeholder="Add a player who sat out (e.g. a CB)" aria-label="Filter defenses to games a player missed">
@@ -978,12 +984,92 @@ function table(el, name, cols, data, opts = {}) {
       const td = document.createElement('td');
       const v = r[c.f];
       td.textContent = c.fmt ? c.fmt(v, r) : show(v);
+      const note = c.mark ? c.mark(r) : null;
+      if (note) { td.append(h('sup', { class: 'skew', title: note }, '*')); td.title = note; }
       td.className = [c.l ? 'l' : '', c.group ? 'grp' : '', c.rank ? (c.rank === 'nba' ? (v == null ? 'rk' : v <= 8 ? 'rk rk-r' : v >= 23 ? 'rk rk-g' : 'rk') : c.rank === 'opp' ? rankClsOpp(v) : rankCls(v)) : '', c.cls ? c.cls(v, r) : ''].join(' ').trim();
       row.appendChild(td);
     });
     frag.appendChild(row);
   });
   el.tBodies[0].replaceChildren(frag);
+}
+
+
+// ===================== skewed numbers (*) =====================
+// A defense's per-game number gets a * when one big game is carrying it: swapping that game for a typical one
+// (the median of its other games) would drop the average by 15% or more, and that game was at least double the
+// typical one. Needs 4+ games. TD, INT, sack and red-zone stats are skipped, since they are too low-volume (one play always swings them).
+const SKEW_SKIP = /td|interception|sacks|^rz_/;
+const SKEW_COMBO = { pra: ['pts', 'reb', 'ast'], pr: ['pts', 'reb'], pa: ['pts', 'ast'], ra: ['reb', 'ast'], sb: ['stl', 'blk'] };
+const SKEW_UNIT = { pts: 'points', reb: 'rebounds', ast: 'assists', fg3m: 'threes', pra: 'pts+reb+ast', pr: 'pts+reb', pa: 'pts+ast', ra: 'reb+ast', sb: 'steals+blocks' };
+const skewUnit = (k) => (k.startsWith('fp_') || k === 'fp' ? 'fantasy pts' : SKEW_UNIT[k] || statLabel(k).toLowerCase());
+function skewCheck(games) { // games: [{v, ...}] one entry per game the defense played (0 if nobody at the position did anything)
+  if (games.length < 4) return null;
+  const vs = games.map((g) => g.v || 0), n = vs.length, sum = vs.reduce((a, b) => a + b, 0), avg = sum / n;
+  if (!(avg > 0)) return null;
+  let i = 0; vs.forEach((v, j) => { if (v > vs[i]) i = j; });
+  const rest = vs.filter((_, j) => j !== i).sort((a, b) => a - b), m = rest.length;
+  const med = m % 2 ? rest[(m - 1) / 2] : (rest[m / 2 - 1] + rest[m / 2]) / 2;
+  const adj = (sum - vs[i] + med) / n;
+  if ((avg - adj) / avg < 0.15 || vs[i] < 2 * med) return null;
+  return { g: games[i], v: vs[i], adj };
+}
+// sentence for the tooltip and the list under the table
+function skewText(def, posLabel, unit, sk) {
+  const t = sk.g.top && sk.g.top.v > 0 ? ` (${sk.g.top.player} had ${show(sk.g.top.v)})` : '';
+  return `${def} vs ${posLabel}: skewed by ${sk.g.when}, when it allowed ${show(sk.v)} ${unit}${t}. With a typical game in its place it'd be about ${show(sk.adj)} per game.`;
+}
+// stats-page tables keep the notes in a collapsed list under the table (hover/tap the * works too)
+function skewList(tbl, notes) {
+  const wrap = tbl.closest('.scroll') || tbl;
+  let box = wrap.nextElementSibling;
+  if (!box || !box.classList.contains('skew-notes')) { box = document.createElement('details'); box.className = 'skew-notes'; wrap.after(box); }
+  box.hidden = !notes.length;
+  box.replaceChildren(h('summary', null, h('b', null, '*'), ` Skewed by one big game (${notes.length})`), h('ul', null, ...notes.map((n) => h('li', null, n))));
+}
+// NFL: built from matchups_weekly (already one row per defense / position / week)
+function nflSkew(def, pos, stat, weeks) {
+  if (SKEW_SKIP.test(stat)) return null;
+  if (!IDX.skW) {
+    IDX.skW = new Map();
+    DATA.matchups_weekly.forEach((r) => { if (!IDX.skW.has(r.defense)) IDX.skW.set(r.defense, new Map()); const m = IDX.skW.get(r.defense); if (!m.has(r.week)) m.set(r.week, {}); m.get(r.week)[r.position] = r; });
+    IDX.skL = new Map();
+    DATA.logs.forEach((r) => { if (r.season !== S.season) return; const k = `${r.opp}|${r.week}|${r.position}`; if (!IDX.skL.has(k)) IDX.skL.set(k, []); IDX.skL.get(k).push(r); });
+  }
+  const byWeek = IDX.skW.get(def); if (!byWeek) return null;
+  const games = [...byWeek.keys()].filter((w) => !weeks || weeks.has(w)).sort((a, b) => a - b).map((w) => {
+    const r = byWeek.get(w)[pos], any = Object.values(byWeek.get(w))[0];
+    const top = (IDX.skL.get(`${def}|${w}|${pos}`) || []).reduce((b, x) => ((x[stat] ?? -Infinity) > (b ? b[stat] ?? -Infinity : -Infinity) ? x : b), null);
+    return { v: r ? r[stat] || 0 : 0, when: `Week ${w} vs ${any.offense}`, top: top && top[stat] != null ? { player: top.player, v: top[stat] } : null };
+  });
+  const sk = skewCheck(games);
+  return sk ? skewText(def, `${pos}s`, skewUnit(stat), sk) : null;
+}
+// NBA / CFB / CBB: built from the player logs, the same way the pipelines build dvp.csv
+function logSkew(sp, def, pos, stat, opts = {}) {
+  if (SKEW_SKIP.test(stat)) return null;
+  const X = SPX[sp]();
+  if (sp === 'cbb' && X.meta && X.meta.dvp_season !== String(X.season)) return null; // early season: dvp uses last year's full logs
+  if (!X.skIdx) {
+    X.skIdx = new Map();
+    X.logs.forEach((r) => {
+      if (r.season !== X.season) return;
+      if (!X.skIdx.has(r.opp)) X.skIdx.set(r.opp, new Map());
+      const m = X.skIdx.get(r.opp);
+      if (!m.has(r.game_id)) m.set(r.game_id, { rows: [], when: sp === 'cfb' ? `Week ${r.week} vs ${r.team}` : `${Number(r.date.slice(5, 7))}/${Number(r.date.slice(8, 10))} vs ${r.team}`, date: r.date });
+      m.get(r.game_id).rows.push(r);
+    });
+  }
+  const byGame = X.skIdx.get(def); if (!byGame) return null;
+  const val = opts.val || ((r) => (SKEW_COMBO[stat] ? SKEW_COMBO[stat].reduce((a, k) => a + (r[k] || 0), 0) : r[stat] || 0));
+  const isMax = stat.startsWith('long');
+  const games = [...byGame.entries()].filter(([id]) => !opts.ids || opts.ids.has(id)).map(([, g]) => {
+    const rs = g.rows.filter((r) => r.position === pos);
+    let top = null; rs.forEach((r) => { const v = val(r); if (!top || v > top.v) top = { player: r.player, v }; });
+    return { v: rs.length ? (isMax ? Math.max(...rs.map(val)) : rs.reduce((a, r) => a + val(r), 0)) : 0, when: g.when, top };
+  });
+  const sk = skewCheck(games);
+  return sk ? skewText(def, opts.posLabel || `${pos}s`, opts.unit || skewUnit(stat), sk) : null;
 }
 
 // bar chart with tooltip and optional horizontal line. data: [{x, y, color, tipTitle, tipBody}]
@@ -1511,13 +1597,17 @@ function renderMatchups() {
     mSplit.textContent = msgs.join('. ') + '. Its numbers and ranks below use only those games; every other defense uses all of its games.';
   }
   const cols = [{ f: 'defense', label: 'Defense', l: true }, { f: 'games', label: 'GP' }];
-  keys.forEach((k) => cols.push({ f: k, label: statLabel(k).replace(/ \(.*\)/, ''), group: true }, { f: `${k}_rk`, label: 'Rk', rank: 'opp' }));
+  const mNotes = [];
+  const mWeeks = (o) => (o.wo ? S.mOut.get(o.defense) : S.mWin === 'last3' ? winWeeks : null);
+  keys.forEach((k) => cols.push({ f: k, label: statLabel(k).replace(/ \(.*\)/, ''), group: true, mark: (o) => o[`sk_${k}`] }, { f: `${k}_rk`, label: 'Rk', rank: 'opp' }));
+  rows.forEach((o) => keys.forEach((k) => { const n = nflSkew(o.defense, S.mPos, k, mWeeks(o)); if (n) { o[`sk_${k}`] = n; mNotes.push(n); } }));
   if (!S.mDef) S.mDef = rows.slice().sort((a, b) => (b[`${keys[0]}_rk`] ?? 0) - (a[`${keys[0]}_rk`] ?? 0))[0].defense;
   table($('.t-match'), 'match' + S.mPos, cols, rows, {
     sort: { f: `${keys[0]}_rk`, dir: 'asc' },
     onClick: (r) => { S.mDef = r.defense; render(); $('#m-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
     selected: (r) => r.defense === S.mDef || r.wo,
   });
+  skewList($('.t-match'), mNotes);
   if (!S.mdStat || !keys.includes(S.mdStat)) S.mdStat = keys[0];
   fillSelect($('.md-stat'), keys, S.mdStat);
   const stat = S.mdStat;
@@ -2073,12 +2163,15 @@ function renderFantasy() {
   });
   if (!S.ffDef) S.ffDef = rows.slice().sort((a, b) => (b[`${S.ffPos}_rk`] ?? 0) - (a[`${S.ffPos}_rk`] ?? 0))[0].defense;
   const cols = [{ f: 'defense', label: 'Defense', l: true }, { f: 'games', label: 'GP' }];
-  POS.forEach((p) => cols.push({ f: p, label: `${p} pts /g`, group: true }, { f: `${p}_rk`, label: 'Rk', rank: 'opp' }));
+  POS.forEach((p) => cols.push({ f: p, label: `${p} pts /g`, group: true, mark: (o) => o[`sk_${p}`] }, { f: `${p}_rk`, label: 'Rk', rank: 'opp' }));
   cols.push({ f: 'next', label: 'Faces next', l: true, group: true });
+  const ffWeeks = win === 'last3' ? new Set([...new Set(DATA.matchups_weekly.map((r) => r.week))].sort((a, b) => a - b).slice(-3)) : null, ffNotes = [];
+  rows.forEach((o) => POS.forEach((p) => { const n = nflSkew(o.defense, p, fp, ffWeeks); if (n) { o[`sk_${p}`] = n; ffNotes.push(n); } }));
   table($('.t-ffdef'), 'ffdef', cols, rows, {
     sort: { f: 'WR_rk', dir: 'desc' }, selected: (r) => r.defense === S.ffDef,
     onClick: (r) => { S.ffDef = r.defense; render(); $('#ff-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
   });
+  skewList($('.t-ffdef'), ffNotes);
   renderFFDef();
   renderFFPlayer();
 }
@@ -2545,7 +2638,7 @@ function nfDefense(fmt, win) {
   const rows = [...tot.entries()].map(([d, t]) => { const n = keep.get(d).size; return { defense: d, games: n, G: t.G / n, F: t.F / n, C: t.C / n, all: (t.G + t.F + t.C) / n }; });
   ['G', 'F', 'C', 'all'].forEach((k) => rows.slice().sort((a, b) => a[k] - b[k]).forEach((r, i) => { r[`${k}_rk`] = i + 1; }));
   const lg = {}; ['G', 'F', 'C'].forEach((k) => { lg[k] = mean(rows.map((r) => r[k])); });
-  return (NBA.nfCache[key] = { rows, by: new Map(rows.map((r) => [r.defense, r])), lg });
+  return (NBA.nfCache[key] = { rows, by: new Map(rows.map((r) => [r.defense, r])), lg, keep });
 }
 function nbaNextGames(team, n) {
   const today = etToday();
@@ -2563,12 +2656,18 @@ function renderNBAFantasy() {
   const rows = D.rows.map((r) => ({ ...r, next: nextOf(r.defense) }));
   if (!S.nfDef || !D.by.has(S.nfDef)) S.nfDef = rows.slice().sort((a, b) => b[`${S.nfPos}_rk`] - a[`${S.nfPos}_rk`])[0].defense;
   const cols = [{ f: 'defense', label: 'Defense', l: true }, { f: 'games', label: 'GP' }];
-  [['G', 'Guard'], ['F', 'Forward'], ['C', 'Center']].forEach(([k, lbl]) => cols.push({ f: k, label: `${lbl} pts /g`, group: true, fmt: (v) => show(fp1(v)) }, { f: `${k}_rk`, label: 'Rk', rank: 'nba' }));
+  [['G', 'Guard'], ['F', 'Forward'], ['C', 'Center']].forEach(([k, lbl]) => cols.push({ f: k, label: `${lbl} pts /g`, group: true, fmt: (v) => show(fp1(v)), mark: (o) => o[`sk_${k}`] }, { f: `${k}_rk`, label: 'Rk', rank: 'nba' }));
+  const nfNotes = [];
+  rows.forEach((o) => [['G', 'guards'], ['F', 'forwards'], ['C', 'centers']].forEach(([k, lbl]) => {
+    const n = logSkew('nba', o.defense, k, 'fp', { val: (r) => nbaFP(r, fmt), ids: D.keep && D.keep.get(o.defense), posLabel: lbl, unit: 'fantasy pts' });
+    if (n) { o[`sk_${k}`] = n; nfNotes.push(n); }
+  }));
   cols.push({ f: 'all', label: 'Total /g', group: true, fmt: (v) => show(fp1(v)) }, { f: 'all_rk', label: 'Rk', rank: 'nba' }, { f: 'next', label: 'Next', l: true, group: true });
   table($('.t-nfdef'), 'nfdef', cols, rows, {
     sort: { f: `${S.nfPos}_rk`, dir: 'desc' }, selected: (r) => r.defense === S.nfDef,
     onClick: (r) => { S.nfDef = r.defense; render(); $('#nf-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
   });
+  skewList($('.t-nfdef'), nfNotes);
   renderNFDef(D);
   renderNFPlayer(D);
 }
@@ -3204,13 +3303,27 @@ function xgMatchup(sp, g) {
   // defense vs position
   const tbl = $('.xg-dvp'), teams = [g.away_team, g.home_team];
   const P = isBB(sp) ? [['G', 'Guards', 'pts', 'pts'], ['F', 'Forwards', 'pts', 'pts'], ['C', 'Centers', 'pts', 'pts']]
-    : [['QB', 'QBs', 'passing_yards', 'pass yds'], ['RB', 'RBs', 'rush_rec_yds', 'rush+rec yds'], ['WR', 'WRs', 'receiving_yards', 'rec yds'], ['TE', 'TEs', 'receiving_yards', 'rec yds']];
+    : [['QB', 'QBs', 'passing_yards', 'pass yds'], ['QB', 'QBs', 'rushing_yards', 'rush yds'],
+      ['RB', 'RBs', 'rushing_yards', 'rush yds'], ['RB', 'RBs', 'carries', 'carries'], ['RB', 'RBs', 'receiving_yards', 'rec yds'], ['RB', 'RBs', 'receptions', 'receptions'],
+      ['WR', 'WRs', 'receiving_yards', 'rec yds'], ['WR', 'WRs', 'receptions', 'receptions'],
+      ['TE', 'TEs', 'receiving_yards', 'rec yds'], ['TE', 'TEs', 'receptions', 'receptions']];
   const X = xgX(), Nd = sp === 'nba' ? 30 : Math.max(2, X.nDef || 130);
-  $('.xg-dnote').textContent = `What each defense allows per game to each position ${sp === 'cbb' && CBB.meta.dvp_season !== String(CBB.season) ? 'last season (this season takes over once enough games are in)' : 'this season'}, ranked among all ${Nd} ${{ nba: 'teams', cfb: 'FBS defenses', cbb: 'D1 defenses' }[sp]} (1 = toughest, ${Nd} = easiest).`;
+  $('.xg-dnote').textContent = `What each defense allows per game to each position ${sp === 'cbb' && CBB.meta.dvp_season !== String(CBB.season) ? 'last season (this season takes over once enough games are in)' : 'this season'}, ranked among all ${Nd} ${{ nba: 'teams', cfb: 'FBS defenses', cbb: 'D1 defenses' }[sp]} (1 = toughest, ${Nd} = easiest). * = one big game is carrying that number (details below the table).`;
   tbl.tHead.replaceChildren(h('tr', null, h('th', { class: 'l' }, 'Vs'), ...teams.flatMap((t) => [h('th', { class: 'grp' }, `${t} D allows`), h('th', { class: 'rkh' }, 'Rk')])));
   const hiEasy = sp === 'nba' ? 23 : sp === 'cbb' ? Nd - 60 : Nd - 20, loTough = sp === 'nba' ? 8 : sp === 'cbb' ? 60 : 20;
+  const dNotes = [];
   tbl.tBodies[0].replaceChildren(...P.map(([pos, lab, st, unit]) => h('tr', null, h('td', { class: 'l' }, `${lab} (${unit})`),
-    ...teams.flatMap((t) => { const r = X.dv.get(`${t}|${pos}|${st}`); return [h('td', { class: 'grp' }, r ? show(r.per_game) : '—'), h('td', { class: `rk${r && r.rank >= hiEasy ? ' rk-g' : r && r.rank <= loTough ? ' rk-r' : ''}` }, r ? r.rank : '—')]; }))));
+    ...teams.flatMap((t) => {
+      const r = X.dv.get(`${t}|${pos}|${st}`), note = r ? logSkew(sp, t, pos, st, { posLabel: lab, unit }) : null;
+      if (note) dNotes.push(note);
+      const cell = h('td', { class: 'grp' }, r ? show(r.per_game) : '—');
+      if (note) { cell.title = note; cell.append(h('sup', { class: 'skew', title: note }, '*')); }
+      return [cell, h('td', { class: `rk${r && r.rank >= hiEasy ? ' rk-g' : r && r.rank <= loTough ? ' rk-r' : ''}` }, r ? r.rank : '—')];
+    }))));
+  let dn = tbl.closest('.scroll').nextElementSibling;
+  if (!dn || !dn.classList.contains('xg-skew')) { dn = h('ul', { class: 'note xg-skew' }); tbl.closest('.scroll').after(dn); }
+  dn.hidden = !dNotes.length;
+  dn.replaceChildren(...dNotes.map((n) => h('li', null, h('b', { style: 'color: var(--c2)' }, '* '), n)));
 }
 
 function xgPlayers(sp, g) {

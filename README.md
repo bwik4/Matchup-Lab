@@ -77,3 +77,8 @@ Pick CBB with the buttons at the top of Home, Totals or Trends. `cbb_pipeline.py
 The projected total works like KenPom: each team gets a tempo (possessions per 40 minutes) and points per 100 possessions on offense and defense, adjusted for opponent and home court; early in the season it leans on last season. Projections are saved each morning so finished games can be graded.
 
 Files: `totals.csv` (one row per team per game, this season and last: final total, closing total, O/U result and margin, halves, OT, possessions, efficiency, shooting volume), `games.csv` (schedule, lines, projections), `ratings.csv` (team ratings), `lines.csv` (every line pulled so far; the first few runs backfill last season's closing lines), `logs.csv`, `dvp.csv`, `teams.csv`.
+
+## Skewed numbers (*)
+
+Every defense vs position table marks a number with an orange `*` when one big game is carrying it: swapping the defense's biggest game at that position for a typical one (the median of its other games) would drop the per-game average by 15% or more, and that game was at least double the typical one. It needs 4+ games, and skips TD, INT, sack and red-zone stats (one play always swings those). Hover or tap the `*`, or open the "Skewed by one big game" list under the table, to see the game, the player and what the number would be without the outlier. It's worked out in the browser from the logs, so the pipelines didn't change.
+
