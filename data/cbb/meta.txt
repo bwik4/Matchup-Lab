@@ -1,9 +1,9 @@
 season=2027
 season_label=2026-27
-through_date=2026-11-06
+through_date=2026-11-07
 d1_teams=366
 dvp_season=2027
 calibration=1.14
-lg_eff=105.16
-lg_tempo=71.12
-built_at=2026-11-07T14:15:09+00:00
+lg_eff=105.55
+lg_tempo=71.11
+built_at=2026-11-08T14:14:38+00:00
