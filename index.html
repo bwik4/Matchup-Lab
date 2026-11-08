@@ -423,6 +423,11 @@
         <div class="tc-rows"></div>
         <p class="summary tc-sum"></p>
       </div>
+      <div class="card">
+        <h2>Defense vs position</h2>
+        <p class="note">What each defense allows per game to each position this season, ranked among all 32 defenses (1 = toughest, 32 = easiest). QB pass yards here are the QBs' own box-score yards (sacks don't count against them, the same way props are graded), so they run a bit higher than the team's net pass yards above. * = one big game is carrying that number (details below the table).</p>
+        <div class="scroll" style="max-height: none"><table class="gp-dvp dvp"><thead></thead><tbody></tbody></table></div>
+      </div>
       <div class="card" id="game-detail">
         <h2 class="gd-title">Full season comparison</h2>
         <p class="note">Season stats for both teams. Ranks run 1–32 where 1 is best; the better number in each row is highlighted.</p>
@@ -2143,6 +2148,31 @@ function renderTC(g) {
   const span = S.tcWin === 'season' ? 'this season' : `over each team's last ${S.tcWin.slice(1)} games`;
   const b = (t, c) => h('b', { class: c }, t);
   $('.tc-sum').replaceChildren(`${TI(off).nick} offense has the edge in `, b(`${oe} of ${TC_ROWS.length}`, 'g'), ` categories and the ${TI(def).nick} defense in `, b(`${de}`, 'r'), ` (${span}). Tap ⇄ to see the other side of the ball.`);
+  renderGameDvP(g);
+}
+
+// ---------- matchup: defense vs position for just these two defenses ----------
+const GP_DVP = [['QB', 'QBs', 'passing_yards', 'pass yds'], ['QB', 'QBs', 'passing_tds', 'pass TDs'], ['QB', 'QBs', 'rushing_yards', 'rush yds'],
+  ['RB', 'RBs', 'rushing_yards', 'rush yds'], ['RB', 'RBs', 'carries', 'carries'], ['RB', 'RBs', 'receiving_yards', 'rec yds'], ['RB', 'RBs', 'receptions', 'receptions'],
+  ['WR', 'WRs', 'receiving_yards', 'rec yds'], ['WR', 'WRs', 'receptions', 'receptions'], ['WR', 'WRs', 'targets', 'targets'],
+  ['TE', 'TEs', 'receiving_yards', 'rec yds'], ['TE', 'TEs', 'receptions', 'receptions'], ['TE', 'TEs', 'targets', 'targets']];
+function renderGameDvP(g) {
+  const tbl = $('.gp-dvp'), teams = [g.away_team, g.home_team];
+  tbl.tHead.replaceChildren(h('tr', null, h('th', { class: 'l' }, 'Vs'), ...teams.flatMap((t) => [h('th', { class: 'grp' }, `${t} D allows`), h('th', { class: 'rkh' }, 'Rk')])));
+  const notes = [];
+  tbl.tBodies[0].replaceChildren(...GP_DVP.map(([pos, lab, st, unit]) => h('tr', null, h('td', { class: 'l' }, `${lab} (${unit})`),
+    ...teams.flatMap((t) => {
+      const r = mrow(t, pos, st), note = r ? nflSkew(t, pos, st) : null;
+      if (note) notes.push(note);
+      const v = r ? (st.endsWith('_tds') ? r.per_game.toFixed(1) : show(r.per_game)) : '—';
+      const cell = h('td', { class: 'grp' }, v);
+      if (note) { cell.title = note; cell.append(h('sup', { class: 'skew', title: note }, '*')); }
+      return [cell, h('td', { class: r ? rankClsOpp(r.rank) : 'rk' }, r ? r.rank : '—')];
+    }))));
+  let dn = tbl.closest('.scroll').nextElementSibling;
+  if (!dn || !dn.classList.contains('gp-skew')) { dn = h('ul', { class: 'note gp-skew' }); tbl.closest('.scroll').after(dn); }
+  dn.hidden = !notes.length;
+  dn.replaceChildren(...notes.map((n) => h('li', null, h('b', { style: 'color: var(--c2)' }, '* '), n)));
 }
 
 // ---------- players: starting QBs + top receivers/rushers ----------
