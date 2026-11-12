@@ -1,5 +1,5 @@
 season=2027
 season_label=2026-27
-through_date=2026-11-10
+through_date=2026-11-11
 teams=30
-built_at=2026-11-11T21:47:07+00:00
+built_at=2026-11-12T14:30:09+00:00
