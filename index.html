@@ -551,7 +551,7 @@
           </div>
         </div>
       </div>
-      <p class="note pd-note">Every game a player at this position had against this week's opponent. RB1 / WR1 etc. = the most-used player at that position on his team that game (QB by attempts, RB by carries + targets, WR/TE by targets). The highlighted column is colored against your line above.</p>
+      <p class="note pd-note">Every game a player at this position had against this week's opponent. RB1 / WR1 etc. = the most-used player at that position on his team that game (QB by attempts, RB by carries + targets, WR/TE by targets). WR1 + WR2 and RB1 + RB2 add the top two together each game, so you can check a combined line. The highlighted column is colored against your line above.</p>
       <p class="summary pd-sum"></p>
       <div class="scroll" style="max-height: 30rem"><table class="t-pdef"><thead></thead><tbody></tbody></table></div>
       <p class="empty pd-empty" hidden>No games to show.</p>
@@ -1707,7 +1707,7 @@ function renderProps() {
 // every game a player at the same position (and depth) had against this player's next opponent
 function renderPosVsDef(p, opp, stat, line, statCols) {
   const pos = p.position;
-  const depths = { QB: ['1'], RB: ['1', '2', 'all'], WR: ['1', '2', '3', 'all'], TE: ['1', 'all'], K: ['1'] }[pos];
+  const depths = { QB: ['1'], RB: ['1', '2', 'all', '12'], WR: ['1', '2', '3', 'all', '12'], TE: ['1', 'all'], K: ['1'] }[pos];
   // default to the role this player usually has on his team (his median depth this season)
   if (S.pdFor !== p.player_id || !depths.includes(S.pdDepth)) {
     // the role he held most often this season (ties go to the bigger role)
@@ -1720,11 +1720,11 @@ function renderPosVsDef(p, opp, stat, line, statCols) {
   const dEl = $('.pd-depth');
   const sig = pos;
   if (dEl.dataset.sig !== sig) {
-    dEl.replaceChildren(...depths.map((d) => { const b = document.createElement('button'); b.dataset.v = d; b.textContent = d === 'all' ? `All ${pos}s` : `${pos}${d}`; return b; }));
+    dEl.replaceChildren(...depths.map((d) => { const b = document.createElement('button'); b.dataset.v = d; b.textContent = depthBtn(pos, d); return b; }));
     dEl.dataset.sig = sig;
   }
   dEl.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === S.pdDepth)));
-  const label = S.pdDepth === 'all' ? `${pos}s` : `${pos}${S.pdDepth}s`;
+  const label = depthLbl(pos, S.pdDepth);
   if (opp === 'BYE') {
     $('.pd-title').textContent = `${label} vs next opponent`;
     $('.pd-sum').textContent = `${p.team} is on bye this week.`;
@@ -1732,9 +1732,12 @@ function renderPosVsDef(p, opp, stat, line, statCols) {
     return;
   }
   $('.pd-title').textContent = `${label} vs ${opp} defense`;
-  const rows = DATA.logs.filter((r) => r.opp === opp && r.position === pos && (S.pdWin === 'both' || r.season === S.season)
-    && (S.pdDepth === 'all' || r.depth === Number(S.pdDepth)))
-    .map((r) => ({ ...r, when: `${r.season} W${String(r.week).padStart(2, '0')}`, depth_lbl: `${pos}${r.depth}`, me: r.player_id === p.player_id }));
+  const pair = S.pdDepth === '12';
+  let base = DATA.logs.filter((r) => r.opp === opp && r.position === pos && (S.pdWin === 'both' || r.season === S.season)
+    && (S.pdDepth === 'all' || pair || r.depth === Number(S.pdDepth)));
+  if (pair) base = combineTop2(base, [...new Set([stat, ...statCols.map((c) => c.f)])]);
+  const rows = base.map((r) => ({ ...r, when: `${r.season} W${String(r.week).padStart(2, '0')}`, depth_lbl: pair ? `${pos}1+2` : `${pos}${r.depth}`,
+    me: pair ? r.pids.includes(p.player_id) : r.player_id === p.player_id }));
   const has = rows.length > 0;
   $('.pd-empty').hidden = has; $('.t-pdef').parentElement.hidden = !has;
   // summary: hit rate against the line for the selected stat
@@ -1745,7 +1748,7 @@ function renderPosVsDef(p, opp, stat, line, statCols) {
     const over = (a) => a.filter((v) => v > line).length;
     const b = (txt, cls) => { const e = document.createElement('b'); e.textContent = txt; if (cls) e.className = cls; return e; };
     const o = over(vals);
-    sum.append(`${label} vs ${opp} went over ${line} ${statLabel(stat).toLowerCase()} in `,
+    sum.append(`${label} ${pair ? 'combined ' : ''}vs ${opp} went over ${line} ${statLabel(stat).toLowerCase()} in `,
       b(`${o} of ${vals.length}`, o / vals.length >= 0.5 ? 'g' : 'r'), ' games');
     if (S.pdWin === 'both' && cur.length) sum.append(` (this season `, b(`${over(cur)} of ${cur.length}`), ')');
     sum.append(`. Average `, b(show(mean(vals))), `, median `, b(show(median(vals))), '.');
@@ -2345,7 +2348,24 @@ const FF_COLS = {
   K: [['fg_made', 'FG'], ['fg_att', 'FG att'], ['fg_long', 'Long'], ['fg_made_40_49', '40–49'], ['fg_made_50', '50+'], ['pat_made', 'XP'], ['pat_att', 'XP att'], ['k_pts', 'Kick pts']],
 };
 const ffCols = (pos) => FF_COLS[pos].map(([f, label]) => ({ f, label }));
-const DEPTHS = { QB: ['1'], RB: ['1', '2', 'all'], WR: ['1', '2', '3', 'all'], TE: ['1', 'all'], K: ['1'] };
+const DEPTHS = { QB: ['1'], RB: ['1', '2', 'all', '12'], WR: ['1', '2', '3', 'all', '12'], TE: ['1', 'all'], K: ['1'] };
+// depth button text and role label ('12' = the top two combined, e.g. WR1 + WR2)
+const depthBtn = (pos, d) => (d === 'all' ? `All ${pos}s` : d === '12' ? `${pos}1 + ${pos}2` : `${pos}${d}`);
+const depthLbl = (pos, d) => (d === 'all' ? `${pos}s` : d === '12' ? `${pos}1 + ${pos}2` : `${pos}${d}s`);
+// one row per team-game with the #1 and #2 at the position added together (longest plays = the longer of the two)
+function combineTop2(rows, keys) {
+  const g = new Map();
+  rows.forEach((r) => { if (r.depth !== 1 && r.depth !== 2) return; const k = `${r.season}|${r.week}|${r.team}`; if (!g.has(k)) g.set(k, []); g.get(k).push(r); });
+  return [...g.values()].map((a) => {
+    a.sort((x, y) => x.depth - y.depth);
+    const o = { ...a[0], player: a.map((x) => x.player).join(' + '), pids: a.map((x) => x.player_id), pair: true };
+    keys.forEach((k) => {
+      const vs = a.map((x) => x[k]).filter((v) => v != null);
+      o[k] = !vs.length ? null : /long/.test(k) ? Math.max(...vs) : Math.round(vs.reduce((t, v) => t + v, 0) * 10) / 10;
+    });
+    return o;
+  });
+}
 const _ff = {};
 function leagueAllowed(pos) {
   const k = `la|${pos}|${S.fmt}`;
@@ -2519,28 +2539,30 @@ function renderFFVs(p, x, base) {
   const pos = p.position, fp = fpKey(), depths = DEPTHS[pos];
   if (S.ffDepthFor !== p.player_id || !depths.includes(S.ffDepth)) { S.ffDepth = usualDepth(p.player_id, pos); S.ffDepthFor = p.player_id; }
   const dEl = $('.ffv-depth');
-  if (dEl.dataset.sig !== pos) { dEl.replaceChildren(...depths.map((d) => h('button', { 'data-v': d }, d === 'all' ? `All ${pos}s` : `${pos}${d}`))); dEl.dataset.sig = pos; }
+  if (dEl.dataset.sig !== pos) { dEl.replaceChildren(...depths.map((d) => h('button', { 'data-v': d }, depthBtn(pos, d)))); dEl.dataset.sig = pos; }
   dEl.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === S.ffDepth)));
-  const label = S.ffDepth === 'all' ? `${pos}s` : `${pos}${S.ffDepth}s`;
+  const label = depthLbl(pos, S.ffDepth), pair = S.ffDepth === '12';
   const sum = $('.ffv-sum'); sum.replaceChildren();
   if (!x) { $('.ffv-title').textContent = 'Past players vs this defense'; sum.textContent = 'No games left this season.'; $('.ffv-empty').hidden = true; $('.t-ffvs').parentElement.hidden = true; return; }
   $('.ffv-title').textContent = `${label} vs ${x.opp} this season (his week ${x.week} opponent)`;
-  const fits = (r) => r.season === S.season && r.position === pos && (S.ffDepth === 'all' || r.depth === Number(S.ffDepth));
-  const rows = DATA.logs.filter((r) => fits(r) && r.opp === x.opp).map((r) => ({ ...r, role: `${pos}${r.depth}`, fpv: r[fp] }));
-  const lgVals = DATA.logs.filter(fits).map((r) => r[fp]).filter((v) => v != null);
+  const fits = (r) => r.season === S.season && r.position === pos && (S.ffDepth === 'all' || pair || r.depth === Number(S.ffDepth));
+  const ck = [fp, ...ffCols(pos).map((c) => c.f)];
+  const pool = pair ? combineTop2(DATA.logs.filter(fits), ck) : DATA.logs.filter(fits);
+  const rows = pool.filter((r) => r.opp === x.opp).map((r) => ({ ...r, role: pair ? `${pos}1+2` : `${pos}${r.depth}`, fpv: r[fp] }));
+  const lgVals = pool.map((r) => r[fp]).filter((v) => v != null);
   const lgAvg = mean(lgVals);
   const has = rows.length > 0;
   $('.ffv-empty').hidden = has; $('.t-ffvs').parentElement.hidden = !has;
   if (has) {
     const vals = rows.map((r) => r.fpv).filter((v) => v != null), av = mean(vals);
     const b = (t, c) => h('b', { class: c }, t);
-    sum.append(`${label} have scored `, b(`${show(av)} ${FMT_NAME[S.fmt]} pts`, av >= lgAvg ? 'g' : 'r'), ` per game against ${x.opp} (${vals.length} game${vals.length === 1 ? '' : 's'}), versus `,
+    sum.append(`${label} have scored `, b(`${show(av)} ${FMT_NAME[S.fmt]} pts`, av >= lgAvg ? 'g' : 'r'), `${pair ? ' combined' : ''} per game against ${x.opp} (${vals.length} game${vals.length === 1 ? '' : 's'}), versus `,
       b(show(lgAvg)), ` for ${label} against everyone this season. ${p.player} averages `, b(show(base.A)), ` and projects for `, b(show(x.proj)), ` that week.`);
   }
   table($('.t-ffvs'), 'ffvs', [{ f: 'week', label: 'Wk' }, { f: 'team', label: 'Offense', l: true }, { f: 'player', label: 'Player', l: true },
     ...(S.ffDepth === 'all' ? [{ f: 'role', label: 'Role', l: true }] : []),
     { f: 'fpv', label: 'Fantasy pts', cls: (v) => (v == null ? 'rk' : v >= lgAvg ? 'g rk' : 'r rk') }, ...ffCols(pos)], rows, {
-    sort: { f: 'week', dir: 'desc' }, selected: (r) => r.player_id === p.player_id,
+    sort: { f: 'week', dir: 'desc' }, selected: (r) => (r.pair ? r.pids.includes(p.player_id) : r.player_id === p.player_id),
     onClick: (r) => { S.ffPlayer = r.player_id; S.ffWeek = null; render(); $('#ff-player').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
   });
 }
