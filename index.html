@@ -692,16 +692,9 @@
       <div class="chart ffp-chart"></div>
       <div class="legend"><span class="lr">Tough matchup (rank 1–8)</span><span class="lg">Easy matchup (25–32)</span><span class="ln">Neutral</span></div>
       <h3>Week by week</h3>
-      <p class="note">Tap a week to see how players at his position have done against that defense.</p>
-      <div class="scroll" style="max-height: none"><table class="t-ffsched"><thead></thead><tbody></tbody></table></div>
-      <div class="bar" style="margin-top: 18px">
-        <h3 class="ffl-title" style="margin: 0">Previous games</h3>
-        <div class="seg ff-lseas" role="group" aria-label="Seasons"><button data-v="cur">This season</button><button data-v="both">This + last season</button></div>
-      </div>
       <p class="summary ffl-sum"></p>
-      <p class="note">Every game he played, newest first. Opp rk = how that defense ranks this season in fantasy points allowed to his position (1 = toughest, 32 = easiest; blank for last season). Tap a result for the box score.</p>
-      <div class="scroll" style="max-height: 28rem"><table class="t-fflog"><thead></thead><tbody></tbody></table></div>
-      <p class="empty ffl-empty" hidden>No games yet.</p>
+      <p class="note">His whole season in one table. Played weeks show the result (tap it for the box score), his actual fantasy points and stats; upcoming weeks show the matchup and his projection. Opp rk = that defense's rank in fantasy points allowed to his position this season (1 = toughest, 32 = easiest). Tap an upcoming week to see how players at his position have done against that defense.</p>
+      <div class="scroll" style="max-height: none"><table class="t-ffsched"><thead></thead><tbody></tbody></table></div>
     </div>
 
     <div class="card" id="ff-vs">
@@ -957,7 +950,7 @@ const S = {
   fantasy: false, fmt: 'ppr', season: null, upWeek: null,
   hWeek: null, hDay: null, game: null,
   tcWin: 'season', tcFlip: false, plWin: 'l5', plMore: false, usWin: 'cur', usType: 'targets', usZone: 'all', glSeas: 'cur',
-  ffWin: 'season', ffPos: 'WR', ffDef: null, ffPlayer: null, ffWeek: null, ffDepth: null, ffDepthFor: null, ffLSeas: 'cur',
+  ffWin: 'season', ffPos: 'WR', ffDef: null, ffPlayer: null, ffWeek: null, ffDepth: null, ffDepthFor: null,
   player: null, pStat: null, pLine: null, pdDepth: null, pdFor: null, pdWin: 'both',
   fPos: 'WR', fStat: 'receiving_yards', fq: '',
   mPos: 'WR', mWin: 'season', mDef: null, mdStat: null,
@@ -1440,7 +1433,7 @@ const fmtAfter = () => { ['pStat', 'fStat', 'mdStat'].forEach((k) => { if (S[k] 
 const segs = [
   seg('.fmt', 'fmt', fmtAfter), seg('.ff-fmt', 'fmt', fmtAfter), seg('.m-win', 'mWin'), seg('.t-view', 'tView'),
   seg('.tc-win', 'tcWin'), seg('.pl-win', 'plWin'), seg('.us-win', 'usWin'), seg('.us-type', 'usType'), seg('.us-zone', 'usZone'), seg('.gl-seas', 'glSeas'),
-  seg('.ff-win', 'ffWin'), seg('.ff-pos', 'ffPos'), seg('.ff-lseas', 'ffLSeas'),
+  seg('.ff-win', 'ffWin'), seg('.ff-pos', 'ffPos'),
   seg('.f-pos', 'fPos', () => { if (!propStats(S.fPos).includes(S.fStat)) S.fStat = POS_STATS[S.fPos][0]; }),
   seg('.m-pos', 'mPos', () => { S.mdStat = null; }), seg('.pd-win', 'pdWin'), seg('.p-seas', 'pSeas'), seg('.t-seas', 'tSeas'),
 ];
@@ -2488,50 +2481,52 @@ function renderFFPlayer() {
     tipTitle: `Week ${x.week} ${x.home ? 'vs' : '@'} ${x.opp}`, tipBody: `Projected ${show(x.proj)} pts · ${x.opp} rank ${x.rank ?? '—'} vs ${pos}s` })),
   { height: 200, line: base.b == null ? null : Math.round(base.b * 10) / 10, lineLabel: `His baseline ${show(base.b)}` });
   if (!games.some((x) => x.week === S.ffWeek)) S.ffWeek = games.length ? games[0].week : null;
-  const rows = sched.map((x) => (x.bye ? { week: x.week, date: '—', opp: 'BYE' } : {
-    week: x.week, date: dayTxt(x.d), opp: `${x.home ? 'vs' : '@'} ${x.opp}`, allow: x.allow, rank: x.rank,
-    diff: x.rank == null ? '—' : x.rank <= 8 ? 'Tough' : x.rank >= 25 ? 'Easy' : 'Neutral', implied: x.implied, proj: x.proj,
-  }));
-  table($('.t-ffsched'), 'ffsched', [{ f: 'week', label: 'Wk' }, { f: 'date', label: 'Date', l: true }, { f: 'opp', label: 'Opp', l: true },
-    { f: 'allow', label: `Opp allows to ${pos}s /g` }, { f: 'rank', label: 'Opp rk', rank: 'opp' },
-    { f: 'diff', label: 'Matchup', l: true, cls: (v) => (v === 'Easy' ? 'diff-g' : v === 'Tough' ? 'diff-r' : '') },
-    { f: 'implied', label: 'Team implied pts', title: 'From the betting lines, when they are out' }, { f: 'proj', label: 'Projection', cls: () => 'rk' }], rows, {
-    sort: { f: 'week', dir: 'asc' }, selected: (r) => r.week === S.ffWeek,
-    onClick: (r) => { if (r.opp === 'BYE') return; S.ffWeek = r.week; render(); $('#ff-vs').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
-  });
-  renderFFLog(p);
+  renderFFSeason(p, sched);
   renderFFVs(p, games.find((x) => x.week === S.ffWeek), base);
 }
 
-// every game the player has played (this season, or this + last), with the result and a box score
-function renderFFLog(p) {
-  const fp = fpKey(), pos = p.position, both = S.ffLSeas === 'both';
+// the whole season in one table: played weeks (result, actual points, box score) then the rest of the schedule
+function renderFFSeason(p, sched) {
+  const fp = fpKey(), pos = p.position;
   if (!IDX.tg) IDX.tg = new Map(DATA.team_games.map((g) => [`${g.season}|${g.week}|${g.team}`, g]));
-  const logs = (IDX.logs.get(p.player_id) || []).filter((r) => r.season === S.season || (both && r.season === S.season - 1));
-  const rows = logs.map((r) => {
-    const g = IDX.tg.get(`${r.season}|${r.week}|${r.team}`);
-    const res = g && g.pf != null ? `${g.pf > g.pa ? 'W' : g.pf < g.pa ? 'L' : 'T'} ${g.pf}-${g.pa}` : '—';
-    return { ...r, gkey: r.season * 100 + r.week, oppTxt: `${g && g.home === 0 ? '@' : 'vs'} ${r.opp}`, res,
-      opp_rank: r.season === S.season ? (mrow(r.opp, pos, fp) || {}).rank : null, fpv: r[fp] };
-  });
-  const vals = rows.map((r) => r.fpv).filter((v) => v != null), avg = mean(vals);
-  $('.ffl-title').textContent = `Previous games${both ? ' (this season + last)' : ' this season'}`;
-  const has = rows.length > 0;
-  $('.ffl-empty').hidden = has; $('.t-fflog').parentElement.hidden = !has;
-  const sum = $('.ffl-sum'); sum.replaceChildren();
-  if (has) {
-    const b = (t, c) => h('b', { class: c }, t);
-    const byPts = rows.filter((r) => r.fpv != null).sort((x, y) => y.fpv - x.fpv), hi = byPts[0], lo = byPts[byPts.length - 1];
-    sum.append(`${vals.length} game${vals.length === 1 ? '' : 's'}: `, b(`${show(avg)} ${FMT_NAME[S.fmt]} pts`), ' per game, last 3 ', b(show(mean(vals.slice(-3)))),
-      ...(hi ? ['. Best ', b(show(hi.fpv), 'g'), ` (${both ? `'${String(hi.season).slice(2)} ` : ''}Wk ${hi.week} ${hi.oppTxt}), worst `, b(show(lo.fpv), 'r'), ` (${both ? `'${String(lo.season).slice(2)} ` : ''}Wk ${lo.week} ${lo.oppTxt}).`] : ['.']));
+  const mine = new Map(curGames(p.player_id).filter((r) => r.team === p.team).map((r) => [r.week, r]));
+  const diff = (rk) => (rk == null ? '—' : rk <= 8 ? 'Tough' : rk >= 25 ? 'Easy' : 'Neutral');
+  const rows = [];
+  const firstUp = sched.length ? sched[0].week : Infinity;
+  for (let w = 1; w < firstUp; w++) {
+    const gm = DATA.games.find((x) => x.week === w && (x.home_team === p.team || x.away_team === p.team));
+    if (!gm) { rows.push({ week: w, date: '—', opp: 'BYE', bye: true }); continue; }
+    if (gm.status !== 'final') continue;
+    const home = gm.home_team === p.team, opp = home ? gm.away_team : gm.home_team, g = IDX.tg.get(`${S.season}|${w}|${p.team}`), r = mine.get(w);
+    const mr = mrow(opp, pos, fp) || {};
+    rows.push({ ...(r || {}), week: w, date: dayTxt(kickDate(gm)), opp: `${home ? 'vs' : '@'} ${opp}`, oppT: opp, played: true,
+      res: g && g.pf != null ? `${g.pf > g.pa ? 'W' : g.pf < g.pa ? 'L' : 'T'} ${g.pf}-${g.pa}` : '—',
+      allow: mr.per_game, rank: mr.rank, diff: diff(mr.rank), fpv: r ? r[fp] : null, dnp: !r });
   }
-  const teams = new Set(rows.map((r) => r.team));
-  table($('.t-fflog'), 'fflog' + pos, [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'week', label: 'Wk' },
-    ...(teams.size > 1 ? [{ f: 'team', label: 'Team', l: true }] : []), { f: 'oppTxt', label: 'Opp', l: true }, { f: 'res', label: 'Result', l: true },
-    { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, { f: 'fpv', label: 'Fantasy pts', cls: (v) => (v == null || avg == null ? 'rk' : v >= avg ? 'g rk' : 'r rk') },
-    ...ffCols(pos), ...(pos === 'QB' || pos === 'K' ? [] : [{ f: 'target_share', label: 'Tgt %' }])], rows, {
-    sort: { f: 'gkey', dir: 'desc' },
-    expand: { f: 'res', key: (r) => `${r.gkey}|${r.team}`, render: (r) => boxNFL(r.season, r.week, r.team, r.opp) },
+  sched.forEach((x) => {
+    if (x.bye) { rows.push({ week: x.week, date: '—', opp: 'BYE', bye: true }); return; }
+    rows.push({ week: x.week, date: dayTxt(x.d), opp: `${x.home ? 'vs' : '@'} ${x.opp}`, allow: x.allow, rank: x.rank, diff: diff(x.rank), implied: x.implied, proj: x.proj });
+  });
+  const played = rows.filter((r) => r.played && !r.dnp), vals = played.map((r) => r.fpv).filter((v) => v != null), avg = mean(vals);
+  const sum = $('.ffl-sum'); sum.replaceChildren();
+  if (vals.length) {
+    const b = (t, c) => h('b', { class: c }, t);
+    const byPts = played.filter((r) => r.fpv != null).sort((x, y) => y.fpv - x.fpv), hi = byPts[0], lo = byPts[byPts.length - 1];
+    const dnp = rows.filter((r) => r.dnp).length;
+    sum.append(`${vals.length} game${vals.length === 1 ? '' : 's'} played: `, b(`${show(avg)} ${FMT_NAME[S.fmt]} pts`), ' per game, last 3 ', b(show(mean(vals.slice(-3)))),
+      '. Best ', b(show(hi.fpv), 'g'), ` (Wk ${hi.week} ${hi.opp}), worst `, b(show(lo.fpv), 'r'), ` (Wk ${lo.week} ${lo.opp})`, dnp ? `. Missed ${dnp} game${dnp === 1 ? '' : 's'}.` : '.');
+  }
+  const stat = ffCols(pos).map((c) => ({ ...c, fmt: (v, r) => (r.played && !r.dnp ? show(v) : '') }));
+  table($('.t-ffsched'), 'ffsched' + pos, [{ f: 'week', label: 'Wk' }, { f: 'date', label: 'Date', l: true }, { f: 'opp', label: 'Opp', l: true },
+    { f: 'res', label: 'Result', l: true, fmt: (v, r) => (r.dnp ? `${v} · DNP` : v == null ? '' : v) },
+    { f: 'rank', label: 'Opp rk', rank: 'opp' }, { f: 'diff', label: 'Matchup', l: true, cls: (v) => (v === 'Easy' ? 'diff-g' : v === 'Tough' ? 'diff-r' : '') },
+    { f: 'allow', label: `Opp allows to ${pos}s /g` }, { f: 'implied', label: 'Team implied', title: 'From the betting lines, when they are out', fmt: (v) => (v == null ? '' : show(v)) },
+    { f: 'proj', label: 'Proj', fmt: (v) => (v == null ? '' : show(v)), cls: () => 'rk' },
+    { f: 'fpv', label: 'Fantasy pts', fmt: (v, r) => (r.played && !r.dnp ? show(v) : ''), cls: (v) => (v == null || avg == null ? 'rk' : v >= avg ? 'g rk' : 'r rk') },
+    ...stat], rows, {
+    sort: { f: 'week', dir: 'asc' }, selected: (r) => !r.played && r.week === S.ffWeek,
+    onClick: (r) => { if (r.bye || r.played) return; S.ffWeek = r.week; render(); $('#ff-vs').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
+    expand: { f: 'res', key: (r) => (r.played ? `${r.week}|${p.team}` : null), render: (r) => boxNFL(S.season, r.week, p.team, r.oppT) },
   });
 }
 

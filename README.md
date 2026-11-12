@@ -4,7 +4,7 @@ Betting and fantasy research for the NFL, laid out like an app with a sidebar (a
 
 - **Home**: every game for the week, grouped by day, with spread, moneyline and total. Tap a game for its research page: **Odds**, **Matchup** (offense vs defense ranks over the last 3, last 5 or full season), **Players** (starting QBs and top receivers/rushers with matchup grades), **Usage share** (target and carry share, overall or red zone) and **Game lines** (each team's ATS and over/under history, plus head to head).
 - **Stats**: team stats and betting records, defense vs position, and player prop cards with hit rates.
-- **Fantasy**: fantasy points each defense allows to QB/RB/WR/TE/K with every game log against it, and a player outlook with rest-of-season strength of schedule, week-by-week matchup difficulty, every previous game he played (this season or this + last, with box scores), past players at his position vs each opponent, and weekly projections. Free NFL data from [nflverse](https://github.com/nflverse/nflverse-data), rebuilt automatically every Tuesday.
+- **Fantasy**: fantasy points each defense allows to QB/RB/WR/TE/K with every game log against it, and a player outlook with rest-of-season strength of schedule, week-by-week matchup difficulty, one week-by-week table for his whole season (played weeks with results, box scores, actual points and stats; upcoming weeks with matchups and projections), past players at his position vs each opponent, and weekly projections. Free NFL data from [nflverse](https://github.com/nflverse/nflverse-data), rebuilt automatically every Tuesday.
 
 ## What's in here
 
