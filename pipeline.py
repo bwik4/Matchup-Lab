@@ -41,7 +41,7 @@ import numpy as np
 import pandas as pd
 
 BASE = "https://github.com/nflverse/nflverse-data/releases/download"
-POSITIONS = ["QB", "RB", "WR", "TE"]
+POSITIONS = ["QB", "RB", "WR", "TE", "K"]
 # two-way players listed at a defensive spot in nflverse's stats, mapped to their offensive position
 TWO_WAY = {
     "00-0040718": "WR",  # Travis Hunter (JAX, WR/CB)
@@ -57,8 +57,12 @@ FP = ["fp_std", "fp_half", "fp_ppr"]
 LONG = ["long_completion", "long_rush", "long_reception"]
 # extra schedule columns: the juice on the spread and total, and the listed starting QBs
 ODDS_COLS = ["away_spread_odds", "home_spread_odds", "over_odds", "under_odds", "away_qb_name", "home_qb_name"]
+# kicking (kickers only; blank for everyone else). k_pts = kicking points (3 per FG + 1 per XP), the usual prop
+KICK = ["fg_made", "fg_att", "fg_made_0_39", "fg_made_40_49", "fg_made_50", "pat_made", "pat_att", "k_pts"]
+KLONG = ["fg_long"]  # longest made FG that game (a max, not a sum)
 # stats ranked on the matchups page (everything a prop could be set on)
-MATCHUP_STATS = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + LONG + FP
+MATCHUP_STATS = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + LONG + FP + KICK + KLONG
+KICK_STATS = set(KICK + KLONG)  # only ranked for kickers; kickers only get these + fantasy points
 
 
 def load_week_stats(season):
@@ -73,6 +77,24 @@ def load_week_stats(season):
     df["fp_half"] = (df["fp_std"] + df["fp_ppr"]) / 2
     df["rush_rec_yds"] = df["rushing_yards"] + df["receiving_yards"]
     df["pass_rush_yds"] = df["passing_yards"] + df["rushing_yards"]
+    return add_kicking(df)
+
+
+def add_kicking(df):
+    """Kicking stats and kicker fantasy points (nflverse's fantasy_points leave kickers at 0).
+    Scoring, same in every format: FG 0-39 yds = 3, 40-49 = 4, 50+ = 5, XP = 1, missed FG or XP = -1."""
+    col = lambda c: df[c].fillna(0) if c in df.columns else pd.Series(0, index=df.index)
+    k = df["position"] == "K"
+    made, att, pm, pa = col("fg_made"), col("fg_att"), col("pat_made"), col("pat_att")
+    short = col("fg_made_0_19") + col("fg_made_20_29") + col("fg_made_30_39")
+    f40, f50 = col("fg_made_40_49"), col("fg_made_50_59") + col("fg_made_60_")
+    out = {"fg_made": made, "fg_att": att, "fg_made_0_39": short, "fg_made_40_49": f40, "fg_made_50": f50,
+           "pat_made": pm, "pat_att": pa, "k_pts": 3 * made + pm, "fg_long": col("fg_long")}
+    for c, v in out.items():
+        df[c] = np.where(k, v, np.nan)
+    kfp = 3 * short + 4 * f40 + 5 * f50 + pm - (att - made) - (pa - pm)
+    for c in FP:
+        df.loc[k, c] = kfp[k]
     return df
 
 
@@ -291,15 +313,16 @@ def build(season, out):
     skill = add_pbp_usage(stats[stats["position"].isin(POSITIONS)].copy(), pbp)
 
     # ---------------- defense vs position ----------------
-    sums = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + FP
+    sums = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + FP + KICK
     mw = (skill.groupby(["opponent_team", "position", "week"])[sums].sum().reset_index()
           .rename(columns={"opponent_team": "defense"}))
     # longest play allowed to the position that week (the max, not a sum)
-    lw = (skill.groupby(["opponent_team", "position", "week"])[LONG].max().reset_index()
+    lw = (skill.groupby(["opponent_team", "position", "week"])[LONG + KLONG].max().reset_index()
           .rename(columns={"opponent_team": "defense"}))
     mw = mw.merge(lw, on=["defense", "position", "week"], how="left")
     mw = mw.join(skill.groupby(["opponent_team", "week"])["team"].first().rename("offense"), on=["defense", "week"])
     mw[FP] = mw[FP].round(1)
+    mw.loc[mw["position"] != "K", KICK + KLONG] = np.nan  # kicking columns only mean something for kickers
     mw.to_csv(f"{out}/matchups_weekly.csv", index=False)
 
     weeks = sorted(mw["week"].unique())
@@ -307,7 +330,7 @@ def build(season, out):
     for label, wk in [("season", weeks), ("last3", weeks[-3:])]:
         w = mw[mw["week"].isin(wk)]
         gp = w.groupby("defense")["week"].nunique()
-        tot = w.groupby(["defense", "position"])[sums + LONG].sum()
+        tot = w.groupby(["defense", "position"])[sums + LONG + KLONG].sum()
         full = pd.MultiIndex.from_product([sorted(mw["defense"].unique()), POSITIONS], names=["defense", "position"])
         tot = tot.reindex(full).fillna(0)
         pg = tot.div(gp, axis=0, level="defense")
@@ -322,6 +345,9 @@ def build(season, out):
             s["games"] = s["defense"].map(gp)
             rows.append(s)
     matchups = pd.concat(rows)[["defense", "window", "position", "stat", "games", "per_game", "rank"]]
+    # kickers only get kicking stats + fantasy points; everyone else skips the kicking stats
+    is_k, kstat = matchups["position"] == "K", matchups["stat"].isin(KICK_STATS)
+    matchups = matchups[(is_k & (kstat | matchups["stat"].isin(FP))) | (~is_k & ~kstat)]
     matchups.to_csv(f"{out}/matchups.csv", index=False)
 
     # ---------------- game logs ----------------
@@ -333,7 +359,7 @@ def build(season, out):
             prev_skill[c] = np.nan
     both = pd.concat([skill, prev_skill], ignore_index=True)
     logcols = (["player_id", "player_display_name", "position", "season", "week", "team", "opponent_team", "target_share"]
-               + BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + LONG + EXTRA + FP)
+               + BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + LONG + EXTRA + FP + KICK + KLONG)
     logs = both[logcols].rename(columns={"player_display_name": "player", "opponent_team": "opp"})
     logs["target_share"] = (logs["target_share"] * 100).round(1)
     logs[FP] = logs[FP].round(1)
@@ -469,7 +495,7 @@ def build(season, out):
 
     # ---------------- players ----------------
     cur = skill.sort_values("week")
-    avg_cols = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + LONG + EXTRA + FP
+    avg_cols = BOX + ["rush_rec_yds", "pass_rush_yds", "rz_targets", "rz_carries"] + LONG + EXTRA + FP + KICK + KLONG
     ps = cur.groupby("player_id").agg(
         player=("player_display_name", "last"), position=("position", "last"), team=("team", "last"),
         games=("week", "nunique"), last_week=("week", "max"), tgt_share=("target_share", "mean"),

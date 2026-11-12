@@ -562,7 +562,7 @@
         <h2>Prop finder</h2>
         <div class="controls">
           <div class="seg f-pos" role="group" aria-label="Position">
-            <button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button>
+            <button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button><button data-v="K">K</button>
           </div>
           <select class="f-stat" aria-label="Stat"></select>
           <input class="search f-q" type="search" placeholder="Filter player or team" aria-label="Filter players">
@@ -581,7 +581,7 @@
         <h2>What each defense allows per game</h2>
         <div class="controls">
           <div class="seg m-pos" role="group" aria-label="Position">
-            <button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button>
+            <button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button><button data-v="K">K</button>
           </div>
           <div class="seg m-win" role="group" aria-label="Window">
             <button data-v="season">Season</button><button data-v="last3">Last 3 wks</button>
@@ -662,7 +662,7 @@
           <div class="seg ff-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="last3">Last 3 wks</button></div>
         </div>
       </div>
-      <p class="note">Fantasy points each defense allows per game to every QB, RB, WR and TE combined. Rk: 1 = toughest (allows the least), 32 = easiest. Tap a defense to see every game log against it.</p>
+      <p class="note">Fantasy points each defense allows per game to every QB, RB, WR, TE and kicker combined. Kickers score the same in every format: 3 per FG under 40 yards, 4 from 40–49, 5 from 50+, 1 per extra point, −1 per miss. Rk: 1 = toughest (allows the least), 32 = easiest. Tap a defense to see every game log against it.</p>
       <div class="scroll"><table class="t-ffdef dvp"><thead></thead><tbody></tbody></table></div>
       <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (25–32)</span></div>
     </div>
@@ -670,7 +670,7 @@
     <div class="card" id="ff-detail">
       <div class="bar">
         <h2 class="ffd-title">Pick a defense</h2>
-        <div class="seg ff-pos" role="group" aria-label="Position"><button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button></div>
+        <div class="seg ff-pos" role="group" aria-label="Position"><button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button><button data-v="K">K</button></div>
       </div>
       <p class="note ffd-note"></p>
       <div class="chart ffd-chart"></div>
@@ -694,6 +694,14 @@
       <h3>Week by week</h3>
       <p class="note">Tap a week to see how players at his position have done against that defense.</p>
       <div class="scroll" style="max-height: none"><table class="t-ffsched"><thead></thead><tbody></tbody></table></div>
+      <div class="bar" style="margin-top: 18px">
+        <h3 class="ffl-title" style="margin: 0">Previous games</h3>
+        <div class="seg ff-lseas" role="group" aria-label="Seasons"><button data-v="cur">This season</button><button data-v="both">This + last season</button></div>
+      </div>
+      <p class="summary ffl-sum"></p>
+      <p class="note">Every game he played, newest first. Opp rk = how that defense ranks this season in fantasy points allowed to his position (1 = toughest, 32 = easiest; blank for last season). Tap a result for the box score.</p>
+      <div class="scroll" style="max-height: 28rem"><table class="t-fflog"><thead></thead><tbody></tbody></table></div>
+      <p class="empty ffl-empty" hidden>No games yet.</p>
     </div>
 
     <div class="card" id="ff-vs">
@@ -922,7 +930,7 @@
 <script>
 // ===================== config =====================
 const FILES = ['matchups', 'matchups_weekly', 'logs', 'players', 'games', 'teams', 'avail', 'team_games'];
-const POS = ['QB', 'RB', 'WR', 'TE'];
+const POS = ['QB', 'RB', 'WR', 'TE', 'K'];
 const STATS = {
   passing_yards: 'Pass yds', attempts: 'Pass att', completions: 'Completions', passing_tds: 'Pass TD',
   passing_interceptions: 'INT', pass_rush_yds: 'Pass+rush yds', sacks_suffered: 'Sacks taken',
@@ -931,12 +939,15 @@ const STATS = {
   rz_targets: 'RZ targets', rz_carries: 'RZ carries', target_share: 'Target share %',
   long_completion: 'Long completion', long_rush: 'Long rush', long_reception: 'Long reception',
   fp_std: 'Fantasy pts', fp_half: 'Fantasy pts', fp_ppr: 'Fantasy pts',
+  k_pts: 'Kicking pts', fg_made: 'FG made', fg_att: 'FG att', fg_long: 'Long FG', fg_made_0_39: 'FG made 0–39', fg_made_40_49: 'FG made 40–49', fg_made_50: 'FG made 50+',
+  pat_made: 'XP made', pat_att: 'XP att',
 };
 const POS_STATS = {
   QB: ['passing_yards', 'attempts', 'completions', 'passing_tds', 'passing_interceptions', 'long_completion', 'rushing_yards', 'pass_rush_yds'],
   RB: ['rushing_yards', 'carries', 'rushing_tds', 'long_rush', 'receptions', 'receiving_yards', 'long_reception', 'rush_rec_yds', 'targets', 'rz_carries'],
   WR: ['receptions', 'receiving_yards', 'targets', 'receiving_tds', 'long_reception', 'rz_targets'],
   TE: ['receptions', 'receiving_yards', 'targets', 'receiving_tds', 'long_reception', 'rz_targets'],
+  K: ['k_pts', 'fg_made', 'fg_att', 'fg_made_50', 'fg_long', 'pat_made'],
 };
 const FMT_NAME = { std: 'standard', half: 'half-PPR', ppr: 'PPR' };
 
@@ -946,7 +957,7 @@ const S = {
   fantasy: false, fmt: 'ppr', season: null, upWeek: null,
   hWeek: null, hDay: null, game: null,
   tcWin: 'season', tcFlip: false, plWin: 'l5', plMore: false, usWin: 'cur', usType: 'targets', usZone: 'all', glSeas: 'cur',
-  ffWin: 'season', ffPos: 'WR', ffDef: null, ffPlayer: null, ffWeek: null, ffDepth: null, ffDepthFor: null,
+  ffWin: 'season', ffPos: 'WR', ffDef: null, ffPlayer: null, ffWeek: null, ffDepth: null, ffDepthFor: null, ffLSeas: 'cur',
   player: null, pStat: null, pLine: null, pdDepth: null, pdFor: null, pdWin: 'both',
   fPos: 'WR', fStat: 'receiving_yards', fq: '',
   mPos: 'WR', mWin: 'season', mDef: null, mdStat: null,
@@ -971,7 +982,7 @@ const fpKey = () => `fp_${S.fmt}`;
 const statLabel = (k) => (k.startsWith('fp_') ? `Fantasy pts (${FMT_NAME[S.fmt]})` : STATS[k] || k);
 const posStats = (pos) => [...POS_STATS[pos], ...(S.fantasy ? [fpKey()] : [])];
 // stats you can pick for a single player (adds target share, which defenses aren't ranked on)
-const propStats = (pos) => { const k = posStats(pos); if (pos === 'QB') return k; const i = k.indexOf('targets'); return [...k.slice(0, i + 1), 'target_share', ...k.slice(i + 1)]; };
+const propStats = (pos) => { const k = posStats(pos); if (pos === 'QB' || pos === 'K') return k; const i = k.indexOf('targets'); return [...k.slice(0, i + 1), 'target_share', ...k.slice(i + 1)]; };
 const median = (a) => { if (!a.length) return null; const s = a.slice().sort((x, y) => x - y); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 const mean = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
 const lineFor = (avg) => (avg == null ? 0.5 : Math.max(0.5, Math.floor(avg) + 0.5));
@@ -1152,11 +1163,14 @@ function boxFootball(teams, rs, scores, extra) {
     if (rec.length) out.push(h('h5', null, 'Receiving'), bxT(['', 'REC', ...(tg ? ['TGT'] : []), 'YDS', 'TD', 'LNG'],
       rec.map((r) => [r.player, r.receptions, ...(tg ? [r.targets ?? '—'] : []), r.receiving_yards, r.receiving_tds, show(r.long_reception)]),
       ['Total', bxSum(rec, 'receptions'), ...(tg ? [bxSum(rec, 'targets')] : []), bxSum(rec, 'receiving_yards'), bxSum(rec, 'receiving_tds'), '']));
+    const kick = p.filter((r) => r.fg_att > 0 || r.pat_att > 0);
+    if (kick.length) out.push(h('h5', null, 'Kicking'), bxT(['', 'FG', 'LNG', '40–49', '50+', 'XP', 'PTS'],
+      kick.map((r) => [r.player, `${r.fg_made ?? 0}/${r.fg_att ?? 0}`, r.fg_made ? show(r.fg_long) : '—', r.fg_made_40_49 ?? 0, r.fg_made_50 ?? 0, `${r.pat_made ?? 0}/${r.pat_att ?? 0}`, r.k_pts ?? 0])));
     if (out.length === 1) out.push(h('p', { class: 'empty' }, 'No player stats for this game.'));
     return h('div', null, ...out);
   };
   return h('div', null, extra || null, h('div', { class: 'box-teams' }, ...teams.map(side)),
-    h('p', { class: 'box-note' }, 'QBs, RBs, WRs and TEs only (defense and kicking stats aren\'t in the data).'));
+    h('p', { class: 'box-note' }, rs.some((r) => r.fg_att != null) ? 'QBs, RBs, WRs, TEs and kickers (defense stats aren\'t in the data). PTS = kicking points (3 per FG, 1 per XP).' : 'QBs, RBs, WRs and TEs only (defense and kicking stats aren\'t in the data).'));
 }
 // basketball: every player who logged minutes, starters first
 function boxBasketball(teams, rs, scores) {
@@ -1332,7 +1346,8 @@ function buildIndexes() {
   buildAvail();
   // depth rank within each team-game: 1 = most-used player at the position that game
   const usage = { QB: (r) => (r.attempts || 0) * 10 + (r.carries || 0), RB: (r) => (r.carries || 0) + (r.targets || 0) + (r.rushing_yards || 0) / 1000,
-    WR: (r) => (r.targets || 0) + (r.receiving_yards || 0) / 1000, TE: (r) => (r.targets || 0) + (r.receiving_yards || 0) / 1000 };
+    WR: (r) => (r.targets || 0) + (r.receiving_yards || 0) / 1000, TE: (r) => (r.targets || 0) + (r.receiving_yards || 0) / 1000,
+    K: (r) => (r.fg_att || 0) + (r.pat_att || 0) };
   const grp = new Map();
   DATA.logs.forEach((r) => { const k = `${r.season}|${r.week}|${r.team}|${r.position}`; if (!grp.has(k)) grp.set(k, []); grp.get(k).push(r); });
   grp.forEach((a) => { const u = usage[a[0].position]; a.sort((x, y) => u(y) - u(x)).forEach((r, i) => { r.depth = i + 1; }); });
@@ -1425,7 +1440,7 @@ const fmtAfter = () => { ['pStat', 'fStat', 'mdStat'].forEach((k) => { if (S[k] 
 const segs = [
   seg('.fmt', 'fmt', fmtAfter), seg('.ff-fmt', 'fmt', fmtAfter), seg('.m-win', 'mWin'), seg('.t-view', 'tView'),
   seg('.tc-win', 'tcWin'), seg('.pl-win', 'plWin'), seg('.us-win', 'usWin'), seg('.us-type', 'usType'), seg('.us-zone', 'usZone'), seg('.gl-seas', 'glSeas'),
-  seg('.ff-win', 'ffWin'), seg('.ff-pos', 'ffPos'),
+  seg('.ff-win', 'ffWin'), seg('.ff-pos', 'ffPos'), seg('.ff-lseas', 'ffLSeas'),
   seg('.f-pos', 'fPos', () => { if (!propStats(S.fPos).includes(S.fStat)) S.fStat = POS_STATS[S.fPos][0]; }),
   seg('.m-pos', 'mPos', () => { S.mdStat = null; }), seg('.pd-win', 'pdWin'), seg('.p-seas', 'pSeas'), seg('.t-seas', 'tSeas'),
 ];
@@ -1655,7 +1670,7 @@ function renderProps() {
     [show(median(vals)), 'Median'],
     [vals.length ? `${show(Math.min(...vals))}–${show(Math.max(...vals))}` : '—', 'Low–high'],
   ];
-  if (p.position !== 'QB' && stat !== 'target_share') {
+  if (p.position !== 'QB' && p.position !== 'K' && stat !== 'target_share') {
     const ts = mean(games.map((r) => r.target_share).filter((v) => v != null));
     tiles.push([ts == null ? '—' : `${show(ts)}%`, `Target share${wo ? ' in these games' : ''} (share of his team's targets)`]);
   }
@@ -1669,6 +1684,7 @@ function renderProps() {
   })), { height: 220, line });
 
   const extra = p.position === 'QB' ? ['completions', 'attempts', 'passing_yards', 'passing_tds', 'passing_interceptions', 'long_completion', 'carries', 'rushing_yards']
+    : p.position === 'K' ? ['k_pts', 'fg_made', 'fg_att', 'fg_long', 'fg_made_40_49', 'fg_made_50', 'pat_made', 'pat_att']
     : p.position === 'RB' ? ['carries', 'rushing_yards', 'rushing_tds', 'long_rush', 'targets', 'target_share', 'receptions', 'receiving_yards', 'long_reception', 'rz_carries']
       : ['targets', 'receptions', 'receiving_yards', 'receiving_tds', 'long_reception', 'receiving_air_yards', 'rz_targets', 'target_share'];
   const lab = { receiving_air_yards: 'Air yds', target_share: 'Tgt %', long_completion: 'Long', long_rush: 'Long rush', long_reception: 'Long rec' };
@@ -1691,7 +1707,7 @@ function renderProps() {
 // every game a player at the same position (and depth) had against this player's next opponent
 function renderPosVsDef(p, opp, stat, line, statCols) {
   const pos = p.position;
-  const depths = { QB: ['1'], RB: ['1', '2', 'all'], WR: ['1', '2', '3', 'all'], TE: ['1', 'all'] }[pos];
+  const depths = { QB: ['1'], RB: ['1', '2', 'all'], WR: ['1', '2', '3', 'all'], TE: ['1', 'all'], K: ['1'] }[pos];
   // default to the role this player usually has on his team (his median depth this season)
   if (S.pdFor !== p.player_id || !depths.includes(S.pdDepth)) {
     // the role he held most often this season (ties go to the bigger role)
@@ -1756,7 +1772,7 @@ function renderFinder() {
   if (S.fq) rows = rows.filter((p) => `${p.player} ${p.team} ${p.next_opp}`.toLowerCase().includes(S.fq));
   table($('.t-finder'), 'finder', [
     { f: 'player', label: 'Player', l: true }, { f: 'team', label: 'Team', l: true }, { f: 'next_opp', label: 'Opp', l: true },
-    { f: 'games', label: 'GP' }, ...(S.fPos === 'QB' ? [] : [{ f: 'tsh', label: 'Tgt share %' }]), { f: 'avg', label: `Avg ${statLabel(stat)}` }, { f: 'med', label: 'Median' }, { f: 'l3', label: 'Last 3 avg' },
+    { f: 'games', label: 'GP' }, ...(S.fPos === 'QB' || S.fPos === 'K' ? [] : [{ f: 'tsh', label: 'Tgt share %' }]), { f: 'avg', label: `Avg ${statLabel(stat)}` }, { f: 'med', label: 'Median' }, { f: 'l3', label: 'Last 3 avg' },
     { f: 'opp_allows', label: 'Opp allows /g' }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, { f: 'team_implied', label: 'Team implied' },
   ], rows, { sort: { f: 'avg', dir: 'desc' }, limit: 200, onClick: (p) => openProp(p.player_id, stat) });
 }
@@ -2155,7 +2171,8 @@ function renderTC(g) {
 const GP_DVP = [['QB', 'QBs', 'passing_yards', 'pass yds'], ['QB', 'QBs', 'passing_tds', 'pass TDs'], ['QB', 'QBs', 'rushing_yards', 'rush yds'],
   ['RB', 'RBs', 'rushing_yards', 'rush yds'], ['RB', 'RBs', 'carries', 'carries'], ['RB', 'RBs', 'receiving_yards', 'rec yds'], ['RB', 'RBs', 'receptions', 'receptions'],
   ['WR', 'WRs', 'receiving_yards', 'rec yds'], ['WR', 'WRs', 'receptions', 'receptions'], ['WR', 'WRs', 'targets', 'targets'],
-  ['TE', 'TEs', 'receiving_yards', 'rec yds'], ['TE', 'TEs', 'receptions', 'receptions'], ['TE', 'TEs', 'targets', 'targets']];
+  ['TE', 'TEs', 'receiving_yards', 'rec yds'], ['TE', 'TEs', 'receptions', 'receptions'], ['TE', 'TEs', 'targets', 'targets'],
+  ['K', 'Kickers', 'k_pts', 'kicking pts'], ['K', 'Kickers', 'fg_made', 'FGs made'], ['K', 'Kickers', 'fg_att', 'FG attempts']];
 function renderGameDvP(g) {
   const tbl = $('.gp-dvp'), teams = [g.away_team, g.home_team];
   tbl.tHead.replaceChildren(h('tr', null, h('th', { class: 'l' }, 'Vs'), ...teams.flatMap((t) => [h('th', { class: 'grp' }, `${t} D allows`), h('th', { class: 'rkh' }, 'Rk')])));
@@ -2325,9 +2342,10 @@ const FF_COLS = {
   RB: [['carries', 'Car'], ['rushing_yards', 'Rush yds'], ['rushing_tds', 'Rush TD'], ['targets', 'Tgt'], ['receptions', 'Rec'], ['receiving_yards', 'Rec yds'], ['receiving_tds', 'Rec TD']],
   WR: [['targets', 'Tgt'], ['receptions', 'Rec'], ['receiving_yards', 'Rec yds'], ['receiving_tds', 'Rec TD'], ['rz_targets', 'RZ tgt'], ['long_reception', 'Long']],
   TE: [['targets', 'Tgt'], ['receptions', 'Rec'], ['receiving_yards', 'Rec yds'], ['receiving_tds', 'Rec TD'], ['rz_targets', 'RZ tgt'], ['long_reception', 'Long']],
+  K: [['fg_made', 'FG'], ['fg_att', 'FG att'], ['fg_long', 'Long'], ['fg_made_40_49', '40–49'], ['fg_made_50', '50+'], ['pat_made', 'XP'], ['pat_att', 'XP att'], ['k_pts', 'Kick pts']],
 };
 const ffCols = (pos) => FF_COLS[pos].map(([f, label]) => ({ f, label }));
-const DEPTHS = { QB: ['1'], RB: ['1', '2', 'all'], WR: ['1', '2', '3', 'all'], TE: ['1', 'all'] };
+const DEPTHS = { QB: ['1'], RB: ['1', '2', 'all'], WR: ['1', '2', '3', 'all'], TE: ['1', 'all'], K: ['1'] };
 const _ff = {};
 function leagueAllowed(pos) {
   const k = `la|${pos}|${S.fmt}`;
@@ -2461,7 +2479,40 @@ function renderFFPlayer() {
     sort: { f: 'week', dir: 'asc' }, selected: (r) => r.week === S.ffWeek,
     onClick: (r) => { if (r.opp === 'BYE') return; S.ffWeek = r.week; render(); $('#ff-vs').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
   });
+  renderFFLog(p);
   renderFFVs(p, games.find((x) => x.week === S.ffWeek), base);
+}
+
+// every game the player has played (this season, or this + last), with the result and a box score
+function renderFFLog(p) {
+  const fp = fpKey(), pos = p.position, both = S.ffLSeas === 'both';
+  if (!IDX.tg) IDX.tg = new Map(DATA.team_games.map((g) => [`${g.season}|${g.week}|${g.team}`, g]));
+  const logs = (IDX.logs.get(p.player_id) || []).filter((r) => r.season === S.season || (both && r.season === S.season - 1));
+  const rows = logs.map((r) => {
+    const g = IDX.tg.get(`${r.season}|${r.week}|${r.team}`);
+    const res = g && g.pf != null ? `${g.pf > g.pa ? 'W' : g.pf < g.pa ? 'L' : 'T'} ${g.pf}-${g.pa}` : '—';
+    return { ...r, gkey: r.season * 100 + r.week, oppTxt: `${g && g.home === 0 ? '@' : 'vs'} ${r.opp}`, res,
+      opp_rank: r.season === S.season ? (mrow(r.opp, pos, fp) || {}).rank : null, fpv: r[fp] };
+  });
+  const vals = rows.map((r) => r.fpv).filter((v) => v != null), avg = mean(vals);
+  $('.ffl-title').textContent = `Previous games${both ? ' (this season + last)' : ' this season'}`;
+  const has = rows.length > 0;
+  $('.ffl-empty').hidden = has; $('.t-fflog').parentElement.hidden = !has;
+  const sum = $('.ffl-sum'); sum.replaceChildren();
+  if (has) {
+    const b = (t, c) => h('b', { class: c }, t);
+    const byPts = rows.filter((r) => r.fpv != null).sort((x, y) => y.fpv - x.fpv), hi = byPts[0], lo = byPts[byPts.length - 1];
+    sum.append(`${vals.length} game${vals.length === 1 ? '' : 's'}: `, b(`${show(avg)} ${FMT_NAME[S.fmt]} pts`), ' per game, last 3 ', b(show(mean(vals.slice(-3)))),
+      ...(hi ? ['. Best ', b(show(hi.fpv), 'g'), ` (${both ? `'${String(hi.season).slice(2)} ` : ''}Wk ${hi.week} ${hi.oppTxt}), worst `, b(show(lo.fpv), 'r'), ` (${both ? `'${String(lo.season).slice(2)} ` : ''}Wk ${lo.week} ${lo.oppTxt}).`] : ['.']));
+  }
+  const teams = new Set(rows.map((r) => r.team));
+  table($('.t-fflog'), 'fflog' + pos, [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'week', label: 'Wk' },
+    ...(teams.size > 1 ? [{ f: 'team', label: 'Team', l: true }] : []), { f: 'oppTxt', label: 'Opp', l: true }, { f: 'res', label: 'Result', l: true },
+    { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, { f: 'fpv', label: 'Fantasy pts', cls: (v) => (v == null || avg == null ? 'rk' : v >= avg ? 'g rk' : 'r rk') },
+    ...ffCols(pos), ...(pos === 'QB' || pos === 'K' ? [] : [{ f: 'target_share', label: 'Tgt %' }])], rows, {
+    sort: { f: 'gkey', dir: 'desc' },
+    expand: { f: 'res', key: (r) => `${r.gkey}|${r.team}`, render: (r) => boxNFL(r.season, r.week, r.team, r.opp) },
+  });
 }
 
 function renderFFVs(p, x, base) {
@@ -2650,7 +2701,7 @@ function renderTrends() {
   trChips($('.tr-stats'), (nba ? NBA_STATS : cfb ? CFB_STATS : TR_STATS).map((s) => [s.k, s.label]), 'stats');
   trChips($('.tr-grades'), TR_GRADES.map((g) => [g, g]), 'grades');
   trChips($('.tr-sides'), [['over', 'Over'], ['under', 'Under']], 'sides');
-  trChips($('.tr-pos'), (nba ? ['G', 'F', 'C'] : POS).map((p) => [p, p]), 'pos');
+  trChips($('.tr-pos'), (nba ? ['G', 'F', 'C'] : POS.filter((p) => p !== 'K')).map((p) => [p, p]), 'pos');
   $('.tr-src').closest('details').hidden = S.sport !== 'nfl';
   trChips($('.tr-home'), [['home', 'Home'], ['away', 'Away']], 'home');
   trChips($('.tr-src'), [['book', 'Book lines'], ['est', 'Estimated']], 'src');

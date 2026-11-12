@@ -4,7 +4,7 @@ Betting and fantasy research for the NFL, laid out like an app with a sidebar (a
 
 - **Home**: every game for the week, grouped by day, with spread, moneyline and total. Tap a game for its research page: **Odds**, **Matchup** (offense vs defense ranks over the last 3, last 5 or full season), **Players** (starting QBs and top receivers/rushers with matchup grades), **Usage share** (target and carry share, overall or red zone) and **Game lines** (each team's ATS and over/under history, plus head to head).
 - **Stats**: team stats and betting records, defense vs position, and player prop cards with hit rates.
-- **Fantasy**: fantasy points each defense allows to QB/RB/WR/TE with every game log against it, and a player outlook with rest-of-season strength of schedule, week-by-week matchup difficulty, past players at his position vs each opponent, and weekly projections. Free NFL data from [nflverse](https://github.com/nflverse/nflverse-data), rebuilt automatically every Tuesday.
+- **Fantasy**: fantasy points each defense allows to QB/RB/WR/TE/K with every game log against it, and a player outlook with rest-of-season strength of schedule, week-by-week matchup difficulty, every previous game he played (this season or this + last, with box scores), past players at his position vs each opponent, and weekly projections. Free NFL data from [nflverse](https://github.com/nflverse/nflverse-data), rebuilt automatically every Tuesday.
 
 ## What's in here
 
@@ -46,6 +46,7 @@ To rebuild the data yourself: install Python from [python.org](https://www.pytho
 ## Notes
 
 - Fantasy points come straight from nflverse. Half PPR = the average of standard and PPR.
+- Kickers (nflverse leaves their fantasy points at 0) are scored the same in every format: FG under 40 yards = 3, 40–49 = 4, 50+ = 5, extra point = 1, missed FG or XP = −1. "Kicking pts" = 3 per FG + 1 per XP, the usual sportsbook kicker prop. Kickers show up in Defense vs position, the game Matchup tab, Players, Fantasy and box scores.
 - Rank 1 = the defense that allows the most points to that position (best matchup to target).
 - Betting lines come from the nflverse schedule (consensus lines, refreshed with each daily update), not live odds from your book.
 - Fantasy projections = the player's points per game (65% season average, 35% last 5 games, leaning on last season early on) × how much each opponent allows to his position vs the league average, with a small home/road bump. They don't account for injuries or role changes.
