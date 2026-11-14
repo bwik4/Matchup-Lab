@@ -2232,8 +2232,9 @@ const manFor = (sp, team) => loadMan().filter((r) => r.sport === sp && r.team ==
 function injOf(sp, team, name) {
   const m = manFor(sp, team).find((r) => nmKey(r.player) === nmKey(name));
   if (m) return m.status === 'starter' ? null : { ...m, label: m.status === 'out' ? 'Out' : m.status[0].toUpperCase() + m.status.slice(1), detail: m.note };
-  const I = loadInj(sp);
-  return I.full.get(`${team}|${nmKey(name)}`) || I.short.get(`${team}|${nmShort(name)}`) || null;
+  // the ESPN report is only trusted for one thing: players ruled out for the season
+  const I = loadInj(sp), r = I.full.get(`${team}|${nmKey(name)}`) || I.short.get(`${team}|${nmShort(name)}`) || null;
+  return r && String(r.season_out) === '1' ? { ...r, status: 'out', label: 'Out for the season' } : null;
 }
 const INJ_TAG = { out: ['OUT', 'inj-o'], doubtful: ['D', 'inj-d'], questionable: ['Q', 'inj-q'], probable: ['P', 'inj-p'] };
 function injTag(inj, missed) {
@@ -2287,24 +2288,26 @@ function depthChart(sp, team, g) {
     x.perGame = x.cur.length ? x.cur.reduce((a, c) => a + u(c.r), 0) / x.cur.length : 0;
     let m = 0; for (let i = keys.length - 1; i >= 0 && !have.has(keys[i]); i--) m++;
     x.missed = m;
+    // team games he sat out since his first game with the team (so a late arrival isn't "missing" the early weeks)
+    const first = keys.findIndex((k) => have.has(k));
+    x.missedKeys = first < 0 ? [] : keys.slice(first).filter((k) => !have.has(k));
     x.lastGame = keys.length ? x.cur.filter((c) => c.key === keys[keys.length - 1]).reduce((a, c) => a + u(c.r), 0) : 0;
     x.inj = injOf(sp, team, x.player);
     const minRole = bb ? (sp === 'nba' ? 14 : 10) : x.pos === 'QB' ? 10 : DC_SLOTS[x.pos] ? DC_SLOTS[x.pos].min : 99;
-    const relevant = Math.max(x.recent, x.perGame) >= minRole;
-    if (x.inj && x.inj.status === 'out') { if (relevant) outs.push({ ...x, why: x.inj.label || 'Out' }); return; }
-    const gone = x.missed >= (bb ? 3 : 2);
-    if (gone && !x.inj) { if (relevant && x.share >= 0.25) outs.push({ ...x, why: `hasn't played the last ${x.missed} games` }); return; }
-    if (gone) x.recent = x.perGame; // back on the injury report as questionable/doubtful after missing time: use his role when healthy
+    x.relevant = Math.max(x.recent, x.perGame) >= minRole;
+    if (x.inj && x.inj.status === 'out') { if (x.relevant) outs.push({ ...x, why: x.inj.label || 'Out' }); return; }
+    // rank on his role when he plays: a starter who sat a game or two keeps his spot
+    x.rank = x.missedKeys.length ? Math.max(x.recent, x.perGame) : x.recent;
     ok.push(x);
   });
   const list = [];
   if (bb) {
     const min = sp === 'nba' ? 14 : 10;
-    const top = ok.filter((x) => x.recent >= min).sort((a, b) => b.recent - a.recent).slice(0, 9);
+    const top = ok.filter((x) => x.rank >= min).sort((a, b) => b.rank - a.rank).slice(0, 10);
     BB_POS.forEach((pos) => top.filter((x) => x.pos === pos).forEach((x) => list.push(x)));
     top.filter((x) => !BB_POS.includes(x.pos)).forEach((x) => list.push(x));
   } else {
-    // QB: the listed starter if there is one, else whoever threw the most in the last game, else the most lately
+    // QB: a manual starter, else the listed starter, else whoever threw the most in the last game
     const qbs = ok.filter((x) => x.pos === 'QB');
     const side = g && (g.away_team === team ? 'away' : 'home'), named = g && g[`${side}_qb_name`];
     const forced = manFor(sp, team).find((r) => r.status === 'starter' && (!r.position || r.position === 'QB'));
@@ -2313,17 +2316,35 @@ function depthChart(sp, team, g) {
     if (!qb) qb = qbs.slice().sort((a, b) => b.lastGame - a.lastGame || b.recent - a.recent)[0];
     if (qb && qb.recent + qb.seasonUse > 0) list.push(qb);
     ['RB', 'WR', 'TE'].forEach((pos) => {
-      const c = DC_SLOTS[pos], ranked = ok.filter((x) => x.pos === pos).sort((a, b) => b.recent - a.recent);
-      ranked.forEach((x, i) => { if ((i < c.n && x.recent >= c.min) || (i === c.n && x.recent >= c.extra)) list.push(x); });
+      // players who've been missing games don't use up a slot, so the guys playing now still show
+      const c = DC_SLOTS[pos], ranked = ok.filter((x) => x.pos === pos).sort((a, b) => b.rank - a.rank);
+      let i = 0;
+      ranked.forEach((x) => {
+        const take = (i < c.n && x.rank >= c.min) || (i === c.n && x.rank >= c.extra);
+        if (!take) return;
+        list.push(x);
+        if (!(x.missed > 0 && x.perGame >= x.recent)) i++;
+      });
     });
   }
   outs.sort((a, b) => b.seasonUse - a.seasonUse);
-  return { list, outs, injLoaded: loadInj(sp).ready };
+  // notes: everyone listed who has sat out games, newest absences first
+  const lab = (k) => { if (bb) { const [y, mo, d] = String(k).split('-').map(Number); return new Date(y, mo - 1, d).toLocaleDateString([], { month: 'short', day: 'numeric' }); } return `Wk ${k}`; };
+  const ordOf = new Map();
+  pool.forEach((x) => x.cur.forEach((c) => ordOf.set(c.key, sp === 'nfl' ? c.key : bb ? c.r.date : c.r.week)));
+  const missedNotes = list.filter((x) => x.missedKeys.length).map((x) => {
+    const n = x.missedKeys.length, when = x.missedKeys.slice(-4).map((k) => lab(ordOf.get(k) ?? k)).join(', ');
+    return { x, txt: x.missed ? `missed ${x.missed > 1 ? `the last ${x.missed} games` : 'the last game'}${n > x.missed ? ` (${n} this season)` : ''}` : `missed ${n} game${n > 1 ? 's' : ''} this season (${when}${n > 4 ? ', …' : ''})` };
+  }).sort((a, b) => b.x.missed - a.x.missed);
+  return { list, outs, missedNotes };
 }
 function dcOutLine(dc) {
-  if (!dc.outs.length) return null;
-  return h('p', { class: 'note pl-out' }, h('b', null, 'Out / inactive: '),
-    ...dc.outs.flatMap((x, i) => [i ? ' · ' : '', h('span', null, `${x.player} (${x.pos}${x.inj && x.inj.detail ? `, ${x.inj.detail}` : ''}) `), h('i', null, x.why === 'Out' ? '' : x.why)]));
+  const parts = [];
+  if (dc.missedNotes.length) parts.push(h('p', { class: 'note pl-out' }, h('b', null, 'Missed games: '),
+    ...dc.missedNotes.flatMap(({ x, txt }, i) => [i ? ' · ' : '', `${x.player} (${x.pos}) `, h('i', null, txt)])));
+  if (dc.outs.length) parts.push(h('p', { class: 'note pl-out' }, h('b', null, 'Removed: '),
+    ...dc.outs.flatMap((x, i) => [i ? ' · ' : '', `${x.player} (${x.pos}${x.inj && x.inj.detail ? `, ${x.inj.detail}` : ''}) `, h('i', null, x.why.toLowerCase())])));
+  return parts.length ? h('div', null, ...parts) : null;
 }
 
 const PL_N = { l3: 3, l5: 5, l10: 10 };
@@ -2366,7 +2387,7 @@ function renderGPlayers(g) {
     WR: (gs) => [[show(avgOf(gs, 'receptions')), 'REC'], [show(avgOf(gs, 'receiving_yards')), 'REC YD'], [show(avgOf(gs, 'targets')), 'TGT']],
   };
   NUMS.TE = NUMS.WR;
-  $('.pl-note').textContent = `Each team's likely starting QB, then the RBs, WRs and TEs getting the most work over its last ${DC_RECENT.fb} games (carries + targets), with per-game averages over the games you pick (H2H = his games against this opponent, this season and last). Injury tags come from the latest injury report; players ruled out are moved to the line under each team. Grade = this week's matchup: A+ = the defense allows the most to his position (easiest), F = the least (toughest). Tap a player for his full prop card.`;
+  $('.pl-note').textContent = `Each team's likely starting QB, then the RBs, WRs and TEs getting the most work over its last ${DC_RECENT.fb} games (carries + targets), with per-game averages over the games you pick (H2H = his games against this opponent, this season and last). Under each team: who has missed games, and anyone removed because he's out for the season. Grade = this week's matchup: A+ = the defense allows the most to his position (easiest), F = the least (toughest). Tap a player for his full prop card.`;
   $('.pl-body').replaceChildren(...[g.away_team, g.home_team].map((team) => {
     const opp = oppOf(team), dc = depthChart('nfl', team, g);
     const rows = dc.list.map((x) => {
@@ -3802,7 +3823,7 @@ function xgPlayers(sp, g) {
   $('.xg-pnote').textContent = (isBB(sp)
     ? `Each team's rotation (${sp === 'nba' ? 14 : 10}+ minutes a game over its last ${DC_RECENT.bb} games), guards first, then forwards and centers, with averages over the games you pick.`
     : `Each team's starting QB, then the RBs, WRs and TEs getting the most work over its last ${DC_RECENT.fb} games, with averages over the games you pick.`)
-    + ` Injury tags come from ESPN's injury report${sp === 'cfb' || sp === 'cbb' ? ' (college teams report less, so some won\'t show)' : ''}; players ruled out, or who haven't played lately, are moved to the line under each team. Matchup grade = what the opponent allows to his position (A = easiest). Tap a player for his game log.`;
+    + ` Under each team: who has missed games, and anyone removed because he's out for the season. Matchup grade = what the opponent allows to his position (A = easiest). Tap a player for his game log.`;
   $('.xg-plist').replaceChildren(...out);
 }
 

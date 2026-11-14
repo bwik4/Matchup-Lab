@@ -11,6 +11,8 @@ players as questionable / doubtful and to pull players who are out.
   data/cbb/injuries.csv
 
 Columns: team, player, position, status (out / doubtful / questionable / probable),
+season_out (1 = ESPN says out for the season, or lists a return date past the season; the
+site only acts on these), comment,
 label (ESPN's wording: Out, Injured Reserve, Day-To-Day ...), detail (e.g. "Knee"),
 return_date, updated.
 
@@ -48,7 +50,26 @@ SPORTS = {
 }
 # ESPN abbreviation -> the code the site uses (nflverse differs on two NFL teams)
 ABBR_FIX = {"nfl": {"LAR": "LA", "WSH": "WAS"}}
-COLS = ["team", "player", "position", "status", "label", "detail", "return_date", "updated"]
+COLS = ["team", "player", "position", "status", "label", "detail", "return_date", "updated", "season_out", "comment"]
+# a player only counts as done for the year when ESPN says so in words, or lists him out with a return date past the season
+SEASON_TXT = re.compile(r"(out for (the )?(rest of the |remainder of the )?(season|year)|season[- ]ending|rest of the (regular )?season|remainder of the (regular )?season|miss the (rest|remainder) of|done for the (season|year)|out indefinitely and (will|is expected to) miss the season)", re.I)
+
+
+def season_end(sport):
+    t = dt.date.today()
+    y = t.year if t.month >= 7 else t.year - 1
+    return {"nfl": dt.date(y + 1, 1, 15), "nba": dt.date(y + 1, 4, 15), "cfb": dt.date(y + 1, 1, 20), "cbb": dt.date(y + 1, 4, 10)}[sport]
+
+
+def is_season_out(sport, status, text, ret):
+    if status != "out":
+        return 0
+    if SEASON_TXT.search(text or ""):
+        return 1
+    try:
+        return int(bool(ret) and dt.date.fromisoformat(str(ret)[:10]) > season_end(sport))
+    except ValueError:
+        return 0
 DEBUG = False
 
 
@@ -119,8 +140,11 @@ def row_from(sport, inj, team_hint, names):
         team = names[team.lower()]
     team = ABBR_FIX.get(sport, {}).get(team, team)
     pos = (ath.get("position") or {}).get("abbreviation", "") if isinstance(ath.get("position"), dict) else ""
+    ret = (inj.get("details") or {}).get("returnDate", "")
+    text = " ".join(str(inj.get(k) or "") for k in ("shortComment", "longComment"))
     return {"team": team, "player": name, "position": pos, "status": status, "label": str(label).replace("_", " ").title() if label else status.title(),
-            "detail": detail_of(inj), "return_date": (inj.get("details") or {}).get("returnDate", ""), "updated": inj.get("date", "")}
+            "detail": detail_of(inj), "return_date": ret, "updated": inj.get("date", ""),
+            "season_out": is_season_out(sport, status, text + " " + str(label), ret), "comment": (inj.get("shortComment") or "")[:200]}
 
 
 def site_feed(sport):
@@ -216,7 +240,8 @@ def nflverse_feed():
         if not st:
             continue
         rows.append({"team": r["team"], "player": r["full_name"], "position": r.get("position", ""), "status": st, "label": r.get("report_status", ""),
-                     "detail": r.get("report_primary_injury", "") if isinstance(r.get("report_primary_injury"), str) else "", "return_date": "", "updated": r.get("date_modified", "")})
+                     "detail": r.get("report_primary_injury", "") if isinstance(r.get("report_primary_injury"), str) else "", "return_date": "", "updated": r.get("date_modified", ""),
+                     "season_out": 0, "comment": ""})
     return rows
 
 
@@ -245,7 +270,7 @@ def run(sport):
         return
     df = pd.DataFrame(rows, columns=COLS).dropna(subset=["team", "player"]).drop_duplicates(["team", "player"], keep="first")
     df.to_csv(out, index=False)
-    print(f"{sport}: {len(df)} players ({df['status'].value_counts().to_dict()}) from {src} -> {out}")
+    print(f"{sport}: {len(df)} players ({df['status'].value_counts().to_dict()}, {int(df['season_out'].sum())} out for the season) from {src} -> {out}")
 
 
 if __name__ == "__main__":
