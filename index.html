@@ -349,6 +349,8 @@
   ul.gp-skew li:not(.skew-head), ul.xg-skew li:not(.skew-head) { padding-left: 12px; }
   .sim { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 4px; }
   .sim .bar { margin-top: 12px; }
+  .sim .sim-tabs { margin-top: 14px; }
+  .sim .sim-tabs button { font-size: .85rem; padding: 6px 12px; }
   .sim h3 { margin: 0; }
   .sim .sim-scroll { margin-top: 10px; }
   .sim-cards { display: grid; gap: 10px; margin: 10px 0; }
@@ -3933,8 +3935,31 @@ function simCache(sp) {
   const sd = F.map((_, i) => Math.sqrt(mean(V.map((v) => (v[i] - mu[i]) ** 2))) || 1);
   return (SIMC[sp] = { src, vec, sd, mu, F });
 }
-function simScores(sp, target) {
-  const C = simCache(sp), tv = C.vec.get(target);
+// offense profile: what each team's QBs / RBs / WRs / TEs (or G / F / C) put up per game this season, built from the player logs
+function simOffCache(sp) {
+  const key = `${sp}|off`, src = sp === 'nfl' ? DATA.logs : SPX[sp]().logs;
+  if (SIMC[key] && SIMC[key].src === src) return SIMC[key];
+  const F = SIM_F[isBB(sp) ? 'bb' : 'fb'], season = sp === 'nfl' ? S.season : SPX[sp]().season;
+  const games = new Map();
+  src.forEach((r) => {
+    if (r.season !== season || String(r.player).trim() === 'Team') return;
+    if (sp === 'cfb' && (CFB.info.get(r.team) || {}).fbs !== 1) return;
+    if (sp === 'cbb' && !CBB.d1.has(r.team)) return;
+    if (!games.has(r.team)) games.set(r.team, new Map());
+    const gm = games.get(r.team), gk = sp === 'nfl' ? r.week : String(r.game_id);
+    if (!gm.has(gk)) gm.set(gk, F.map(() => 0));
+    const v = gm.get(gk);
+    F.forEach(([p, st], i) => { if (r.position === p) v[i] += r[st] || 0; });
+  });
+  const vec = new Map();
+  games.forEach((gm, t) => { const all = [...gm.values()]; vec.set(t, F.map((_, i) => mean(all.map((v) => v[i])))); });
+  const V = [...vec.values()], mu = F.map((_, i) => mean(V.map((v) => v[i])));
+  const sd = F.map((_, i) => Math.sqrt(mean(V.map((v) => (v[i] - mu[i]) ** 2))) || 1);
+  return (SIMC[key] = { src, vec, sd, mu, F });
+}
+const simC = (sp, mode) => (mode === 'def' ? simOffCache(sp) : simCache(sp));
+function simScores(sp, target, mode) {
+  const C = simC(sp, mode), tv = C.vec.get(target);
   if (!tv) return null;
   const d = [];
   C.vec.forEach((v, k) => { if (k !== target) d.push([k, Math.sqrt(v.reduce((a, x, i) => a + ((x - tv[i]) / C.sd[i]) ** 2, 0))]); });
@@ -3944,25 +3969,26 @@ function simScores(sp, target) {
   return out;
 }
 // the offense's games this season: [{key, opp, ord, label, rs (its player logs), pf, pa, gid?}]
-function simGames(sp, team) {
-  const by = new Map();
+// side 'off': the team's own output each game. side 'def': what each opponent put up against the team (opp = that offense, pf = its points)
+function simGames(sp, team, side = 'off') {
+  const by = new Map(), mine = (r) => (side === 'def' ? r.opp === team : r.team === team), other = (r) => (side === 'def' ? r.team : r.opp);
   if (sp === 'nfl') {
-    DATA.logs.forEach((r) => { if (r.season !== S.season || r.team !== team) return; const k = r.week; if (!by.has(k)) by.set(k, { key: k, opp: r.opp, ord: r.week, label: `Wk ${r.week}`, rs: [] }); by.get(k).rs.push(r); });
-    by.forEach((x) => { const t = DATA.team_games.find((y) => y.season === S.season && y.week === x.ord && y.team === team); if (t) { x.pf = t.pf; x.pa = t.pa; } });
+    DATA.logs.forEach((r) => { if (r.season !== S.season || !mine(r)) return; const k = r.week; if (!by.has(k)) by.set(k, { key: k, opp: other(r), ord: r.week, label: `Wk ${r.week}`, rs: [] }); by.get(k).rs.push(r); });
+    by.forEach((x) => { const t = DATA.team_games.find((y) => y.season === S.season && y.week === x.ord && y.team === (side === 'def' ? x.opp : team)); if (t) { x.pf = t.pf; x.pa = t.pa; } });
   } else {
     const X = SPX[sp]();
     X.logs.forEach((r) => {
-      if (r.season !== X.season || r.team !== team) return;
+      if (r.season !== X.season || !mine(r) || String(r.player).trim() === 'Team') return;
       const k = String(r.game_id);
       if (!by.has(k)) {
         let label = `Wk ${r.week}`;
         if (isBB(sp)) { const [y, m, dd] = String(r.date).split('-').map(Number); label = new Date(y, m - 1, dd).toLocaleDateString([], { month: 'short', day: 'numeric' }); }
-        by.set(k, { key: k, gid: k, opp: r.opp, ord: isBB(sp) ? r.date : r.week, label, rs: [] });
+        by.set(k, { key: k, gid: k, opp: other(r), ord: isBB(sp) ? r.date : r.week, label, rs: [] });
       }
       by.get(k).rs.push(r);
     });
     if (!X.gById) X.gById = new Map(X.games.map((x) => [String(x.game_id), x]));
-    by.forEach((x) => { const gm = X.gById.get(x.gid); if (gm && gm.status === 'final') { const hm = gm.home_team === team; x.pf = hm ? gm.home_score : gm.away_score; x.pa = hm ? gm.away_score : gm.home_score; } });
+    by.forEach((x) => { const gm = X.gById.get(x.gid); if (gm && gm.status === 'final') { const hm = gm.home_team === (side === 'def' ? x.opp : team); x.pf = hm ? gm.home_score : gm.away_score; x.pa = hm ? gm.away_score : gm.home_score; } });
   }
   return [...by.values()].sort((a, b) => (a.ord < b.ord ? -1 : a.ord > b.ord ? 1 : 0));
 }
@@ -3971,65 +3997,72 @@ const SIM_LAB = { passing_yards: 'pass yds', passing_tds: 'pass TD', rushing_yar
   pts: 'pts', reb: 'reb', ast: 'ast', fg3m: '3PM' };
 const simFeatLab = ([p, st]) => `${p} ${SIM_LAB[st] || st}`;
 const SIM_OUTCOL = { QB: 'pass', RB: 'rbr', WR: 'wr', TE: 'te', G: 'g', F: 'f', C: 'c' };
-S.simAll = false;
+S.simAll = false; S.simMode = 'off';
 // the stats where two defenses are closest, favoring the ones that stand out for tonight's defense
-function simAlike(sp, target, other, k = 3) {
-  const C = simCache(sp), a = C.vec.get(target), b = C.vec.get(other);
+function simAlike(sp, target, other, mode, k = 3) {
+  const C = simC(sp, mode), a = C.vec.get(target), b = C.vec.get(other);
   if (!a || !b) return [];
   return C.F.map((f, i) => {
     const za = (a[i] - C.mu[i]) / C.sd[i], zb = (b[i] - C.mu[i]) / C.sd[i];
     return { f, i, a: a[i], b: b[i], za, d: Math.abs(za - zb), score: Math.abs(za - zb) - 0.35 * Math.min(Math.abs(za), 2) + (/td/.test(f[1]) ? 0.35 : 0) };
-  }).filter((x) => x.d < 0.6).sort((x, y) => x.score - y.score).slice(0, k);
+  }).filter((x) => x.d < 0.6 && (x.a > 0 || x.b > 0)).sort((x, y) => x.score - y.score).slice(0, k);
 }
 function renderSimDefs(sp, g, host, flip, setFlip) {
   if (!host) return;
   const off = flip ? g.home_team : g.away_team, def = flip ? g.away_team : g.home_team, O = TI(off).nick, D = TI(def).nick;
-  const kind = isBB(sp) ? 'bb' : 'fb', cols = SIM_OUT[kind], sc = simScores(sp, def);
-  const all = simGames(sp, off).map((x) => { const o = { ...x, oppN: TI(x.opp).nick || x.opp }; cols.forEach(([k, , fn]) => { o[k] = fn(x.rs); }); const v = sc && sc.get(x.opp); o.sim = v ? v.sim : null; o.srank = v ? v.rank : null; o.sn = v ? v.n : null; return o; });
-  const rows = all.filter((x) => x.opp !== def);
+  const mode = S.simMode === 'def' ? 'def' : 'off';
+  // off mode: OFF's past opponents whose defense looks like DEF's, and what OFF did. def mode: DEF's past opponents whose offense looks like OFF's, and what DEF allowed
+  const me = mode === 'off' ? off : def, them = mode === 'off' ? def : off, ME = TI(me).nick, THEM = TI(them).nick;
+  const kind = isBB(sp) ? 'bb' : 'fb', cols = SIM_OUT[kind], sc = simScores(sp, them, mode);
+  const all = simGames(sp, me, mode).map((x) => { const o = { ...x, oppN: TI(x.opp).nick || x.opp }; cols.forEach(([k, , fn]) => { o[k] = fn(x.rs); }); const v = sc && sc.get(x.opp); o.sim = v ? v.sim : null; o.srank = v ? v.rank : null; o.sn = v ? v.n : null; return o; });
+  const rows = all.filter((x) => x.opp !== them);
   const top = rows.filter((x) => x.sim != null).sort((a, b) => b.sim - a.sim).slice(0, 3), topSet = new Set(top.map((x) => x.key));
   const avgAll = {}; [['pf'], ...cols].forEach(([k]) => { avgAll[k] = mean(all.map((x) => x[k]).filter((v) => v != null)); });
   const colLab = Object.fromEntries([['pf', 'pts'], ...cols.map(([k, l]) => [k, l.replace(/^(Guard|Forward|Center) pts$/, (m, p) => `${p[0]} pts`)])]);
   const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Which offense' },
     ...[false, true].map((f) => { const o = f ? g.home_team : g.away_team, d = f ? g.away_team : g.home_team; return h('button', { 'aria-pressed': String(f === !!flip), onclick: () => setFlip(f) }, `${TI(o).nick} O vs ${TI(d).nick} D`); }));
-  const kids = [h('div', { class: 'bar' }, h('h3', null, `${poss(O)} past opponents most like ${poss(D)} defense`), seg)];
-  if (!sc) { kids.push(h('p', { class: 'empty' }, `No defense profile for ${D} yet.`)); host.replaceChildren(...kids); return; }
-  if (!top.length) { kids.push(h('p', { class: 'empty' }, rows.length ? `None of ${poss(O)} opponents so far have a defense profile.` : `${O} hasn't played anyone else yet this season.`)); host.replaceChildren(...kids); return; }
-  const C = simCache(sp), tv = C.vec.get(def);
-  kids.push(h('p', { class: 'note' }, `Chips = stats where the two defenses match (${D} / that team, allowed per game). Green = both give up a lot, red = both shut it down. Last line = what ${O} did in that game (± vs its season average).`));
+  const side = mode === 'off' ? 'defense' : 'offense';
+  const tabs = h('div', { class: 'seg sim-tabs', role: 'tablist' }, ...[['off', 'Offense vs similar defenses'], ['def', 'Defense vs similar offenses']].map(([k, l]) =>
+    h('button', { role: 'tab', 'aria-pressed': String(k === mode), onclick: () => { S.simMode = k; render(); } }, l)));
+  const kids = [tabs, h('div', { class: 'bar' }, h('h3', null, `${poss(ME)} past opponents with ${side}s most like ${poss(THEM)}`), seg)];
+  if (!sc) { kids.push(h('p', { class: 'empty' }, `No ${side} profile for ${THEM} yet.`)); host.replaceChildren(...kids); return; }
+  if (!top.length) { kids.push(h('p', { class: 'empty' }, rows.length ? `None of ${poss(ME)} opponents so far have a ${side} profile.` : `${ME} hasn't played anyone else yet this season.`)); host.replaceChildren(...kids); return; }
+  kids.push(h('p', { class: 'note' }, mode === 'off'
+    ? `Chips = stats where the two defenses match (${THEM} / that team, allowed per game). Green = both give up a lot, red = both shut it down. Last line = what ${ME} did in that game (± vs its season average).`
+    : `Chips = stats where the two offenses match (${THEM} / that team, gained per game). Green = both put up a lot, red = both struggle there. Last line = what ${ME} allowed in that game (± vs what it allows on average).`));
   const rnd = (v) => (Math.abs(v) >= 10 ? String(Math.round(v)) : show(v));
   const dlt = (v, k) => { const a = avgAll[k]; if (v == null || a == null) return null; const d = v - a; return h('span', { class: d > 0 ? 'g' : d < 0 ? 'r' : '' }, ` (${d > 0 ? '+' : d < 0 ? '−' : '±'}${rnd(Math.abs(d))})`); };
   const fmtV = (v, st) => (/tds?$|_tds$|receptions|fg3m|ast/.test(st) || v < 10 ? (Math.round(v * 10) / 10).toFixed(1) : String(Math.round(v)));
   kids.push(h('div', { class: 'sim-cards' }, ...top.map((x) => {
-    const al = simAlike(sp, def, x.opp);
+    const al = simAlike(sp, them, x.opp, mode);
     const outKeys = ['pf', ...new Set(al.map((a) => SIM_OUTCOL[a.f[0]]).filter(Boolean))];
     if (outKeys.length < 3) cols.forEach(([k]) => { if (outKeys.length < 3 && !outKeys.includes(k)) outKeys.push(k); });
-    const open = S.boxOpen.has(`simc|${off}|${x.key}`);
+    const open = S.boxOpen.has(`simc|${mode}|${me}|${x.key}`);
     return h('div', { class: 'sim-card' },
       h('div', { class: 'sim-top' }, badge(x.opp, 'sm'), h('b', null, x.oppN), h('small', null, x.label),
         h('span', { class: 'sim-pct' }, `${x.sim}% match`)),
-      h('div', { class: 'sim-chips' }, ...(al.length ? al.map((a) => h('span', { class: `chip ${a.za > 0.4 ? 'chip-g' : a.za < -0.4 ? 'chip-r' : ''}`, title: `${D} allows ${fmtV(a.a, a.f[1])} per game to ${a.f[0]}s, ${x.oppN} ${fmtV(a.b, a.f[1])}` },
+      h('div', { class: 'sim-chips' }, ...(al.length ? al.map((a) => h('span', { class: `chip ${a.za > 0.4 ? 'chip-g' : a.za < -0.4 ? 'chip-r' : ''}`, title: mode === 'off' ? `${THEM} allows ${fmtV(a.a, a.f[1])} per game to ${a.f[0]}s, ${x.oppN} ${fmtV(a.b, a.f[1])}` : `${poss(THEM)} ${a.f[0]}s get ${fmtV(a.a, a.f[1])} per game, ${poss(x.oppN)} ${fmtV(a.b, a.f[1])}` },
         h('b', null, simFeatLab(a.f)), ` ${fmtV(a.a, a.f[1])} / ${fmtV(a.b, a.f[1])}`)) : [h('small', { class: 'muted' }, 'Similar overall, no single stat stands out')])),
-      h('div', { class: 'sim-res' }, h('span', { class: 'muted' }, `${O}: `),
+      h('div', { class: 'sim-res' }, h('span', { class: 'muted' }, mode === 'off' ? `${ME}: ` : `${ME} allowed: `),
         ...outKeys.flatMap((k, i) => [i ? ' · ' : '', h('b', null, show(x[k])), ` ${colLab[k]}`, dlt(x[k], k)]),
-        ' ', h('button', { class: 'linkbtn', type: 'button', onclick: () => { const bx = `simc|${off}|${x.key}`; if (S.boxOpen.has(bx)) S.boxOpen.delete(bx); else S.boxOpen.add(bx); render(); } }, open ? 'Hide box score' : 'Box score')),
-      open ? h('div', { class: 'sim-box' }, (() => { try { return sp === 'nfl' ? boxNFL(S.season, x.ord, off, x.opp) : boxById(sp, x.gid, [off, x.opp], { [off]: x.pf, [x.opp]: x.pa }); } catch (e) { return 'Box score unavailable.'; } })()) : null);
+        ' ', h('button', { class: 'linkbtn', type: 'button', onclick: () => { const bx = `simc|${mode}|${me}|${x.key}`; if (S.boxOpen.has(bx)) S.boxOpen.delete(bx); else S.boxOpen.add(bx); render(); } }, open ? 'Hide box score' : 'Box score')),
+      open ? h('div', { class: 'sim-box' }, (() => { try { return sp === 'nfl' ? boxNFL(S.season, x.ord, me, x.opp) : boxById(sp, x.gid, [me, x.opp], mode === 'off' ? { [me]: x.pf, [x.opp]: x.pa } : { [me]: x.pa, [x.opp]: x.pf }); } catch (e) { return 'Box score unavailable.'; } })()) : null);
   })));
   // one-line takeaway
   const keys = [['pf', 'pts'], ...cols.map(([k, l]) => [k, l])];
   const A = Object.fromEntries(keys.map(([k]) => [k, mean(top.map((x) => x[k]).filter((v) => v != null))]));
   const big = cols.map(([k, l]) => ({ k, l, d: A[k] != null && avgAll[k] ? (A[k] - avgAll[k]) / Math.max(1, avgAll[k]) : 0 })).sort((a, b) => Math.abs(b.d) - Math.abs(a.d))[0];
-  kids.push(h('p', { class: 'summary sim-sum' }, `Vs these ${top.length}: `, h('b', null, `${rnd(A.pf)} pts`), dlt(A.pf, 'pf'),
+  kids.push(h('p', { class: 'summary sim-sum' }, mode === 'off' ? `Vs these ${top.length}: ` : `Allowed vs these ${top.length}: `, h('b', null, `${rnd(A.pf)} pts`), dlt(A.pf, 'pf'),
     big && Math.abs(big.d) >= 0.1 ? [' · ', h('b', null, `${rnd(A[big.k])} ${big.l}`), dlt(A[big.k], big.k), ' (biggest swing)'] : null));
   // everything else, tucked away
   const btn = h('button', { class: 'more', type: 'button', onclick: () => { S.simAll = !S.simAll; render(); } }, S.simAll ? 'Hide all games' : `All ${rows.length} games ranked by match`);
   kids.push(btn);
   if (S.simAll) {
     const tb = newTable(); tb.classList.add('dvp');
-    const box = sp === 'nfl' ? (r) => boxNFL(S.season, r.ord, off, r.opp) : (r) => boxById(sp, r.gid, [off, r.opp], { [off]: r.pf, [r.opp]: r.pa });
-    table(tb, `sim-${sp}-${off}`, [
+    const box = sp === 'nfl' ? (r) => boxNFL(S.season, r.ord, me, r.opp) : (r) => boxById(sp, r.gid, [me, r.opp], mode === 'off' ? { [me]: r.pf, [r.opp]: r.pa } : { [me]: r.pa, [r.opp]: r.pf });
+    table(tb, `sim-${sp}-${mode}-${me}`, [
       { f: 'oppN', label: 'Opponent', l: true }, { f: 'ord', label: isBB(sp) ? 'Date' : 'Wk', fmt: (v, r) => r.label },
-      { f: 'sim', label: 'Match %', fmt: (v) => (v == null ? '—' : String(v)) }, { f: 'pf', label: 'Pts' }, ...cols.map(([k, l]) => ({ f: k, label: l })),
+      { f: 'sim', label: 'Match %', fmt: (v) => (v == null ? '—' : String(v)) }, { f: 'pf', label: mode === 'off' ? 'Pts' : 'Pts allowed' }, ...cols.map(([k, l]) => ({ f: k, label: l })),
     ], rows, { sort: { f: 'sim', dir: 'desc' }, selected: (r) => topSet.has(r.key), expand: { f: 'oppN', key: (r) => r.key, render: box } });
     kids.push(h('div', { class: 'scroll sim-scroll', style: 'max-height: none' }, tb));
   }
