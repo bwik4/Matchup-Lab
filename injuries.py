@@ -99,6 +99,12 @@ def row_from(sport, inj, team_hint, names):
     name = ath.get("displayName") or " ".join(x for x in [ath.get("firstName"), ath.get("lastName")] if x)
     if not name:
         return None
+    when = str(inj.get("date") or "")[:10]
+    try:
+        if when and (dt.date.today() - dt.date.fromisoformat(when)).days > 60:
+            return None  # stale entry ESPN never cleared
+    except ValueError:
+        pass
     typ = inj.get("type") or {}
     label = inj.get("status") or typ.get("description") or typ.get("name") or ""
     status = norm_status(label, typ.get("name"), typ.get("abbreviation")) or norm_status((inj.get("details") or {}).get("fantasyStatus", {}).get("description"))
@@ -164,13 +170,16 @@ def team_feed(sport):
     league, names = SPORTS[sport][1], team_codes(sport)
     ids = slate_team_ids(sport)
     print(f"{sport}: checking {len(ids)} teams one by one")
+    first = next(iter(ids), None)
 
     def one(item):
         tid, abbr = item
         out = []
         try:
             lst = get(f"{CORE}/{league}/teams/{tid}/injuries?limit=100", timeout=15)
-        except Exception:
+        except Exception as err:
+            if DEBUG and tid == first:
+                print(f"{sport}: team {abbr} injuries failed ({err})")
             return out
         for ref in lst.get("items", [])[:40]:
             try:

@@ -237,6 +237,12 @@
   .plist { display: flex; flex-direction: column; }
   .prow { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, 3.8rem); gap: 6px; align-items: center; padding: 10px 4px; border-bottom: 1px solid var(--line); cursor: pointer; border-radius: 6px; }
   .prow:hover { background: var(--bg); }
+  .inj { display: inline-block; font-size: .66rem; font-weight: 700; line-height: 1; padding: 3px 5px; border-radius: 4px; margin-left: 6px; vertical-align: 2px; letter-spacing: .02em; }
+  .inj-q { background: color-mix(in srgb, var(--mid) 18%, transparent); color: var(--mid); }
+  .inj-d, .inj-o { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
+  .inj-p { background: color-mix(in srgb, var(--fg) 10%, transparent); color: var(--muted); }
+  .pl-out { margin: 8px 0 0; }
+  .pl-out i { font-style: normal; color: var(--muted); }
   .prow .who { display: flex; gap: 10px; align-items: center; min-width: 0; }
   .prow .who > div { min-width: 0; }
   .prow .who b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -449,11 +455,8 @@
             <button data-v="h2h">H2H</button><button data-v="l3">L3</button><button data-v="l5">L5</button><button data-v="l10">L10</button><button data-v="cur">This season</button><button data-v="both">This + last</button>
           </div>
         </div>
-        <p class="note">Per-game averages over the games you pick (H2H = his games against this opponent, this season and last). The grade is this week's matchup: A+ = the defense allows the most to his position (easiest), F = allows the least (toughest). Tap a player for his full prop card.</p>
-        <div class="grid">
-          <div><h3>Starting QBs</h3><div class="plist pl-qb"></div></div>
-          <div><h3>Receivers / rushers</h3><div class="plist pl-sk"></div><button class="more pl-more" type="button">Show more</button></div>
-        </div>
+        <p class="note pl-note"></p>
+        <div class="grid pl-body"></div>
       </div>
     </div>
 
@@ -1512,7 +1515,6 @@ $('.gp-tabs').addEventListener('click', (e) => { const bt = e.target.closest('bu
 $('.back').addEventListener('click', () => { if (S.fromHome) { S.fromHome = false; history.back(); } else go('home'); });
 $('.h-week').addEventListener('change', (e) => { if (S.sport === 'cfb') { S.cWeek = Number(e.target.value); S.cDay = null; } else { S.hWeek = Number(e.target.value); S.hDay = null; } render(); });
 $('.tc-swap').addEventListener('click', () => { S.tcFlip = !S.tcFlip; render(); });
-$('.pl-more').addEventListener('click', () => { S.plMore = !S.plMore; render(); });
 $('.ffv-depth').addEventListener('click', (e) => { const bt = e.target.closest('button'); if (!bt) return; S.ffDepth = bt.dataset.v; render(); });
 $('.ff-search').addEventListener('change', (e) => {
   const v = e.target.value.trim().toLowerCase(); if (!v) return;
@@ -2197,6 +2199,115 @@ function renderGameDvP(g) {
 }
 
 // ---------- players: starting QBs + top receivers/rushers ----------
+// ===================== injuries + depth chart (Players tab, all sports) =====================
+// data/<sport>/injuries.csv comes from injuries.py (ESPN, refreshed every 3 hours). Missing file = no tags.
+const INJ = {};
+const nmKey = (n) => String(n || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[.'’`]/g, '').replace(/-/g, ' ')
+  .replace(/\b(jr|sr|ii|iii|iv|v)\b/g, '').replace(/\s+/g, ' ').trim();
+const nmShort = (n) => { const w = nmKey(n).split(' '); return w.length > 1 ? `${w[0][0]} ${w[w.length - 1]}` : w[0]; };
+function loadInj(sp) {
+  if (INJ[sp]) return INJ[sp];
+  const I = (INJ[sp] = { full: new Map(), short: new Map(), ready: false });
+  d3.csv(`${sp === 'nfl' ? 'data' : `data/${sp}`}/injuries.csv?v=${Date.now()}`).then((rows) => {
+    rows.forEach((r) => { I.full.set(`${r.team}|${nmKey(r.player)}`, r); const k = `${r.team}|${nmShort(r.player)}`; I.short.set(k, I.short.has(k) ? null : r); });
+    I.ready = true; I.n = rows.length;
+    if (S.view === 'game' || S.view === 'xgame') render();
+  }).catch(() => { I.ready = true; I.n = 0; });
+  return I;
+}
+function injOf(sp, team, name) {
+  const I = loadInj(sp);
+  return I.full.get(`${team}|${nmKey(name)}`) || I.short.get(`${team}|${nmShort(name)}`) || null;
+}
+const INJ_TAG = { out: ['OUT', 'inj-o'], doubtful: ['D', 'inj-d'], questionable: ['Q', 'inj-q'], probable: ['P', 'inj-p'] };
+function injTag(inj, missed) {
+  if (inj && INJ_TAG[inj.status]) {
+    const [t, c] = INJ_TAG[inj.status], lab = inj.label && inj.label.toLowerCase() !== inj.status ? inj.label : inj.status[0].toUpperCase() + inj.status.slice(1);
+    return h('span', { class: `inj ${c}`, title: `${lab}${inj.detail ? ` · ${inj.detail}` : ''}${inj.return_date ? ` · est. return ${inj.return_date.slice(0, 10)}` : ''}` }, lab === 'Day-To-Day' ? 'DTD' : t);
+  }
+  return null;
+}
+// who gets listed: recent role = average usage over the team's last few games (games he missed count as 0)
+const DC_RECENT = { fb: 4, bb: 5 };
+const DC_USE = {
+  nfl: { QB: (r) => r.attempts || 0, RB: (r) => (r.carries || 0) + (r.targets || 0), WR: (r) => r.targets || 0, TE: (r) => r.targets || 0 },
+  cfb: { QB: (r) => r.attempts || 0, RB: (r) => (r.carries || 0) + (r.receptions || 0), WR: (r) => (r.receptions || 0) + (r.receiving_yards || 0) / 20, TE: (r) => (r.receptions || 0) + (r.receiving_yards || 0) / 20 },
+};
+// [always shown if they clear min, extra spot if the next guy clears extra]
+const DC_SLOTS = { RB: { n: 2, min: 3, extra: 7 }, WR: { n: 3, min: 1.5, extra: 4 }, TE: { n: 1, min: 1, extra: 3 } };
+const BB_POS = ['G', 'F', 'C'];
+function dcPool(sp, team) {
+  const pool = [];
+  if (sp === 'nfl') {
+    DATA.players.forEach((p) => {
+      if (p.team !== team || !['QB', 'RB', 'WR', 'TE'].includes(p.position)) return;
+      const cur = (IDX.logs.get(p.player_id) || []).filter((r) => r.season === S.season && r.team === team);
+      if (cur.length) pool.push({ pid: p.player_id, player: p.player, pos: p.position, cur: cur.map((r) => ({ r, key: r.week })) });
+    });
+    const keys = DATA.team_games.filter((x) => x.season === S.season && x.team === team).map((x) => x.week).sort((a, b) => a - b);
+    return { pool, keys };
+  }
+  const X = SPX[sp](), ord = new Map();
+  X.byPid.forEach((logs, pid) => {
+    const last = logs[logs.length - 1];
+    if (!last || last.team !== team || last.season !== X.season) return;
+    const cur = logs.filter((r) => r.season === X.season && r.team === team && String(r.player).trim() !== 'Team');
+    if (!cur.length) return;
+    cur.forEach((r) => ord.set(String(r.game_id), isBB(sp) ? r.date : r.week));
+    pool.push({ pid, player: String(last.player).trim(), pos: last.position, cur: cur.map((r) => ({ r, key: String(r.game_id) })) });
+  });
+  const keys = [...ord.keys()].sort((a, b) => (ord.get(a) < ord.get(b) ? -1 : ord.get(a) > ord.get(b) ? 1 : 0));
+  return { pool, keys };
+}
+function depthChart(sp, team, g) {
+  const bb = isBB(sp), { pool, keys } = dcPool(sp, team), R = keys.slice(-DC_RECENT[bb ? 'bb' : 'fb']), Rset = new Set(R);
+  const use = bb ? () => (r) => r.min || 0 : (pos) => DC_USE[sp][pos] || (() => 0);
+  const outs = [], ok = [];
+  pool.forEach((x) => {
+    const u = use(x.pos), have = new Set(x.cur.map((c) => c.key));
+    x.recent = R.length ? x.cur.filter((c) => Rset.has(c.key)).reduce((a, c) => a + u(c.r), 0) / R.length : 0;
+    x.seasonUse = keys.length ? x.cur.reduce((a, c) => a + u(c.r), 0) / keys.length : 0;
+    x.share = keys.length ? x.cur.length / keys.length : 0;
+    x.perGame = x.cur.length ? x.cur.reduce((a, c) => a + u(c.r), 0) / x.cur.length : 0;
+    let m = 0; for (let i = keys.length - 1; i >= 0 && !have.has(keys[i]); i--) m++;
+    x.missed = m;
+    x.lastGame = keys.length ? x.cur.filter((c) => c.key === keys[keys.length - 1]).reduce((a, c) => a + u(c.r), 0) : 0;
+    x.inj = injOf(sp, team, x.player);
+    const minRole = bb ? (sp === 'nba' ? 14 : 10) : x.pos === 'QB' ? 10 : DC_SLOTS[x.pos] ? DC_SLOTS[x.pos].min : 99;
+    const relevant = Math.max(x.recent, x.perGame) >= minRole;
+    if (x.inj && x.inj.status === 'out') { if (relevant) outs.push({ ...x, why: x.inj.label || 'Out' }); return; }
+    const gone = x.missed >= (bb ? 3 : 2);
+    if (gone && !x.inj) { if (relevant && x.share >= 0.25) outs.push({ ...x, why: `hasn't played the last ${x.missed} games` }); return; }
+    if (gone) x.recent = x.perGame; // back on the injury report as questionable/doubtful after missing time: use his role when healthy
+    ok.push(x);
+  });
+  const list = [];
+  if (bb) {
+    const min = sp === 'nba' ? 14 : 10;
+    const top = ok.filter((x) => x.recent >= min).sort((a, b) => b.recent - a.recent).slice(0, 9);
+    BB_POS.forEach((pos) => top.filter((x) => x.pos === pos).forEach((x) => list.push(x)));
+    top.filter((x) => !BB_POS.includes(x.pos)).forEach((x) => list.push(x));
+  } else {
+    // QB: the listed starter if there is one, else whoever threw the most in the last game, else the most lately
+    const qbs = ok.filter((x) => x.pos === 'QB');
+    const side = g && (g.away_team === team ? 'away' : 'home'), named = g && g[`${side}_qb_name`];
+    let qb = named ? qbs.find((x) => nmKey(x.player) === nmKey(named)) : null;
+    if (!qb) qb = qbs.slice().sort((a, b) => b.lastGame - a.lastGame || b.recent - a.recent)[0];
+    if (qb && qb.recent + qb.seasonUse > 0) list.push(qb);
+    ['RB', 'WR', 'TE'].forEach((pos) => {
+      const c = DC_SLOTS[pos], ranked = ok.filter((x) => x.pos === pos).sort((a, b) => b.recent - a.recent);
+      ranked.forEach((x, i) => { if ((i < c.n && x.recent >= c.min) || (i === c.n && x.recent >= c.extra)) list.push(x); });
+    });
+  }
+  outs.sort((a, b) => b.seasonUse - a.seasonUse);
+  return { list, outs, injLoaded: loadInj(sp).ready };
+}
+function dcOutLine(dc) {
+  if (!dc.outs.length) return null;
+  return h('p', { class: 'note pl-out' }, h('b', null, 'Out / inactive: '),
+    ...dc.outs.flatMap((x, i) => [i ? ' · ' : '', h('span', null, `${x.player} (${x.pos}${x.inj && x.inj.detail ? `, ${x.inj.detail}` : ''}) `), h('i', null, x.why === 'Out' ? '' : x.why)]));
+}
+
 const PL_N = { l3: 3, l5: 5, l10: 10 };
 function plGames(pid, opp, win) {
   const all = IDX.logs.get(pid) || [];
@@ -2220,31 +2331,34 @@ function starterQB(g, side) {
     .sort((a, b) => b.last.week - a.last.week || b.last.attempts - a.last.attempts).map((x) => x.q)[0];
   return { p, nm, team };
 }
-function prow(p, opp, nums, n) {
+function prow(p, opp, nums, n, x) {
   const gr = grade(opp, p.position);
   return h('div', { class: 'prow', ...pressable(() => openProp(p.player_id, null)) },
-    h('div', { class: 'who' }, badge(p.team, 'sm'), h('div', null, h('b', null, p.player),
+    h('div', { class: 'who' }, badge(p.team, 'sm'), h('div', null, h('b', null, p.player, injTag(x && x.inj)),
       h('small', null, `${p.position} · ${n} g · vs ${opp} `, gr ? h('span', { class: `grade ${gr.cls}`, title: `${opp} ranks ${gr.r} of 32 against ${p.position}s (32 = easiest)` }, `${gr.gr} matchup`) : null))),
     ...nums.map(([v, k]) => h('div', { class: 'n' }, h('b', null, v), h('small', null, k))));
 }
 function renderGPlayers(g) {
   const oppOf = (t) => (t === g.away_team ? g.home_team : g.away_team);
-  const avgOf = (gs, f) => mean(gs.map((r) => (typeof f === 'function' ? f(r) : r[f])).filter((v) => v != null));
-  const qbBox = $('.pl-qb'); qbBox.replaceChildren();
-  ['away', 'home'].forEach((side) => {
-    const { p, nm, team } = starterQB(g, side);
-    if (!p) { qbBox.append(h('p', { class: 'empty' }, `${nm || 'No starter listed'} (${team}): no games yet.`)); return; }
-    const gs = plGames(p.player_id, oppOf(team), S.plWin);
-    qbBox.append(prow({ ...p, team }, oppOf(team), [[show(avgOf(gs, 'passing_yards')), 'P YD'], [show(avgOf(gs, 'passing_tds')), 'P TD'], [show(avgOf(gs, 'passing_interceptions')), 'INT']], gs.length));
-  });
-  const sk = [g.away_team, g.home_team].flatMap((team) => DATA.players.filter((p) => p.team === team && p.position !== 'QB').map((p) => {
-    const gs = plGames(p.player_id, oppOf(team), S.plWin);
-    return { p, opp: oppOf(team), gs, tot: avgOf(gs, 'rush_rec_yds'), td: avgOf(gs, (r) => (r.rushing_tds || 0) + (r.receiving_tds || 0)), rec: avgOf(gs, 'receptions'), car: avgOf(gs, 'carries') };
-  })).filter((x) => x.gs.length && (x.tot || 0) >= 3).sort((a, b) => (b.tot ?? -1) - (a.tot ?? -1));
-  const shown = S.plMore ? sk.slice(0, 30) : sk.slice(0, 6);
-  $('.pl-sk').replaceChildren(...(shown.length ? shown.map((x) => prow(x.p, x.opp, [[show(x.tot), 'TOT YD'], [show(x.td), 'TD'], x.p.position === 'RB' ? [show(x.car), 'CAR'] : [show(x.rec), 'REC']], x.gs.length))
-    : [h('p', { class: 'empty' }, S.plWin === 'h2h' ? 'No one on these rosters has played this opponent in the last two seasons.' : 'No games yet.')]));
-  const btn = $('.pl-more'); btn.hidden = sk.length <= 6; btn.textContent = S.plMore ? 'Show less' : `Show more (${Math.min(sk.length, 30) - 6})`;
+  const avgOf = (gs, f) => (gs.length ? mean(gs.map((r) => (typeof f === 'function' ? f(r) : r[f])).filter((v) => v != null)) : null);
+  const tdOf = (r) => (r.rushing_tds || 0) + (r.receiving_tds || 0);
+  const NUMS = {
+    QB: (gs) => [[show(avgOf(gs, 'passing_yards')), 'P YD'], [show(avgOf(gs, 'passing_tds')), 'P TD'], [show(avgOf(gs, 'rushing_yards')), 'R YD']],
+    RB: (gs) => [[show(avgOf(gs, 'rushing_yards')), 'R YD'], [show(avgOf(gs, 'receiving_yards')), 'REC YD'], [show(avgOf(gs, 'carries')), 'CAR']],
+    WR: (gs) => [[show(avgOf(gs, 'receptions')), 'REC'], [show(avgOf(gs, 'receiving_yards')), 'REC YD'], [show(avgOf(gs, 'targets')), 'TGT']],
+  };
+  NUMS.TE = NUMS.WR;
+  $('.pl-note').textContent = `Each team's likely starting QB, then the RBs, WRs and TEs getting the most work over its last ${DC_RECENT.fb} games (carries + targets), with per-game averages over the games you pick (H2H = his games against this opponent, this season and last). Injury tags come from the latest injury report; players ruled out are moved to the line under each team. Grade = this week's matchup: A+ = the defense allows the most to his position (easiest), F = the least (toughest). Tap a player for his full prop card.`;
+  $('.pl-body').replaceChildren(...[g.away_team, g.home_team].map((team) => {
+    const opp = oppOf(team), dc = depthChart('nfl', team, g);
+    const rows = dc.list.map((x) => {
+      const p = IDX.player.get(x.pid) || { player_id: x.pid, player: x.player, position: x.pos };
+      const gs = plGames(x.pid, opp, S.plWin);
+      return prow({ ...p, team, position: x.pos }, opp, NUMS[x.pos](gs), gs.length, x);
+    });
+    return h('div', { class: 'xg-team' }, h('h3', null, badge(team, 'sm'), TI(team).name || TI(team).nick),
+      h('div', { class: 'plist' }, ...(rows.length ? rows : [h('p', { class: 'empty' }, 'No games yet.')])), dcOutLine(dc));
+  }));
 }
 
 // ---------- usage share donuts ----------
@@ -3648,33 +3762,29 @@ function xgPlayers(sp, g) {
       ...nums.map(([v, k]) => h('div', { class: 'n' }, h('b', null, v), h('small', null, k))));
   };
   const out = [];
+  const td = (r) => (r.rushing_tds || 0) + (r.receiving_tds || 0);
+  const NUMS = {
+    QB: [[(r) => r.passing_yards, 'P YD'], [(r) => r.passing_tds, 'P TD'], [(r) => r.rushing_yards, 'R YD'], 'passing_yards'],
+    RB: [[(r) => r.rushing_yards, 'R YD'], [(r) => r.receiving_yards, 'REC YD'], [(r) => r.carries, 'CAR'], 'rush_rec_yds'],
+    WR: [[(r) => r.receptions, 'REC'], [(r) => r.receiving_yards, 'REC YD'], [td, 'TD'], 'receiving_yards'],
+    BB: [[(r) => r.pts, 'PTS'], [(r) => r.reb, 'REB'], [(r) => r.ast, 'AST'], 'pts'],
+  };
+  NUMS.TE = NUMS.WR;
   [[g.away_team, g.home_team], [g.home_team, g.away_team]].forEach(([team, opp]) => {
-    const cut = isBB(sp) ? dayShift(g.gameday, -14) : null;
-    const roster = [...X.byPid.entries()].map(([pid, logs]) => ({ pid, logs, last: logs[logs.length - 1] }))
-      .filter((x) => x.last.team === team && x.last.season === X.season && (!isBB(sp) || x.last.date >= cut));
-    const list = [];
-    if (isBB(sp)) {
-      roster.map((x) => ({ ...x, mins: mean(x.logs.slice(-10).map((r) => r.min)) })).filter((x) => x.mins >= 12).sort((a, b) => b.mins - a.mins).slice(0, 9).forEach((x) => {
-        const gs = pick(x.logs, opp); if (!gs.length) return;
-        list.push(row({ pid: x.pid, player: x.last.player, position: x.last.position, team }, opp,
-          [[show(avg(gs, (r) => r.pts)), 'PTS'], [show(avg(gs, (r) => r.reb)), 'REB'], [show(avg(gs, (r) => r.ast)), 'AST']], gs.length, 'pts'));
-      });
-    } else {
-      const qb = roster.filter((x) => x.last.position === 'QB').sort((a, b) => b.last.week - a.last.week || b.last.attempts - a.last.attempts)[0];
-      if (qb) { const gs = pick(qb.logs, opp); if (gs.length) list.push(row({ pid: qb.pid, player: qb.last.player, position: 'QB', team }, opp, [[show(avg(gs, (r) => r.passing_yards)), 'P YD'], [show(avg(gs, (r) => r.passing_tds)), 'P TD'], [show(avg(gs, (r) => r.passing_interceptions)), 'INT']], gs.length, 'passing_yards')); }
-      roster.filter((x) => x.last.position !== 'QB').map((x) => ({ ...x, gs: pick(x.logs, opp) })).filter((x) => x.gs.length)
-        .map((x) => ({ ...x, tot: avg(x.gs, (r) => r.rush_rec_yds) })).filter((x) => x.tot >= 15).sort((a, b) => b.tot - a.tot).slice(0, 6).forEach((x) => {
-          const pos = x.last.position;
-          list.push(row({ pid: x.pid, player: x.last.player, position: pos, team }, opp, [[show(x.tot), 'TOT YD'], [show(avg(x.gs, (r) => r.rushing_tds + r.receiving_tds)), 'TD'],
-            pos === 'RB' ? [show(avg(x.gs, (r) => r.carries)), 'CAR'] : [show(avg(x.gs, (r) => r.receptions)), 'REC']], x.gs.length, pos === 'RB' ? 'rush_rec_yds' : pos === 'QB' ? 'passing_yards' : 'receiving_yards'));
-        });
-    }
+    const dc = depthChart(sp, team, g);
+    const list = dc.list.map((x) => {
+      const cfg = NUMS[isBB(sp) ? 'BB' : x.pos] || NUMS.WR, gs = pick(X.byPid.get(x.pid) || [], opp);
+      const r = row({ pid: x.pid, player: x.player, position: x.pos, team }, opp, cfg.slice(0, 3).map(([f, k]) => [gs.length ? show(avg(gs, (q) => f(q) || 0)) : '—', k]), gs.length, cfg[3]);
+      const tag = injTag(x.inj); if (tag) r.querySelector('.who b').append(tag);
+      return r;
+    });
     out.push(h('div', { class: 'xg-team' }, h('h3', null, badge(team, 'sm'), TI(team).name || TI(team).nick),
-      ...(list.length ? list : [h('p', { class: 'empty' }, win === 'h2h' ? 'No one on this roster has played this opponent in the last two seasons.' : 'No games yet.')])));
+      ...(list.length ? list : [h('p', { class: 'empty' }, 'No games yet.')]), dcOutLine(dc)));
   });
-  $('.xg-pnote').textContent = isBB(sp)
-    ? 'Each team\'s rotation (12+ minutes a game over the last 10), with averages over the games you pick. Matchup grade = how many points the opponent allows to his position (A = easiest). Tap a player for his game log.'
-    : 'Each team\'s starting QB and top playmakers by rush + receiving yards, with averages over the games you pick. Matchup grade = what the opponent allows to his position among FBS defenses (A = easiest). Tap a player for his game log.';
+  $('.xg-pnote').textContent = (isBB(sp)
+    ? `Each team's rotation (${sp === 'nba' ? 14 : 10}+ minutes a game over its last ${DC_RECENT.bb} games), guards first, then forwards and centers, with averages over the games you pick.`
+    : `Each team's starting QB, then the RBs, WRs and TEs getting the most work over its last ${DC_RECENT.fb} games, with averages over the games you pick.`)
+    + ` Injury tags come from ESPN's injury report${sp === 'cfb' || sp === 'cbb' ? ' (college teams report less, so some won\'t show)' : ''}; players ruled out, or who haven't played lately, are moved to the line under each team. Matchup grade = what the opponent allows to his position (A = easiest). Tap a player for his game log.`;
   $('.xg-plist').replaceChildren(...out);
 }
 
