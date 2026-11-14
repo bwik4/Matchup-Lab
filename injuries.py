@@ -64,12 +64,16 @@ def season_end(sport):
 def is_season_out(sport, status, text, ret):
     if status != "out":
         return 0
-    if SEASON_TXT.search(text or ""):
-        return 1
     try:
-        return int(bool(ret) and dt.date.fromisoformat(str(ret)[:10]) > season_end(sport))
+        back = dt.date.fromisoformat(str(ret)[:10]) if ret else None
     except ValueError:
+        back = None
+    if back:  # ESPN's estimated return date decides when there is one
+        return int(back > season_end(sport))
+    t = text or ""
+    if re.search(r"(hope|could|may|might|possib|not ruled out|haven't ruled out|hasn't ruled out|potential)", t, re.I):
         return 0
+    return int(bool(SEASON_TXT.search(t)))
 DEBUG = False
 
 
