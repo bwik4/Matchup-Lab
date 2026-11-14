@@ -2215,7 +2215,23 @@ function loadInj(sp) {
   }).catch(() => { I.ready = true; I.n = 0; });
   return I;
 }
+// data/manual.csv: hand-entered overrides that beat the ESPN report (status out / doubtful / questionable / starter).
+// A row stops counting after its "until" date, so stale overrides clear themselves.
+const MAN = { rows: null };
+function loadMan() {
+  if (MAN.rows) return MAN.rows;
+  MAN.rows = [];
+  const today = new Date().toLocaleDateString('en-CA');
+  d3.csv(`data/manual.csv?v=${Date.now()}`).then((rows) => {
+    MAN.rows = rows.filter((r) => r.player && (!r.until || r.until >= today)).map((r) => ({ ...r, status: String(r.status).toLowerCase().trim(), label: r.note || '' }));
+    if (MAN.rows.length && (S.view === 'game' || S.view === 'xgame')) render();
+  }).catch(() => {});
+  return MAN.rows;
+}
+const manFor = (sp, team) => loadMan().filter((r) => r.sport === sp && r.team === team);
 function injOf(sp, team, name) {
+  const m = manFor(sp, team).find((r) => nmKey(r.player) === nmKey(name));
+  if (m) return m.status === 'starter' ? null : { ...m, label: m.status === 'out' ? 'Out' : m.status[0].toUpperCase() + m.status.slice(1), detail: m.note };
   const I = loadInj(sp);
   return I.full.get(`${team}|${nmKey(name)}`) || I.short.get(`${team}|${nmShort(name)}`) || null;
 }
@@ -2291,7 +2307,9 @@ function depthChart(sp, team, g) {
     // QB: the listed starter if there is one, else whoever threw the most in the last game, else the most lately
     const qbs = ok.filter((x) => x.pos === 'QB');
     const side = g && (g.away_team === team ? 'away' : 'home'), named = g && g[`${side}_qb_name`];
-    let qb = named ? qbs.find((x) => nmKey(x.player) === nmKey(named)) : null;
+    const forced = manFor(sp, team).find((r) => r.status === 'starter' && (!r.position || r.position === 'QB'));
+    let qb = forced ? qbs.find((x) => nmKey(x.player) === nmKey(forced.player)) : null;
+    if (!qb && named) qb = qbs.find((x) => nmKey(x.player) === nmKey(named));
     if (!qb) qb = qbs.slice().sort((a, b) => b.lastGame - a.lastGame || b.recent - a.recent)[0];
     if (qb && qb.recent + qb.seasonUse > 0) list.push(qb);
     ['RB', 'WR', 'TE'].forEach((pos) => {
