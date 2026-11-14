@@ -344,6 +344,9 @@
   .sport-sw { display: flex; gap: 10px; flex-wrap: wrap; }
   .h-top[hidden] { display: none; }
   .prow.static { cursor: default; }
+  ul.gp-skew, ul.xg-skew { list-style: none; padding-left: 0; }
+  ul.gp-skew li, ul.xg-skew li { padding: 2px 0; }
+  ul.gp-skew li:not(.skew-head), ul.xg-skew li:not(.skew-head) { padding-left: 12px; }
   .sim { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 4px; }
   .sim .bar { margin-top: 12px; }
   .sim h3 { margin: 0; }
@@ -1247,10 +1250,33 @@ function skewCheck(games) { // games: [{v, ...}] one entry per game the defense 
   if ((avg - adj) / avg < 0.15 || vs[i] < 2 * med) return null;
   return { g: games[i], v: vs[i], adj };
 }
-// sentence for the tooltip and the list under the table
+// short note for the tooltip and the list under the table, e.g.
+// "ORST QBs · Wk 7 vs WSU: 142 rush yds (Owen Eshelman 136) → 17.9/g without it"
+const SKEW_META = new Map();
 function skewText(def, posLabel, unit, sk) {
-  const t = sk.g.top && sk.g.top.v > 0 ? ` (${sk.g.top.player} had ${show(sk.g.top.v)})` : '';
-  return `${def} vs ${posLabel}: skewed by ${sk.g.when}, when it allowed ${show(sk.v)} ${unit}${t}. With a typical game in its place it'd be about ${show(sk.adj)} per game.`;
+  const head = `${def} ${posLabel} · ${String(sk.g.when).replace(/^Week /, 'Wk ')}`;
+  const part = `${show(sk.v)} ${unit} → ${show(sk.adj)}/g`;
+  const who = sk.g.top && sk.g.top.v > 0 && sk.g.top.v >= 0.5 * sk.v ? sk.g.top.player : null;
+  const txt = `${head}: ${show(sk.v)} ${unit}${who ? ` (${who} ${show(sk.g.top.v)})` : ''} → ${show(sk.adj)}/g`;
+  SKEW_META.set(txt, { head, part, who });
+  return txt;
+}
+// one line per defense + position + game: "BOIS TEs · Wk 2 vs MEM (Hunter Tipton): 229 rec yds → 32.3/g, 9 receptions → 3/g"
+function skewMerge(notes) {
+  const groups = new Map(), loose = [];
+  notes.forEach((n) => { const m = SKEW_META.get(n); if (!m) { loose.push(n); return; } if (!groups.has(m.head)) groups.set(m.head, []); groups.get(m.head).push({ n, ...m }); });
+  return [...[...groups.values()].map((g) => {
+    if (g.length === 1) return g[0].n;
+    const who = g.every((x) => x.who && x.who === g[0].who) ? ` (${g[0].who})` : '';
+    return `${g[0].head}${who}: ${g.map((x) => x.part).join(', ')}`;
+  }), ...loose];
+}
+// the list under a game's defense-vs-position table
+function skewBlock(el, notes) {
+  const items = skewMerge(notes);
+  el.hidden = !items.length;
+  el.replaceChildren(...(items.length ? [h('li', { class: 'skew-head' }, h('b', { style: 'color: var(--c2)' }, '* '), 'One big game is inflating these. → = per-game average without it.')] : []),
+    ...items.map((n) => h('li', null, n)));
 }
 // stats-page tables keep the notes in a collapsed list under the table (hover/tap the * works too)
 function skewList(tbl, notes) {
@@ -1258,7 +1284,8 @@ function skewList(tbl, notes) {
   let box = wrap.nextElementSibling;
   if (!box || !box.classList.contains('skew-notes')) { box = document.createElement('details'); box.className = 'skew-notes'; wrap.after(box); }
   box.hidden = !notes.length;
-  box.replaceChildren(h('summary', null, h('b', null, '*'), ` Skewed by one big game (${notes.length})`), h('ul', null, ...notes.map((n) => h('li', null, n))));
+  const items = skewMerge(notes);
+  box.replaceChildren(h('summary', null, h('b', null, '*'), ` Skewed by one big game (${items.length})`), h('p', { class: 'note' }, '→ = per-game average without that game.'), h('ul', null, ...items.map((n) => h('li', null, n))));
 }
 // NFL: built from matchups_weekly (already one row per defense / position / week)
 function nflSkew(def, pos, stat, weeks) {
@@ -2209,8 +2236,7 @@ function renderGameDvP(g) {
     }))));
   let dn = tbl.closest('.scroll').nextElementSibling;
   if (!dn || !dn.classList.contains('gp-skew')) { dn = h('ul', { class: 'note gp-skew' }); tbl.closest('.scroll').after(dn); }
-  dn.hidden = !notes.length;
-  dn.replaceChildren(...notes.map((n) => h('li', null, h('b', { style: 'color: var(--c2)' }, '* '), n)));
+  skewBlock(dn, notes);
   renderSimDefs('nfl', g, $('.gp-sim'), S.tcFlip, (v) => { S.tcFlip = v; render(); });
 }
 
@@ -3793,8 +3819,7 @@ function xgMatchup(sp, g) {
     }))));
   let dn = tbl.closest('.scroll').nextElementSibling;
   if (!dn || !dn.classList.contains('xg-skew')) { dn = h('ul', { class: 'note xg-skew' }); tbl.closest('.scroll').after(dn); }
-  dn.hidden = !dNotes.length;
-  dn.replaceChildren(...dNotes.map((n) => h('li', null, h('b', { style: 'color: var(--c2)' }, '* '), n)));
+  skewBlock(dn, dNotes);
   renderSimDefs(sp, g, $('.xg-sim'), S.xgFlip, (v) => { S.xgFlip = v; render(); });
 }
 
