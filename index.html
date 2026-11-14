@@ -338,6 +338,11 @@
   .sport-sw { display: flex; gap: 10px; flex-wrap: wrap; }
   .h-top[hidden] { display: none; }
   .prow.static { cursor: default; }
+  .sim { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 4px; }
+  .sim .bar { margin-top: 12px; }
+  .sim h3 { margin: 0; }
+  .sim table.sim-avg td, .sim table.sim-avg th { padding: 6px 10px; }
+  .sim .sim-scroll { margin-top: 10px; }
   .xg-team h3 { display: flex; align-items: center; gap: 8px; margin: 18px 0 4px; }
   .xg-sumline { font-size: .9rem; margin: 6px 0 10px; }
   .xg-lines .scroll { margin-bottom: 8px; }
@@ -427,6 +432,7 @@
         <h2>Defense vs position</h2>
         <p class="note">What each defense allows per game to each position this season, ranked among all 32 defenses (1 = toughest, 32 = easiest). QB pass yards here are the QBs' own box-score yards (sacks don't count against them, the same way props are graded), so they run a bit higher than the team's net pass yards above. * = one big game is carrying that number (details below the table).</p>
         <div class="scroll" style="max-height: none"><table class="gp-dvp dvp"><thead></thead><tbody></tbody></table></div>
+        <div class="sim gp-sim"></div>
       </div>
       <div class="card" id="game-detail">
         <h2 class="gd-title">Full season comparison</h2>
@@ -798,6 +804,7 @@
         <h2>Defense vs position</h2>
         <p class="note xg-dnote"></p>
         <div class="scroll" style="max-height: none"><table class="xg-dvp dvp"><thead></thead><tbody></tbody></table></div>
+        <div class="sim xg-sim"></div>
       </div>
     </div>
 
@@ -2186,6 +2193,7 @@ function renderGameDvP(g) {
   if (!dn || !dn.classList.contains('gp-skew')) { dn = h('ul', { class: 'note gp-skew' }); tbl.closest('.scroll').after(dn); }
   dn.hidden = !notes.length;
   dn.replaceChildren(...notes.map((n) => h('li', null, h('b', { style: 'color: var(--c2)' }, '* '), n)));
+  renderSimDefs('nfl', g, $('.gp-sim'), S.tcFlip, (v) => { S.tcFlip = v; render(); });
 }
 
 // ---------- players: starting QBs + top receivers/rushers ----------
@@ -3618,6 +3626,7 @@ function xgMatchup(sp, g) {
   if (!dn || !dn.classList.contains('xg-skew')) { dn = h('ul', { class: 'note xg-skew' }); tbl.closest('.scroll').after(dn); }
   dn.hidden = !dNotes.length;
   dn.replaceChildren(...dNotes.map((n) => h('li', null, h('b', { style: 'color: var(--c2)' }, '* '), n)));
+  renderSimDefs(sp, g, $('.xg-sim'), S.xgFlip, (v) => { S.xgFlip = v; render(); });
 }
 
 function xgPlayers(sp, g) {
@@ -3696,6 +3705,120 @@ function xgLines(sp, g) {
     ], xgAtsRows(team, sp), { sort: { f: bb ? 'date' : 'week', dir: 'desc' }, expand: { f: 'score', key: (r) => r.game_id, render: (r) => boxById(sp, r.game_id, [r.team, r.oppT], { [r.team]: r.pf, [r.oppT]: r.pa }) } });
     return h('div', { class: 'xg-team' }, h('h3', null, badge(team, 'sm'), TI(team).name || TI(team).nick), sum, wrap);
   }));
+}
+
+
+// ===================== similar defenses already faced =====================
+// For the offense in this game: every defense it has already played this season, scored on how closely that
+// defense's defense-vs-position profile matches tonight's opponent, with what the offense did in that game.
+// Similarity = distance between the two profiles after putting every stat on the same scale (z-scores across
+// the league), turned into 100 = the most alike defense in the league, 0 = the least alike.
+const SIM_F = {
+  fb: [['QB', 'passing_yards'], ['QB', 'passing_tds'], ['QB', 'rushing_yards'], ['RB', 'rushing_yards'], ['RB', 'rushing_tds'], ['RB', 'receiving_yards'],
+    ['WR', 'receptions'], ['WR', 'receiving_yards'], ['WR', 'receiving_tds'], ['TE', 'receptions'], ['TE', 'receiving_yards'], ['TE', 'receiving_tds']],
+  bb: ['G', 'F', 'C'].flatMap((p) => ['pts', 'reb', 'ast', 'fg3m'].map((st) => [p, st])),
+};
+const simSum = (rs, pos, st) => rs.reduce((a, r) => a + (pos == null || r.position === pos ? r[st] || 0 : 0), 0);
+const SIM_OUT = {
+  fb: [['pass', 'Pass yds', (rs) => simSum(rs, null, 'passing_yards')], ['rbr', 'RB rush yds', (rs) => simSum(rs, 'RB', 'rushing_yards')],
+    ['rbc', 'RB rec yds', (rs) => simSum(rs, 'RB', 'receiving_yards')], ['wr', 'WR rec yds', (rs) => simSum(rs, 'WR', 'receiving_yards')],
+    ['te', 'TE rec yds', (rs) => simSum(rs, 'TE', 'receiving_yards')]],
+  bb: [['g', 'Guard pts', (rs) => simSum(rs, 'G', 'pts')], ['f', 'Forward pts', (rs) => simSum(rs, 'F', 'pts')], ['c', 'Center pts', (rs) => simSum(rs, 'C', 'pts')],
+    ['reb', 'Reb', (rs) => simSum(rs, null, 'reb')], ['fg3', '3PM', (rs) => simSum(rs, null, 'fg3m')]],
+};
+const SIM_LEAGUE = { nfl: 'the NFL', nba: 'the NBA', cfb: 'FBS', cbb: 'D1' };
+const SIMC = {};
+const poss = (n) => (/s$/i.test(n) ? `${n}'` : `${n}'s`);
+function simCache(sp) {
+  const src = sp === 'nfl' ? DATA.matchups : SPX[sp]().dvp;
+  if (SIMC[sp] && SIMC[sp].src === src) return SIMC[sp];
+  const F = SIM_F[isBB(sp) ? 'bb' : 'fb'];
+  let defs = [...new Set(src.map((r) => r.defense))];
+  if (sp === 'cfb') defs = defs.filter((t) => (CFB.info.get(t) || {}).fbs === 1);
+  if (sp === 'cbb') defs = defs.filter((t) => CBB.d1.has(t));
+  const get = sp === 'nfl' ? (d, p, st) => (mrow(d, p, st) || {}).per_game : (d, p, st) => (SPX[sp]().dv.get(`${d}|${p}|${st}`) || {}).per_game;
+  const vec = new Map();
+  defs.forEach((d) => { const v = F.map(([p, st]) => get(d, p, st)); if (v.every((x) => x != null && !Number.isNaN(x))) vec.set(d, v); });
+  const V = [...vec.values()], mu = F.map((_, i) => mean(V.map((v) => v[i])));
+  const sd = F.map((_, i) => Math.sqrt(mean(V.map((v) => (v[i] - mu[i]) ** 2))) || 1);
+  return (SIMC[sp] = { src, vec, sd });
+}
+function simScores(sp, target) {
+  const C = simCache(sp), tv = C.vec.get(target);
+  if (!tv) return null;
+  const d = [];
+  C.vec.forEach((v, k) => { if (k !== target) d.push([k, Math.sqrt(v.reduce((a, x, i) => a + ((x - tv[i]) / C.sd[i]) ** 2, 0))]); });
+  d.sort((a, b) => a[1] - b[1]);
+  const n = d.length, out = new Map();
+  d.forEach(([k], i) => out.set(k, { rank: i + 1, n, sim: Math.round(100 * (1 - i / Math.max(1, n - 1))) }));
+  return out;
+}
+// the offense's games this season: [{key, opp, ord, label, rs (its player logs), pf, pa, gid?}]
+function simGames(sp, team) {
+  const by = new Map();
+  if (sp === 'nfl') {
+    DATA.logs.forEach((r) => { if (r.season !== S.season || r.team !== team) return; const k = r.week; if (!by.has(k)) by.set(k, { key: k, opp: r.opp, ord: r.week, label: `Wk ${r.week}`, rs: [] }); by.get(k).rs.push(r); });
+    by.forEach((x) => { const t = DATA.team_games.find((y) => y.season === S.season && y.week === x.ord && y.team === team); if (t) { x.pf = t.pf; x.pa = t.pa; } });
+  } else {
+    const X = SPX[sp]();
+    X.logs.forEach((r) => {
+      if (r.season !== X.season || r.team !== team) return;
+      const k = String(r.game_id);
+      if (!by.has(k)) {
+        let label = `Wk ${r.week}`;
+        if (isBB(sp)) { const [y, m, dd] = String(r.date).split('-').map(Number); label = new Date(y, m - 1, dd).toLocaleDateString([], { month: 'short', day: 'numeric' }); }
+        by.set(k, { key: k, gid: k, opp: r.opp, ord: isBB(sp) ? r.date : r.week, label, rs: [] });
+      }
+      by.get(k).rs.push(r);
+    });
+    if (!X.gById) X.gById = new Map(X.games.map((x) => [String(x.game_id), x]));
+    by.forEach((x) => { const gm = X.gById.get(x.gid); if (gm && gm.status === 'final') { const hm = gm.home_team === team; x.pf = hm ? gm.home_score : gm.away_score; x.pa = hm ? gm.away_score : gm.home_score; } });
+  }
+  return [...by.values()].sort((a, b) => (a.ord < b.ord ? -1 : a.ord > b.ord ? 1 : 0));
+}
+function renderSimDefs(sp, g, host, flip, setFlip) {
+  if (!host) return;
+  const off = flip ? g.home_team : g.away_team, def = flip ? g.away_team : g.home_team;
+  const kind = isBB(sp) ? 'bb' : 'fb', cols = SIM_OUT[kind], sc = simScores(sp, def);
+  const all = simGames(sp, off).map((x) => { const o = { ...x, oppN: TI(x.opp).nick || x.opp }; cols.forEach(([k, , fn]) => { o[k] = fn(x.rs); }); const s = sc && sc.get(x.opp); o.sim = s ? s.sim : null; o.srank = s ? s.rank : null; o.sn = s ? s.n : null; return o; });
+  const rows = all.filter((x) => x.opp !== def);
+  const ranked = rows.filter((x) => x.sim != null).sort((a, b) => b.sim - a.sim), top = ranked.slice(0, 3), topSet = new Set(top.map((x) => x.key));
+  const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Which offense' },
+    ...[false, true].map((f) => { const o = f ? g.home_team : g.away_team, d = f ? g.away_team : g.home_team; return h('button', { 'aria-pressed': String(f === !!flip), onclick: () => setFlip(f) }, `${TI(o).nick} O vs ${TI(d).nick} D`); }));
+  const what = kind === 'bb' ? 'guards, forwards and centers (points, rebounds, assists and threes)' : 'QBs, RBs, WRs and TEs (yards, catches and TDs)';
+  const O = TI(off).nick, D = TI(def).nick;
+  const early = sp === 'cbb' && CBB.meta && CBB.meta.dvp_season !== String(CBB.season) ? " Defense profiles use last season's numbers until enough games are in." : '';
+  const kids = [h('div', { class: 'bar' }, h('h3', null, `Defenses ${O} has faced that look like ${poss(D)}`), seg),
+    h('p', { class: 'note' }, `Every defense ${O} has played this season, scored on how closely what it allows per game to ${what} matches ${poss(D)} defense. 100 = the most alike defense in ${SIM_LEAGUE[sp]}, 0 = the least alike. The other numbers are what ${poss(O)} offense put up in that game. Top 3 are highlighted. Tap an opponent for the box score.${early}`)];
+  if (!sc) { kids.push(h('p', { class: 'empty' }, `No defense profile for ${D} yet.`)); host.replaceChildren(...kids); return; }
+  if (!rows.length) { kids.push(h('p', { class: 'empty' }, `${O} hasn't played anyone else yet this season.`)); host.replaceChildren(...kids); return; }
+  // vs top 3 against season average
+  if (top.length) {
+    const avg = (list, k) => mean(list.map((x) => x[k]).filter((v) => v != null));
+    const keys = [['pf', 'Pts'], ...cols.map(([k, l]) => [k, l])];
+    const A = keys.map(([k]) => avg(top, k)), B = keys.map(([k]) => avg(all, k));
+    const tb = h('table', { class: 'dvp sim-avg' }, h('thead', null, h('tr', null, h('th', { class: 'l' }, ''), ...keys.map(([, l]) => h('th', null, l)))),
+      h('tbody', null,
+        h('tr', null, h('td', { class: 'l' }, `Vs ${top.length} most similar`), ...A.map((v) => h('td', null, show(v)))),
+        h('tr', null, h('td', { class: 'l' }, `Season avg (${all.length} games)`), ...B.map((v) => h('td', null, show(v)))),
+        h('tr', null, h('td', { class: 'l' }, 'Difference'), ...A.map((v, i) => { const dlt = v == null || B[i] == null ? null : v - B[i]; return h('td', { class: dlt > 0 ? 'diff-g' : dlt < 0 ? 'diff-r' : '' }, dlt == null ? '—' : `${dlt > 0 ? '+' : ''}${show(dlt)}`); }))));
+    const ptsD = A[0] != null && B[0] != null ? A[0] - B[0] : null;
+    kids.push(h('p', { class: 'summary' }, `Against ${top.map((x) => x.oppN).join(', ')}, the ${top.length === 1 ? 'defense' : `${top.length} defenses`} most like ${poss(D)}, ${O} scored `,
+      h('b', null, show(A[0])), ' points per game', ptsD == null ? '.' : `, ${ptsD >= 0 ? `${show(ptsD)} above` : `${show(-ptsD)} below`} its season average of ${show(B[0])}.`),
+      h('div', { class: 'scroll', style: 'max-height: none' }, tb));
+  }
+  const tb = newTable(); tb.classList.add('dvp');
+  const box = sp === 'nfl' ? (r) => boxNFL(S.season, r.ord, off, r.opp) : (r) => boxById(sp, r.gid, [off, r.opp], { [off]: r.pf, [r.opp]: r.pa });
+  table(tb, `sim-${sp}-${off}`, [
+    { f: 'oppN', label: 'Opponent', l: true }, { f: 'ord', label: isBB(sp) ? 'Date' : 'Wk', fmt: (v, r) => r.label },
+    { f: 'sim', label: 'Similarity', fmt: (v, r) => (v == null ? '—' : String(v)), title: 'How alike this defense is to tonight\'s (100 = most alike in the league)' },
+    { f: 'srank', label: 'Rank', fmt: (v, r) => (v == null ? '—' : `${ordinal(v)} of ${r.sn}`), title: 'Where this defense ranks among every defense by similarity to tonight\'s' },
+    { f: 'pf', label: 'Pts' }, ...cols.map(([k, l]) => ({ f: k, label: l })),
+  ], rows, { sort: { f: 'sim', dir: 'desc' }, selected: (r) => topSet.has(r.key), expand: { f: 'oppN', key: (r) => r.key, render: box } });
+  kids.push(h('div', { class: 'scroll sim-scroll', style: 'max-height: none' }, tb));
+  const miss = rows.filter((x) => x.sim == null).length;
+  if (miss) kids.push(h('p', { class: 'note' }, `${miss} game${miss > 1 ? 's' : ''} against ${sp === 'cfb' ? 'non-FBS teams' : sp === 'cbb' ? 'non-D1 teams' : 'teams without a defense profile'} ${miss > 1 ? 'have' : 'has'} no similarity score.`));
+  host.replaceChildren(...kids);
 }
 
 // ---------- sport switch ----------
