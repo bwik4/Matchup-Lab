@@ -1,0 +1,37 @@
+name: Update injuries
+
+on:
+  schedule:
+    # Every 3 hours, so game-day downgrades show up
+    - cron: "15 */3 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [injuries.py, .github/workflows/injuries.yml]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: injuries
+  cancel-in-progress: false
+
+jobs:
+  injuries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pandas
+      - run: python injuries.py --debug
+      - name: Commit injuries
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add data/injuries.csv data/nba/injuries.csv data/cfb/injuries.csv data/cbb/injuries.csv 2>/dev/null || true
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "Injury report refresh"
+          for i in 1 2 3; do git pull --rebase -q && git push && exit 0; sleep 5; done
+          exit 1
