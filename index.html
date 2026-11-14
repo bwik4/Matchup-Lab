@@ -347,8 +347,24 @@
   .sim { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 4px; }
   .sim .bar { margin-top: 12px; }
   .sim h3 { margin: 0; }
-  .sim table.sim-avg td, .sim table.sim-avg th { padding: 6px 10px; }
   .sim .sim-scroll { margin-top: 10px; }
+  .sim-cards { display: grid; gap: 10px; margin: 10px 0; }
+  .sim-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; background: var(--panel); }
+  .sim-top { display: flex; align-items: center; gap: 8px; }
+  .sim-top small { color: var(--muted); }
+  .sim-pct { margin-left: auto; font-weight: 700; font-size: .85rem; padding: 3px 8px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+  .sim-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .chip { font-size: .78rem; padding: 3px 8px; border-radius: 999px; background: color-mix(in srgb, var(--fg) 7%, transparent); }
+  .chip-g { background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .chip-g b { color: var(--ok); }
+  .chip-r { background: color-mix(in srgb, var(--bad) 12%, transparent); }
+  .chip-r b { color: var(--bad); }
+  .sim-res { font-size: .85rem; }
+  .sim-res .g, .sim-sum .g { color: var(--ok); } .sim-res .r, .sim-sum .r { color: var(--bad); }
+  .sim .muted { color: var(--muted); }
+  .sim .linkbtn { font: inherit; font-size: .78rem; border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; margin-left: 4px; }
+  .sim-box { margin-top: 8px; overflow-x: auto; }
+  .sim-sum { margin: 4px 0 8px; }
   .xg-team h3 { display: flex; align-items: center; gap: 8px; margin: 18px 0 4px; }
   .xg-sumline { font-size: .9rem; margin: 6px 0 10px; }
   .xg-lines .scroll { margin-bottom: 8px; }
@@ -3890,7 +3906,7 @@ function simCache(sp) {
   defs.forEach((d) => { const v = F.map(([p, st]) => get(d, p, st)); if (v.every((x) => x != null && !Number.isNaN(x))) vec.set(d, v); });
   const V = [...vec.values()], mu = F.map((_, i) => mean(V.map((v) => v[i])));
   const sd = F.map((_, i) => Math.sqrt(mean(V.map((v) => (v[i] - mu[i]) ** 2))) || 1);
-  return (SIMC[sp] = { src, vec, sd });
+  return (SIMC[sp] = { src, vec, sd, mu, F });
 }
 function simScores(sp, target) {
   const C = simCache(sp), tv = C.vec.get(target);
@@ -3925,48 +3941,73 @@ function simGames(sp, team) {
   }
   return [...by.values()].sort((a, b) => (a.ord < b.ord ? -1 : a.ord > b.ord ? 1 : 0));
 }
+// labels for the profile stats, and which offense column shows the result at that spot
+const SIM_LAB = { passing_yards: 'pass yds', passing_tds: 'pass TD', rushing_yards: 'rush yds', receiving_yards: 'rec yds', receptions: 'catches', receiving_tds: 'rec TD', rushing_tds: 'rush TD',
+  pts: 'pts', reb: 'reb', ast: 'ast', fg3m: '3PM' };
+const simFeatLab = ([p, st]) => `${p} ${SIM_LAB[st] || st}`;
+const SIM_OUTCOL = { QB: 'pass', RB: 'rbr', WR: 'wr', TE: 'te', G: 'g', F: 'f', C: 'c' };
+S.simAll = false;
+// the stats where two defenses are closest, favoring the ones that stand out for tonight's defense
+function simAlike(sp, target, other, k = 3) {
+  const C = simCache(sp), a = C.vec.get(target), b = C.vec.get(other);
+  if (!a || !b) return [];
+  return C.F.map((f, i) => {
+    const za = (a[i] - C.mu[i]) / C.sd[i], zb = (b[i] - C.mu[i]) / C.sd[i];
+    return { f, i, a: a[i], b: b[i], za, d: Math.abs(za - zb), score: Math.abs(za - zb) - 0.35 * Math.min(Math.abs(za), 2) + (/td/.test(f[1]) ? 0.35 : 0) };
+  }).filter((x) => x.d < 0.6).sort((x, y) => x.score - y.score).slice(0, k);
+}
 function renderSimDefs(sp, g, host, flip, setFlip) {
   if (!host) return;
-  const off = flip ? g.home_team : g.away_team, def = flip ? g.away_team : g.home_team;
+  const off = flip ? g.home_team : g.away_team, def = flip ? g.away_team : g.home_team, O = TI(off).nick, D = TI(def).nick;
   const kind = isBB(sp) ? 'bb' : 'fb', cols = SIM_OUT[kind], sc = simScores(sp, def);
-  const all = simGames(sp, off).map((x) => { const o = { ...x, oppN: TI(x.opp).nick || x.opp }; cols.forEach(([k, , fn]) => { o[k] = fn(x.rs); }); const s = sc && sc.get(x.opp); o.sim = s ? s.sim : null; o.srank = s ? s.rank : null; o.sn = s ? s.n : null; return o; });
+  const all = simGames(sp, off).map((x) => { const o = { ...x, oppN: TI(x.opp).nick || x.opp }; cols.forEach(([k, , fn]) => { o[k] = fn(x.rs); }); const v = sc && sc.get(x.opp); o.sim = v ? v.sim : null; o.srank = v ? v.rank : null; o.sn = v ? v.n : null; return o; });
   const rows = all.filter((x) => x.opp !== def);
-  const ranked = rows.filter((x) => x.sim != null).sort((a, b) => b.sim - a.sim), top = ranked.slice(0, 3), topSet = new Set(top.map((x) => x.key));
+  const top = rows.filter((x) => x.sim != null).sort((a, b) => b.sim - a.sim).slice(0, 3), topSet = new Set(top.map((x) => x.key));
+  const avgAll = {}; [['pf'], ...cols].forEach(([k]) => { avgAll[k] = mean(all.map((x) => x[k]).filter((v) => v != null)); });
+  const colLab = Object.fromEntries([['pf', 'pts'], ...cols.map(([k, l]) => [k, l.replace(/^(Guard|Forward|Center) pts$/, (m, p) => `${p[0]} pts`)])]);
   const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Which offense' },
     ...[false, true].map((f) => { const o = f ? g.home_team : g.away_team, d = f ? g.away_team : g.home_team; return h('button', { 'aria-pressed': String(f === !!flip), onclick: () => setFlip(f) }, `${TI(o).nick} O vs ${TI(d).nick} D`); }));
-  const what = kind === 'bb' ? 'guards, forwards and centers (points, rebounds, assists and threes)' : 'QBs, RBs, WRs and TEs (yards, catches and TDs)';
-  const O = TI(off).nick, D = TI(def).nick;
-  const early = sp === 'cbb' && CBB.meta && CBB.meta.dvp_season !== String(CBB.season) ? " Defense profiles use last season's numbers until enough games are in." : '';
-  const kids = [h('div', { class: 'bar' }, h('h3', null, `Defenses ${O} has faced that look like ${poss(D)}`), seg),
-    h('p', { class: 'note' }, `Every defense ${O} has played this season, scored on how closely what it allows per game to ${what} matches ${poss(D)} defense. 100 = the most alike defense in ${SIM_LEAGUE[sp]}, 0 = the least alike. The other numbers are what ${poss(O)} offense put up in that game. Top 3 are highlighted. Tap an opponent for the box score.${early}`)];
+  const kids = [h('div', { class: 'bar' }, h('h3', null, `${poss(O)} past opponents most like ${poss(D)} defense`), seg)];
   if (!sc) { kids.push(h('p', { class: 'empty' }, `No defense profile for ${D} yet.`)); host.replaceChildren(...kids); return; }
-  if (!rows.length) { kids.push(h('p', { class: 'empty' }, `${O} hasn't played anyone else yet this season.`)); host.replaceChildren(...kids); return; }
-  // vs top 3 against season average
-  if (top.length) {
-    const avg = (list, k) => mean(list.map((x) => x[k]).filter((v) => v != null));
-    const keys = [['pf', 'Pts'], ...cols.map(([k, l]) => [k, l])];
-    const A = keys.map(([k]) => avg(top, k)), B = keys.map(([k]) => avg(all, k));
-    const tb = h('table', { class: 'dvp sim-avg' }, h('thead', null, h('tr', null, h('th', { class: 'l' }, ''), ...keys.map(([, l]) => h('th', null, l)))),
-      h('tbody', null,
-        h('tr', null, h('td', { class: 'l' }, `Vs ${top.length} most similar`), ...A.map((v) => h('td', null, show(v)))),
-        h('tr', null, h('td', { class: 'l' }, `Season avg (${all.length} games)`), ...B.map((v) => h('td', null, show(v)))),
-        h('tr', null, h('td', { class: 'l' }, 'Difference'), ...A.map((v, i) => { const dlt = v == null || B[i] == null ? null : v - B[i]; return h('td', { class: dlt > 0 ? 'diff-g' : dlt < 0 ? 'diff-r' : '' }, dlt == null ? '—' : `${dlt > 0 ? '+' : ''}${show(dlt)}`); }))));
-    const ptsD = A[0] != null && B[0] != null ? A[0] - B[0] : null;
-    kids.push(h('p', { class: 'summary' }, `Against ${top.map((x) => x.oppN).join(', ')}, the ${top.length === 1 ? 'defense' : `${top.length} defenses`} most like ${poss(D)}, ${O} scored `,
-      h('b', null, show(A[0])), ' points per game', ptsD == null ? '.' : `, ${ptsD >= 0 ? `${show(ptsD)} above` : `${show(-ptsD)} below`} its season average of ${show(B[0])}.`),
-      h('div', { class: 'scroll', style: 'max-height: none' }, tb));
+  if (!top.length) { kids.push(h('p', { class: 'empty' }, rows.length ? `None of ${poss(O)} opponents so far have a defense profile.` : `${O} hasn't played anyone else yet this season.`)); host.replaceChildren(...kids); return; }
+  const C = simCache(sp), tv = C.vec.get(def);
+  kids.push(h('p', { class: 'note' }, `Chips = stats where the two defenses match (${D} / that team, allowed per game). Green = both give up a lot, red = both shut it down. Last line = what ${O} did in that game (± vs its season average).`));
+  const rnd = (v) => (Math.abs(v) >= 10 ? String(Math.round(v)) : show(v));
+  const dlt = (v, k) => { const a = avgAll[k]; if (v == null || a == null) return null; const d = v - a; return h('span', { class: d > 0 ? 'g' : d < 0 ? 'r' : '' }, ` (${d > 0 ? '+' : d < 0 ? '−' : '±'}${rnd(Math.abs(d))})`); };
+  const fmtV = (v, st) => (/tds?$|_tds$|receptions|fg3m|ast/.test(st) || v < 10 ? (Math.round(v * 10) / 10).toFixed(1) : String(Math.round(v)));
+  kids.push(h('div', { class: 'sim-cards' }, ...top.map((x) => {
+    const al = simAlike(sp, def, x.opp);
+    const outKeys = ['pf', ...new Set(al.map((a) => SIM_OUTCOL[a.f[0]]).filter(Boolean))];
+    if (outKeys.length < 3) cols.forEach(([k]) => { if (outKeys.length < 3 && !outKeys.includes(k)) outKeys.push(k); });
+    const open = S.boxOpen.has(`simc|${off}|${x.key}`);
+    return h('div', { class: 'sim-card' },
+      h('div', { class: 'sim-top' }, badge(x.opp, 'sm'), h('b', null, x.oppN), h('small', null, x.label),
+        h('span', { class: 'sim-pct' }, `${x.sim}% match`)),
+      h('div', { class: 'sim-chips' }, ...(al.length ? al.map((a) => h('span', { class: `chip ${a.za > 0.4 ? 'chip-g' : a.za < -0.4 ? 'chip-r' : ''}`, title: `${D} allows ${fmtV(a.a, a.f[1])} per game to ${a.f[0]}s, ${x.oppN} ${fmtV(a.b, a.f[1])}` },
+        h('b', null, simFeatLab(a.f)), ` ${fmtV(a.a, a.f[1])} / ${fmtV(a.b, a.f[1])}`)) : [h('small', { class: 'muted' }, 'Similar overall, no single stat stands out')])),
+      h('div', { class: 'sim-res' }, h('span', { class: 'muted' }, `${O}: `),
+        ...outKeys.flatMap((k, i) => [i ? ' · ' : '', h('b', null, show(x[k])), ` ${colLab[k]}`, dlt(x[k], k)]),
+        ' ', h('button', { class: 'linkbtn', type: 'button', onclick: () => { const bx = `simc|${off}|${x.key}`; if (S.boxOpen.has(bx)) S.boxOpen.delete(bx); else S.boxOpen.add(bx); render(); } }, open ? 'Hide box score' : 'Box score')),
+      open ? h('div', { class: 'sim-box' }, (() => { try { return sp === 'nfl' ? boxNFL(S.season, x.ord, off, x.opp) : boxById(sp, x.gid, [off, x.opp], { [off]: x.pf, [x.opp]: x.pa }); } catch (e) { return 'Box score unavailable.'; } })()) : null);
+  })));
+  // one-line takeaway
+  const keys = [['pf', 'pts'], ...cols.map(([k, l]) => [k, l])];
+  const A = Object.fromEntries(keys.map(([k]) => [k, mean(top.map((x) => x[k]).filter((v) => v != null))]));
+  const big = cols.map(([k, l]) => ({ k, l, d: A[k] != null && avgAll[k] ? (A[k] - avgAll[k]) / Math.max(1, avgAll[k]) : 0 })).sort((a, b) => Math.abs(b.d) - Math.abs(a.d))[0];
+  kids.push(h('p', { class: 'summary sim-sum' }, `Vs these ${top.length}: `, h('b', null, `${rnd(A.pf)} pts`), dlt(A.pf, 'pf'),
+    big && Math.abs(big.d) >= 0.1 ? [' · ', h('b', null, `${rnd(A[big.k])} ${big.l}`), dlt(A[big.k], big.k), ' (biggest swing)'] : null));
+  // everything else, tucked away
+  const btn = h('button', { class: 'more', type: 'button', onclick: () => { S.simAll = !S.simAll; render(); } }, S.simAll ? 'Hide all games' : `All ${rows.length} games ranked by match`);
+  kids.push(btn);
+  if (S.simAll) {
+    const tb = newTable(); tb.classList.add('dvp');
+    const box = sp === 'nfl' ? (r) => boxNFL(S.season, r.ord, off, r.opp) : (r) => boxById(sp, r.gid, [off, r.opp], { [off]: r.pf, [r.opp]: r.pa });
+    table(tb, `sim-${sp}-${off}`, [
+      { f: 'oppN', label: 'Opponent', l: true }, { f: 'ord', label: isBB(sp) ? 'Date' : 'Wk', fmt: (v, r) => r.label },
+      { f: 'sim', label: 'Match %', fmt: (v) => (v == null ? '—' : String(v)) }, { f: 'pf', label: 'Pts' }, ...cols.map(([k, l]) => ({ f: k, label: l })),
+    ], rows, { sort: { f: 'sim', dir: 'desc' }, selected: (r) => topSet.has(r.key), expand: { f: 'oppN', key: (r) => r.key, render: box } });
+    kids.push(h('div', { class: 'scroll sim-scroll', style: 'max-height: none' }, tb));
   }
-  const tb = newTable(); tb.classList.add('dvp');
-  const box = sp === 'nfl' ? (r) => boxNFL(S.season, r.ord, off, r.opp) : (r) => boxById(sp, r.gid, [off, r.opp], { [off]: r.pf, [r.opp]: r.pa });
-  table(tb, `sim-${sp}-${off}`, [
-    { f: 'oppN', label: 'Opponent', l: true }, { f: 'ord', label: isBB(sp) ? 'Date' : 'Wk', fmt: (v, r) => r.label },
-    { f: 'sim', label: 'Similarity', fmt: (v, r) => (v == null ? '—' : String(v)), title: 'How alike this defense is to tonight\'s (100 = most alike in the league)' },
-    { f: 'srank', label: 'Rank', fmt: (v, r) => (v == null ? '—' : `${ordinal(v)} of ${r.sn}`), title: 'Where this defense ranks among every defense by similarity to tonight\'s' },
-    { f: 'pf', label: 'Pts' }, ...cols.map(([k, l]) => ({ f: k, label: l })),
-  ], rows, { sort: { f: 'sim', dir: 'desc' }, selected: (r) => topSet.has(r.key), expand: { f: 'oppN', key: (r) => r.key, render: box } });
-  kids.push(h('div', { class: 'scroll sim-scroll', style: 'max-height: none' }, tb));
-  const miss = rows.filter((x) => x.sim == null).length;
-  if (miss) kids.push(h('p', { class: 'note' }, `${miss} game${miss > 1 ? 's' : ''} against ${sp === 'cfb' ? 'non-FBS teams' : sp === 'cbb' ? 'non-D1 teams' : 'teams without a defense profile'} ${miss > 1 ? 'have' : 'has'} no similarity score.`));
   host.replaceChildren(...kids);
 }
 
