@@ -94,3 +94,15 @@ Click **Edit site** at the bottom of any page (or add `?edit` to the address). A
 - **Publish**: *Publish to GitHub* saves your changes for everyone (needs a GitHub key, steps are in the panel). *Download file* gives you `site-config.json` to upload to the repo by hand instead.
 
 Until you publish, your edits only show in your own browser. Everything is stored in `site-config.json`; the data updates never touch it. To undo everything, put `{}` in that file.
+
+## Tools, Props screener, Compare, Injuries, Home dashboard
+
+`tools.js` adds these pages (all sports):
+
+- **Tools**: every page and tool as cards, with categories, a sport picker, search and favorites.
+- **Props (screener)**: pick a position, stat and line; every player is ranked by projection minus the line, with L5/L10/season hit rates, the opponent's rank against that position and his average vs the 3 most similar defenses he's faced.
+- **Compare & start/sit**: 2 to 4 players side by side with a start/sit call and the reasons.
+- **Injuries**: NFL from Sleeper, NBA from the league's official report (both refreshed hourly by `injuries.py`), college from box-score absences. Tabs by position, one Defense tab.
+- **Home**: quick tools, starred players, best matchups, your Sleeper team and Sleeper trending adds/drops.
+
+Favorites, compare picks and your Sleeper username are saved in the browser you use.

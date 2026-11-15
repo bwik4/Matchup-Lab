@@ -389,6 +389,10 @@
   <div class="brand" aria-hidden="true">ML</div>
   <nav class="side-nav">
     <button data-view="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg><span>Home</span></button>
+    <button data-view="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Tools</span></button>
+    <button data-view="screener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 7v6l-4 2v-8z"/></svg><span>Props</span></button>
+    <button data-view="compare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M17 4v16M3 8h8M13 16h8"/></svg><span>Compare</span></button>
+    <button data-view="injuries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/></svg><span>Injuries</span></button>
     <button data-view="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="12" width="4.5" height="8.5" rx="1"/><rect x="9.75" y="7" width="4.5" height="13.5" rx="1"/><rect x="16" y="3.5" width="4.5" height="17" rx="1"/></svg><span>Stats</span></button>
     <button data-view="fantasy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M8.5 20.5h7M10 17h4"/></svg><span>Fantasy</span></button>
     <button data-view="trends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Trends</span></button>
@@ -406,6 +410,21 @@
 
   <!-- ================= HOME ================= -->
   <section class="view stack" data-view="home">
+    <div class="card d-quick">
+      <h2>Quick tools</h2>
+      <div class="d-quick-body"></div>
+    </div>
+    <div class="grid">
+      <div class="card d-favs">
+        <h2>Your players</h2>
+        <div class="d-favs-body"></div>
+      </div>
+      <div class="card d-best">
+        <h2>Best matchups</h2>
+        <p class="note">Regular starters whose next opponent gives up the most at their main stat (green % = how much the matchup lifts his projection).</p>
+        <div class="d-best-body"></div>
+      </div>
+    </div>
     <div class="card">
       <div class="bar">
         <h2>Upcoming games</h2>
@@ -415,6 +434,16 @@
       <div class="ghead" aria-hidden="true"><span>Match</span><span>Spread</span><span>Moneyline</span><span>Total</span></div>
       <div class="glist"></div>
       <p class="note h-note">Lines are the market consensus from nflverse and move until kickoff, so check your book before betting. Kickoff times are in your time zone. Tap a game to research it.</p>
+    </div>
+    <div class="grid">
+      <div class="card d-sleeper">
+        <h2>My Sleeper team</h2>
+        <div class="d-sleeper-body"></div>
+      </div>
+      <div class="card d-trend">
+        <h2>Trending on Sleeper</h2>
+        <div class="d-trend-body"></div>
+      </div>
     </div>
   </section>
 
@@ -943,6 +972,40 @@
           <div class="tr-range"><label>From <select class="tr-rmin" aria-label="Lowest hit rate"></select></label><label>To <select class="tr-rmax" aria-label="Highest hit rate"></select></label></div></details>
         <details class="tr-f" open><summary>Lines <span class="tr-sum" data-k="src"></span></summary><div class="tr-chips tr-src"></div><p class="note tr-srcnote"></p></details>
       </aside>
+    </div>
+  </section>
+
+
+  <!-- ================= TOOLS HUB ================= -->
+  <section class="view stack" data-view="tools" hidden>
+    <div class="card">
+      <h2>Tools</h2>
+      <p class="note">Every stat page, ranking and research tool in one place. Pick a category or search; star the ones you use most.</p>
+      <div class="tools-root"></div>
+    </div>
+  </section>
+
+  <!-- ================= PROP SCREENER ================= -->
+  <section class="view stack" data-view="screener" hidden>
+    <div class="card">
+      <h2>Prop research screener</h2>
+      <div class="scr-root"></div>
+    </div>
+  </section>
+
+  <!-- ================= COMPARE & START/SIT ================= -->
+  <section class="view stack" data-view="compare" hidden>
+    <div class="card">
+      <h2>Compare &amp; start/sit</h2>
+      <div class="cmp-root"></div>
+    </div>
+  </section>
+
+  <!-- ================= INJURY REPORT ================= -->
+  <section class="view stack" data-view="injuries" hidden>
+    <div class="card">
+      <h2>Injury report</h2>
+      <div class="inj-root"></div>
     </div>
   </section>
 
@@ -1539,6 +1602,7 @@ function applyRoute() {
   else if (v === 'stats') { S.view = 'stats'; if (SUBS.includes(a)) S.statsSub = a; }
   else if (v === 'fantasy') S.view = 'fantasy';
   else if (v === 'trends') S.view = 'trends';
+  else if (['tools', 'screener', 'compare', 'injuries'].includes(v)) S.view = v;
   else if (v === 'totals') { S.view = 'totals'; S.sport = 'cbb'; try { localStorage.setItem('ml-sport', 'cbb'); } catch (e) { /* storage off */ } }
   else S.view = 'home';
   if (S.view !== 'game' && S.view !== 'xgame') S.fromHome = false;
@@ -2072,8 +2136,9 @@ function h(tag, attrs, ...kids) {
   return e;
 }
 // which pages each sport has (NFL has them all)
-const SPORT_VIEWS = { nba: ['home', 'trends', 'fantasy', 'xgame'], cfb: ['home', 'trends', 'xgame'], cbb: ['home', 'totals', 'trends', 'xgame'] };
-const SWITCH_VIEWS = ['home', 'trends', 'fantasy', 'totals'];
+const NEW_VIEWS = ['tools', 'screener', 'compare', 'injuries'];
+const SPORT_VIEWS = { nba: ['home', 'trends', 'fantasy', 'xgame', ...NEW_VIEWS], cfb: ['home', 'trends', 'xgame', ...NEW_VIEWS], cbb: ['home', 'totals', 'trends', 'xgame', ...NEW_VIEWS] };
+const SWITCH_VIEWS = ['home', 'trends', 'fantasy', 'totals', ...NEW_VIEWS];
 const sportHas = (sp, v) => (!SPORT_VIEWS[sp] ? v !== 'xgame' && v !== 'totals' : SPORT_VIEWS[sp].includes(v));
 const curInfo = () => {
   if (S.sport === 'nba' && sportHas('nba', S.view) && NBA.info) return NBA.info;
@@ -4138,12 +4203,17 @@ function render() {
     if (S.view === 'home') { $('.h-days').replaceChildren(); $('.glist').replaceChildren(msg); }
     else if (S.view === 'fantasy') $('.nfp-note').replaceChildren(msg);
     else if (S.view === 'totals') $('.ot-note').replaceChildren(msg);
+    else if (NEW_VIEWS.includes(S.view)) { const r = $(`.${{ tools: 'tools', screener: 'scr', compare: 'cmp', injuries: 'inj' }[S.view]}-root`); if (r) r.replaceChildren(msg); }
     else $('.tr-list').replaceChildren(msg);
     if (!L[0].error) L[1]().then(render);
     return;
   }
   segs.forEach((sg) => sg());
-  if (S.view === 'home') renderHome();
+  if (S.view === 'home') { renderHome(); renderDash(); }
+  else if (S.view === 'tools') renderTools();
+  else if (S.view === 'screener') renderScreener();
+  else if (S.view === 'compare') renderCompare();
+  else if (S.view === 'injuries') renderInjuries();
   else if (S.view === 'game') renderGame();
   else if (S.view === 'stats') { if (S.statsSub === 'players') renderProps(); else if (S.statsSub === 'dvp') renderMatchups(); else renderTeams(); }
   else if (S.view === 'fantasy') { if (S.sport === 'nba') renderNBAFantasy(); else renderFantasy(); }
@@ -4178,6 +4248,7 @@ Promise.all([
 // installable app + offline support
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 </script>
+<script src="tools.js"></script>
 <script src="editor.js"></script>
 </body>
 </html>
