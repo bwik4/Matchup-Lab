@@ -1,5 +1,9 @@
 {
-  "look": {},
+  "look": {
+    "line": "#002e7a",
+    "muted": "#000000",
+    "accent": "#002e7a"
+  },
   "siteName": "",
   "hidden": [],
   "order": {
