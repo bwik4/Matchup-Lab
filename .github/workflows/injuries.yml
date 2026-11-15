@@ -24,13 +24,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pandas
+      - run: pip install pandas pdfplumber
       - run: python injuries.py --debug
       - name: Commit injuries
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add data/injuries.csv data/nba/injuries.csv data/cfb/injuries.csv data/cbb/injuries.csv 2>/dev/null || true
+          for f in data/injuries.csv data/nba/injuries.csv data/cfb/injuries.csv data/cbb/injuries.csv data/sleeper_players.csv data/sleeper_trending.csv; do [ -f "$f" ] && git add "$f"; done
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "Injury report refresh"
           for i in 1 2 3; do git pull --rebase -q && git push && exit 0; sleep 5; done

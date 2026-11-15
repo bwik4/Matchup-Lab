@@ -16,7 +16,13 @@ site only acts on these), comment,
 label (ESPN's wording: Out, Injured Reserve, Day-To-Day ...), detail (e.g. "Knee"),
 return_date, updated.
 
-Source order for each sport:
+Source order for each sport (Nov 2026):
+  NFL  Sleeper's public API (free, no key; their news desk keeps statuses current), then ESPN, then nflverse.
+       Also writes data/sleeper_players.csv (Sleeper id -> nflverse id, depth chart) and data/sleeper_trending.csv.
+  NBA  the league's official injury report PDF (updated every 15 minutes on game days), then ESPN.
+  College: no reliable public feed, so an empty file (the site uses box-score absences + data/manual.csv).
+
+Older notes:
   1. ESPN's league-wide injuries feed (one request)
   2. college only, if that comes back empty: ESPN's per-team injury lists for every team
      on the upcoming slate (scoreboard -> team ids -> injuries)
@@ -50,7 +56,8 @@ SPORTS = {
 }
 # ESPN abbreviation -> the code the site uses (nflverse differs on two NFL teams)
 ABBR_FIX = {"nfl": {"LAR": "LA", "WSH": "WAS"}}
-COLS = ["team", "player", "position", "status", "label", "detail", "return_date", "updated", "season_out", "comment"]
+COLS = ["team", "player", "position", "status", "label", "detail", "return_date", "updated", "season_out", "comment",
+        "practice", "game", "player_id", "source"]
 # a player only counts as done for the year when ESPN says so in words, or lists him out with a return date past the season
 SEASON_TXT = re.compile(r"(out for (the )?(rest of the |remainder of the )?(season|year)|season[- ]ending|rest of the (regular )?season|remainder of the (regular )?season|miss the (rest|remainder) of|done for the (season|year)|out indefinitely and (will|is expected to) miss the season)", re.I)
 
@@ -148,7 +155,8 @@ def row_from(sport, inj, team_hint, names):
     text = " ".join(str(inj.get(k) or "") for k in ("shortComment", "longComment"))
     return {"team": team, "player": name, "position": pos, "status": status, "label": str(label).replace("_", " ").title() if label else status.title(),
             "detail": detail_of(inj), "return_date": ret, "updated": inj.get("date", ""),
-            "season_out": is_season_out(sport, status, text + " " + str(label), ret), "comment": (inj.get("shortComment") or "")[:200]}
+            "season_out": is_season_out(sport, status, text + " " + str(label), ret), "comment": (inj.get("shortComment") or "")[:200],
+            "practice": "", "game": "", "player_id": "", "source": "ESPN"}
 
 
 def site_feed(sport):
@@ -245,21 +253,212 @@ def nflverse_feed():
             continue
         rows.append({"team": r["team"], "player": r["full_name"], "position": r.get("position", ""), "status": st, "label": r.get("report_status", ""),
                      "detail": r.get("report_primary_injury", "") if isinstance(r.get("report_primary_injury"), str) else "", "return_date": "", "updated": r.get("date_modified", ""),
-                     "season_out": 0, "comment": ""})
+                     "season_out": 0, "comment": "", "practice": "", "game": "", "player_id": r.get("gsis_id", ""), "source": "nflverse"})
     return rows
+
+
+# ---------------------------------------------------------------- NFL: Sleeper
+SLEEPER = "https://api.sleeper.app/v1"
+SLEEPER_TEAM_FIX = {"LAR": "LA", "WSH": "WAS", "JAC": "JAX"}
+SLEEPER_STATUS = {"questionable": "questionable", "doubtful": "doubtful", "out": "out", "ir": "out", "pup": "out", "sus": "out", "cov": "out", "na": "out", "dnr": "out"}
+SLEEPER_LABEL = {"IR": "Injured Reserve", "PUP": "PUP list", "Sus": "Suspended", "COV": "Illness list", "NA": "Not active", "DNR": "Not with team"}
+
+
+def sleeper_nfl():
+    """Every NFL player's injury status from Sleeper (free, no key). Also saves the player map + trending adds/drops."""
+    players = get(f"{SLEEPER}/players/nfl", timeout=90)
+    rows, pmap = [], []
+    for sid, p in players.items():
+        team = SLEEPER_TEAM_FIX.get(p.get("team") or "", p.get("team"))
+        pos = p.get("position") or ""
+        name = p.get("full_name") or " ".join(x for x in [p.get("first_name"), p.get("last_name")] if x)
+        if not team or not name:
+            continue
+        if p.get("active") and pos in ("QB", "RB", "WR", "TE", "K", "DEF") or (pos == "DEF"):
+            pmap.append({"sleeper_id": sid, "gsis_id": p.get("gsis_id") or "", "player": name, "team": team, "position": pos,
+                         "depth_pos": p.get("depth_chart_position") or "", "depth": p.get("depth_chart_order") if p.get("depth_chart_order") is not None else "",
+                         "status": p.get("status") or "", "injury": p.get("injury_status") or ""})
+        inj = p.get("injury_status")
+        st_raw = (p.get("status") or "")
+        if not inj and st_raw not in ("Injured Reserve", "Physically Unable to Perform"):
+            continue
+        key = (inj or ("IR" if st_raw == "Injured Reserve" else "PUP")).lower()
+        status = SLEEPER_STATUS.get(key) or norm_status(inj, st_raw)
+        if not status:
+            continue
+        label = SLEEPER_LABEL.get(inj or "", inj) if inj else st_raw
+        if st_raw == "Injured Reserve":
+            label = "Injured Reserve"
+        notes = p.get("injury_notes") or ""
+        upd = p.get("news_updated")
+        try:
+            upd = dt.datetime.fromtimestamp(int(upd) / 1000, dt.timezone.utc).isoformat()[:16] if upd else ""
+        except (TypeError, ValueError):
+            upd = ""
+        text = f"{notes} {label}"
+        rows.append({"team": team, "player": name, "position": pos, "status": status, "label": label,
+                     "detail": p.get("injury_body_part") or "", "return_date": "", "updated": upd,
+                     "season_out": int(bool(SEASON_TXT.search(text)) and not re.search(r"(hope|could|may|might|possib|ruled out)", text, re.I)),
+                     "comment": notes[:200], "practice": p.get("practice_participation") or "", "game": "",
+                     "player_id": p.get("gsis_id") or "", "source": "Sleeper"})
+    pd.DataFrame(pmap).to_csv("data/sleeper_players.csv", index=False)
+    print(f"nfl: Sleeper player map {len(pmap)} rows -> data/sleeper_players.csv")
+    trend = []
+    for kind in ("add", "drop"):
+        try:
+            for t in get(f"{SLEEPER}/players/nfl/trending/{kind}?lookback_hours=24&limit=25"):
+                p = players.get(str(t.get("player_id")), {})
+                trend.append({"type": kind, "sleeper_id": t.get("player_id"), "count": t.get("count"),
+                              "player": p.get("full_name") or p.get("player_id") or t.get("player_id"), "team": SLEEPER_TEAM_FIX.get(p.get("team") or "", p.get("team") or ""),
+                              "position": p.get("position") or "", "gsis_id": p.get("gsis_id") or "", "injury": p.get("injury_status") or ""})
+        except Exception as err:
+            print(f"nfl: Sleeper trending {kind} failed ({err})")
+    if trend:
+        pd.DataFrame(trend).to_csv("data/sleeper_trending.csv", index=False)
+        print(f"nfl: Sleeper trending {len(trend)} rows -> data/sleeper_trending.csv")
+    if DEBUG and rows:
+        print("nfl: sample", rows[:3])
+    return rows
+
+
+# ---------------------------------------------------------------- NBA: official league injury report (PDF)
+NBA_STATUSES = ("Out", "Doubtful", "Questionable", "Probable", "Available")
+
+
+def nba_report_url():
+    """Newest official NBA injury report PDF. Tries the league's index page, then walks back from now in 15-minute steps."""
+    from zoneinfo import ZoneInfo
+    pat = re.compile(r"https://ak-static\.cms\.nba\.com/referee/injury/Injury-Report_[0-9_\-]+(?:AM|PM)\.pdf")
+    now = dt.datetime.now(ZoneInfo("America/New_York"))
+    for y in (now.year, now.year - 1):
+        for page in (f"https://official.nba.com/nba-injury-report-{y}-{str(y + 1)[2:]}-season/", f"https://official.nba.com/nba-injury-report-{y}-{str(y + 1)[2:]}/"):
+            try:
+                with urllib.request.urlopen(urllib.request.Request(page, headers=UA), timeout=20) as r:
+                    links = pat.findall(r.read().decode("utf-8", "ignore"))
+                if links:
+                    return links[-1]
+            except Exception:
+                continue
+    t = now.replace(second=0, microsecond=0, minute=(now.minute // 15) * 15)
+    for _ in range(4 * 36):
+        h12 = t.strftime("%I")
+        ampm = t.strftime("%p")
+        cands = [f"{t:%Y-%m-%d}_{h12}_{t:%M}{ampm}"]
+        if t.minute == 30:
+            cands.append(f"{t:%Y-%m-%d}_{h12}{ampm}")
+        for c in cands:
+            url = f"https://ak-static.cms.nba.com/referee/injury/Injury-Report_{c}.pdf"
+            try:
+                with urllib.request.urlopen(urllib.request.Request(url, headers=UA, method="HEAD"), timeout=10) as r:
+                    if r.status == 200:
+                        return url
+            except Exception:
+                pass
+        t -= dt.timedelta(minutes=15)
+    return None
+
+
+def nba_official():
+    import io
+    import pdfplumber
+    url = nba_report_url()
+    if not url:
+        raise RuntimeError("no report found")
+    print(f"nba: official report {url}")
+    with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=60) as r:
+        pdf = pdfplumber.open(io.BytesIO(r.read()))
+    t = pd.read_csv("data/nba/teams.csv")
+    names = {}
+    for _, x in t.iterrows():
+        names[x["name"]] = x["team"]
+    names.update({"LA Clippers": "LAC", "Los Angeles Clippers": "LAC", "Los Angeles Lakers": "LAL"})
+    team_re = re.compile("|".join(sorted((re.escape(n) for n in names), key=len, reverse=True)))
+    stamp = re.search(r"Injury-Report_([0-9_\-]+(?:AM|PM))", url).group(1)
+    rows, team, game = [], None, ""
+    for page in pdf.pages:
+        words = page.extract_words(keep_blank_chars=False, use_text_flow=False, x_tolerance=1.5)
+        hdr = {w["text"]: w["x0"] for w in words if w["text"] in ("Matchup", "Team", "Player", "Current", "Reason")}
+        if not {"Team", "Player", "Current", "Reason"} <= set(hdr):
+            continue
+        cuts = [("team", hdr["Team"]), ("player", hdr["Player"]), ("status", hdr["Current"]), ("reason", hdr["Reason"])]
+        if "Matchup" in hdr:
+            cuts.insert(0, ("matchup", hdr["Matchup"]))
+        def col(x):
+            c = "pre"
+            for name, x0 in cuts:
+                if x >= x0 - 3:
+                    c = name
+            return c
+        lines = {}
+        for w in words:
+            if w["top"] < 40:  # page header
+                continue
+            lines.setdefault(round(w["top"] / 3), []).append(w)
+        prow = []  # (top, row dict)
+        loose = []  # reason fragments without a player on the line
+        for k in sorted(lines):
+            ws = sorted(lines[k], key=lambda w: w["x0"])
+            cells = {}
+            for w in ws:
+                cells.setdefault(col(w["x0"]), []).append(w["text"])
+            txt = {c: " ".join(v) for c, v in cells.items()}
+            if txt.get("player") == "Player Name" or txt.get("status", "").startswith("Current"):
+                continue
+            if txt.get("matchup") and "@" in txt["matchup"]:
+                game = txt["matchup"].split()[0]
+            tm = txt.get("team", "")
+            m = team_re.search(tm) if tm else None
+            if m:
+                team = names[m.group(0)]
+            if "NOT YET SUBMITTED" in " ".join(txt.values()):
+                continue
+            st = txt.get("status", "").strip()
+            top = ws[0]["top"]
+            if st in NBA_STATUSES and txt.get("player"):
+                rows.append({"_top": top, "_page": page.page_number, "team": team, "pname": txt["player"], "label": st, "reason": txt.get("reason", ""), "game": game})
+                prow.append(rows[-1])
+            elif txt.get("reason"):
+                loose.append((top, txt["reason"]))
+        for top, frag in loose:  # wrapped reason text: attach to the nearest player line on the page
+            near = min(prow, key=lambda r: abs(r["_top"] - top), default=None)
+            if near is not None:
+                near["reason"] = (f"{frag} {near['reason']}" if top < near["_top"] else f"{near['reason']} {frag}").strip()
+    out = []
+    for r in rows:
+        nm = r["pname"]
+        if "," in nm:
+            last, first = [x.strip() for x in nm.split(",", 1)]
+            nm = f"{first} {last}"
+        reason = re.sub(r"\s+", " ", r["reason"]).strip()
+        if r["label"] == "Available" or re.match(r"G League", reason):
+            continue  # cleared to play, or a two-way/G League assignment (not an injury)
+        detail = reason.replace("Injury/Illness - ", "")
+        out.append({"team": r["team"], "player": nm, "position": "", "status": r["label"].lower(), "label": r["label"], "detail": detail,
+                    "return_date": "", "updated": stamp, "season_out": 0, "comment": "", "practice": "", "game": r["game"], "player_id": "", "source": "NBA official report"})
+    if DEBUG:
+        print("nba: sample", out[:5])
+    return out
 
 
 def run(sport):
     rows, src = [], None
-    try:
-        rows, src = site_feed(sport), "ESPN injuries feed"
-    except Exception as err:
-        print(f"{sport}: ESPN injuries feed failed ({err})")
-    if not rows and sport in ("cfb", "cbb"):
+    primary = {"nfl": (sleeper_nfl, "Sleeper"), "nba": (nba_official, "NBA official injury report")}.get(sport)
+    if primary:
         try:
-            rows, src = team_feed(sport), "ESPN team injury lists"
+            rows, src = primary[0](), primary[1]
         except Exception as err:
-            print(f"{sport}: team injury lists failed ({err})")
+            print(f"{sport}: {primary[1]} failed ({err})")
+    if sport in ("cfb", "cbb"):
+        # no reliable, current public feed for college (ESPN's is empty or years old), so write an empty file;
+        # the site shows box-score absences and data/manual.csv for college instead
+        pd.DataFrame(columns=COLS).to_csv(SPORTS[sport][2], index=False)
+        print(f"{sport}: no reliable public injury feed; wrote empty file")
+        return
+    if not rows:
+        try:
+            rows, src = site_feed(sport), "ESPN injuries feed (backup)"
+        except Exception as err:
+            print(f"{sport}: ESPN injuries feed failed ({err})")
     if not rows and sport == "nfl":
         try:
             rows, src = nflverse_feed(), "nflverse injury report"
