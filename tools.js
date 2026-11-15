@@ -500,7 +500,7 @@ const T_TOOLS = [
   { id: 'fantasy', title: 'Fantasy matchups & rankings', desc: 'Defense vs fantasy positions, weekly projections and rest-of-season schedules.', cats: ['fantasy'], route: 'fantasy', icon: 'trophy', color: '#ca8a04', sports: ['nfl', 'nba'] },
   { id: 'trends', title: 'Betting trends', desc: 'Against-the-spread and over/under trends for the next slate, sorted by edge.', cats: ['research', 'props'], route: 'trends', icon: 'trend', color: '#ea580c' },
   { id: 'totals', title: 'Totals board', desc: 'Projected totals from tempo and efficiency vs the posted line, with the model\'s track record.', cats: ['props'], route: 'totals', icon: 'total', color: '#ea580c', sports: ['cbb'] },
-  { id: 'sleeper', title: 'My Sleeper team', desc: 'Connect your Sleeper username to see your roster with matchups and projections on Home.', cats: ['fantasy'], route: 'home', anchor: '.d-sleeper', icon: 'sleeper', color: '#4f46e5', sports: ['nfl'] },
+  // { id: 'sleeper', ... } My Sleeper team: off for now
   { id: 'favorites', title: 'Your favorite players', desc: 'Players you starred, with their next matchup and projection, on the Home dashboard.', cats: ['fantasy', 'research'], route: 'home', anchor: '.d-favs', icon: 'home', color: '#64748b' },
   { id: 'edit', title: 'Edit site look & layout', desc: 'Change colors and fonts, reorder or hide sections, and rename anything, without code.', cats: ['site'], route: null, icon: 'edit', color: '#64748b' },
 ];
@@ -551,7 +551,8 @@ function renderDash() {
   tRC(quick, h('div', { class: 't-tools mini' }, ...T_TOOLS.filter((t) => t.featured || t.id === 'props' || t.id === 'dvp').filter((t) => !t.sports || t.sports.includes(sp)).slice(0, 5)
     .map((t) => h('div', { class: 't-tool', role: 'button', tabIndex: 0, onclick: () => tOpenTool(t), onkeydown: (e) => { if (e.key === 'Enter') tOpenTool(t); } }, tToolIcon(t), h('div', { class: 't-tool-tx' }, h('b', null, t.title))))),
   h('button', { type: 'button', class: 'more', onclick: () => go('tools') }, 'All tools →'));
-  slp.hidden = sp !== 'nfl'; trend.hidden = sp !== 'nfl';
+  if (slp) slp.hidden = sp !== 'nfl';
+  if (trend) trend.hidden = sp !== 'nfl';
   if (!tReady(sp)) { tRC(favs, h('p', { class: 'empty' }, 'Loading…')); tRC(best, ); return; }
   const U = tUni(sp);
   // favorites
@@ -578,7 +579,9 @@ function renderDash() {
     h('div', { class: 'd-num' }, h('b', null, show(x.pr.proj)), h('small', null, `proj ${tLow(tStatLabel(sp, x.stat))}`)),
     h('div', { class: 'd-num g' }, h('b', null, `+${Math.round((x.pr.f - 1) * 100)}%`), h('small', null, `${x.pr.nx.opp} ${ordinal(x.pr.d.rank)} of ${x.pr.d.n}`)))))
     : h('p', { class: 'empty' }, 'No upcoming games yet.'));
-  if (sp === 'nfl') { tRenderSleeper(); tRenderTrending(); }
+  // Sleeper boxes are off for now (their cards were removed from index.html); add the cards back to turn them on
+  if (sp === 'nfl' && slp) tRenderSleeper();
+  if (sp === 'nfl' && trend) tRenderTrending();
 }
 function tDashRow(sp, p) {
   const stat = T_MAIN[p.pos], pr = tProject(sp, p, stat), nx = pr && pr.nx;
