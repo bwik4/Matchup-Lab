@@ -8,24 +8,7 @@
       "fantasy/ffp-title+group"
     ]
   },
-  "text": [
-    {
-      "from": "His whole season in one table. Played weeks show the result (tap it for the box score), his actual fantasy points and stats; upcoming weeks show the matchup and his projection. Opp rk = that defense's rank in fantasy points allowed to his position this season (1 = toughest, 32 = easiest). Tap an upcoming week to see how players at his position have done against that defense.",
-      "to": "Previous weeks box scores and stats & ROS schedule and projections."
-    },
-    {
-      "from": "Projections use his PPR points per game (65% season average, 35% last 5 games; early in the year it leans on last season), scaled by how much each opponent allows to RBs compared with the league average (pulled toward average for defenses with few games), with a small home/road bump. It doesn't know about injuries or role changes, so treat it as a guide.",
-      "to": "PPR points per game scaled by how much each opponent allows to RBs compared with the league average."
-    },
-    {
-      "from": "Fantasy points each defense allows per game to every QB, RB, WR, TE and kicker combined. Kickers score the same in every format: 3 per FG under 40 yards, 4 from 40–49, 5 from 50+, 1 per extra point, −1 per miss. Rk: 1 = toughest (allows the least), 32 = easiest. Tap a defense to see every game log against it.",
-      "to": "Fantasy points each defense allows to every QB, RB, WR, TE and kicker combined. Tap a defense to see every game log against it."
-    },
-    {
-      "from": "TEN allows 40.7 PPR points per game to WRs, rank 32 of 32 (1 = toughest). League average is 31.7. Each bar is one week's total to all WRs; green weeks were above the league average, red below.",
-      "to": "TEN allows 40.7 PPR points per game to WRs. League average is 31.7."
-    }
-  ],
+  "text": [],
   "cols": {},
   "buttons": []
 }
