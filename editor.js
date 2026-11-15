@@ -15,17 +15,22 @@
  *   order     box order inside each area      { "<area>": ["<box>", ...] }
  *   text      renamed words                   [{ "from": "This season's game log", "to": "Game log" }]
  *   cols      hidden table columns            { "<table>": ["Long rush", ...] }
- *   buttons   hidden tabs / menu buttons      ["gp-tabs|Usage share", ...]
+ *   buttons   hidden tabs / menu buttons      ["gp-tabs|Usage share", "side-nav|Trends", ...]
+ *   nav       side menu order                 ["home", "tools", ...]
  */
 (() => {
   'use strict';
   const LS_DRAFT = 'ml-site-draft', LS_TOKEN = 'ml-gh-token', LS_REPO = 'ml-gh-repo';
   const DEFAULT_REPO = 'bwik4/Matchup-Lab';
-  const BLANK = () => ({ look: {}, siteName: '', hidden: [], order: {}, text: [], cols: {}, buttons: [] });
+  const BLANK = () => ({ look: {}, siteName: '', hidden: [], order: {}, text: [], cols: {}, buttons: [], nav: [] });
+  // [key, label, CSS variable, group]
   const LOOK_FIELDS = [
-    ['accent', 'Accent (buttons, highlights)', '--accent'], ['bg', 'Page background', '--bg'], ['panel', 'Box background', '--panel'],
-    ['fg', 'Main text', '--fg'], ['muted', 'Secondary text', '--muted'], ['line', 'Borders', '--line'],
-    ['ok', 'Good / over (green)', '--ok'], ['bad', 'Bad / under (red)', '--bad'],
+    ['bg', 'Page background', '--bg', 'Backgrounds'], ['panel', 'Boxes', '--panel', 'Backgrounds'], ['game', 'Game cards', '--game', 'Backgrounds'],
+    ['tile', 'Odds buttons & small tiles', '--tile', 'Backgrounds'], ['item', 'Selected tabs & hovered rows', '--item', 'Backgrounds'], ['field', 'Inputs & dropdowns', '--field', 'Backgrounds'],
+    ['thead', 'Table header row', '--thead', 'Backgrounds'], ['stripe', 'Table stripes (every other row)', '--stripe', 'Backgrounds'],
+    ['fg', 'Main text', '--fg', 'Text & lines'], ['muted', 'Secondary text', '--muted', 'Text & lines'], ['line', 'Borders', '--line', 'Text & lines'], ['accent', 'Accent (buttons, highlights)', '--accent', 'Text & lines'],
+    ['ok', 'Good / over (green)', '--ok', 'Results'], ['bad', 'Bad / under (red)', '--bad', 'Results'],
+    ['side', 'Side menu background', '--side-bg', 'Side menu'], ['sideFg', 'Side menu text & icons', '--side-fg', 'Side menu'], ['sideActive', 'Current page tile', '--side-active', 'Side menu'],
   ];
   const FONTS = {
     system: ['System (default)', 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'],
@@ -107,6 +112,7 @@
     if (L.radius != null && L.radius !== '') r.setProperty('--radius', `${L.radius}px`); else r.removeProperty('--radius');
     if (L.pad != null && L.pad !== '') r.setProperty('--card-pad', `${L.pad}px`); else r.removeProperty('--card-pad');
     if (L.width) r.setProperty('--page-w', `${L.width}px`); else r.removeProperty('--page-w');
+    if (L.sideStroke) r.setProperty('--side-stroke', String(L.sideStroke)); else r.removeProperty('--side-stroke');
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = L.bg || base.bg || meta.content;
     const h1 = document.querySelector('header h1');
@@ -116,7 +122,23 @@
   const BTN_BOX = '.subnav, .tabs, .side-nav, .sport-sw, .seg';
   const btnBoxKey = (box) => [...box.classList].find((c) => !['subnav', 'tabs', 'seg'].includes(c)) || [...box.classList][0] || 'menu';
   const btnKey = (btn) => { const box = btn.closest(BTN_BOX); return box ? `${btnBoxKey(box)}|${longestText(btn) || ''}` : null; };
+  const navButtons = () => [...document.querySelectorAll('.side-nav > button')];
+  function moveNav(view, dir) {
+    const order = navButtons().map((b) => b.dataset.view), i = order.indexOf(view), j = i + dir;
+    if (i < 0 || j < 0 || j >= order.length) return;
+    [order[i], order[j]] = [order[j], order[i]];
+    cfg.nav = order; changed();
+  }
+  function applyNav() {
+    const nav = document.querySelector('.side-nav'), want = cfg.nav || [];
+    if (!nav || !want.length) return;
+    const bs = navButtons(), pos = (b) => { const i = want.indexOf(b.dataset.view); return i < 0 ? 100 + bs.indexOf(b) : i; };
+    const sorted = bs.slice().sort((a, b) => pos(a) - pos(b));
+    if (sorted.every((b, i) => b === bs[i])) return;
+    sorted.forEach((b) => nav.append(b));
+  }
   function applyLayout() {
+    applyNav();
     document.querySelectorAll('[data-ek]').forEach((b) => b.classList.toggle('ed-hide', cfg.hidden.includes(b.dataset.ek)));
     const hb = new Set(cfg.buttons || []);
     document.querySelectorAll(`:is(${BTN_BOX}) > button, .side-nav button`).forEach((btn) => {
@@ -309,7 +331,8 @@
     return [
       el('label', { class: 'ed-field' }, el('span', null, 'Site name'),
         el('input', { type: 'text', value: cfg.siteName || base.siteName, oninput: (e) => { cfg.siteName = e.target.value.trim() === base.siteName ? '' : e.target.value.trim(); dirty = true; applyLook(); }, onchange: () => changed() })),
-      el('h4', null, 'Colors'), el('div', { class: 'ed-grid2' }, ...LOOK_FIELDS.map(lookInput)),
+      ...['Backgrounds', 'Text & lines', 'Results', 'Side menu'].flatMap((g) => [el('h4', null, g), el('div', { class: 'ed-grid2' }, ...LOOK_FIELDS.filter((f) => f[3] === g).map(lookInput))]),
+      slider('sideStroke', 'Side menu icon thickness', 1.4, 3.2, 0.2, '', 2.4),
       el('h4', null, 'Fonts'), fontSelect('font', 'Main text', 'system'), fontSelect('headFont', 'Big titles', DEF_HEAD),
       el('h4', null, 'Size & spacing'),
       slider('size', 'Text size', 85, 125, 5, '%', 100),
@@ -337,10 +360,20 @@
       el('h4', null, `Hidden columns (${cols.length})`),
       cols.length ? el('ul', { class: 'ed-list' }, ...cols.map(([t, c]) => el('li', null, el('span', null, `${c} `, el('small', { class: 'ed-dim' }, t)),
         el('button', { type: 'button', class: 'ed-mini', onclick: () => { cfg.cols[t] = cfg.cols[t].filter((x) => x !== c); if (!cfg.cols[t].length) delete cfg.cols[t]; changed(); } }, 'Show')))) : el('p', { class: 'ed-dim' }, 'None'),
+      el('h4', null, 'Side menu'),
+      el('p', { class: 'ed-help' }, 'Move items up or down, or hide them. (Some only show for certain sports.) Rename them with "Click to rename".'),
+      el('ul', { class: 'ed-list' }, ...navButtons().map((b, i, all) => {
+        const k = btnKey(b), off = (cfg.buttons || []).includes(k);
+        return el('li', null, el('span', { class: off ? 'ed-dim' : null }, longestText(b) || b.dataset.view),
+          el('span', { class: 'ed-row' },
+            el('button', { type: 'button', class: 'ed-mini', title: 'Move up', onclick: () => moveNav(b.dataset.view, -1) }, '↑'),
+            el('button', { type: 'button', class: 'ed-mini', title: 'Move down', onclick: () => moveNav(b.dataset.view, 1) }, '↓'),
+            el('button', { type: 'button', class: 'ed-mini', onclick: () => { cfg.buttons = off ? cfg.buttons.filter((x) => x !== k) : [...new Set([...(cfg.buttons || []), k])]; changed(); } }, off ? 'Show' : 'Hide')));
+      })),
       el('h4', null, `Hidden tabs / buttons (${(cfg.buttons || []).length})`),
       (cfg.buttons || []).length ? el('ul', { class: 'ed-list' }, ...cfg.buttons.map((k) => el('li', null, el('span', null, `${k.split('|')[1]} `, el('small', { class: 'ed-dim' }, k.split('|')[0])),
         el('button', { type: 'button', class: 'ed-mini', onclick: () => { cfg.buttons = cfg.buttons.filter((x) => x !== k); changed(); } }, 'Show')))) : el('p', { class: 'ed-dim' }, 'None'),
-      el('div', { class: 'ed-row ed-wrap' }, el('button', { type: 'button', onclick: () => { cfg.order = {}; changed(); location.reload(); } }, 'Reset box order'),
+      el('div', { class: 'ed-row ed-wrap' }, el('button', { type: 'button', onclick: () => { cfg.order = {}; cfg.nav = []; changed(); location.reload(); } }, 'Reset box & menu order'),
         el('button', { type: 'button', onclick: () => { cfg.hidden = []; cfg.cols = {}; cfg.buttons = []; changed(); } }, 'Show everything')),
     ];
   }
@@ -426,7 +459,7 @@
   // ---------------- publish / download ----------------
   const out = () => JSON.stringify(clean(cfg), null, 2) + '\n';
   function clean(c) {
-    const o = { look: {}, siteName: c.siteName || '', hidden: [...new Set(c.hidden)], order: {}, text: c.text.filter((r) => r.from && r.to != null), cols: {}, buttons: [...new Set(c.buttons || [])] };
+    const o = { look: {}, siteName: c.siteName || '', hidden: [...new Set(c.hidden)], order: {}, text: c.text.filter((r) => r.from && r.to != null), cols: {}, buttons: [...new Set(c.buttons || [])], nav: (c.nav || []).slice() };
     Object.entries(c.look).forEach(([k, v]) => { if (v != null && v !== '') o.look[k] = v; });
     Object.entries(c.order).forEach(([k, v]) => { if (v && v.length) o.order[k] = v; });
     Object.entries(c.cols).forEach(([k, v]) => { if (v && v.length) o.cols[k] = v; });
@@ -529,7 +562,9 @@
   function start() {
     tagBoxes();
     const cs = getComputedStyle(document.documentElement);
-    LOOK_FIELDS.forEach(([k, , v]) => { base[k] = toHex(cs.getPropertyValue(v).trim()); });
+    const probe = document.createElement('i'); probe.style.display = 'none'; document.body.append(probe);
+    LOOK_FIELDS.forEach(([k, , v]) => { probe.style.color = ''; probe.style.color = `var(${v})`; base[k] = toHex(getComputedStyle(probe).color); });
+    probe.remove();
     base.radius = parseInt(cs.getPropertyValue('--radius'), 10) || 10;
     base.siteName = (document.querySelector('header h1') || {}).textContent || 'Matchup Lab';
     const foot = document.querySelector('footer');
@@ -545,7 +580,10 @@
     });
   }
   function toHex(c) {
+    c = String(c || '').trim();
     if (/^#[0-9a-f]{6}$/i.test(c)) return c;
+    const srgb = c.match(/^color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)/);
+    if (srgb) return `#${srgb.slice(1, 4).map((x) => Math.round(Number(x) * 255).toString(16).padStart(2, '0')).join('')}`;
     if (/^#[0-9a-f]{3}$/i.test(c)) return `#${c.slice(1).split('').map((x) => x + x).join('')}`;
     const m = c.match(/\d+/g);
     return m && m.length >= 3 ? `#${m.slice(0, 3).map((x) => Number(x).toString(16).padStart(2, '0')).join('')}` : '#000000';

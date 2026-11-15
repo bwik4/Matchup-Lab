@@ -683,7 +683,7 @@ function tRenderTrending() {
 // ---------------------------------------------------------------- styles for these pages
 document.head.append(h('style', null, `
   .t-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
-  .t-controls select, .t-search, .t-line { font: inherit; font-size: .88rem; padding: 6px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--fg); }
+  .t-controls select, .t-search, .t-line { font: inherit; font-size: .88rem; padding: 6px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--field); color: var(--fg); }
   .t-search { min-width: 12rem; }
   .t-wide { flex: 1; min-width: 14rem; }
   .t-line { width: 5.5rem; }
@@ -696,7 +696,7 @@ document.head.append(h('style', null, `
   .t-star { border: 0; background: none; color: var(--muted); font-size: 1.05rem; cursor: pointer; padding: 0 4px; line-height: 1; }
   .t-star.on { color: #eab308; }
   .t-add { font: inherit; font-size: .75rem; border: 1px solid var(--line); background: var(--panel); color: var(--accent); border-radius: 999px; padding: 3px 9px; cursor: pointer; white-space: nowrap; }
-  .t-add:hover { background: var(--bg); }
+  .t-add:hover { background: var(--item); }
   .t-pill { display: inline-block; font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-left: 6px; background: color-mix(in srgb, var(--muted) 15%, transparent); color: var(--fg); white-space: nowrap; }
   td > .t-pill { margin-left: 0; }
   .t-pill.out { background: color-mix(in srgb, var(--bad) 16%, transparent); color: var(--bad); }
@@ -743,7 +743,7 @@ document.head.append(h('style', null, `
   .t-tool > .t-star { position: absolute; top: 8px; right: 8px; }
   .d-list { display: flex; flex-direction: column; }
   .d-row { display: grid; grid-template-columns: auto minmax(0, 1fr) 6rem 7rem auto; gap: 10px; align-items: center; padding: 8px 4px; border-bottom: 1px solid var(--grid); cursor: pointer; }
-  .d-row:hover { background: var(--bg); }
+  .d-row:hover { background: var(--item); }
   .d-main { display: flex; flex-direction: column; min-width: 0; }
   .d-main b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .d-num { display: flex; flex-direction: column; text-align: right; }
