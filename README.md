@@ -83,3 +83,14 @@ Files: `totals.csv` (one row per team per game, this season and last: final tota
 
 Every defense vs position table marks a number with an orange `*` when one big game is carrying it: swapping the defense's biggest game at that position for a typical one (the median of its other games) would drop the per-game average by 15% or more, and that game was at least double the typical one. It needs 4+ games, and skips TD, INT, sack and red-zone stats (one play always swings those). Hover or tap the `*`, or open the "Skewed by one big game" list under the table, to see the game, the player and what the number would be without the outlier. It's worked out in the browser from the logs, so the pipelines didn't change.
 
+
+## Editing the look and layout (no code)
+
+Click **Edit site** at the bottom of any page (or add `?edit` to the address). A panel opens:
+
+- **Look**: site name, colors, fonts, text size, corner roundness, spacing, page width, and a few presets.
+- **Layout**: every box gets ↑ ↓ and Hide buttons in its corner. Hidden boxes, columns and tabs are listed here so you can bring them back.
+- **Words**: turn on *Click to rename*, then click any title, tab, button, column header or note and type new words. Column headers and tab buttons can also be hidden from that popup. Turn it off to click around the site normally.
+- **Publish**: *Publish to GitHub* saves your changes for everyone (needs a GitHub key, steps are in the panel). *Download file* gives you `site-config.json` to upload to the repo by hand instead.
+
+Until you publish, your edits only show in your own browser. Everything is stored in `site-config.json`; the data updates never touch it. To undo everything, put `{}` in that file.
