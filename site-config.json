@@ -8,7 +8,20 @@
       "fantasy/ffp-title+group"
     ]
   },
-  "text": [],
+  "text": [
+    {
+      "from": "Regular starters whose next opponent gives up the most at their main stat (green % = how much the matchup lifts his projection).",
+      "to": "Green % = how much the matchup lifts his projection."
+    },
+    {
+      "from": "proj rush + rec yds",
+      "to": "Proj Rush + Rec Yds"
+    },
+    {
+      "from": "LV 32nd of 32",
+      "to": "LV: 32nd"
+    }
+  ],
   "cols": {},
   "buttons": []
 }
