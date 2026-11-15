@@ -2,8 +2,8 @@ name: Update injuries
 
 on:
   schedule:
-    # Every 3 hours, so game-day downgrades show up
-    - cron: "15 */3 * * *"
+    # Every hour (the NBA posts a new official report every 15 minutes on game days)
+    - cron: "15 * * * *"
   workflow_dispatch:
   push:
     branches: [main]

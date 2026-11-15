@@ -374,15 +374,16 @@ def nba_official():
     names.update({"LA Clippers": "LAC", "Los Angeles Clippers": "LAC", "Los Angeles Lakers": "LAL"})
     team_re = re.compile("|".join(sorted((re.escape(n) for n in names), key=len, reverse=True)))
     stamp = re.search(r"Injury-Report_([0-9_\-]+(?:AM|PM))", url).group(1)
-    rows, team, game = [], None, ""
+    rows, team, game, cuts = [], None, "", None
     for page in pdf.pages:
         words = page.extract_words(keep_blank_chars=False, use_text_flow=False, x_tolerance=1.5)
         hdr = {w["text"]: w["x0"] for w in words if w["text"] in ("Matchup", "Team", "Player", "Current", "Reason")}
-        if not {"Team", "Player", "Current", "Reason"} <= set(hdr):
+        if {"Team", "Player", "Current", "Reason"} <= set(hdr):
+            cuts = [("team", hdr["Team"]), ("player", hdr["Player"]), ("status", hdr["Current"]), ("reason", hdr["Reason"])]
+            if "Matchup" in hdr:
+                cuts.insert(0, ("matchup", hdr["Matchup"]))
+        if not cuts:  # pages after the first may repeat no header: reuse the first page's columns
             continue
-        cuts = [("team", hdr["Team"]), ("player", hdr["Player"]), ("status", hdr["Current"]), ("reason", hdr["Reason"])]
-        if "Matchup" in hdr:
-            cuts.insert(0, ("matchup", hdr["Matchup"]))
         def col(x):
             c = "pre"
             for name, x0 in cuts:
@@ -436,7 +437,7 @@ def nba_official():
         out.append({"team": r["team"], "player": nm, "position": "", "status": r["label"].lower(), "label": r["label"], "detail": detail,
                     "return_date": "", "updated": stamp, "season_out": 0, "comment": "", "practice": "", "game": r["game"], "player_id": "", "source": "NBA official report"})
     if DEBUG:
-        print("nba: sample", out[:5])
+        print(f"nba: {len(pdf.pages)} pages, {len(rows)} lines with a status; sample", out[:5])
     return out
 
 
