@@ -566,8 +566,8 @@
         <p class="empty p-vs-empty" hidden>No games against them in the last two seasons.</p>
       </div>
       <div class="card">
-        <h2 class="plog-title">This season's game log</h2>
-        <p class="note">Opp rk = how that defense ranks against this stat for this position: 1 = toughest (allows the least), 32 = easiest (allows the most).</p>
+        <div class="bar"><h2 class="plog-title">This season's game log</h2><div class="seg plog-pair" role="group" aria-label="Whose stats"></div></div>
+        <p class="note plog-note">Opp rk = how that defense ranks against this stat for this position: 1 = toughest (allows the least), 32 = easiest (allows the most).</p>
         <div class="scroll" style="max-height: 24rem"><table class="t-plog"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
@@ -1076,6 +1076,7 @@ function table(el, name, cols, data, opts = {}) {
 // ===================== player game log (NBA / CFB / CBB) =====================
 // opened from a trend card or the Players tab of a game. o: { st (trend stat), line, side } or { rk: stat key to rank the defense by }
 S.plog = null;
+S.plogPair = false; // player page game log: false = just him, true = his team's #1 + #2 at the position added together
 const PLOG_COLS = {
   QB: [['catt', 'C/ATT'], ['passing_yards', 'Pass yds'], ['passing_tds', 'Pass TD'], ['passing_interceptions', 'INT'], ['carries', 'Car'], ['rushing_yards', 'Rush yds'], ['rushing_tds', 'Rush TD']],
   RB: [['carries', 'Car'], ['rushing_yards', 'Rush yds'], ['rushing_tds', 'Rush TD'], ['long_rush', 'Long'], ['receptions', 'Rec'], ['receiving_yards', 'Rec yds'], ['receiving_tds', 'Rec TD'], ['rush_rec_yds', 'Rush+rec']],
@@ -1742,8 +1743,32 @@ function renderProps() {
   // opponent ranks are this season's, so they're left blank for last season's games
   const cur = games.slice().map((r) => ({ ...r, gkey: r.season * 100 + r.week, opp_rank: r.season === S.season ? (mrow(r.opp, p.position, stat) || {}).rank : null }));
   $('.plog-title').textContent = `${both ? 'This season + last' : "This season's"} game log${wo ? ` without ${woNames(S.pWo, woCache)}` : ''}`;
-  table($('.t-plog'), 'plog', [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, ...statCols],
-    cur, { sort: { f: 'gkey', dir: 'desc' } });
+  // RB / WR: optional view with the team's top two at his position added together each game
+  const canPair = p.position === 'RB' || p.position === 'WR', pair = canPair && S.plogPair;
+  const pairSeg = $('.plog-pair');
+  pairSeg.hidden = !canPair;
+  if (canPair) pairSeg.replaceChildren(...[[false, 'Just him'], [true, `${p.position}1 + ${p.position}2`]].map(([v, l]) =>
+    h('button', { type: 'button', 'aria-pressed': String(v === pair), onclick: () => { S.plogPair = v; render(); } }, l)));
+  if (pair) {
+    if (!IDX.tgp) { IDX.tgp = new Map(); DATA.logs.forEach((r) => { const k = `${r.season}|${r.week}|${r.team}|${r.position}`; if (!IDX.tgp.has(k)) IDX.tgp.set(k, []); IDX.tgp.get(k).push(r); }); }
+    const last = (n) => String(n).replace(/ (Jr\.?|Sr\.?|II|III|IV|V)$/, '').split(' ').pop();
+    const sumKeys = [...new Set(statCols.map((c) => c.f))].filter((k) => k !== 'target_share');
+    const pr = cur.map((r) => {
+      const team = IDX.tgp.get(`${r.season}|${r.week}|${r.team}|${p.position}`) || [];
+      const c = combineTop2(team, sumKeys)[0];
+      if (!c) return { ...r };
+      const ts = team.filter((x) => x.depth === 1 || x.depth === 2).reduce((a, x) => a + (x.target_share || 0), 0);
+      return { ...r, ...Object.fromEntries(sumKeys.map((k) => [k, c[k]])), target_share: Math.round(ts * 10) / 10, who: c.player.split(' + ').map(last).join(' + '), solo: !team.some((x) => x.depth === 2) };
+    });
+    const pc = statCols.map((c) => ({ ...c, cls: undefined }));
+    table($('.t-plog'), 'plog-pair', [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'who', label: `${p.position}1 + ${p.position}2`, l: true, fmt: (v, r) => (v ? `${v}${r.solo ? ' (only one)' : ''}` : '—') }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, ...pc],
+      pr, { sort: { f: 'gkey', dir: 'desc' } });
+    $('.plog-note').textContent = `Each game: his team's top two ${p.position}s that game (${p.position === 'RB' ? 'by carries + targets' : 'by targets'}) added together. Long = the longer of the two. Not colored against your line, since that's for him alone.`;
+  } else {
+    table($('.t-plog'), 'plog', [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, ...statCols],
+      cur, { sort: { f: 'gkey', dir: 'desc' } });
+    $('.plog-note').textContent = 'Opp rk = how that defense ranks against this stat for this position: 1 = toughest (allows the least), 32 = easiest (allows the most).';
+  }
   $('.p-vs-title').textContent = opp === 'BYE' ? 'History vs next opponent' : `History vs ${opp}`;
   const vs = opp === 'BYE' ? [] : (IDX.logs.get(p.player_id) || []).filter((r) => r.opp === opp);
   $('.p-vs-empty').hidden = vs.length > 0; $('.t-pvs').parentElement.hidden = vs.length === 0;
