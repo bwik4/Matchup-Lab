@@ -12,7 +12,12 @@
       "fantasy/ffp-title+group"
     ]
   },
-  "text": [],
+  "text": [
+    {
+      "from": "Compare & start/sit",
+      "to": "Compare & Start/Sit"
+    }
+  ],
   "cols": {},
   "buttons": []
 }
