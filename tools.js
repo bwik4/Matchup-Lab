@@ -48,6 +48,7 @@ function tStats(sp, pos) {
 }
 const tStatLabel = (sp, k) => (tStats(sp).find((x) => x[0] === k) || [k, k])[1];
 const tLow = (s) => s.replace(/^[A-Z](?=[a-z])/, (m) => m.toLowerCase());
+const tTitle = (s) => s.replace(/\b([a-z])/g, (m) => m.toUpperCase()).replace(/\bPpr\b/g, 'PPR');
 // one stat from a game log row (combos computed here)
 function tVal(r, k) {
   if (r == null) return null;
@@ -576,8 +577,8 @@ function renderDash() {
   picks.sort((a, b) => b.pr.f - a.pr.f);
   tRC(best, picks.length ? h('div', { class: 'd-list' }, ...picks.slice(0, 8).map((x) => h('div', { class: 'd-row', role: 'button', tabIndex: 0, onclick: () => tOpenPlayer(sp, x.p.pid, x.stat) },
     badge(x.p.team, 'sm'), h('div', { class: 'd-main' }, h('b', null, x.p.name), h('small', null, `${x.p.pos} · ${x.pr.nx.home ? 'vs' : '@'} ${x.pr.nx.opp} · ${x.pr.nx.label}`)),
-    h('div', { class: 'd-num' }, h('b', null, show(x.pr.proj)), h('small', null, `proj ${tLow(tStatLabel(sp, x.stat))}`)),
-    h('div', { class: 'd-num g' }, h('b', null, `+${Math.round((x.pr.f - 1) * 100)}%`), h('small', null, `${x.pr.nx.opp} ${ordinal(x.pr.d.rank)} of ${x.pr.d.n}`)))))
+    h('div', { class: 'd-num' }, h('b', null, show(x.pr.proj)), h('small', null, `Proj ${tTitle(tStatLabel(sp, x.stat))}`)),
+    h('div', { class: 'd-num g' }, h('b', null, `+${Math.round((x.pr.f - 1) * 100)}%`), h('small', null, `${x.pr.nx.opp}: ${ordinal(x.pr.d.rank)}`)))))
     : h('p', { class: 'empty' }, 'No upcoming games yet.'));
   // Sleeper boxes are off for now (their cards were removed from index.html); add the cards back to turn them on
   if (sp === 'nfl' && slp) tRenderSleeper();
@@ -587,7 +588,7 @@ function tDashRow(sp, p) {
   const stat = T_MAIN[p.pos], pr = tProject(sp, p, stat), nx = pr && pr.nx;
   return h('div', { class: 'd-row', role: 'button', tabIndex: 0, onclick: () => tOpenPlayer(sp, p.pid, stat) },
     badge(p.team, 'sm'), h('div', { class: 'd-main' }, h('b', null, p.name), h('small', null, `${p.pos} · ${nx ? `${nx.home ? 'vs' : '@'} ${nx.opp} · ${nx.label}` : 'no game scheduled'}${p.missed ? ` · missed last ${p.missed}` : ''}`)),
-    h('div', { class: 'd-num' }, h('b', null, pr ? show(pr.proj) : '—'), h('small', null, `proj ${tLow(tStatLabel(sp, stat))}`)),
+    h('div', { class: 'd-num' }, h('b', null, pr ? show(pr.proj) : '—'), h('small', null, `Proj ${tTitle(tStatLabel(sp, stat))}`)),
     pr && pr.d ? h('div', { class: `d-num ${tPctCls(pr.d.rank, pr.d.n)}` }, h('b', null, ordinal(pr.d.rank)), h('small', null, `opp rank of ${pr.d.n}`)) : h('div', { class: 'd-num' }),
     tStar(sp, p.pid));
 }
