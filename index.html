@@ -142,25 +142,26 @@
   .summary b.g, .summary b.r { font-weight: 700; }
 
   /* ---------- sidebar (bottom tab bar on phones) ---------- */
-  .side { position: sticky; top: 0; height: 100vh; background: #d9dce1; color: #5f6670; display: flex; flex-direction: column; align-items: center;
-    gap: 6px; padding: max(18px, env(safe-area-inset-top)) 8px 18px; z-index: 20; border-right: 1px solid #c9ced5; }
+  .side { position: sticky; top: 0; height: 100vh; background: #121826; color: #fff; display: flex; flex-direction: column; align-items: center;
+    gap: 6px; padding: max(18px, env(safe-area-inset-top)) 8px 18px; z-index: 20; border-right: 1px solid #121826; }
   .brand { width: 44px; height: 44px; border-radius: 12px; background: var(--accent); color: #fff; display: grid; place-items: center;
     font-weight: 800; font-size: .95rem; letter-spacing: .02em; margin-bottom: 18px; }
   .side-nav { display: flex; flex-direction: column; gap: 6px; width: 100%; }
   .side-nav button { font: inherit; border: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px;
-    padding: 10px 4px; border-radius: 12px; font-size: .78rem; color: #5f6670; width: 100%; }
-  .side-nav button svg { width: 24px; height: 24px; }
-  .side-nav button:hover { color: #1f2329; background: rgba(58,110,165,.10); }
-  .side-nav button[aria-current=page] { color: #1f4e80; background: rgba(58,110,165,.20); }
+    padding: 6px 4px; border-radius: 12px; font-size: .78rem; font-weight: 600; color: #fff; width: 100%; }
+  /* navy panel, white labels; the current page's icon sits in a blue tile */
+  .side-nav button svg { width: 44px; height: 44px; padding: 10px; border-radius: 12px; box-sizing: border-box; transition: background .12s; }
+  .side-nav button:hover svg { background: rgba(255,255,255,.10); }
+  .side-nav button[aria-current=page] svg { background: #2f6bdf; }
   .side-nav button:focus-visible, .subnav button:focus-visible, .gcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   @media (max-width: 760px) {
     .app { grid-template-columns: minmax(0, 1fr); }
-    .side { position: fixed; top: auto; bottom: 0; left: 0; right: 0; height: auto; flex-direction: row; border-right: 0; border-top: 1px solid #c9ced5;
+    .side { position: fixed; top: auto; bottom: 0; left: 0; right: 0; height: auto; flex-direction: row; border-right: 0; border-top: 1px solid #121826;
       padding: 4px 8px calc(4px + env(safe-area-inset-bottom)); }
     .brand { display: none; }
     .side-nav { flex-direction: row; justify-content: space-around; }
     .side-nav button { padding: 6px 4px; font-size: .72rem; gap: 3px; }
-    .side-nav button svg { width: 22px; height: 22px; }
+    .side-nav button svg { width: 34px; height: 34px; padding: 6px; border-radius: 10px; }
     .ml { padding: max(16px, env(safe-area-inset-top)) 12px calc(88px + env(safe-area-inset-bottom)); }
     h1 { font-size: 1.6rem; }
     .card { padding: 14px; }

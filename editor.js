@@ -31,6 +31,7 @@
     system: ['System (default)', 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'],
     helvetica: ['Clean (Helvetica / Arial)', '"Helvetica Neue", Helvetica, Arial, sans-serif'],
     inter: ['Inter', '"Inter", system-ui, sans-serif', 'Inter:wght@400;500;600;700'],
+    poppins: ['Poppins (FantasyPros-style)', '"Poppins", system-ui, sans-serif', 'Poppins:wght@400;500;600;700'],
     barlow: ['Barlow (sporty)', '"Barlow", system-ui, sans-serif', 'Barlow:wght@400;500;600;700'],
     condensed: ['Roboto Condensed', '"Roboto Condensed", "Arial Narrow", sans-serif', 'Roboto+Condensed:wght@400;600;700'],
     oswald: ['Oswald (bold, sports headline)', '"Oswald", "Arial Narrow", sans-serif', 'Oswald:wght@400;500;600'],
