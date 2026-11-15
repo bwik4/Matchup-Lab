@@ -75,11 +75,11 @@
         card.dataset.elabel = (hd && hd.textContent.trim()) || `Box ${i + 1}`;
       });
       // a grid of boxes moves as one block inside its area; the boxes inside it move within the grid
-      [...sec.querySelectorAll('.grid')].filter((g) => g.closest('section[data-view], section[data-page]') === sec && g.querySelector(':scope > .card')).forEach((g) => {
-        const first = g.querySelector(':scope > .card');
-        g.dataset.ek = `${first.dataset.ek}+grid`;
+      [...sec.querySelectorAll('.grid, .joined')].filter((g) => g.closest('section[data-view], section[data-page]') === sec && g.querySelector('.card[data-ek]')).forEach((g) => {
+        const first = g.querySelector(':scope > .card') || g.querySelector('.card[data-ek]');
+        g.dataset.ek = `${first.dataset.ek}+${g.classList.contains('joined') ? 'group' : 'grid'}`;
         g.dataset.ea = `${area}:${first.dataset.ek}`;
-        g.dataset.elabel = [...g.querySelectorAll(':scope > .card')].map((c) => c.dataset.elabel).join(' + ');
+        g.dataset.elabel = [...g.querySelectorAll('.card[data-ek]')].map((c) => c.dataset.elabel).join(' + ');
       });
       // boxes can also sit inside a tab's panel (e.g. a game's Matchup tab): that panel is their area
       sec.querySelectorAll('[data-ek]').forEach((b) => {
@@ -189,11 +189,11 @@
 
   // ---------------- edit-mode decorations on the page ----------------
   function decorate() {
-    document.querySelectorAll('.card[data-ek], .grid[data-ek]').forEach((b) => {
+    document.querySelectorAll('.card[data-ek], .grid[data-ek], .joined[data-ek]').forEach((b) => {
       if (b.querySelector(':scope > .ed-tools')) { b.querySelector(':scope > .ed-tools .ed-hidebtn').textContent = cfg.hidden.includes(b.dataset.ek) ? 'Show' : 'Hide'; return; }
-      const isGrid = b.classList.contains('grid');
+      const isGrid = b.classList.contains('grid') || b.classList.contains('joined');
       const tools = el('div', { class: `ed-ui ed-tools${isGrid ? ' ed-tools-grid' : ''}` },
-        el('span', { class: 'ed-name' }, isGrid ? 'Row' : 'Box'),
+        el('span', { class: 'ed-name' }, b.classList.contains('joined') ? 'Group' : isGrid ? 'Row' : 'Box'),
         el('button', { type: 'button', title: 'Move up', onclick: (e) => { e.stopPropagation(); move(b, -1); } }, '↑'),
         el('button', { type: 'button', title: 'Move down', onclick: (e) => { e.stopPropagation(); move(b, 1); } }, '↓'),
         el('button', { type: 'button', class: 'ed-hidebtn', onclick: (e) => { e.stopPropagation(); toggleHide(b.dataset.ek); } }, cfg.hidden.includes(b.dataset.ek) ? 'Show' : 'Hide'));
@@ -469,6 +469,7 @@
     .ed-col-off { display: none !important; }
     body.ed-on .ed-hide { display: revert !important; opacity: .35; outline: 2px dashed var(--muted); }
     body.ed-on .grid.ed-hide { display: grid !important; }
+    body.ed-on .joined.ed-hide { display: block !important; }
     body.ed-on button.ed-hide { display: revert !important; }
     body.ed-on [data-ek] { position: relative; }
     body.ed-on .card[data-ek] { outline: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 3px; }

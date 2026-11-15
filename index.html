@@ -39,6 +39,13 @@
   .lbl { font-size: .8rem; color: var(--muted); }
   .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; cursor: pointer; user-select: none; }
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; min-width: 0; }
+  /* related boxes joined into one panel, with a divider between sections */
+  .joined { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); min-width: 0; }
+  .joined > .card, .joined > .grid > .card { background: transparent; border: 0; border-radius: 0; }
+  .joined > :not([hidden]) ~ :is(.card, .grid):not([hidden]) { border-top: 1px solid var(--line); }
+  .joined > .grid { gap: 0; }
+  .joined > .grid > .card + .card { border-left: 1px solid var(--line); }
+  @media (max-width: 760px) { .joined > .grid > .card + .card { border-left: 0; border-top: 1px solid var(--line); } }
   .card h2 { font-size: 1.05rem; font-weight: 600; margin: 0; }
   .card h3 { font-size: .9rem; font-weight: 600; margin: 16px 0 4px; }
   .note { color: var(--muted); font-size: .8rem; margin: 4px 0 12px; line-height: 1.4; }
@@ -460,30 +467,32 @@
     </div>
 
     <div class="gp-panel stack" data-gp="matchup" hidden>
-      <div class="card">
-        <div class="bar">
-          <h2>Team comparison</h2>
-          <div class="seg tc-win" role="group" aria-label="Games"><button data-v="l3">L3</button><button data-v="l5">L5</button><button data-v="season">Season</button></div>
+      <div class="joined">
+        <div class="card">
+          <div class="bar">
+            <h2>Team comparison</h2>
+            <div class="seg tc-win" role="group" aria-label="Games"><button data-v="l3">L3</button><button data-v="l5">L5</button><button data-v="season">Season</button></div>
+          </div>
+          <p class="note">Per-game numbers with each unit's rank among all 32 teams for the same stretch of games (1 = best offense, or the defense that allows the least). The longer bar is the stronger unit: green when the offense has the edge, red when the defense does.</p>
+          <div class="tc-side">
+            <span class="tc-o"></span>
+            <button class="tc-swap" type="button" aria-label="Swap sides" title="Swap sides">⇄</button>
+            <span class="tc-d"></span>
+          </div>
+          <div class="tc-rows"></div>
+          <p class="summary tc-sum"></p>
         </div>
-        <p class="note">Per-game numbers with each unit's rank among all 32 teams for the same stretch of games (1 = best offense, or the defense that allows the least). The longer bar is the stronger unit: green when the offense has the edge, red when the defense does.</p>
-        <div class="tc-side">
-          <span class="tc-o"></span>
-          <button class="tc-swap" type="button" aria-label="Swap sides" title="Swap sides">⇄</button>
-          <span class="tc-d"></span>
+        <div class="card" id="game-detail">
+          <h2 class="gd-title">Full season comparison</h2>
+          <p class="note">Season stats for both teams. Ranks run 1–32 where 1 is best; the better number in each row is highlighted.</p>
+          <div class="scroll" style="max-height: none"><table class="cmp t-cmp"><thead></thead><tbody></tbody></table></div>
         </div>
-        <div class="tc-rows"></div>
-        <p class="summary tc-sum"></p>
       </div>
       <div class="card">
         <h2>Defense vs position</h2>
         <p class="note">What each defense allows per game to each position this season, ranked among all 32 defenses (1 = toughest, 32 = easiest). QB pass yards here are the QBs' own box-score yards (sacks don't count against them, the same way props are graded), so they run a bit higher than the team's net pass yards above. * = one big game is carrying that number (details below the table).</p>
         <div class="scroll" style="max-height: none"><table class="gp-dvp dvp"><thead></thead><tbody></tbody></table></div>
         <div class="sim gp-sim"></div>
-      </div>
-      <div class="card" id="game-detail">
-        <h2 class="gd-title">Full season comparison</h2>
-        <p class="note">Season stats for both teams. Ranks run 1–32 where 1 is best; the better number in each row is highlighted.</p>
-        <div class="scroll" style="max-height: none"><table class="cmp t-cmp"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
 
@@ -518,19 +527,21 @@
     </div>
 
     <div class="gp-panel stack" data-gp="lines" hidden>
-      <div class="card">
-        <div class="bar">
-          <h2>How each team has done against the lines</h2>
-          <div class="seg gl-seas" role="group" aria-label="Seasons"><button data-v="cur">This season</button><button data-v="both">This + last</button></div>
+      <div class="joined">
+        <div class="card">
+          <div class="bar">
+            <h2>How each team has done against the lines</h2>
+            <div class="seg gl-seas" role="group" aria-label="Seasons"><button data-v="cur">This season</button><button data-v="both">This + last</button></div>
+          </div>
+          <p class="note">Against the closing spread and total. Spread is from that team's side (−3.5 = favored by 3.5). "Covered by" and "Over by" are how far the result landed from the line. Tap a result to open that game's box score.</p>
+          <div class="grid gl-body"></div>
         </div>
-        <p class="note">Against the closing spread and total. Spread is from that team's side (−3.5 = favored by 3.5). "Covered by" and "Over by" are how far the result landed from the line. Tap a result to open that game's box score.</p>
-        <div class="grid gl-body"></div>
-      </div>
-      <div class="card">
-        <h2 class="gl-h2h-title">Head to head</h2>
-        <p class="note">Their meetings this season and last.</p>
-        <div class="scroll" style="max-height: none"><table class="t-h2h"><thead></thead><tbody></tbody></table></div>
-        <p class="empty gl-h2h-empty" hidden>They haven't played each other in the last two seasons.</p>
+        <div class="card">
+          <h2 class="gl-h2h-title">Head to head</h2>
+          <p class="note">Their meetings this season and last.</p>
+          <div class="scroll" style="max-height: none"><table class="t-h2h"><thead></thead><tbody></tbody></table></div>
+          <p class="empty gl-h2h-empty" hidden>They haven't played each other in the last two seasons.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -551,60 +562,62 @@
 
   <!-- ================= PROPS ================= -->
   <section class="page stack" data-page="props" hidden>
-    <div class="card">
-      <div class="bar">
-        <h2 class="p-title">Pick a player</h2>
-        <div class="controls">
-          <input class="search p-search" type="search" list="plist" placeholder="Search player" aria-label="Find player">
-          <datalist id="plist"></datalist>
-          <select class="p-stat" aria-label="Stat"></select>
-          <span class="lbl">Line</span>
-          <input class="num p-line" type="number" step="0.5" aria-label="Prop line">
-          <div class="seg p-seas" role="group" aria-label="Seasons">
-            <button data-v="cur">This season</button><button data-v="both">This + last</button>
+    <div class="joined">
+      <div class="card">
+        <div class="bar">
+          <h2 class="p-title">Pick a player</h2>
+          <div class="controls">
+            <input class="search p-search" type="search" list="plist" placeholder="Search player" aria-label="Find player">
+            <datalist id="plist"></datalist>
+            <select class="p-stat" aria-label="Stat"></select>
+            <span class="lbl">Line</span>
+            <input class="num p-line" type="number" step="0.5" aria-label="Prop line">
+            <div class="seg p-seas" role="group" aria-label="Seasons">
+              <button data-v="cur">This season</button><button data-v="both">This + last</button>
+            </div>
           </div>
         </div>
+        <div class="wo p-wo">
+          <span class="lbl">Games without</span>
+          <input class="search" type="search" list="p-wo-list" placeholder="Add a teammate who sat out" aria-label="Filter to games a teammate missed">
+          <datalist id="p-wo-list"></datalist>
+          <div class="chips"></div>
+        </div>
+        <p class="summary p-split" hidden></p>
+        <p class="note p-note">Type the sportsbook's line to see how often he's gone over it. It starts at his season average.</p>
+        <div class="stats p-stats"></div>
+        <div class="chart p-chart"></div>
+        <div class="legend"><span class="lg">Over the line</span><span class="lr">Under the line</span></div>
       </div>
-      <div class="wo p-wo">
-        <span class="lbl">Games without</span>
-        <input class="search" type="search" list="p-wo-list" placeholder="Add a teammate who sat out" aria-label="Filter to games a teammate missed">
-        <datalist id="p-wo-list"></datalist>
-        <div class="chips"></div>
-      </div>
-      <p class="summary p-split" hidden></p>
-      <p class="note p-note">Type the sportsbook's line to see how often he's gone over it. It starts at his season average.</p>
-      <div class="stats p-stats"></div>
-      <div class="chart p-chart"></div>
-      <div class="legend"><span class="lg">Over the line</span><span class="lr">Under the line</span></div>
-    </div>
-    <div class="grid">
-      <div class="card">
-        <h2 class="p-vs-title">History vs next opponent</h2>
-        <p class="note">Every game against this week's opponent, this season and last.</p>
-        <div class="scroll" style="max-height: 24rem"><table class="t-pvs"><thead></thead><tbody></tbody></table></div>
-        <p class="empty p-vs-empty" hidden>No games against them in the last two seasons.</p>
-      </div>
-      <div class="card">
-        <div class="bar"><h2 class="plog-title">This season's game log</h2><div class="seg plog-pair" role="group" aria-label="Whose stats"></div></div>
-        <p class="note plog-note">Opp rk = how that defense ranks against this stat for this position: 1 = toughest (allows the least), 32 = easiest (allows the most).</p>
-        <div class="scroll" style="max-height: 24rem"><table class="t-plog"><thead></thead><tbody></tbody></table></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="bar">
-        <h2 class="pd-title">Position vs opponent</h2>
-        <div class="controls">
-          <div class="seg pd-depth" role="group" aria-label="Depth"></div>
-          <div class="seg pd-win" role="group" aria-label="Seasons">
-            <button data-v="both">This + last season</button><button data-v="cur">This season</button>
-          </div>
+      <div class="grid">
+        <div class="card">
+          <h2 class="p-vs-title">History vs next opponent</h2>
+          <p class="note">Every game against this week's opponent, this season and last.</p>
+          <div class="scroll" style="max-height: 24rem"><table class="t-pvs"><thead></thead><tbody></tbody></table></div>
+          <p class="empty p-vs-empty" hidden>No games against them in the last two seasons.</p>
+        </div>
+        <div class="card">
+          <div class="bar"><h2 class="plog-title">This season's game log</h2><div class="seg plog-pair" role="group" aria-label="Whose stats"></div></div>
+          <p class="note plog-note">Opp rk = how that defense ranks against this stat for this position: 1 = toughest (allows the least), 32 = easiest (allows the most).</p>
+          <div class="scroll" style="max-height: 24rem"><table class="t-plog"><thead></thead><tbody></tbody></table></div>
         </div>
       </div>
-      <p class="note pd-note">Every game a player at this position had against this week's opponent. RB1 / WR1 etc. = the most-used player at that position on his team that game (QB by attempts, RB by carries + targets, WR/TE by targets). WR1 + WR2 and RB1 + RB2 add the top two together each game, so you can check a combined line. The highlighted column is colored against your line above.</p>
-      <p class="summary pd-sum"></p>
-      <div class="scroll" style="max-height: 30rem"><table class="t-pdef"><thead></thead><tbody></tbody></table></div>
-      <p class="empty pd-empty" hidden>No games to show.</p>
-      <div class="legend"><span class="lg">Over your line</span><span class="lr">Under your line</span></div>
+      <div class="card">
+        <div class="bar">
+          <h2 class="pd-title">Position vs opponent</h2>
+          <div class="controls">
+            <div class="seg pd-depth" role="group" aria-label="Depth"></div>
+            <div class="seg pd-win" role="group" aria-label="Seasons">
+              <button data-v="both">This + last season</button><button data-v="cur">This season</button>
+            </div>
+          </div>
+        </div>
+        <p class="note pd-note">Every game a player at this position had against this week's opponent. RB1 / WR1 etc. = the most-used player at that position on his team that game (QB by attempts, RB by carries + targets, WR/TE by targets). WR1 + WR2 and RB1 + RB2 add the top two together each game, so you can check a combined line. The highlighted column is colored against your line above.</p>
+        <p class="summary pd-sum"></p>
+        <div class="scroll" style="max-height: 30rem"><table class="t-pdef"><thead></thead><tbody></tbody></table></div>
+        <p class="empty pd-empty" hidden>No games to show.</p>
+        <div class="legend"><span class="lg">Over your line</span><span class="lr">Under your line</span></div>
+      </div>
     </div>
     <div class="card">
       <div class="bar">
@@ -625,69 +638,73 @@
 
   <!-- ================= MATCHUPS ================= -->
   <section class="page stack" data-page="matchups" hidden>
-    <div class="card">
-      <div class="bar">
-        <h2>What each defense allows per game</h2>
-        <div class="controls">
-          <div class="seg m-pos" role="group" aria-label="Position">
-            <button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button><button data-v="K">K</button>
-          </div>
-          <div class="seg m-win" role="group" aria-label="Window">
-            <button data-v="season">Season</button><button data-v="last3">Last 3 wks</button>
+    <div class="joined">
+      <div class="card">
+        <div class="bar">
+          <h2>What each defense allows per game</h2>
+          <div class="controls">
+            <div class="seg m-pos" role="group" aria-label="Position">
+              <button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button><button data-v="K">K</button>
+            </div>
+            <div class="seg m-win" role="group" aria-label="Window">
+              <button data-v="season">Season</button><button data-v="last3">Last 3 wks</button>
+            </div>
           </div>
         </div>
+        <p class="note">Totals from every player at that position against the defense, divided by its games. "Rk" ranks all 32 defenses: 1 = toughest (allows the least), 32 = easiest (allows the most, best spot for overs). For INTs and sacks, 1 = forces the most. "Long" stats = the average longest play allowed to the position per game. Click a defense for its week-by-week numbers. <b style="color: var(--c2)">*</b> = one big game is carrying that number (hover or open the list under the table to see which).</p>
+        <div class="wo m-wo">
+          <span class="lbl">Games without</span>
+          <input class="search" type="search" list="m-wo-list" placeholder="Add a player who sat out (e.g. a CB)" aria-label="Filter defenses to games a player missed">
+          <datalist id="m-wo-list"></datalist>
+          <div class="chips"></div>
+        </div>
+        <p class="summary m-split" hidden></p>
+        <div class="scroll"><table class="t-match dvp"><thead></thead><tbody></tbody></table></div>
+        <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (25–32)</span></div>
       </div>
-      <p class="note">Totals from every player at that position against the defense, divided by its games. "Rk" ranks all 32 defenses: 1 = toughest (allows the least), 32 = easiest (allows the most, best spot for overs). For INTs and sacks, 1 = forces the most. "Long" stats = the average longest play allowed to the position per game. Click a defense for its week-by-week numbers. <b style="color: var(--c2)">*</b> = one big game is carrying that number (hover or open the list under the table to see which).</p>
-      <div class="wo m-wo">
-        <span class="lbl">Games without</span>
-        <input class="search" type="search" list="m-wo-list" placeholder="Add a player who sat out (e.g. a CB)" aria-label="Filter defenses to games a player missed">
-        <datalist id="m-wo-list"></datalist>
-        <div class="chips"></div>
+      <div class="card" id="m-detail">
+        <div class="bar">
+          <h2 class="md-title">Pick a defense</h2>
+          <select class="md-stat" aria-label="Stat"></select>
+        </div>
+        <p class="note">Each week's total allowed to the position, labelled with the offense they faced. With a "games without" filter on this defense, orange bars are the games the player sat out.</p>
+        <div class="chart md-chart"></div>
+        <h3>Biggest games against them this season</h3>
+        <div class="scroll" style="max-height: 22rem"><table class="t-mtop"><thead></thead><tbody></tbody></table></div>
       </div>
-      <p class="summary m-split" hidden></p>
-      <div class="scroll"><table class="t-match dvp"><thead></thead><tbody></tbody></table></div>
-      <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (25–32)</span></div>
-    </div>
-    <div class="card" id="m-detail">
-      <div class="bar">
-        <h2 class="md-title">Pick a defense</h2>
-        <select class="md-stat" aria-label="Stat"></select>
-      </div>
-      <p class="note">Each week's total allowed to the position, labelled with the offense they faced. With a "games without" filter on this defense, orange bars are the games the player sat out.</p>
-      <div class="chart md-chart"></div>
-      <h3>Biggest games against them this season</h3>
-      <div class="scroll" style="max-height: 22rem"><table class="t-mtop"><thead></thead><tbody></tbody></table></div>
     </div>
   </section>
 
   <!-- ================= TEAMS ================= -->
   <section class="page stack" data-page="teams" hidden>
-    <div class="card">
-      <div class="bar">
-        <h2 class="t-title">Betting records</h2>
-        <div class="controls">
-          <div class="seg t-view" role="group" aria-label="View">
-            <button data-v="betting">Betting records</button><button data-v="offense">Offense</button><button data-v="defense">Defense</button>
-          </div>
-          <div class="seg t-seas" role="group" aria-label="Seasons">
-            <button data-v="cur">This season</button><button data-v="both">This + last</button>
+    <div class="joined">
+      <div class="card">
+        <div class="bar">
+          <h2 class="t-title">Betting records</h2>
+          <div class="controls">
+            <div class="seg t-view" role="group" aria-label="View">
+              <button data-v="betting">Betting records</button><button data-v="offense">Offense</button><button data-v="defense">Defense</button>
+            </div>
+            <div class="seg t-seas" role="group" aria-label="Seasons">
+              <button data-v="cur">This season</button><button data-v="both">This + last</button>
+            </div>
           </div>
         </div>
+        <div class="wo t-wo">
+          <span class="lbl">Games without</span>
+          <input class="search" type="search" list="t-wo-list" placeholder="Add a player who sat out" aria-label="Filter teams to games a player missed">
+          <datalist id="t-wo-list"></datalist>
+          <div class="chips"></div>
+        </div>
+        <p class="note t-note"></p>
+        <div class="scroll"><table class="t-teams"><thead></thead><tbody></tbody></table></div>
+        <div class="legend"><span class="lg">Top 8 (rank 1–8)</span><span class="lr">Bottom 8 (25–32)</span></div>
       </div>
-      <div class="wo t-wo">
-        <span class="lbl">Games without</span>
-        <input class="search" type="search" list="t-wo-list" placeholder="Add a player who sat out" aria-label="Filter teams to games a player missed">
-        <datalist id="t-wo-list"></datalist>
-        <div class="chips"></div>
+      <div class="card" id="t-split" hidden>
+        <h2>With vs without</h2>
+        <p class="note">Each team's numbers in games the player(s) played versus games they missed. Games where a player wasn't on the team yet don't count toward either side.</p>
+        <div class="grid t-split-body"></div>
       </div>
-      <p class="note t-note"></p>
-      <div class="scroll"><table class="t-teams"><thead></thead><tbody></tbody></table></div>
-      <div class="legend"><span class="lg">Top 8 (rank 1–8)</span><span class="lr">Bottom 8 (25–32)</span></div>
-    </div>
-    <div class="card" id="t-split" hidden>
-      <h2>With vs without</h2>
-      <p class="note">Each team's numbers in games the player(s) played versus games they missed. Games where a player wasn't on the team yet don't count toward either side.</p>
-      <div class="grid t-split-body"></div>
     </div>
   </section>
 
@@ -704,56 +721,60 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="bar">
-        <h2>Defense vs fantasy positions</h2>
-        <div class="controls">
-          <div class="seg ff-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="last3">Last 3 wks</button></div>
+    <div class="joined">
+      <div class="card">
+        <div class="bar">
+          <h2>Defense vs fantasy positions</h2>
+          <div class="controls">
+            <div class="seg ff-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="last3">Last 3 wks</button></div>
+          </div>
         </div>
+        <p class="note">Fantasy points each defense allows per game to every QB, RB, WR, TE and kicker combined. Kickers score the same in every format: 3 per FG under 40 yards, 4 from 40–49, 5 from 50+, 1 per extra point, −1 per miss. Rk: 1 = toughest (allows the least), 32 = easiest. Tap a defense to see every game log against it.</p>
+        <div class="scroll"><table class="t-ffdef dvp"><thead></thead><tbody></tbody></table></div>
+        <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (25–32)</span></div>
       </div>
-      <p class="note">Fantasy points each defense allows per game to every QB, RB, WR, TE and kicker combined. Kickers score the same in every format: 3 per FG under 40 yards, 4 from 40–49, 5 from 50+, 1 per extra point, −1 per miss. Rk: 1 = toughest (allows the least), 32 = easiest. Tap a defense to see every game log against it.</p>
-      <div class="scroll"><table class="t-ffdef dvp"><thead></thead><tbody></tbody></table></div>
-      <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (25–32)</span></div>
-    </div>
-
-    <div class="card" id="ff-detail">
-      <div class="bar">
-        <h2 class="ffd-title">Pick a defense</h2>
-        <div class="seg ff-pos" role="group" aria-label="Position"><button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button><button data-v="K">K</button></div>
-      </div>
-      <p class="note ffd-note"></p>
-      <div class="chart ffd-chart"></div>
-      <h3>Game logs against them this season</h3>
-      <p class="note">Every player at the position who faced them. Role = his rank in usage at the position on his team that game (WR1 = most targets). Tap a player to open his rest-of-season outlook below.</p>
-      <div class="scroll" style="max-height: 28rem"><table class="t-ffdlog"><thead></thead><tbody></tbody></table></div>
-    </div>
-
-    <div class="card" id="ff-player">
-      <div class="bar">
-        <h2 class="ffp-title">Player outlook</h2>
-        <div class="controls">
-          <input class="search ff-search" type="search" list="fflist" placeholder="Search player" aria-label="Find player">
-          <datalist id="fflist"></datalist>
+  
+      <div class="card" id="ff-detail">
+        <div class="bar">
+          <h2 class="ffd-title">Pick a defense</h2>
+          <div class="seg ff-pos" role="group" aria-label="Position"><button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button><button data-v="K">K</button></div>
         </div>
+        <p class="note ffd-note"></p>
+        <div class="chart ffd-chart"></div>
+        <h3>Game logs against them this season</h3>
+        <p class="note">Every player at the position who faced them. Role = his rank in usage at the position on his team that game (WR1 = most targets). Tap a player to open his rest-of-season outlook below.</p>
+        <div class="scroll" style="max-height: 28rem"><table class="t-ffdlog"><thead></thead><tbody></tbody></table></div>
       </div>
-      <p class="note ffp-note"></p>
-      <div class="stats ffp-tiles"></div>
-      <div class="chart ffp-chart"></div>
-      <div class="legend"><span class="lr">Tough matchup (rank 1–8)</span><span class="lg">Easy matchup (25–32)</span><span class="ln">Neutral</span></div>
-      <h3>Week by week</h3>
-      <p class="summary ffl-sum"></p>
-      <p class="note">His whole season in one table. Played weeks show the result (tap it for the box score), his actual fantasy points and stats; upcoming weeks show the matchup and his projection. Opp rk = that defense's rank in fantasy points allowed to his position this season (1 = toughest, 32 = easiest). Tap an upcoming week to see how players at his position have done against that defense.</p>
-      <div class="scroll" style="max-height: none"><table class="t-ffsched"><thead></thead><tbody></tbody></table></div>
     </div>
 
-    <div class="card" id="ff-vs">
-      <div class="bar">
-        <h2 class="ffv-title">Past players vs this defense</h2>
-        <div class="seg ffv-depth" role="group" aria-label="Role"></div>
+    <div class="joined">
+      <div class="card" id="ff-player">
+        <div class="bar">
+          <h2 class="ffp-title">Player outlook</h2>
+          <div class="controls">
+            <input class="search ff-search" type="search" list="fflist" placeholder="Search player" aria-label="Find player">
+            <datalist id="fflist"></datalist>
+          </div>
+        </div>
+        <p class="note ffp-note"></p>
+        <div class="stats ffp-tiles"></div>
+        <div class="chart ffp-chart"></div>
+        <div class="legend"><span class="lr">Tough matchup (rank 1–8)</span><span class="lg">Easy matchup (25–32)</span><span class="ln">Neutral</span></div>
+        <h3>Week by week</h3>
+        <p class="summary ffl-sum"></p>
+        <p class="note">His whole season in one table. Played weeks show the result (tap it for the box score), his actual fantasy points and stats; upcoming weeks show the matchup and his projection. Opp rk = that defense's rank in fantasy points allowed to his position this season (1 = toughest, 32 = easiest). Tap an upcoming week to see how players at his position have done against that defense.</p>
+        <div class="scroll" style="max-height: none"><table class="t-ffsched"><thead></thead><tbody></tbody></table></div>
       </div>
-      <p class="summary ffv-sum"></p>
-      <div class="scroll" style="max-height: 28rem"><table class="t-ffvs"><thead></thead><tbody></tbody></table></div>
-      <p class="empty ffv-empty" hidden>No games to show.</p>
+  
+      <div class="card" id="ff-vs">
+        <div class="bar">
+          <h2 class="ffv-title">Past players vs this defense</h2>
+          <div class="seg ffv-depth" role="group" aria-label="Role"></div>
+        </div>
+        <p class="summary ffv-sum"></p>
+        <div class="scroll" style="max-height: 28rem"><table class="t-ffvs"><thead></thead><tbody></tbody></table></div>
+        <p class="empty ffv-empty" hidden>No games to show.</p>
+      </div>
     </div>
    </div>
 
@@ -766,26 +787,28 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="bar">
-        <h2>Defense vs fantasy positions</h2>
-        <div class="controls"><div class="seg nf-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="l10">Last 10 games</button></div></div>
+    <div class="joined">
+      <div class="card">
+        <div class="bar">
+          <h2>Defense vs fantasy positions</h2>
+          <div class="controls"><div class="seg nf-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="l10">Last 10 games</button></div></div>
+        </div>
+        <p class="note">Fantasy points each defense allows per game to all guards, forwards and centers combined. Rk: 1 = toughest (allows the least), 30 = easiest. Tap a defense to see every game log against it.</p>
+        <div class="scroll"><table class="t-nfdef dvp"><thead></thead><tbody></tbody></table></div>
+        <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (23–30)</span></div>
       </div>
-      <p class="note">Fantasy points each defense allows per game to all guards, forwards and centers combined. Rk: 1 = toughest (allows the least), 30 = easiest. Tap a defense to see every game log against it.</p>
-      <div class="scroll"><table class="t-nfdef dvp"><thead></thead><tbody></tbody></table></div>
-      <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (23–30)</span></div>
-    </div>
-
-    <div class="card" id="nf-detail">
-      <div class="bar">
-        <h2 class="nfd-title">Pick a defense</h2>
-        <div class="seg nf-pos" role="group" aria-label="Position"><button data-v="G">Guards</button><button data-v="F">Forwards</button><button data-v="C">Centers</button></div>
+  
+      <div class="card" id="nf-detail">
+        <div class="bar">
+          <h2 class="nfd-title">Pick a defense</h2>
+          <div class="seg nf-pos" role="group" aria-label="Position"><button data-v="G">Guards</button><button data-v="F">Forwards</button><button data-v="C">Centers</button></div>
+        </div>
+        <p class="note nfd-note"></p>
+        <div class="chart nfd-chart"></div>
+        <h3>Game logs against them this season</h3>
+        <p class="note">Every player at the position who played against them. Tap a player to open his outlook below.</p>
+        <div class="scroll" style="max-height: 28rem"><table class="t-nfdlog"><thead></thead><tbody></tbody></table></div>
       </div>
-      <p class="note nfd-note"></p>
-      <div class="chart nfd-chart"></div>
-      <h3>Game logs against them this season</h3>
-      <p class="note">Every player at the position who played against them. Tap a player to open his outlook below.</p>
-      <div class="scroll" style="max-height: 28rem"><table class="t-nfdlog"><thead></thead><tbody></tbody></table></div>
     </div>
 
     <div class="card" id="nf-player">
@@ -852,25 +875,27 @@
     </div>
 
     <div class="stack xg-panel" data-xg="totals" hidden>
-      <div class="card">
-        <h2>Total projection</h2>
-        <p class="note xgt-note"></p>
-        <div class="stats xgt-tiles"></div>
-        <h3>What moves this total</h3>
-        <ul class="edges xgt-edges"></ul>
-      </div>
-      <div class="card">
-        <div class="bar">
-          <h2>Over/under profile</h2>
-          <div class="seg xgt-seas" role="group" aria-label="Season"><button data-v="cur">This season</button><button data-v="prev">Last season</button><button data-v="both">Both</button></div>
+      <div class="joined">
+        <div class="card">
+          <h2>Total projection</h2>
+          <p class="note xgt-note"></p>
+          <div class="stats xgt-tiles"></div>
+          <h3>What moves this total</h3>
+          <ul class="edges xgt-edges"></ul>
         </div>
-        <p class="note">Ratings are points per 100 possessions and possessions per 40 minutes, adjusted for opponent and home court (rank among all D1 teams; 1 = fastest tempo, best offense, best defense). Over/under numbers use each game's closing total.</p>
-        <div class="scroll" style="max-height: none"><table class="cmp xgt-cmp"><thead></thead><tbody></tbody></table></div>
-      </div>
-      <div class="card">
-        <h2>Recent game totals</h2>
-        <p class="note">Each team's latest games (newest first). Vs total = how far the final total landed over (+) or under (−) the closing total. Tempo = possessions per 40 minutes.</p>
-        <div class="xgt-recent"></div>
+        <div class="card">
+          <div class="bar">
+            <h2>Over/under profile</h2>
+            <div class="seg xgt-seas" role="group" aria-label="Season"><button data-v="cur">This season</button><button data-v="prev">Last season</button><button data-v="both">Both</button></div>
+          </div>
+          <p class="note">Ratings are points per 100 possessions and possessions per 40 minutes, adjusted for opponent and home court (rank among all D1 teams; 1 = fastest tempo, best offense, best defense). Over/under numbers use each game's closing total.</p>
+          <div class="scroll" style="max-height: none"><table class="cmp xgt-cmp"><thead></thead><tbody></tbody></table></div>
+        </div>
+        <div class="card">
+          <h2>Recent game totals</h2>
+          <p class="note">Each team's latest games (newest first). Vs total = how far the final total landed over (+) or under (−) the closing total. Tempo = possessions per 40 minutes.</p>
+          <div class="xgt-recent"></div>
+        </div>
       </div>
       <div class="card">
         <h2>Head to head</h2>
@@ -897,22 +922,24 @@
 
   <!-- ================= CBB TOTALS ================= -->
   <section class="view stack" data-view="totals" hidden>
-    <div class="card">
-      <div class="bar">
-        <h2>Over/under board</h2>
-        <div class="controls"><div class="seg ot-top" role="group" aria-label="Which games"><button data-v="all">All D1</button><button data-v="line">Has a total</button><button data-v="top">Top 25</button></div></div>
+    <div class="joined">
+      <div class="card">
+        <div class="bar">
+          <h2>Over/under board</h2>
+          <div class="controls"><div class="seg ot-top" role="group" aria-label="Which games"><button data-v="all">All D1</button><button data-v="line">Has a total</button><button data-v="top">Top 25</button></div></div>
+        </div>
+        <div class="subnav h-days ot-days" role="group" aria-label="Game day"></div>
+        <div class="stats ot-tiles"></div>
+        <div class="scroll"><table class="ot-board dvp"><thead></thead><tbody></tbody></table></div>
+        <p class="note ot-note"></p>
       </div>
-      <div class="subnav h-days ot-days" role="group" aria-label="Game day"></div>
-      <div class="stats ot-tiles"></div>
-      <div class="scroll"><table class="ot-board dvp"><thead></thead><tbody></tbody></table></div>
-      <p class="note ot-note"></p>
-    </div>
-    <div class="card">
-      <div class="bar">
-        <h2>Model track record</h2>
+      <div class="card">
+        <div class="bar">
+          <h2>Model track record</h2>
+        </div>
+        <p class="note">Every finished game that had both a posted total and a model projection before tip. Lean = the side of the total the projection was on.</p>
+        <div class="stats ot-rec"></div>
       </div>
-      <p class="note">Every finished game that had both a posted total and a model projection before tip. Lean = the side of the total the projection was on.</p>
-      <div class="stats ot-rec"></div>
     </div>
     <div class="card">
       <div class="bar">
