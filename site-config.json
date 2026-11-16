@@ -28,6 +28,10 @@
     {
       "from": "182 NFL WRs ranked by projection minus your line (56.5 rec yds). Type your book's line to recheck. \"Over\" columns count games above the line. Opp rank: 1 = the defense that allows the least to WRs (red), last = allows the most (green). Tap a player for his full log.",
       "to": "NFL WRs ranked by projection minus your line (56.5 rec yds). Type your book's line to recheck. \"Over\" columns count games above the line."
+    },
+    {
+      "from": "565 players. Source: Sleeper's injury data (checked every hour; Sleeper's news team updates it as reports come out) Entries from your data/manual.csv are included and win over the feed.",
+      "to": "Source: Sleeper's injury data (checked every hour)."
     }
   ],
   "cols": {},
