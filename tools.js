@@ -273,7 +273,7 @@ function renderScreener() {
   const posNote = sp === 'nfl' ? 'NFL' : T_SPNAME[sp];
   tRC(root, 
     h('div', { class: 't-controls' }, posSeg, h('label', { class: 't-lab' }, 'Stat', statSel), h('label', { class: 't-lab' }, 'Line', lineIn), teamSel, minG, search, onlyNext),
-    h('p', { class: 'note' }, `${rows.length} ${posNote} ${c.pos}s ranked by projection minus your line (${line} ${tLow(tStatLabel(sp, c.stat))}). Type your book's line to recheck. "Over" columns count games above the line. Opp rank: 1 = the defense that allows the least to ${c.pos}s (red), last = allows the most (green). Tap a player for his full log.`),
+    h('p', { class: 'note' }, `${posNote} ${c.pos}s ranked by projection minus your line (${line} ${tLow(tStatLabel(sp, c.stat))}). Type your book's line to recheck. "Over" columns count games above the line.`),
     h('div', { class: 'scroll', style: 'max-height: none' }, tb.el),
     tb.total > tb.shown ? h('button', { type: 'button', class: 'more', onclick: () => { c.limit += 50; render(); } }, `Show more (${tb.total - tb.shown} left)`) : null);
 }
@@ -463,16 +463,16 @@ function renderInjuries() {
   if (rows.some((r) => r.comment)) cols.push({ k: 'comment', label: 'Notes', l: true, fmt: (r) => r.comment || '' });
   cols.push({ k: 'updated', label: 'Updated', l: true, sv: (r) => r.updated, fmt: (r) => tWhen(r.updated) });
   const tb = tTable(`inj-${sp}`, cols, list, { sort: { k: 'updated', dir: 'desc' }, onClick: (r) => { if (sp === 'nfl' && r.player_id && IDX.logs.has(r.player_id)) tOpenPlayer(sp, r.player_id); else if (r.pid) tOpenPlayer(sp, r.pid); } });
-  const src = sp === 'nfl' ? 'Sleeper\'s injury data (checked every hour; Sleeper\'s news team updates it as reports come out)'
-    : sp === 'nba' ? 'the NBA\'s official injury report (checked every hour; the league posts a new one every 15 minutes on game days). Players cleared to play or on G League assignment are left out.'
-      : 'box scores: there is no reliable public college injury feed, so this lists regular players who have not appeared in their team\'s recent games. Conference availability reports exist but are posted in different formats per conference, so they are not pulled in yet.';
+  const src = sp === 'nfl' ? 'Sleeper\'s injury data (checked every hour).'
+    : sp === 'nba' ? 'the NBA\'s official injury report (checked every hour).'
+      : 'box scores (regular players who missed recent games; there\'s no public college injury feed).';
   const tabBar = h('div', { class: 'subnav t-tabs', role: 'tablist' }, ...tabs.map((t) => h('button', { type: 'button', 'aria-current': String(t === st.tab), onclick: () => { st.tab = t; render(); } }, `${t} `, h('small', null, String(count(t))))));
   tRC(root, tabBar,
     h('div', { class: 't-controls' },
       h('select', { 'aria-label': 'Status', onchange: (e) => { st.status = e.target.value; render(); } }, ...statuses.map(([k, l]) => h('option', { value: k, selected: k === st.status }, l))),
       h('select', { 'aria-label': 'Team', onchange: (e) => { st.team = e.target.value; render(); } }, h('option', { value: '' }, 'All teams'), ...teams.map((t) => h('option', { value: t, selected: t === st.team }, isBB(sp) || sp === 'cfb' ? (TI(t).name || t) : t))),
       h('input', { type: 'search', class: 't-search', placeholder: 'Find a player or injury…', value: st.q, 'aria-label': 'Search', onchange: (e) => { st.q = e.target.value; render(); } })),
-    h('p', { class: 'note' }, `${list.length} players. Source: ${src} Entries from your data/manual.csv are included and win over the feed.`),
+    h('p', { class: 'note' }, `Source: ${src}`),
     !ready ? h('p', { class: 'empty' }, 'Loading…') : list.length ? h('div', { class: 'scroll', style: 'max-height: 70vh' }, tb.el) : h('p', { class: 'empty' }, 'Nobody on the list here.'));
 }
 function tWhen(u) {
@@ -492,7 +492,7 @@ const T_ICONS = {
 };
 const T_TOOLS = [
   { id: 'screener', title: 'Prop research screener', desc: 'Rank every player at any stat against your line: hit rates, projection, matchup and similar-defense results in one table.', cats: ['props', 'research'], route: 'screener', icon: 'filter', color: '#16a34a', featured: true },
-  { id: 'compare', title: 'Compare & start/sit', desc: 'Put 2 to 4 players side by side and get a start/sit call with the reasons behind it.', cats: ['fantasy', 'research'], route: 'compare', icon: 'compare', color: '#16a34a', featured: true },
+  { id: 'compare', title: 'Compare & Start/Sit', desc: 'Put 2 to 4 players side by side and get a start/sit call with the reasons behind it.', cats: ['fantasy', 'research'], route: 'compare', icon: 'compare', color: '#16a34a', featured: true },
   { id: 'injuries', title: 'Injury report', desc: 'Everyone on the injury report, by position, with status, injury and practice notes.', cats: ['injuries'], route: 'injuries', icon: 'cross', color: '#e11d48', featured: true },
   { id: 'games', title: 'Games & matchup research', desc: 'Every upcoming game with lines. Open a game for odds, defense vs position, players, usage and trends.', cats: ['research', 'props'], route: 'home', icon: 'games', color: '#2563eb', featured: true },
   { id: 'props', title: 'Player prop card', desc: 'One player against any line: hit rates, game log, history vs the opponent and how his position does against them.', cats: ['props', 'research'], route: 'stats/players', icon: 'player', color: '#7c3aed', sports: ['nfl'] },
