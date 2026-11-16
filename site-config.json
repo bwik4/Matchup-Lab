@@ -2,7 +2,11 @@
   "look": {
     "line": "#002e7a",
     "muted": "#000000",
-    "accent": "#002e7a"
+    "accent": "#0056d6",
+    "sideActive": "#0061ff",
+    "game": "#ffffff",
+    "tile": "#f9f9f9",
+    "sideStroke": 3.2
   },
   "siteName": "",
   "hidden": [],
@@ -19,5 +23,6 @@
     }
   ],
   "cols": {},
-  "buttons": []
+  "buttons": [],
+  "nav": []
 }
