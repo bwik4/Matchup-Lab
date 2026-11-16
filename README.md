@@ -88,8 +88,10 @@ Every defense vs position table marks a number with an orange `*` when one big g
 
 Click **Edit site** at the bottom of any page (or add `?edit` to the address). A panel opens:
 
+- **Clicking the page** (top of the panel): *Uses the site* (normal clicking), *Select & style*, or *Renames words*.
+- **Selected** (*Select & style* mode): click anything on the page (a title, a button, a tile, the time bar under each game, a whole box) and change just that kind of piece: background / text / border color, size, spacing, width, border, corners, see-through, bold, italic, ALL CAPS, line-up, move it earlier or later among its neighbours, or delete it. *Select the part around it* climbs out to the bigger piece. Changes hit every piece like it (outlined in light blue); tick *Only on this page* and/or *Only for NFL* to narrow that.
 - **Look**: site name, colors, fonts, text size, corner roundness, spacing, page width, and a few presets.
-- **Layout**: every box gets ↑ ↓ and Hide buttons in its corner. Hidden boxes, columns and tabs are listed here so you can bring them back.
+- **Layout**: every box gets ↑ ↓ and Hide buttons in its corner. Hidden boxes, columns, tabs, styled/deleted pieces and re-ordered parts are listed here so you can edit, undo or bring them back.
 - **Words**: turn on *Click to rename*, then click any title, tab, button, column header or note and type new words. Column headers and tab buttons can also be hidden from that popup. Turn it off to click around the site normally.
 - **Publish**: *Publish to GitHub* saves your changes for everyone (needs a GitHub key, steps are in the panel). *Download file* gives you `site-config.json` to upload to the repo by hand instead.
 

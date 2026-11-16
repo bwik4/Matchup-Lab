@@ -17,12 +17,15 @@
  *   cols      hidden table columns            { "<table>": ["Long rush", ...] }
  *   buttons   hidden tabs / menu buttons      ["gp-tabs|Usage share", "side-nav|Trends", ...]
  *   nav       side menu order                 ["home", "tools", ...]
+ *   styles    one piece's own look            [{ sp, area, base, label, css: { bg, fg, inner, border, bw, radius, zoom, weight, italic, caps, align, pad, mt, width, opacity, hide } }]
+ *   moves     order of pieces inside a part   [{ sp, area, base, label, flex, order: ["<child selector>", ...] }]
+ *             (sp = only for that sport, area = only on that page, base = which pieces; "Select & style" writes these)
  */
 (() => {
   'use strict';
   const LS_DRAFT = 'ml-site-draft', LS_TOKEN = 'ml-gh-token', LS_REPO = 'ml-gh-repo';
   const DEFAULT_REPO = 'bwik4/Matchup-Lab';
-  const BLANK = () => ({ look: {}, siteName: '', hidden: [], order: {}, text: [], cols: {}, buttons: [], nav: [] });
+  const BLANK = () => ({ look: {}, siteName: '', hidden: [], order: {}, text: [], cols: {}, buttons: [], nav: [], styles: [], moves: [] });
   // [key, label, CSS variable, group]
   const LOOK_FIELDS = [
     ['bg', 'Page background', '--bg', 'Backgrounds'], ['panel', 'Boxes', '--panel', 'Backgrounds'], ['game', 'Game cards', '--game', 'Backgrounds'],
@@ -49,7 +52,7 @@
   // ---------------- state ----------------
   let published = BLANK();   // what's in site-config.json on the site
   let cfg = BLANK();         // what's showing now (published, or your draft)
-  let editing = false, textMode = false, dirty = false;
+  let editing = false, textMode = false, pickMode = false, dirty = false;
   const base = {};           // the site's own CSS values, for reset buttons
   const clone = (o) => JSON.parse(JSON.stringify(o));
   const norm = (c) => ({ ...BLANK(), ...(c || {}), look: { ...((c && c.look) || {}) } });
@@ -200,14 +203,14 @@
   let applying = false;
   function applyAll() {
     applying = true;
-    try { applyLook(); applyLayout(); applyText(); applyCols(); if (editing) decorate(); } finally { applying = false; }
+    try { syncSport(); applyLook(); applyCustomCSS(); applyLayout(); applyText(); applyCols(); if (editing) decorate(); } finally { applying = false; }
   }
   // the site re-draws parts of the page all the time; re-apply column/text/layout rules after it does
   let queued = false;
   new MutationObserver(() => {
     if (applying || queued) return;
     queued = true;
-    requestAnimationFrame(() => { queued = false; applying = true; try { applyLayout(); applyText(); applyCols(); if (editing) decorate(); } finally { applying = false; } });
+    requestAnimationFrame(() => { queued = false; applying = true; try { syncSport(); applyLayout(); applyText(); applyCols(); if (editing) { decorate(); repick(); } } finally { applying = false; } });
   }).observe(document.body, { childList: true, subtree: true, characterData: true });
 
   // ---------------- edit-mode decorations on the page ----------------
@@ -215,7 +218,7 @@
     document.querySelectorAll('.card[data-ek], .grid[data-ek], .joined[data-ek]').forEach((b) => {
       if (b.querySelector(':scope > .ed-tools')) { b.querySelector(':scope > .ed-tools .ed-hidebtn').textContent = cfg.hidden.includes(b.dataset.ek) ? 'Show' : 'Hide'; return; }
       const isGrid = b.classList.contains('grid') || b.classList.contains('joined');
-      const tools = el('div', { class: `ed-ui ed-tools${isGrid ? ' ed-tools-grid' : ''}` },
+      const tools = el('ed-tools', { class: `ed-ui ed-tools${isGrid ? ' ed-tools-grid' : ''}` },
         el('span', { class: 'ed-name' }, b.classList.contains('joined') ? 'Group' : isGrid ? 'Row' : 'Box'),
         el('button', { type: 'button', title: 'Move up', onclick: (e) => { e.stopPropagation(); move(b, -1); } }, '↑'),
         el('button', { type: 'button', title: 'Move down', onclick: (e) => { e.stopPropagation(); move(b, 1); } }, '↓'),
@@ -223,7 +226,7 @@
       b.prepend(tools);
     });
   }
-  function undecorate() { document.querySelectorAll('.ed-tools').forEach((t) => t.remove()); closePop(); }
+  function undecorate() { document.querySelectorAll('.ed-tools').forEach((t) => t.remove()); closePop(); unpick(); }
   function move(block, dir) {
     const parent = block.parentElement, blocks = blocksOf(parent), i = blocks.indexOf(block), j = i + dir;
     if (j < 0 || j >= blocks.length) { flash(dir < 0 ? 'Already at the top of this area' : 'Already at the bottom of this area'); return; }
@@ -294,8 +297,326 @@
     input.focus(); input.select();
   }
 
+  // ---------------- "Select & style": click any piece, then style / move / delete just that kind of piece ----------------
+  // A piece is remembered by a selector built from the site's own class names (e.g. "div.gcard > div.gfoot"), so the change
+  // keeps working when the data updates and lands on every piece like it (every game's time bar), optionally only on one page
+  // and/or one sport.
+  const SPORTS = { nfl: 'NFL', nba: 'NBA', cfb: 'college football', cbb: 'college basketball' };
+  const SKIP_CLS = /^(ed-|click$|static$|active$|current$|on$|off$|sel$|selected$|win$|loss$|open$|show$|hidden$|is-|has-)/;
+  const ANCHOR = 'section[data-view], section[data-page], main > header, aside.side, main > footer';
+  const scope = { page: false, sport: false };
+  let picked = null, pickedSel = null, hoverEl = null;
+  function syncSport() {
+    let sp = null;
+    try { sp = typeof S !== 'undefined' && S && S.sport; } catch (e) { sp = null; } // S is the site's own state
+    if (sp && document.documentElement.dataset.sport !== sp) document.documentElement.dataset.sport = sp;
+  }
+  const curSport = () => document.documentElement.dataset.sport || '';
+  const q = (s) => JSON.stringify(String(s));
+  function anchorSel(a) {
+    if (!a) return '';
+    if (a.dataset.view) return `section[data-view=${q(a.dataset.view)}]`;
+    if (a.dataset.page) return `section[data-page=${q(a.dataset.page)}]`;
+    if (a.matches('aside.side')) return 'aside.side';
+    return a.matches('footer') ? 'main > footer' : 'main > header';
+  }
+  function tokOf(e) {
+    if (e.dataset && e.dataset.ek) return { t: `[data-ek=${q(e.dataset.ek)}]`, stop: true };
+    if (e.id && !/\d{3,}/.test(e.id)) return { t: `#${CSS.escape(e.id)}`, stop: true };
+    const tag = e.tagName.toLowerCase();
+    const cls = [...e.classList].filter((c) => !SKIP_CLS.test(c));
+    if (cls.length) return { t: tag + cls.map((c) => `.${CSS.escape(c)}`).join(''), classed: true };
+    const same = e.parentElement ? [...e.parentElement.children].filter((c) => c.tagName === e.tagName) : [e];
+    return { t: same.length > 1 ? `${tag}:nth-of-type(${same.indexOf(e) + 1})` : tag };
+  }
+  // -> { base, area } : base = the piece's own selector, area = its page's selector ('' if none)
+  function selFor(e) {
+    const anchor = e.closest(ANCHOR);
+    if (anchor === e) return { base: anchorSel(e), area: '' };
+    const parts = []; let cur = e, classed = 0, top = null;
+    while (cur && cur !== anchor && cur !== document.body && parts.length < 6) {
+      const k = tokOf(cur);
+      parts.unshift(k.t); top = k;
+      if (k.stop) break;
+      if (k.classed) classed++;
+      if (k.classed && classed >= 2) break;
+      cur = cur.parentElement;
+    }
+    let base = parts.join(' > ');
+    const area = anchor && anchor.matches('section') ? anchorSel(anchor) : '';
+    // nothing distinctive above it: tie it to its page so it doesn't hit every plain <div> on the site
+    if (top && !top.classed && !top.stop && anchor) base = `${anchorSel(anchor)} > ${base}`;
+    return { base, area };
+  }
+  const compose = (r, mid) => [r.sp ? `html[data-sport=${q(r.sp)}]` : '', mid || '', r.area && !r.base.startsWith(r.area) ? r.area : '', r.base].filter(Boolean).join(' ');
+  const keyOf = (r) => compose(r);
+  function target(e) {
+    const { base, area } = selFor(e);
+    return { base, area: scope.page ? area : '', sp: scope.sport ? curSport() : '' };
+  }
+  function describe(e) {
+    if (e.dataset.elabel) return e.dataset.elabel;
+    const KIND = { button: 'Button', table: 'Table', th: 'Column header', h1: 'Title', h2: 'Title', h3: 'Title', h4: 'Heading', h5: 'Heading', p: 'Text', small: 'Small text', svg: 'Icon', select: 'Dropdown', input: 'Input', label: 'Label', img: 'Image', a: 'Link', b: 'Bold text', span: 'Text', li: 'List item', ul: 'List' };
+    const t = ((e.children.length > 1 && e.innerText) || longestText(e) || '').replace(/\s+/g, ' ').trim();
+    const kind = KIND[e.tagName.toLowerCase()] || (e.children.length > 1 ? 'Section' : 'Piece');
+    return t ? `${kind} · "${t.length > 34 ? `${t.slice(0, 32)}…` : t}"` : kind;
+  }
+  function pickTarget(t) {
+    if (!t || !t.closest || t.closest('.ed-ui')) return null;
+    if (!t.closest('main, aside.side') || t === document.body) return null;
+    const svg = t.closest('svg'); if (svg) t = svg;
+    if (t.closest('td') || t.closest('tbody, tfoot')) t = t.closest('table');
+    if (t.tagName === 'TR' || t.tagName === 'THEAD') t = t.closest('table');
+    if (t.matches('main, main.ml')) return null;
+    return t;
+  }
+  function setHover(t) {
+    if (hoverEl === t) return;
+    if (hoverEl) hoverEl.classList.remove('ed-hov');
+    hoverEl = t;
+    if (t) t.classList.add('ed-hov');
+  }
+  function unpick() {
+    setHover(null);
+    document.querySelectorAll('.ed-picked, .ed-match').forEach((x) => x.classList.remove('ed-picked', 'ed-match'));
+    picked = null; pickedSel = null;
+  }
+  function highlight() {
+    document.querySelectorAll('.ed-picked, .ed-match').forEach((x) => x.classList.remove('ed-picked', 'ed-match'));
+    if (!picked || !picked.isConnected) return 0;
+    let all = [];
+    try { all = [...document.querySelectorAll(compose(target(picked)))]; } catch (e) { all = [picked]; }
+    all.forEach((x) => x.classList.add(x === picked ? 'ed-picked' : 'ed-match'));
+    pickedSel = compose(target(picked));
+    return all.length;
+  }
+  function select(t) {
+    picked = t;
+    // already styled under some scope? show that one
+    const { base } = selFor(t);
+    const prior = (cfg.styles || []).concat(cfg.moves || []).find((r) => r.base === base && (!r.sp || r.sp === curSport()));
+    if (prior) { scope.page = !!prior.area; scope.sport = !!prior.sp; }
+    highlight();
+    tab = 'pick'; drawPanel();
+    if (panel) panel.classList.remove('ed-small');
+  }
+  function repick() { // the site re-drew the page: find the same kind of piece again
+    if (!picked || picked.isConnected) { if (picked) highlight(); return; }
+    let n = null;
+    try { n = pickedSel && document.querySelector(pickedSel); } catch (e) { n = null; }
+    picked = n;
+    if (picked) highlight(); else if (tab === 'pick') drawPanel();
+  }
+  document.addEventListener('mouseover', (e) => { if (editing && pickMode) setHover(pickTarget(e.target)); }, true);
+  document.addEventListener('mouseout', (e) => { if (editing && pickMode && !e.relatedTarget) setHover(null); }, true);
+  ['mousedown', 'pointerdown'].forEach((ev) => document.addEventListener(ev, (e) => {
+    if (editing && pickMode && pickTarget(e.target)) { e.preventDefault(); }
+  }, true));
+  document.addEventListener('click', (e) => {
+    if (!editing || !pickMode) return;
+    const t = pickTarget(e.target);
+    if (!t) return;
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+    select(t);
+  }, true);
+
+  // ---- per-piece styles ----
+  function ruleFor(make) {
+    const t = target(picked), k = keyOf(t);
+    let r = (cfg.styles || []).find((x) => keyOf(x) === k);
+    if (!r && make) { r = { ...t, label: describe(picked), css: {} }; cfg.styles = [...(cfg.styles || []), r]; }
+    return r;
+  }
+  function setCss(prop, v, live) {
+    const r = ruleFor(true);
+    if (v == null || v === '' || v === false) delete r.css[prop]; else r.css[prop] = v;
+    if (!Object.keys(r.css).length) cfg.styles = cfg.styles.filter((x) => x !== r);
+    if (live) { dirty = true; applyCustomCSS(); } else changed();
+  }
+  const JUST = { left: 'flex-start', center: 'center', right: 'flex-end' };
+  function cssFor(r) {
+    const c = r.css || {}, d = [], S1 = compose(r);
+    if (c.bg) d.push(`background:${c.bg}`);
+    if (c.fg) d.push(`color:${c.fg}`);
+    if (c.border) d.push(`border-color:${c.border}`);
+    if (c.bw != null) d.push(`border-width:${c.bw}px`, 'border-style:solid');
+    if (c.radius != null) d.push(`border-radius:${c.radius}px`);
+    if (c.zoom) d.push(`zoom:${c.zoom / 100}`);
+    if (c.weight) d.push(`font-weight:${c.weight}`);
+    if (c.italic) d.push('font-style:italic');
+    if (c.caps) d.push('text-transform:uppercase', 'letter-spacing:.03em');
+    if (c.align) d.push(`text-align:${c.align}`, `justify-content:${JUST[c.align]}`);
+    if (c.pad != null) d.push(`padding:${c.pad}px`);
+    if (c.mt != null) d.push(`margin-top:${c.mt}px`);
+    if (c.width) d.push(`width:${c.width}%`, 'box-sizing:border-box');
+    if (c.opacity != null) d.push(`opacity:${c.opacity / 100}`);
+    let inner = '', own = '';
+    if (c.fg && c.inner !== false) inner = `${S1} :where(:not(.badge, .badge *)) { color: ${c.fg} !important; }\n`;
+    if (d.length) own = `${S1} { ${d.map((x) => `${x} !important`).join('; ')}; }\n`;
+    if (c.hide) own += `${compose(r, 'body:not(.ed-on)')} { display: none !important; }\n${compose(r, 'body.ed-on')} { opacity: .35 !important; outline: 2px dashed #94a3b8 !important; }\n`;
+    return [inner, own];
+  }
+  function movesCSS(m) {
+    const P = compose(m);
+    let s = m.flex ? `${P} { display: flex !important; flex-direction: column !important; }\n` : '';
+    m.order.forEach((tk, i) => { s += `${P} > ${tk} { order: ${i} !important; }\n`; });
+    return s;
+  }
+  let styleTag = null;
+  function applyCustomCSS() {
+    if (!styleTag) { styleTag = el('style', { id: 'ed-custom' }); document.head.append(styleTag); }
+    const parts = (cfg.styles || []).map(cssFor);
+    // text colors that flow into a piece go first, so a smaller piece's own color still wins
+    const txt = parts.map((p) => p[0]).join('') + parts.map((p) => p[1]).join('') + (cfg.moves || []).map(movesCSS).join('');
+    if (styleTag.textContent !== txt) styleTag.textContent = txt;
+  }
+
+  // ---- moving a piece among its neighbours ----
+  function childTok(c, par) {
+    const k = tokOf(c);
+    if (k.stop) return k.t;
+    if (k.classed && [...par.children].filter((x) => x.matches(k.t)).length === 1) return k.t;
+    const same = [...par.children].filter((x) => x.tagName === c.tagName);
+    return `${c.tagName.toLowerCase()}:nth-of-type(${same.indexOf(c) + 1})`;
+  }
+  const realKids = (par) => [...par.children].filter((c) => !c.matches('.ed-ui, script, style, template, link'));
+  function canArrange(e) {
+    const par = e && e.parentElement;
+    if (!par || par === document.body || par.matches('main.ml')) return 'This can\'t move. Select the bigger part around it.';
+    const kids = realKids(par).filter((c) => getComputedStyle(c).display !== 'none');
+    if (kids.length < 2) return 'Nothing next to it to swap with. Click "Select the part around it" and move that instead.';
+    const d = getComputedStyle(par).display;
+    if (/flex|grid/.test(d)) return '';
+    if (!/^(block|list-item|flow-root)$/.test(d)) return 'This sits inside a table or a line of text, so it can\'t move on its own.';
+    const inlineKid = kids.some((c) => /^inline/.test(getComputedStyle(c).display));
+    const text = [...par.childNodes].some((n) => n.nodeType === 3 && n.nodeValue.trim());
+    return inlineKid || text ? 'This sits inside a line of text, so it can\'t move on its own. Select the part around it instead.' : '';
+  }
+  function arrange(dir) {
+    const e = picked, par = e.parentElement;
+    const why = canArrange(e);
+    if (why) { flash(why); return; }
+    const t = target(par), k = keyOf(t);
+    let m = (cfg.moves || []).find((x) => keyOf(x) === k);
+    // boxes keep using the simple box order unless this area already has a custom order
+    if (!m && e.dataset.ek && (dir === -1 || dir === 1)) { move(e, dir); return; }
+    const kids = realKids(par);
+    const ord = (c) => { const o = parseInt(getComputedStyle(c).order, 10) || 0; return o * 1e4 + kids.indexOf(c); };
+    const vis = kids.slice().sort((a, b) => ord(a) - ord(b));
+    const shown = vis.filter((c) => c === e || getComputedStyle(c).display !== 'none');
+    let i = shown.indexOf(e), j = dir === 'first' ? 0 : dir === 'last' ? shown.length - 1 : i + dir;
+    if (j < 0 || j >= shown.length || j === i) { flash(j <= 0 && dir !== 'last' ? 'Already first' : 'Already last'); return; }
+    shown.splice(i, 1); shown.splice(j, 0, e);
+    // put hidden kids back where they were
+    const full = []; let si = 0;
+    vis.forEach((c) => { full.push(c === e || getComputedStyle(c).display !== 'none' ? shown[si++] : c); });
+    const toks = full.map((c) => childTok(c, par));
+    if (!m) {
+      m = { ...t, label: describe(par), flex: !/flex|grid/.test(getComputedStyle(par).display), order: [] };
+      cfg.moves = [...(cfg.moves || []), m];
+    }
+    m.order = toks;
+    changed();
+  }
+
+  // ---- the "Selected" tab ----
+  function colorOf(e, prop) {
+    let v = getComputedStyle(e)[prop];
+    if (prop === 'backgroundColor') { let p = e; while (p && /rgba\(0, 0, 0, 0\)|transparent/.test(v)) { p = p.parentElement; v = p ? getComputedStyle(p).backgroundColor : '#ffffff'; } }
+    return toHex(v);
+  }
+  function pickColor(label, prop, cssProp) {
+    const r = ruleFor(false), cur = r && r.css[prop];
+    return el('label', { class: 'ed-field' }, el('span', null, label),
+      el('span', { class: 'ed-row' },
+        el('input', { type: 'color', value: cur || colorOf(picked, cssProp), oninput: (e) => setCss(prop, e.target.value, true), onchange: (e) => setCss(prop, e.target.value) }),
+        cur ? el('button', { type: 'button', class: 'ed-mini', onclick: () => setCss(prop, null) }, 'Reset') : null));
+  }
+  function pickSlider(label, prop, min, max, step, unit, def) {
+    const r = ruleFor(false), cur = r && r.css[prop];
+    const out = el('b', null, cur != null ? `${cur}${unit}` : 'original');
+    return el('label', { class: 'ed-field' }, el('span', null, label, ' ', out),
+      el('span', { class: 'ed-row' },
+        el('input', { type: 'range', min, max, step, value: cur ?? def, oninput: (e) => { out.textContent = `${e.target.value}${unit}`; setCss(prop, Number(e.target.value), true); }, onchange: (e) => setCss(prop, Number(e.target.value)) }),
+        cur != null ? el('button', { type: 'button', class: 'ed-mini', onclick: () => setCss(prop, null) }, 'Reset') : null));
+  }
+  function pickSelect(label, prop, opts) {
+    const r = ruleFor(false), cur = (r && r.css[prop]) || '';
+    return el('label', { class: 'ed-field' }, el('span', null, label),
+      el('select', { onchange: (e) => setCss(prop, e.target.value || null) }, ...opts.map(([v, l]) => el('option', { value: v, selected: cur === v }, l))));
+  }
+  function pickCheck(label, prop, on) {
+    const r = ruleFor(false), cur = r ? r.css[prop] : undefined;
+    return el('label', { class: 'ed-check' }, el('input', { type: 'checkbox', checked: cur == null ? !!on : !!cur, onchange: (e) => setCss(prop, e.target.checked === !!on ? null : e.target.checked) }), el('span', null, label));
+  }
+  function pickTab() {
+    const help = el('p', { class: 'ed-help' }, 'Pick "Select & style" at the top, then click anything on the page: a title, a button, the time bar under a game, a whole box. Its own colors, size, spacing, order and delete controls show up here.');
+    if (!picked || !picked.isConnected) return [help, picked === null && pickedSel ? el('p', { class: 'ed-dim' }, 'The piece you picked isn\'t on this screen anymore.') : null];
+    const n = highlight();
+    const t = target(picked), r = ruleFor(false), c = (r && r.css) || {};
+    const sp = curSport(), pg = picked.closest('section[data-view], section[data-page]');
+    const isBox = !!picked.dataset.ek, boxHidden = isBox && cfg.hidden.includes(picked.dataset.ek);
+    const why = canArrange(picked);
+    const up = picked.parentElement && !picked.parentElement.matches('main.ml, body') ? picked.parentElement : null;
+    const sameCount = n > 1 ? `Changes ${n} pieces like it on this screen (outlined in light blue)` : 'Changes this piece';
+    return [
+      el('div', { class: 'ed-picked-name' }, el('b', null, describe(picked))),
+      el('div', { class: 'ed-row ed-wrap' },
+        up ? el('button', { type: 'button', onclick: () => select(pickTarget(up) || up) }, '⤒ Select the part around it') : null,
+        el('button', { type: 'button', onclick: () => { unpick(); drawPanel(); } }, 'Deselect')),
+      el('h4', null, 'Where this change applies'),
+      el('p', { class: 'ed-dim' }, `${sameCount}${t.sp || t.area ? '' : ', on every page and sport where it appears'}.`),
+      pg ? el('label', { class: 'ed-check' }, el('input', { type: 'checkbox', checked: scope.page, onchange: (e) => { scope.page = e.target.checked; drawPanel(); } }), el('span', null, `Only on this page (${pg.dataset.view || pg.dataset.page})`)) : null,
+      sp ? el('label', { class: 'ed-check' }, el('input', { type: 'checkbox', checked: scope.sport, onchange: (e) => { scope.sport = e.target.checked; drawPanel(); } }), el('span', null, `Only for ${SPORTS[sp] || sp}`)) : null,
+      el('h4', null, 'Colors'),
+      el('div', { class: 'ed-grid2' }, pickColor('Background', 'bg', 'backgroundColor'), pickColor('Text', 'fg', 'color'), pickColor('Border', 'border', 'borderTopColor')),
+      c.fg ? pickCheck('Text color also changes the words inside it', 'inner', true) : null,
+      el('h4', null, 'Size & shape'),
+      pickSlider('Size (everything inside)', 'zoom', 50, 200, 5, '%', 100),
+      pickSlider('Space inside', 'pad', 0, 40, 1, 'px', parseInt(getComputedStyle(picked).paddingTop, 10) || 0),
+      pickSlider('Space above', 'mt', -20, 60, 1, 'px', parseInt(getComputedStyle(picked).marginTop, 10) || 0),
+      pickSlider('Width', 'width', 10, 100, 5, '%', 100),
+      pickSlider('Border thickness', 'bw', 0, 6, 1, 'px', parseInt(getComputedStyle(picked).borderTopWidth, 10) || 0),
+      pickSlider('Corner roundness', 'radius', 0, 30, 1, 'px', parseInt(getComputedStyle(picked).borderTopLeftRadius, 10) || 0),
+      pickSlider('See-through', 'opacity', 10, 100, 5, '%', 100),
+      el('h4', null, 'Text'),
+      el('div', { class: 'ed-grid2' },
+        pickSelect('Weight', 'weight', [['', 'Original'], ['400', 'Normal'], ['600', 'Semi-bold'], ['800', 'Bold']]),
+        pickSelect('Line up', 'align', [['', 'Original'], ['left', 'Left'], ['center', 'Center'], ['right', 'Right']])),
+      el('div', { class: 'ed-row ed-wrap' }, pickCheck('Italic', 'italic'), pickCheck('ALL CAPS', 'caps')),
+      el('h4', null, 'Move'),
+      why ? el('p', { class: 'ed-dim' }, why) : el('div', { class: 'ed-row ed-wrap' },
+        el('button', { type: 'button', title: 'Move to the start', onclick: () => arrange('first') }, '⇤ First'),
+        el('button', { type: 'button', title: 'Move up / left', onclick: () => arrange(-1) }, '↑ Earlier'),
+        el('button', { type: 'button', title: 'Move down / right', onclick: () => arrange(1) }, '↓ Later'),
+        el('button', { type: 'button', title: 'Move to the end', onclick: () => arrange('last') }, 'Last ⇥')),
+      el('h4', null, 'Delete'),
+      el('div', { class: 'ed-row ed-wrap' },
+        isBox ? el('button', { type: 'button', class: boxHidden ? '' : 'ed-danger', onclick: () => toggleHide(picked.dataset.ek) }, boxHidden ? 'Bring it back' : 'Delete this box')
+          : el('button', { type: 'button', class: c.hide ? '' : 'ed-danger', onclick: () => setCss('hide', c.hide ? null : true) }, c.hide ? 'Bring it back' : (n > 1 ? `Delete all ${n}` : 'Delete it')),
+        r ? el('button', { type: 'button', onclick: () => { cfg.styles = cfg.styles.filter((x) => x !== r); changed(); } }, 'Undo all changes to this') : null),
+      el('p', { class: 'ed-dim' }, 'Deleted pieces stay faded while you edit so you can bring them back. Everything is also listed under Layout.'),
+    ];
+  }
+  function findOnScreen(r) {
+    let n = null;
+    try { n = document.querySelector(compose(r)); } catch (e) { n = null; }
+    if (!n) { flash('That piece isn\'t on this screen. Go to the page it\'s on first.'); return; }
+    scope.page = !!r.area; scope.sport = !!r.sp;
+    setMode('pick'); select(n);
+    n.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+  function setMode(m) {
+    textMode = m === 'text'; pickMode = m === 'pick';
+    document.body.classList.toggle('ed-textmode', textMode);
+    document.body.classList.toggle('ed-pickmode', pickMode);
+    closePop(); setHover(null);
+    if (pickMode) tab = 'pick';
+    drawPanel();
+  }
+
   // ---------------- the edit panel ----------------
-  let panel = null, tab = 'look';
+  let panel = null, tab = 'pick';
   function changed() {
     dirty = true;
     try { localStorage.setItem(LS_DRAFT, JSON.stringify(cfg)); } catch (e) { /* storage off */ }
@@ -350,16 +671,26 @@
     ['Sportsbook', { bg: '#0b1220', panel: '#121b2e', fg: '#eef2f8', muted: '#97a3b8', line: '#22304a', accent: '#22c55e', ok: '#22c55e', bad: '#f05252', font: 'barlow', headFont: 'oswald' }],
     ['Illini', { bg: '#f4f5f7', panel: '#ffffff', fg: '#13294b', muted: '#5b6782', line: '#d5dae3', accent: '#e84a27', headFont: 'montserrat' }],
   ];
+  const scopeTxt = (r) => [r.area ? `only on ${r.area.match(/"([^"]+)"/)[1]}` : '', r.sp ? `only ${SPORTS[r.sp] || r.sp}` : ''].filter(Boolean).join(', ') || 'everywhere';
   function nameOf(k) { const b = document.querySelector(`[data-ek="${CSS.escape(k)}"]`); return b ? `${b.dataset.elabel} (${k.split('/')[0]})` : k; }
   function layoutTab() {
     const hid = cfg.hidden, cols = Object.entries(cfg.cols).flatMap(([t, a]) => (a || []).map((c) => [t, c]));
     return [
-      el('p', { class: 'ed-help' }, 'Every box (and row of boxes) now has ↑ ↓ and Hide buttons in its top corner. Hidden boxes stay faded while you edit so you can bring them back. With "Click to rename" on, clicking a column header or a tab/menu button also lets you hide it. Columns whose name includes a team (like "NE D allows") only hide on that game.'),
+      el('p', { class: 'ed-help' }, 'To change, move or delete any single piece (a title, a button, the time bar under each game…), switch to "Select & style" and click it. Every box (and row of boxes) also has ↑ ↓ and Hide buttons in its top corner. Hidden boxes stay faded while you edit so you can bring them back. With "Click to rename" on, clicking a column header or a tab/menu button also lets you hide it. Columns whose name includes a team (like "NE D allows") only hide on that game.'),
       el('h4', null, `Hidden boxes (${hid.length})`),
       hid.length ? el('ul', { class: 'ed-list' }, ...hid.map((k) => el('li', null, el('span', null, nameOf(k)), el('button', { type: 'button', class: 'ed-mini', onclick: () => toggleHide(k) }, 'Show')))) : el('p', { class: 'ed-dim' }, 'None'),
       el('h4', null, `Hidden columns (${cols.length})`),
       cols.length ? el('ul', { class: 'ed-list' }, ...cols.map(([t, c]) => el('li', null, el('span', null, `${c} `, el('small', { class: 'ed-dim' }, t)),
         el('button', { type: 'button', class: 'ed-mini', onclick: () => { cfg.cols[t] = cfg.cols[t].filter((x) => x !== c); if (!cfg.cols[t].length) delete cfg.cols[t]; changed(); } }, 'Show')))) : el('p', { class: 'ed-dim' }, 'None'),
+      el('h4', null, `Styled & deleted pieces (${(cfg.styles || []).length})`),
+      (cfg.styles || []).length ? el('ul', { class: 'ed-list' }, ...cfg.styles.map((r) => el('li', null,
+        el('span', null, r.css.hide ? el('s', null, r.label) : r.label, ' ', el('small', { class: 'ed-dim' }, scopeTxt(r))),
+        el('span', { class: 'ed-row' }, el('button', { type: 'button', class: 'ed-mini', onclick: () => findOnScreen(r) }, 'Edit'),
+          el('button', { type: 'button', class: 'ed-mini', onclick: () => { cfg.styles = cfg.styles.filter((x) => x !== r); changed(); } }, 'Undo'))))) : el('p', { class: 'ed-dim' }, 'None'),
+      el('h4', null, `Re-ordered parts (${(cfg.moves || []).length})`),
+      (cfg.moves || []).length ? el('ul', { class: 'ed-list' }, ...cfg.moves.map((m) => el('li', null,
+        el('span', null, `Inside ${m.label} `, el('small', { class: 'ed-dim' }, scopeTxt(m))),
+        el('button', { type: 'button', class: 'ed-mini', onclick: () => { cfg.moves = cfg.moves.filter((x) => x !== m); changed(); } }, 'Undo')))) : el('p', { class: 'ed-dim' }, 'None'),
       el('h4', null, 'Side menu'),
       el('p', { class: 'ed-help' }, 'Move items up or down, or hide them. (Some only show for certain sports.) Rename them with "Click to rename".'),
       el('ul', { class: 'ed-list' }, ...navButtons().map((b, i, all) => {
@@ -374,7 +705,8 @@
       (cfg.buttons || []).length ? el('ul', { class: 'ed-list' }, ...cfg.buttons.map((k) => el('li', null, el('span', null, `${k.split('|')[1]} `, el('small', { class: 'ed-dim' }, k.split('|')[0])),
         el('button', { type: 'button', class: 'ed-mini', onclick: () => { cfg.buttons = cfg.buttons.filter((x) => x !== k); changed(); } }, 'Show')))) : el('p', { class: 'ed-dim' }, 'None'),
       el('div', { class: 'ed-row ed-wrap' }, el('button', { type: 'button', onclick: () => { cfg.order = {}; cfg.nav = []; changed(); location.reload(); } }, 'Reset box & menu order'),
-        el('button', { type: 'button', onclick: () => { cfg.hidden = []; cfg.cols = {}; cfg.buttons = []; changed(); } }, 'Show everything')),
+        el('button', { type: 'button', onclick: () => { cfg.hidden = []; cfg.cols = {}; cfg.buttons = []; cfg.styles = (cfg.styles || []).map((r) => ({ ...r, css: { ...r.css, hide: undefined } })).filter((r) => Object.values(r.css).some((v) => v != null)); changed(); } }, 'Show everything'),
+        el('button', { type: 'button', onclick: () => { cfg.styles = []; cfg.moves = []; changed(); } }, 'Undo all piece styles & moves')),
     ];
   }
   function textTab() {
@@ -430,22 +762,23 @@
   const confirmBox = (msg) => window.confirm(msg); // only on explicit "discard"
   function drawPanel() {
     if (!panel) return;
-    const body = { look: lookTab, layout: layoutTab, text: textTab, save: saveTab }[tab]();
+    const body = { pick: pickTab, look: lookTab, layout: layoutTab, text: textTab, save: saveTab }[tab]();
     const unpub = JSON.stringify(cfg) !== JSON.stringify(published);
     panel.replaceChildren(
       el('div', { class: 'ed-head' }, el('b', null, 'Edit site'), unpub ? el('span', { class: 'ed-dot', title: 'Unpublished changes' }, '● not published') : null,
         el('button', { type: 'button', class: 'ed-min', title: 'Shrink', onclick: () => panel.classList.toggle('ed-small') }, '–'),
         el('button', { type: 'button', class: 'ed-x', title: 'Done editing', onclick: () => setEditing(false) }, 'Done')),
-      el('label', { class: 'ed-toggle' }, el('input', { type: 'checkbox', checked: textMode, onchange: (e) => { textMode = e.target.checked; document.body.classList.toggle('ed-textmode', textMode); closePop(); } }),
-        el('span', null, 'Click to rename ', el('small', { class: 'ed-dim' }, '(turn off to use the site normally)'))),
-      el('div', { class: 'ed-tabs', role: 'tablist' }, ...[['look', 'Look'], ['layout', 'Layout'], ['text', 'Words'], ['save', unpub ? 'Publish ●' : 'Publish']].map(([k, l]) =>
+      el('div', { class: 'ed-toggle ed-modes', role: 'group', 'aria-label': 'What clicking the page does' }, el('span', { class: 'ed-dim' }, 'Clicking the page:'),
+        ...[['browse', 'Uses the site'], ['pick', 'Select & style'], ['text', 'Renames words']].map(([m, l]) =>
+          el('button', { type: 'button', 'aria-pressed': String(m === (pickMode ? 'pick' : textMode ? 'text' : 'browse')), onclick: () => setMode(m) }, l))),
+      el('div', { class: 'ed-tabs', role: 'tablist' }, ...[['pick', 'Selected'], ['look', 'Look'], ['layout', 'Layout'], ['text', 'Words'], ['save', unpub ? 'Publish ●' : 'Publish']].map(([k, l]) =>
         el('button', { type: 'button', 'aria-pressed': String(tab === k), onclick: () => { tab = k; drawPanel(); } }, l))),
       el('div', { class: 'ed-body' }, ...body));
   }
   function setEditing(on) {
     editing = on;
     document.body.classList.toggle('ed-on', on);
-    if (!on) { textMode = false; document.body.classList.remove('ed-textmode'); }
+    if (!on) { textMode = false; pickMode = false; document.body.classList.remove('ed-textmode', 'ed-pickmode'); }
     if (on) {
       if (!panel) { panel = el('div', { class: 'ed-ui ed-panel', role: 'dialog', 'aria-label': 'Edit site' }); document.body.append(panel); }
       decorate(); drawPanel();
@@ -459,7 +792,9 @@
   // ---------------- publish / download ----------------
   const out = () => JSON.stringify(clean(cfg), null, 2) + '\n';
   function clean(c) {
-    const o = { look: {}, siteName: c.siteName || '', hidden: [...new Set(c.hidden)], order: {}, text: c.text.filter((r) => r.from && r.to != null), cols: {}, buttons: [...new Set(c.buttons || [])], nav: (c.nav || []).slice() };
+    const o = { look: {}, siteName: c.siteName || '', hidden: [...new Set(c.hidden)], order: {}, text: c.text.filter((r) => r.from && r.to != null), cols: {}, buttons: [...new Set(c.buttons || [])], nav: (c.nav || []).slice(),
+      styles: (c.styles || []).map((r) => ({ sp: r.sp || '', area: r.area || '', base: r.base, label: r.label || '', css: Object.fromEntries(Object.entries(r.css || {}).filter(([, v]) => v != null && v !== '')) })).filter((r) => r.base && Object.keys(r.css).length),
+      moves: (c.moves || []).filter((m) => m && m.base && m.order && m.order.length).map((m) => ({ sp: m.sp || '', area: m.area || '', base: m.base, label: m.label || '', flex: !!m.flex, order: m.order.slice() })) };
     Object.entries(c.look).forEach(([k, v]) => { if (v != null && v !== '') o.look[k] = v; });
     Object.entries(c.order).forEach(([k, v]) => { if (v && v.length) o.order[k] = v; });
     Object.entries(c.cols).forEach(([k, v]) => { if (v && v.length) o.cols[k] = v; });
@@ -554,6 +889,17 @@
     .ed-sep { border-top: 1px solid #eceef1; }
     .ed-flash { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 1002; background: #1f2329; color: #fff; padding: 8px 14px; border-radius: 8px; }
     .ed-banner { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 999; background: #1f2329; color: #fff; padding: 8px 10px 8px 14px; border-radius: 10px; display: flex; gap: 10px; align-items: center; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+    body.ed-pickmode main *:not(.ed-ui):not(.ed-ui *), body.ed-pickmode aside.side * { cursor: crosshair !important; }
+    body.ed-pickmode .ed-hov { outline: 2px solid #f59e0b !important; outline-offset: 1px; }
+    body.ed-on .ed-match { outline: 2px dashed #60a5fa !important; outline-offset: 1px; }
+    body.ed-on .ed-picked { outline: 3px solid #2563eb !important; outline-offset: 2px; }
+    .ed-modes { flex-wrap: wrap; gap: 4px !important; }
+    .ed-modes button[aria-pressed=true] { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .ed-check { display: flex; gap: 6px; align-items: center; margin: 4px 0; cursor: pointer; }
+    .ed-picked-name { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 6px 9px; margin-bottom: 6px; }
+    .ed-ui .ed-danger { color: #b91c1c; border-color: #fca5a5; }
+    .ed-ui .ed-danger:hover { background: #fef2f2; }
+    .ed-panel { width: 360px; }
     .ed-edit-link { font: inherit; background: none; border: 0; padding: 0; color: inherit; text-decoration: underline; cursor: pointer; }
     @media (max-width: 640px) { .ed-panel { left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 62vh; } }
   `));
