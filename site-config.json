@@ -14,8 +14,23 @@
       "fantasy/ffp-title+group"
     ]
   },
-  "text": [],
+  "text": [
+    {
+      "from": "Proj − line ↓",
+      "to": "Proj Line ↓"
+    }
+  ],
   "cols": {},
   "buttons": [],
-  "nav": []
+  "nav": [
+    "home",
+    "tools",
+    "screener",
+    "compare",
+    "injuries",
+    "stats",
+    "fantasy",
+    "trends",
+    "totals"
+  ]
 }
