@@ -368,6 +368,10 @@
   .sim .bar { margin-top: 12px; }
   .sim .sim-tabs { margin-top: 14px; }
   .sim .sim-tabs button { font-size: .85rem; padding: 6px 12px; }
+  .sim .sim-teams button { display: inline-flex; align-items: center; gap: 6px; font-size: .95rem; font-weight: 600; padding: 7px 16px; }
+  .sim .sim-teams { display: flex; width: fit-content; }
+  .sim .sim-modes { display: flex; width: fit-content; margin-top: 8px; }
+  .sim .sim-modes button { font-size: .8rem; padding: 5px 11px; }
   .sim h3 { margin: 0; }
   .sim .sim-scroll { margin-top: 10px; }
   .sim-cards { display: grid; gap: 10px; margin: 10px 0; }
@@ -4113,7 +4117,7 @@ const SIM_LAB = { passing_yards: 'pass yds', passing_tds: 'pass TD', rushing_yar
   pts: 'pts', reb: 'reb', ast: 'ast', fg3m: '3PM' };
 const simFeatLab = ([p, st]) => `${p} ${SIM_LAB[st] || st}`;
 const SIM_OUTCOL = { QB: 'pass', RB: 'rbr', WR: 'wr', TE: 'te', G: 'g', F: 'f', C: 'c' };
-S.simAll = false; S.simMode = 'off';
+S.simAll = false; S.simMode = 'off'; S.simTeam = null;
 // the stats where two defenses are closest, favoring the ones that stand out for tonight's defense
 function simAlike(sp, target, other, mode, k = 3) {
   const C = simC(sp, mode), a = C.vec.get(target), b = C.vec.get(other);
@@ -4125,8 +4129,11 @@ function simAlike(sp, target, other, mode, k = 3) {
 }
 function renderSimDefs(sp, g, host, flip, setFlip) {
   if (!host) return;
-  const off = flip ? g.home_team : g.away_team, def = flip ? g.away_team : g.home_team, O = TI(off).nick, D = TI(def).nick;
+  // main tabs = the two teams (whose games we look back at); sub-tabs = that team's offense or its defense
+  if (S.simTeam !== g.away_team && S.simTeam !== g.home_team) S.simTeam = g.away_team;
+  const mine = S.simTeam, other = mine === g.home_team ? g.away_team : g.home_team;
   const mode = S.simMode === 'def' ? 'def' : 'off';
+  const off = mode === 'off' ? mine : other, def = mode === 'off' ? other : mine;
   // off mode: OFF's past opponents whose defense looks like DEF's, and what OFF did. def mode: DEF's past opponents whose offense looks like OFF's, and what DEF allowed
   const me = mode === 'off' ? off : def, them = mode === 'off' ? def : off, ME = TI(me).nick, THEM = TI(them).nick;
   const kind = isBB(sp) ? 'bb' : 'fb', cols = SIM_OUT[kind], sc = simScores(sp, them, mode);
@@ -4135,17 +4142,17 @@ function renderSimDefs(sp, g, host, flip, setFlip) {
   const top = rows.filter((x) => x.sim != null).sort((a, b) => b.sim - a.sim).slice(0, 3), topSet = new Set(top.map((x) => x.key));
   const avgAll = {}; [['pf'], ...cols].forEach(([k]) => { avgAll[k] = mean(all.map((x) => x[k]).filter((v) => v != null)); });
   const colLab = Object.fromEntries([['pf', 'pts'], ...cols.map(([k, l]) => [k, l.replace(/^(Guard|Forward|Center) pts$/, (m, p) => `${p[0]} pts`)])]);
-  const seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Which offense' },
-    ...[false, true].map((f) => { const o = f ? g.home_team : g.away_team, d = f ? g.away_team : g.home_team; return h('button', { 'aria-pressed': String(f === !!flip), onclick: () => setFlip(f) }, `${TI(o).nick} O vs ${TI(d).nick} D`); }));
   const side = mode === 'off' ? 'defense' : 'offense';
-  const tabs = h('div', { class: 'seg sim-tabs', role: 'tablist' }, ...[['off', 'Offense vs similar defenses'], ['def', 'Defense vs similar offenses']].map(([k, l]) =>
+  const tabs = h('div', { class: 'seg sim-tabs sim-teams', role: 'tablist', 'aria-label': 'Team' }, ...[g.away_team, g.home_team].map((t) =>
+    h('button', { role: 'tab', 'aria-pressed': String(t === mine), onclick: () => { S.simTeam = t; render(); } }, badge(t, 'sm'), ` ${TI(t).nick || t}`)));
+  const sub = h('div', { class: 'seg sim-modes', role: 'tablist', 'aria-label': 'Offense or defense' }, ...[['off', 'Offense vs similar defenses'], ['def', 'Defense vs similar offenses']].map(([k, l]) =>
     h('button', { role: 'tab', 'aria-pressed': String(k === mode), onclick: () => { S.simMode = k; render(); } }, l)));
-  const kids = [tabs, h('div', { class: 'bar' }, h('h3', null, `${poss(ME)} past opponents with ${side}s most like ${poss(THEM)}`), seg)];
+  const kids = [tabs, sub, h('div', { class: 'bar' }, h('h3', null, `${ME} vs similar ${side}s`))];
   if (!sc) { kids.push(h('p', { class: 'empty' }, `No ${side} profile for ${THEM} yet.`)); host.replaceChildren(...kids); return; }
   if (!top.length) { kids.push(h('p', { class: 'empty' }, rows.length ? `None of ${poss(ME)} opponents so far have a ${side} profile.` : `${ME} hasn't played anyone else yet this season.`)); host.replaceChildren(...kids); return; }
   kids.push(h('p', { class: 'note' }, mode === 'off'
-    ? `Chips = stats where the two defenses match (${THEM} / that team, allowed per game). Green = both give up a lot, red = both shut it down. Last line = what ${ME} did in that game (± vs its season average).`
-    : `Chips = stats where the two offenses match (${THEM} / that team, gained per game). Green = both put up a lot, red = both struggle there. Last line = what ${ME} allowed in that game (± vs what it allows on average).`));
+    ? `Chips = stats where the two defenses match (${THEM} / that team, allowed per game). Last line = what ${ME} did in that game (± vs its season average).`
+    : `Chips = stats where the two offenses match (${THEM} / that team, gained per game). Last line = what ${ME} allowed in that game (± vs what it allows on average).`));
   const rnd = (v) => (Math.abs(v) >= 10 ? String(Math.round(v)) : show(v));
   const dlt = (v, k) => { const a = avgAll[k]; if (v == null || a == null) return null; const d = v - a; return h('span', { class: d > 0 ? 'g' : d < 0 ? 'r' : '' }, ` (${d > 0 ? '+' : d < 0 ? '−' : '±'}${rnd(Math.abs(d))})`); };
   const fmtV = (v, st) => (/tds?$|_tds$|receptions|fg3m|ast/.test(st) || v < 10 ? (Math.round(v * 10) / 10).toFixed(1) : String(Math.round(v)));
