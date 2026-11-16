@@ -487,7 +487,7 @@
             <h2>Team comparison</h2>
             <div class="seg tc-win" role="group" aria-label="Games"><button data-v="l3">L3</button><button data-v="l5">L5</button><button data-v="season">Season</button></div>
           </div>
-          <p class="note">Per-game numbers with each unit's rank among all 32 teams for the same stretch of games (1 = best offense, or the defense that allows the least). The longer bar is the stronger unit: green when the offense has the edge, red when the defense does.</p>
+          <p class="note">Per-game numbers with each unit's rank among all 32 teams for the same stretch of games. Ranks on this page: 1 = the best offense, or the defense that allows the least (toughest matchup); 32 = the weakest offense, or the defense that allows the most (easiest). The longer bar is the stronger unit: green when the offense has the edge, red when the defense does.</p>
           <div class="tc-side">
             <span class="tc-o"></span>
             <button class="tc-swap" type="button" aria-label="Swap sides" title="Swap sides">⇄</button>
@@ -498,13 +498,13 @@
         </div>
         <div class="card" id="game-detail">
           <h2 class="gd-title">Full season comparison</h2>
-          <p class="note">Season stats for both teams. Ranks run 1–32 where 1 is best; the better number in each row is highlighted.</p>
+          <p class="note">Season stats for both teams. The better number in each row is highlighted.</p>
           <div class="scroll" style="max-height: none"><table class="cmp t-cmp"><thead></thead><tbody></tbody></table></div>
         </div>
       </div>
       <div class="card">
         <h2>Defense vs position</h2>
-        <p class="note">What each defense allows per game to each position this season, ranked among all 32 defenses (1 = toughest, 32 = easiest). QB pass yards here are the QBs' own box-score yards (sacks don't count against them, the same way props are graded), so they run a bit higher than the team's net pass yards above. * = one big game is carrying that number (details below the table).</p>
+        <p class="note">What each defense allows per game to each position this season, ranked among all 32 defenses. QB pass yards here are the QBs' own box-score yards (sacks don't count against them, the same way props are graded), so they run a bit higher than the team's net pass yards above. * = one big game is carrying that number (details below the table).</p>
         <div class="scroll" style="max-height: none"><table class="gp-dvp dvp"><thead></thead><tbody></tbody></table></div>
         <div class="sim gp-sim"></div>
       </div>
@@ -1817,7 +1817,7 @@ function renderProps() {
     const ts = mean(games.map((r) => r.target_share).filter((v) => v != null));
     tiles.push([ts == null ? '—' : `${show(ts)}%`, `Target share${wo ? ' in these games' : ''} (share of his team's targets)`]);
   }
-  if (mr) tiles.push([show(mr.per_game), `${opp} allows to ${p.position}s /g (rank ${mr.rank} of 32${mr3 ? `, last 3: ${mr3.rank}` : ''}; 1 = toughest)`]);
+  if (mr) tiles.push([show(mr.per_game), `${opp} allows to ${p.position}s /g (rank ${mr.rank} of 32${mr3 ? `, last 3: ${mr3.rank}` : ''})`]);
   const st = $('.p-stats'); st.replaceChildren();
   tiles.forEach(([v, k]) => { const d = document.createElement('div'); d.className = 'stat'; const a = document.createElement('div'); a.className = 'v'; a.textContent = v; const b = document.createElement('div'); b.className = 'k'; b.textContent = k; d.append(a, b); st.appendChild(d); });
   bars($('.p-chart'), games.map((r) => ({
@@ -2797,7 +2797,7 @@ function renderFFPlayer() {
   $('.ffp-note').textContent = `${FMT_NAME[S.fmt]} points per game scaled by how much each opponent allows to ${pos}s compared with the league average.`;
   $('.ffp-tiles').replaceChildren(
     tile(show(base.A), `Fantasy pts /g this season (${base.n} g)`), tile(show(base.L3), 'Last 3 games avg'),
-    tile(sos.rank ? `#${sos.rank}` : '—', `Rest-of-season schedule vs ${pos}s (1 = toughest of 32)`, sos.rank ? rankWord(sos.rank) : ''),
+    tile(sos.rank ? `#${sos.rank}` : '—', `Rest-of-season schedule vs ${pos}s (of 32)`, sos.rank ? rankWord(sos.rank) : ''),
     tile(projs.length ? show(projs.reduce((a, b) => a + b, 0)) : '—', `Projected pts, rest of season (${games.length} games)`),
     tile(show(mean(projs)), 'Projected per game'), tile(`${easy} / ${tough}`, 'Easy / tough matchups left'),
     tile(byes.length ? byes.join(', ').replace(/Week /g, 'Wk ') : 'Done', byes.length ? 'Bye week' : 'Bye already used'));
@@ -3903,7 +3903,7 @@ function xgMatchup(sp, g) {
   $('.xg-win').replaceChildren(...XG_WINS[sp].map(([k, l]) => h('button', { 'aria-pressed': String(k === win), onclick: () => { S.xgWin[sp] = k; render(); } }, l)));
   const off = S.xgFlip ? g.home_team : g.away_team, def = S.xgFlip ? g.away_team : g.home_team;
   const O = W.by.get(off) || {}, D = W.by.get(def) || {};
-  $('.xg-mnote').textContent = `Per-game numbers with each unit's rank among all ${N} ${{ nba: 'NBA', cfb: 'FBS', cbb: 'D1' }[sp]} teams over the same stretch of games (1 = best offense, or the defense that allows the least). The longer bar is the stronger side.`;
+  $('.xg-mnote').textContent = `Per-game numbers with each unit's rank among all ${N} ${{ nba: 'NBA', cfb: 'FBS', cbb: 'D1' }[sp]} teams over the same stretch of games. Ranks on this page: 1 = the best offense, or the defense that allows the least (toughest matchup); ${N} = the weakest offense, or the defense that allows the most (easiest). The longer bar is the stronger side.`;
   $('.xg-o').replaceChildren(badge(off, 'sm'), `${TI(off).nick} offense`);
   $('.xg-d').replaceChildren(`${TI(def).nick} defense`, badge(def, 'sm'));
   let oe = 0, de = 0;
@@ -3927,7 +3927,7 @@ function xgMatchup(sp, g) {
       ['WR', 'WRs', 'receiving_yards', 'rec yds'], ['WR', 'WRs', 'receptions', 'receptions'],
       ['TE', 'TEs', 'receiving_yards', 'rec yds'], ['TE', 'TEs', 'receptions', 'receptions']];
   const X = xgX(), Nd = sp === 'nba' ? 30 : Math.max(2, X.nDef || 130);
-  $('.xg-dnote').textContent = `What each defense allows per game to each position ${sp === 'cbb' && CBB.meta.dvp_season !== String(CBB.season) ? 'last season (this season takes over once enough games are in)' : 'this season'}, ranked among all ${Nd} ${{ nba: 'teams', cfb: 'FBS defenses', cbb: 'D1 defenses' }[sp]} (1 = toughest, ${Nd} = easiest). * = one big game is carrying that number (details below the table).`;
+  $('.xg-dnote').textContent = `What each defense allows per game to each position ${sp === 'cbb' && CBB.meta.dvp_season !== String(CBB.season) ? 'last season (this season takes over once enough games are in)' : 'this season'}, ranked among all ${Nd} ${{ nba: 'teams', cfb: 'FBS defenses', cbb: 'D1 defenses' }[sp]}. * = one big game is carrying that number (details below the table).`;
   tbl.tHead.replaceChildren(h('tr', null, h('th', { class: 'l' }, 'Vs'), ...teams.flatMap((t) => [h('th', { class: 'grp' }, `${t} D allows`), h('th', { class: 'rkh' }, 'Rk')])));
   const hiEasy = sp === 'nba' ? 23 : sp === 'cbb' ? Nd - 60 : Nd - 20, loTough = sp === 'nba' ? 8 : sp === 'cbb' ? 60 : 20;
   const dNotes = [];
