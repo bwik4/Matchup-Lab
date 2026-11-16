@@ -18,6 +18,10 @@
     {
       "from": "Proj − line ↓",
       "to": "Proj Line ↓"
+    },
+    {
+      "from": "Proj − line",
+      "to": "Proj Line"
     }
   ],
   "cols": {},
