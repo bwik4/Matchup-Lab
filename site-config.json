@@ -3,8 +3,8 @@
     "muted": "#000000",
     "sideActive": "#3a6ea5",
     "sideStroke": 2.8,
-    "line": "#1d2842",
-    "radius": 6
+    "radius": 6,
+    "line": "#3a6ea5"
   },
   "siteName": "",
   "hidden": [],
