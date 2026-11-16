@@ -21,6 +21,10 @@
     {
       "from": "Proj − line",
       "to": "Proj Line"
+    },
+    {
+      "from": "Each team's likely starting QB, then the RBs, WRs and TEs getting the most work over its last 4 games (carries + targets), with per-game averages over the games you pick (H2H = his games against this opponent, this season and last). Under each team: who has missed games, and anyone removed because he's out for the season. Grade = this week's matchup: A+ = the defense allows the most to his position (easiest), F = the least (toughest). Tap a player for his full prop card.",
+      "to": "Each team's likely starting QB, then the RBs, WRs and TEs getting the most work over its last 4 games (carries + targets), with per-game averages over the games you pick."
     }
   ],
   "cols": {},
