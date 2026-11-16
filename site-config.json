@@ -21,6 +21,26 @@
     {
       "from": "Proj − line",
       "to": "Proj Line"
+    },
+    {
+      "from": "Chargers O vs Ravens D",
+      "to": "Chargers"
+    },
+    {
+      "from": "Chargers' past opponents with defenses most like Ravens'",
+      "to": "Chargers vs similar defenses"
+    },
+    {
+      "from": "Ravens O vs Chargers D",
+      "to": "Ravens"
+    },
+    {
+      "from": "Ravens' past opponents with defenses most like Chargers'",
+      "to": "Revens vs similar defenses"
+    },
+    {
+      "from": "Chips = stats where the two defenses match (Chargers / that team, allowed per game). Green = both give up a lot, red = both shut it down. Last line = what Ravens did in that game (± vs its season average).",
+      "to": "Chips = stats where the two defenses match (Chargers / that team, allowed per game). Last line = what Ravens did in that game (± vs its season average)."
     }
   ],
   "cols": {},
@@ -35,5 +55,7 @@
     "fantasy",
     "trends",
     "totals"
-  ]
+  ],
+  "styles": [],
+  "moves": []
 }
