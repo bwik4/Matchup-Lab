@@ -364,7 +364,7 @@ CLE,,Cleveland Browns,CLE,DEF,,,,
 3214,00-0033090,Hunter Henry,NE,TE,TE,1,Active,
 3976,00-0033869,Mitchell Trubisky,TEN,QB,QB,2,Active,
 13416,,Roman Hemby,LV,RB,,,Active,
-13356,,Trebor Pena,JAX,WR,,,Active,
+13356,,Trebor Peña,JAX,WR,,,Active,
 7523,,Trevor Lawrence,JAX,QB,QB,1,Active,
 12508,,Jaxson Dart,NYG,QB,QB,4,Inactive,IR
 4066,00-0033881,Evan Engram,DEN,TE,TE,1,Active,
@@ -612,6 +612,7 @@ MIA,,Miami Dolphins,MIA,DEF,,,,
 12498,,Mason Taylor,NYJ,TE,TE,1,Active,
 12481,,Cam Skattebo,NYG,RB,RB,1,Active,
 10218,,Xavier Hutchinson,HOU,WR,LWR,3,Active,Questionable
+6154, 00-0035359,David Sills V,TB,WR,,,Active,
 6931,,DeeJay Dallas,MIN,RB,RB,4,Active,
 11623,,Jordan Whittington,LA,WR,KR,8,Inactive,IR
 4995,00-0034365,Ian Thomas,LV,TE,TE,3,Active,
@@ -845,8 +846,8 @@ DEN,,Denver Broncos,DEN,DEF,,,,
 11506,,Jalen Cropper,NO,WR,,,Active,
 12797,,Ahmani Marshall,CAR,RB,,,Active,
 5374,00-0034386,Justin Watson,KC,WR,,,Active,
-9756,,Jordan Addison,MIN,WR,RWR,6,Active,Out
-4033,00-0033885,David Njoku,LAC,TE,TE,3,Inactive,IR
+9756,,Jordan Addison,MIN,WR,RWR,6,Inactive,Out
+4033,00-0033885,David Njoku,LAC,TE,TE,3,Active,Questionable
 13621,,Dillon Bell,MIN,WR,,,Active,
 13324,,Matt Hibner,BAL,TE,TE,3,Active,
 13298,,KC Concepcion Jr.,CLE,WR,SWR,2,Active,
