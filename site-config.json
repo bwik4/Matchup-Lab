@@ -33,6 +33,10 @@
     {
       "from": "(this season). Tap ⇄ to see the other side of the ball.",
       "to": "(this season)."
+    },
+    {
+      "from": "Season stats for both teams. The better number in each row is highlighted.",
+      "to": "Season stats for both teams."
     }
   ],
   "cols": {},
