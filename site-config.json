@@ -1,12 +1,10 @@
 {
   "look": {
-    "line": "#002e7a",
     "muted": "#000000",
-    "accent": "#0056d6",
-    "sideActive": "#0061ff",
-    "game": "#ffffff",
-    "tile": "#f9f9f9",
-    "sideStroke": 3.2
+    "sideActive": "#3a6ea5",
+    "sideStroke": 2.8,
+    "line": "#1d2842",
+    "radius": 6
   },
   "siteName": "",
   "hidden": [],
