@@ -273,7 +273,7 @@ function renderScreener() {
   const posNote = sp === 'nfl' ? 'NFL' : T_SPNAME[sp];
   tRC(root, 
     h('div', { class: 't-controls' }, posSeg, h('label', { class: 't-lab' }, 'Stat', statSel), h('label', { class: 't-lab' }, 'Line', lineIn), teamSel, minG, search, onlyNext),
-    h('p', { class: 'note' }, `${posNote} ${c.pos}s ranked by projection minus your line (${line} ${tLow(tStatLabel(sp, c.stat))}). Type your book's line to recheck. "Over" columns count games above the line.`),
+    h('p', { class: 'note' }, `${posNote} ${c.pos}s ranked by projection minus your line (${line} ${tLow(tStatLabel(sp, c.stat))}).`),
     h('div', { class: 'scroll', style: 'max-height: none' }, tb.el),
     tb.total > tb.shown ? h('button', { type: 'button', class: 'more', onclick: () => { c.limit += 50; render(); } }, `Show more (${tb.total - tb.shown} left)`) : null);
 }
@@ -367,7 +367,7 @@ function renderCompare() {
       row('Games', (x) => `${x.p.logs.length}${x.p.missedN ? ` (missed ${x.p.missedN})` : ''}`),
       row('Last 8 games', (x) => tSpark(x.pr ? x.pr.vals.slice(-8) : [], x.pr ? x.pr.proj : null))));
   tRC(root, ...head, verdict, h('div', { class: 'scroll', style: 'max-height: none' }, tbl),
-    h('p', { class: 'note' }, `Projection = 60% season average + 40% last 5, nudged up or down by what the opponent allows to his position (a soft defense can add up to 25%, a tough one take off up to 25%). Green = best of the group. Floor/ceiling = his 20th / 80th percentile game. Injury status comes from ${sp === 'nfl' ? 'Sleeper' : sp === 'nba' ? "the NBA's official report" : 'your manual list (college teams have no reliable public feed)'}.`));
+    h('p', { class: 'note' }, 'Projection = 60% season average + 40% last 5, adjusted for the opponent.'));
 }
 function tSpark(vals, ref) {
   if (!vals.length) return null;
@@ -668,7 +668,7 @@ function tRenderSleeper() {
   };
   tRC(box, top, h('h3', null, 'Starters'), h('div', { class: 'd-list' }, ...starters.map(line)),
     h('details', null, h('summary', null, `Bench (${bench.length})`), h('div', { class: 'd-list' }, ...bench.map(line))),
-    h('p', { class: 'note' }, 'Projections are PPR; your league\'s scoring may differ. Opp rank: 1 = toughest matchup at his position. Add two players to Compare for a start/sit call.'));
+    h('p', { class: 'note' }, 'Projections are PPR.'));
 }
 function tRenderTrending() {
   tSleeperFiles();

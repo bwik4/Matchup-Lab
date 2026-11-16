@@ -250,6 +250,7 @@
   .tc-bars span.edge-o { background: var(--ok); }
   .tc-bars span.edge-d { background: var(--bad); }
   .tc-sum { margin-top: 14px; }
+  .note:empty { display: none; }
   /* player rows */
   .plist { display: flex; flex-direction: column; }
   .prow { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, 3.8rem); gap: 6px; align-items: center; padding: 10px 4px; border-bottom: 1px solid var(--line); cursor: pointer; border-radius: 6px; }
@@ -442,7 +443,6 @@
       </div>
       <div class="card d-best">
         <h2>Best matchups</h2>
-        <p class="note">Green % = how much the matchup lifts his projection.</p>
         <div class="d-best-body"></div>
       </div>
     </div>
@@ -454,7 +454,7 @@
       <div class="subnav h-days" role="group" aria-label="Game day"></div>
       <div class="ghead" aria-hidden="true"><span>Match</span><span>Spread</span><span>Moneyline</span><span>Total</span></div>
       <div class="glist"></div>
-      <p class="note h-note">Lines are the market consensus from nflverse and move until kickoff, so check your book before betting. Kickoff times are in your time zone. Tap a game to research it.</p>
+      <p class="note h-note">Lines are the market consensus and move until kickoff.</p>
     </div>
   </section>
 
@@ -471,7 +471,7 @@
     <div class="gp-panel stack" data-gp="odds">
       <div class="card">
         <h2>Odds</h2>
-        <p class="note">Spread and total show the juice under the number. Implied team total = (total ± spread) ÷ 2. Win % comes from the moneylines with the bookmaker's cut removed.</p>
+        <p class="note">Juice shows under each line. Win % has the bookmaker's cut removed.</p>
         <div class="ghead" aria-hidden="true"><span>Team</span><span>Spread</span><span>Moneyline</span><span>Total</span></div>
         <div class="gcard static gp-odds"></div>
         <div class="stats gp-tiles"></div>
@@ -487,7 +487,7 @@
             <h2>Team comparison</h2>
             <div class="seg tc-win" role="group" aria-label="Games"><button data-v="l3">L3</button><button data-v="l5">L5</button><button data-v="season">Season</button></div>
           </div>
-          <p class="note">Per-game numbers with each unit's rank among all 32 teams for the same stretch of games. Ranks on this page: 1 = the best offense, or the defense that allows the least (toughest matchup); 32 = the weakest offense, or the defense that allows the most (easiest). The longer bar is the stronger unit: green when the offense has the edge, red when the defense does.</p>
+          <p class="note">Per-game numbers with each unit's rank among all 32 teams for the same stretch of games.</p>
           <div class="tc-side">
             <span class="tc-o"></span>
             <button class="tc-swap" type="button" aria-label="Swap sides" title="Swap sides">⇄</button>
@@ -498,13 +498,13 @@
         </div>
         <div class="card" id="game-detail">
           <h2 class="gd-title">Full season comparison</h2>
-          <p class="note">Season stats for both teams. The better number in each row is highlighted.</p>
+          <p class="note">Season stats for both teams.</p>
           <div class="scroll" style="max-height: none"><table class="cmp t-cmp"><thead></thead><tbody></tbody></table></div>
         </div>
       </div>
       <div class="card">
         <h2>Defense vs position</h2>
-        <p class="note">What each defense allows per game to each position this season, ranked among all 32 defenses. QB pass yards here are the QBs' own box-score yards (sacks don't count against them, the same way props are graded), so they run a bit higher than the team's net pass yards above. * = one big game is carrying that number (details below the table).</p>
+        <p class="note">What each defense allows per game to each position this season, ranked among all 32 defenses. * = one big game is carrying that number.</p>
         <div class="scroll" style="max-height: none"><table class="gp-dvp dvp"><thead></thead><tbody></tbody></table></div>
         <div class="sim gp-sim"></div>
       </div>
@@ -547,7 +547,7 @@
             <h2>How each team has done against the lines</h2>
             <div class="seg gl-seas" role="group" aria-label="Seasons"><button data-v="cur">This season</button><button data-v="both">This + last</button></div>
           </div>
-          <p class="note">Against the closing spread and total. Spread is from that team's side (−3.5 = favored by 3.5). "Covered by" and "Over by" are how far the result landed from the line. Tap a result to open that game's box score.</p>
+          <p class="note">Against the closing spread and total.</p>
           <div class="grid gl-body"></div>
         </div>
         <div class="card">
@@ -598,7 +598,7 @@
           <div class="chips"></div>
         </div>
         <p class="summary p-split" hidden></p>
-        <p class="note p-note">Type the sportsbook's line to see how often he's gone over it. It starts at his season average.</p>
+        <p class="note p-note"></p>
         <div class="stats p-stats"></div>
         <div class="chart p-chart"></div>
         <div class="legend"><span class="lg">Over the line</span><span class="lr">Under the line</span></div>
@@ -612,7 +612,7 @@
         </div>
         <div class="card">
           <div class="bar"><h2 class="plog-title">This season's game log</h2><div class="seg plog-pair" role="group" aria-label="Whose stats"></div></div>
-          <p class="note plog-note">Opp rk = how that defense ranks against this stat for this position: 1 = toughest (allows the least), 32 = easiest (allows the most).</p>
+          <p class="note plog-note"></p>
           <div class="scroll" style="max-height: 24rem"><table class="t-plog"><thead></thead><tbody></tbody></table></div>
         </div>
       </div>
@@ -626,7 +626,7 @@
             </div>
           </div>
         </div>
-        <p class="note pd-note">Every game a player at this position had against this week's opponent. RB1 / WR1 etc. = the most-used player at that position on his team that game (QB by attempts, RB by carries + targets, WR/TE by targets). WR1 + WR2 and RB1 + RB2 add the top two together each game, so you can check a combined line. The highlighted column is colored against your line above.</p>
+        <p class="note pd-note">Every game a player at this position had against this week's opponent.</p>
         <p class="summary pd-sum"></p>
         <div class="scroll" style="max-height: 30rem"><table class="t-pdef"><thead></thead><tbody></tbody></table></div>
         <p class="empty pd-empty" hidden>No games to show.</p>
@@ -644,7 +644,7 @@
           <input class="search f-q" type="search" placeholder="Filter player or team" aria-label="Filter players">
         </div>
       </div>
-      <p class="note">Every player with 3+ games this season: average, median, last-3 average and this week's matchup for the stat you pick. Click a player to open his prop card above.</p>
+      <p class="note">Every player with 3+ games this season, for the stat you pick.</p>
       <div class="scroll"><table class="t-finder"><thead></thead><tbody></tbody></table></div>
       <div class="legend"><span class="lr">Tough matchup (opponent rank 1–8)</span><span class="lg">Easy matchup (25–32)</span></div>
     </div>
@@ -665,7 +665,7 @@
             </div>
           </div>
         </div>
-        <p class="note">Totals from every player at that position against the defense, divided by its games. "Rk" ranks all 32 defenses: 1 = toughest (allows the least), 32 = easiest (allows the most, best spot for overs). For INTs and sacks, 1 = forces the most. "Long" stats = the average longest play allowed to the position per game. Click a defense for its week-by-week numbers. <b style="color: var(--c2)">*</b> = one big game is carrying that number (hover or open the list under the table to see which).</p>
+        <p class="note">What every player at that position put up against the defense, per game. <b style="color: var(--c2)">*</b> = one big game is carrying that number.</p>
         <div class="wo m-wo">
           <span class="lbl">Games without</span>
           <input class="search" type="search" list="m-wo-list" placeholder="Add a player who sat out (e.g. a CB)" aria-label="Filter defenses to games a player missed">
@@ -681,7 +681,7 @@
           <h2 class="md-title">Pick a defense</h2>
           <select class="md-stat" aria-label="Stat"></select>
         </div>
-        <p class="note">Each week's total allowed to the position, labelled with the offense they faced. With a "games without" filter on this defense, orange bars are the games the player sat out.</p>
+        <p class="note">Each week's total allowed to the position, labelled with the offense they faced.</p>
         <div class="chart md-chart"></div>
         <h3>Biggest games against them this season</h3>
         <div class="scroll" style="max-height: 22rem"><table class="t-mtop"><thead></thead><tbody></tbody></table></div>
@@ -716,7 +716,7 @@
       </div>
       <div class="card" id="t-split" hidden>
         <h2>With vs without</h2>
-        <p class="note">Each team's numbers in games the player(s) played versus games they missed. Games where a player wasn't on the team yet don't count toward either side.</p>
+        <p class="note">Each team's numbers with the player(s) in vs out.</p>
         <div class="grid t-split-body"></div>
       </div>
     </div>
@@ -743,7 +743,7 @@
             <div class="seg ff-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="last3">Last 3 wks</button></div>
           </div>
         </div>
-        <p class="note">Fantasy points each defense allows to every QB, RB, WR, TE and kicker combined. Tap a defense to see every game log against it.</p>
+        <p class="note">Fantasy points each defense allows to every QB, RB, WR, TE and kicker combined.</p>
         <div class="scroll"><table class="t-ffdef dvp"><thead></thead><tbody></tbody></table></div>
         <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (25–32)</span></div>
       </div>
@@ -756,7 +756,7 @@
         <p class="note ffd-note"></p>
         <div class="chart ffd-chart"></div>
         <h3>Game logs against them this season</h3>
-        <p class="note">Every player at the position who faced them. Role = his rank in usage at the position on his team that game (WR1 = most targets). Tap a player to open his rest-of-season outlook below.</p>
+        <p class="note">Every player at the position who faced them.</p>
         <div class="scroll" style="max-height: 28rem"><table class="t-ffdlog"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
@@ -807,7 +807,7 @@
           <h2>Defense vs fantasy positions</h2>
           <div class="controls"><div class="seg nf-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="l10">Last 10 games</button></div></div>
         </div>
-        <p class="note">Fantasy points each defense allows to all guards, forwards and centers combined. Tap a defense to see every game log against it.</p>
+        <p class="note">Fantasy points each defense allows to all guards, forwards and centers combined.</p>
         <div class="scroll"><table class="t-nfdef dvp"><thead></thead><tbody></tbody></table></div>
         <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (23–30)</span></div>
       </div>
@@ -820,7 +820,7 @@
         <p class="note nfd-note"></p>
         <div class="chart nfd-chart"></div>
         <h3>Game logs against them this season</h3>
-        <p class="note">Every player at the position who played against them. Tap a player to open his outlook below.</p>
+        <p class="note">Every player at the position who played against them.</p>
         <div class="scroll" style="max-height: 28rem"><table class="t-nfdlog"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
@@ -838,7 +838,7 @@
       <h3>Last 15 games</h3>
       <div class="chart nfp-chart"></div>
       <h3>Next 10 games</h3>
-      <p class="note">Def rank = how many fantasy points that defense allows to his position (1 = toughest of 30). B2B = second night of a back-to-back.</p>
+      <p class="note">B2B = second night of a back-to-back.</p>
       <div class="scroll" style="max-height: none"><table class="t-nfsched"><thead></thead><tbody></tbody></table></div>
       <div class="legend"><span class="lr">Tough matchup (rank 1–8)</span><span class="lg">Easy matchup (23–30)</span></div>
       <h3>Recent game log</h3>
@@ -857,7 +857,7 @@
 
     <div class="card xg-panel" data-xg="odds">
       <h2>Odds</h2>
-      <p class="note">Implied team total = (total ± spread) ÷ 2. Win % comes from the moneylines with the bookmaker's cut removed. Lines refresh each morning, so check your book before betting.</p>
+      <p class="note">Win % has the bookmaker's cut removed. Lines refresh each morning.</p>
       <div class="ghead" aria-hidden="true"><span>Team</span><span>Spread</span><span>Moneyline</span><span>Total</span></div>
       <div class="gcard static xg-odds"></div>
       <div class="stats xg-tiles"></div>
@@ -902,12 +902,12 @@
             <h2>Over/under profile</h2>
             <div class="seg xgt-seas" role="group" aria-label="Season"><button data-v="cur">This season</button><button data-v="prev">Last season</button><button data-v="both">Both</button></div>
           </div>
-          <p class="note">Ratings are points per 100 possessions and possessions per 40 minutes, adjusted for opponent and home court (rank among all D1 teams; 1 = fastest tempo, best offense, best defense). Over/under numbers use each game's closing total.</p>
+          <p class="note">Points per 100 possessions and possessions per 40 minutes, adjusted for opponent and home court.</p>
           <div class="scroll" style="max-height: none"><table class="cmp xgt-cmp"><thead></thead><tbody></tbody></table></div>
         </div>
         <div class="card">
           <h2>Recent game totals</h2>
-          <p class="note">Each team's latest games (newest first). Vs total = how far the final total landed over (+) or under (−) the closing total. Tempo = possessions per 40 minutes.</p>
+          <p class="note">Each team's latest games, newest first.</p>
           <div class="xgt-recent"></div>
         </div>
       </div>
@@ -929,7 +929,7 @@
 
     <div class="card xg-panel" data-xg="lines" hidden>
       <h2>Against the spread</h2>
-      <p class="note">Every finished game this season with its closing line. Cover margin = how many points the team beat (+) or missed (−) the spread by. Tap a result to open that game's box score.</p>
+      <p class="note">Every finished game this season with its closing line.</p>
       <div class="xg-lines"></div>
     </div>
   </section>
@@ -951,7 +951,7 @@
         <div class="bar">
           <h2>Model track record</h2>
         </div>
-        <p class="note">Every finished game that had both a posted total and a model projection before tip. Lean = the side of the total the projection was on.</p>
+        <p class="note">Every finished game that had both a posted total and a model projection before tip.</p>
         <div class="stats ot-rec"></div>
       </div>
     </div>
@@ -1254,8 +1254,7 @@ function renderLog() {
       h('button', { class: 'plog-x', 'aria-label': 'Close', onclick: () => $('.plog').close() }, '×')),
     h('div', { class: 'plog-bar' }, seg),
     prop, h('div', { class: 'stats' }, ...tiles),
-    h('p', { class: 'note' }, noRank ? 'Opponent defense ranks are only available for the current season.'
-      : `Opp D rank = how that defense ranks this season against ${posL} in ${unit} allowed per game, among all ${N} ${{ nba: 'teams', cfb: 'FBS defenses', cbb: 'D1 defenses' }[sp]} (1 = toughest, ${N} = easiest). "Allows /g" is that number. Tap a result for the box score.`),
+    noRank ? h('p', { class: 'note' }, 'Opponent defense ranks are only available for the current season.') : null,
     h('div', { class: 'scroll', style: 'max-height: none' }, tb)].filter(Boolean));
 }
 
@@ -1803,8 +1802,7 @@ function renderProps() {
   const mr = opp !== 'BYE' ? mrow(opp, p.position, stat) : null;
   const mr3 = opp !== 'BYE' ? mrow(opp, p.position, stat, 'last3') : null;
   $('.p-title').textContent = `${p.player} · ${p.position} · ${p.team}`;
-  $('.p-note').textContent = (opp === 'BYE' ? 'On bye this week. ' : `Next: ${p.home ? 'vs' : '@'} ${opp}${p.team_implied != null ? ` · ${p.team} implied total ${p.team_implied}` : ''}. `)
-    + `Bars are each game ${scope}${wo ? ' that matches the filter' : ''}; the dashed line is the prop line.`;
+  $('.p-note').textContent = opp === 'BYE' ? 'On bye this week.' : `Next: ${p.home ? 'vs' : '@'} ${opp}${p.team_implied != null ? ` · ${p.team} implied total ${p.team_implied}` : ''}`;
   const tiles = [
     [fmtHit(hs), `Over ${line} ${wo ? 'in these games' : scope} ${pctHit(hs)}`],
     [fmtHit(h5), `Last 5 games ${pctHit(h5)}`],
@@ -1858,11 +1856,11 @@ function renderProps() {
     const pc = statCols.map((c) => ({ ...c, cls: undefined }));
     table($('.t-plog'), 'plog-pair', [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'who', label: `${p.position}1 + ${p.position}2`, l: true, fmt: (v, r) => (v ? `${v}${r.solo ? ' (only one)' : ''}` : '—') }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, ...pc],
       pr, { sort: { f: 'gkey', dir: 'desc' } });
-    $('.plog-note').textContent = `Each game: his team's top two ${p.position}s that game (${p.position === 'RB' ? 'by carries + targets' : 'by targets'}) added together. Long = the longer of the two. Not colored against your line, since that's for him alone.`;
+    $('.plog-note').textContent = `His team's top two ${p.position}s each game, added together.`;
   } else {
     table($('.t-plog'), 'plog', [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, ...statCols],
       cur, { sort: { f: 'gkey', dir: 'desc' } });
-    $('.plog-note').textContent = 'Opp rk = how that defense ranks against this stat for this position: 1 = toughest (allows the least), 32 = easiest (allows the most).';
+    $('.plog-note').textContent = '';
   }
   $('.p-vs-title').textContent = opp === 'BYE' ? 'History vs next opponent' : `History vs ${opp}`;
   const vs = opp === 'BYE' ? [] : (IDX.logs.get(p.player_id) || []).filter((r) => r.opp === opp);
@@ -2072,14 +2070,14 @@ function addTeamRanks(rows) {
 function renderTeams() {
   const V = {
     betting: {
-      title: 'Betting records', note: 'Records against the closing spread and total. "Avg cover margin" = how many points per game a team beat (+) or missed (−) the spread by. "Avg total vs line" = how far over (+) or under (−) the total its games finished.',
+      title: 'Betting records', note: 'Records against the closing spread and total.',
       cols: [{ f: 'su', label: 'Record', l: true }, { f: 'ats', label: 'ATS', l: true }, { f: 'ats_pct', label: 'ATS %', fmt: pct }, { f: 'ats_home', label: 'ATS home', l: true }, { f: 'ats_away', label: 'ATS away', l: true },
         { f: 'ats_fav', label: 'ATS fav', l: true }, { f: 'ats_dog', label: 'ATS dog', l: true }, { f: 'avg_cover_margin', label: 'Avg cover margin' },
         { f: 'ou', label: 'O/U', l: true }, { f: 'over_pct', label: 'Over %', fmt: pct }, { f: 'avg_total_vs_line', label: 'Avg total vs line' }, { f: 'point_diff', label: 'Pt diff /g' }],
       sort: { f: 'ats_pct', dir: 'desc' },
     },
     offense: {
-      title: 'Offense', note: 'Per-game box score stats first (pass yards are net of sacks), then advanced stats to the right. EPA/play = expected points added per play, the standard all-in-one efficiency number (higher is better). Success rate = share of plays that gained enough to stay on schedule. Neutral pass rate = how often they pass on 1st/2nd down when the game is close. Ranks: 1 = best.',
+      title: 'Offense', note: 'Per-game box score stats, then advanced stats.',
       cols: [{ f: 'pts_for', label: 'Pts /g' }, { f: 'pts_for_rank', label: 'Rk', rank: true },
         { f: 'off_total_yds', label: 'Yds /g' }, { f: 'off_total_yds_rank', label: 'Rk', rank: true },
         { f: 'off_pass_yds', label: 'Pass yds /g' }, { f: 'off_pass_yds_rank', label: 'Rk', rank: true },
@@ -2092,7 +2090,7 @@ function renderTeams() {
       sort: { f: 'pts_for', dir: 'desc' },
     },
     defense: {
-      title: 'Defense', note: 'Per-game stats allowed first (pass yards are net of sacks), then advanced stats to the right. Lower EPA/play allowed is better. Pass and run defense ranks show where a defense is weak: a "pass funnel" stops the run but gives up more through the air, so opponents tend to throw more. Ranks: 1 = best.',
+      title: 'Defense', note: 'Per-game stats allowed, then advanced stats.',
       cols: [{ f: 'pts_against', label: 'Pts allowed /g' }, { f: 'pts_against_rank', label: 'Rk', rank: true },
         { f: 'def_total_yds', label: 'Yds allowed /g' }, { f: 'def_total_yds_rank', label: 'Rk', rank: true },
         { f: 'def_pass_yds', label: 'Pass yds allowed /g' }, { f: 'def_pass_yds_rank', label: 'Rk', rank: true },
@@ -2125,7 +2123,7 @@ function renderTeams() {
   });
   addTeamRanks(rows);
   const scope = S.tSeas === 'both' ? 'this season and last' : 'this season';
-  $('.t-note').textContent = V.note + ` Covers ${scope}.` + (splits.length ? ` Highlighted teams only count games the selected player(s) missed, and their ranks are against every other team's full numbers.` : '');
+  $('.t-note').textContent = V.note + ` Covers ${scope}.`;
   table($('.t-teams'), 'teams-' + S.tView, [{ f: 'team', label: 'Team', l: true }, { f: 'games', label: 'GP' }, ...V.cols, { f: 'next_opp', label: 'Next', l: true }], rows,
     { sort: V.sort, selected: (r) => r.wo });
   // with vs without comparison for each filtered team
@@ -2234,10 +2232,10 @@ function renderHome() {
   $('.h-top').hidden = S.sport !== 'cfb' && S.sport !== 'cbb';
   $('.h-top [data-v="all"]').textContent = S.sport === 'cbb' ? 'All D1' : 'All FBS';
   $('.h-note').textContent = S.sport === 'nba'
-    ? 'Spreads, totals and moneylines come from ESPN when they are posted (refreshed each morning), so check your book before betting. Tip-off times are in your time zone.'
-    : S.sport === 'cbb' ? 'Games with at least one D1 team. Spreads, totals and moneylines come from ESPN when they are posted (refreshed each morning), so check your book before betting. Proj = the model\'s projected total from both teams\' tempo and efficiency. #N = AP Top 25 rank. Tip times are in your time zone.'
-    : S.sport === 'cfb' ? 'FBS games. Finished games show their closing line; upcoming lines come from ESPN each morning once they are posted, so check your book before betting. #N = AP Top 25 rank. Kickoff times are in your time zone.'
-      : 'Lines are the market consensus from nflverse and move until kickoff, so check your book before betting. Kickoff times are in your time zone. Tap a game to research it.';
+    ? 'Lines from ESPN, refreshed each morning.'
+    : S.sport === 'cbb' ? 'D1 games. Lines from ESPN, refreshed each morning. Proj = model total.'
+    : S.sport === 'cfb' ? 'FBS games. Lines from ESPN, refreshed each morning.'
+      : 'Lines are the market consensus and move until kickoff.';
   if (S.sport === 'nba') { renderNBAHome(); return; }
   if (S.sport === 'cfb') { renderCFBHome(); return; }
   if (S.sport === 'cbb') { renderCBBHome(); return; }
@@ -2334,7 +2332,7 @@ function renderTC(g) {
   }));
   const span = S.tcWin === 'season' ? 'this season' : `over each team's last ${S.tcWin.slice(1)} games`;
   const b = (t, c) => h('b', { class: c }, t);
-  $('.tc-sum').replaceChildren(`${TI(off).nick} offense has the edge in `, b(`${oe} of ${TC_ROWS.length}`, 'g'), ` categories and the ${TI(def).nick} defense in `, b(`${de}`, 'r'), ` (${span}). Tap ⇄ to see the other side of the ball.`);
+  $('.tc-sum').replaceChildren(`${TI(off).nick} offense has the edge in `, b(`${oe} of ${TC_ROWS.length}`, 'g'), ` categories and the ${TI(def).nick} defense in `, b(`${de}`, 'r'), ` (${span}).`);
   renderGameDvP(g);
 }
 
@@ -2552,7 +2550,7 @@ function renderGPlayers(g) {
     WR: (gs) => [[show(avgOf(gs, 'receptions')), 'REC'], [show(avgOf(gs, 'receiving_yards')), 'REC YD'], [show(avgOf(gs, 'targets')), 'TGT']],
   };
   NUMS.TE = NUMS.WR;
-  $('.pl-note').textContent = `Each team's likely starting QB, then the RBs, WRs and TEs getting the most work over its last ${DC_RECENT.fb} games (carries + targets), with per-game averages over the games you pick (H2H = his games against this opponent, this season and last). Under each team: who has missed games, and anyone removed because he's out for the season. Grade = this week's matchup: A+ = the defense allows the most to his position (easiest), F = the least (toughest). Tap a player for his full prop card.`;
+  $('.pl-note').textContent = `Each team's likely starting QB, then the RBs, WRs and TEs getting the most work over its last ${DC_RECENT.fb} games (carries + targets), with per-game averages over the games you pick.`;
   $('.pl-body').replaceChildren(...[g.away_team, g.home_team].map((team) => {
     const opp = oppOf(team), dc = depthChart('nfl', team, g);
     const rows = dc.list.map((x) => {
@@ -2575,7 +2573,7 @@ function renderUsage(g) {
   const key = S.usType === 'targets' ? (S.usZone === 'rz' ? 'rz_targets' : 'targets') : (S.usZone === 'rz' ? 'rz_carries' : 'carries');
   const noun = S.usType === 'targets' ? 'targets' : 'carries';
   const span = { l3: 'last 3 games', l5: 'last 5 games', l10: 'last 10 games', cur: 'games this season', both: 'games this season and last' }[S.usWin];
-  $('.us-note').textContent = `Each player's share of his team's ${S.usZone === 'rz' ? 'red-zone (inside the 20) ' : ''}${noun} over the team's ${span}, shown per team game. A player only counts in games he played for that team.`;
+  $('.us-note').textContent = `Each player's share of his team's ${S.usZone === 'rz' ? 'red-zone (inside the 20) ' : ''}${noun} over the team's ${span}, shown per team game.`;
   $('.us-body').replaceChildren(...[g.away_team, g.home_team].map((team) => {
     const keys = teamKeys(team, S.usWin), n = keys.size;
     const m = new Map();
@@ -2794,7 +2792,7 @@ function renderFFPlayer() {
   const byes = sched.filter((x) => x.bye).map((x) => `Week ${x.week}`);
   $('.ffp-title').replaceChildren(badge(p.team, 'sm'), ` ${p.player} · ${pos} · ${p.team}`);
   $('.ffp-title').style.cssText = 'display:flex;align-items:center;gap:6px';
-  $('.ffp-note').textContent = `${FMT_NAME[S.fmt]} points per game scaled by how much each opponent allows to ${pos}s compared with the league average.`;
+  $('.ffp-note').textContent = `${FMT_NAME[S.fmt]} points per game, adjusted for each opponent.`;
   $('.ffp-tiles').replaceChildren(
     tile(show(base.A), `Fantasy pts /g this season (${base.n} g)`), tile(show(base.L3), 'Last 3 games avg'),
     tile(sos.rank ? `#${sos.rank}` : '—', `Rest-of-season schedule vs ${pos}s (of 32)`, sos.rank ? rankWord(sos.rank) : ''),
@@ -3079,10 +3077,8 @@ function renderTrends() {
   }).sort((a, b) => (T.sort === 'edge' ? (b.imp != null) - (a.imp != null) || (a.imp != null ? (b.w[W].p - b.imp) - (a.w[W].p - a.imp) : 0) : 0)
     || b.w[W].p - a.w[W].p || b.w[W].n - a.w[W].n || b.w.l10.p - a.w.l10.p || b.w.cur.p - a.w.cur.p);
   const wl = W === 'h2h' ? 'head-to-head' : trWinLabel(W);
-  $('.tr-note').textContent = `${rows.length} trends for ${nba ? (gs.length ? `${dayTxt(gs[0].d)} games` : 'the next slate') : `week ${gs.length ? gs[0].g.week : ''}`}, sorted by ${T.sort === 'edge' ? `edge (${wl} hit rate minus the odds' implied chance)` : `${wl} hit rate`}. `
-    + (X.book ? 'Book lines and odds come from DraftKings (FanDuel when DK has none), pulled once a week, so check your book before betting. ' : '')
-    + 'Lines marked "est." are the standard book steps closest to the player\'s recent median. Matchup grade is how much this defense allows for that stat (A = easiest for the bet).'
-    + (cbb ? ' D1 games only; positions are ESPN\'s guard / forward / center, and the matchup grade ranks all D1 defenses.' : nba ? ' Positions are ESPN\'s guard / forward / center.' : cfb ? ' FBS games only; positions come from ESPN rosters, and the matchup grade ranks all FBS defenses.' : '') + ' Tap a card for the full game log.';
+  $('.tr-note').textContent = `${rows.length} trends for ${nba ? (gs.length ? `${dayTxt(gs[0].d)} games` : 'the next slate') : `week ${gs.length ? gs[0].g.week : ''}`}, sorted by ${T.sort === 'edge' ? 'edge' : `${wl} hit rate`}.`
+    + (X.book ? ' Book lines from DraftKings (FanDuel when DK has none).' : '');
   const shown = rows.slice(0, S.trShown);
   $('.tr-list').replaceChildren(...shown.map((t) => trCard(t, W)));
   $('.tr-more').hidden = rows.length <= S.trShown;
@@ -3352,7 +3348,7 @@ function renderNFPlayer(D) {
     tile(show(fp1(mean(next.map((x) => x.proj).filter((v) => v != null)))), 'Projected per game, next 10'),
     tile(`${thisWk} / ${nextWk}`, 'Games this week / next week'),
     tile(`${easy} / ${tough}`, 'Easy / tough matchups, next 10'));
-  $('.nfp-note').textContent = `${fmt === 'dk' ? 'DraftKings' : 'FanDuel'} points per game scaled by how much each opponent allows to ${NF_POS[pos]} compared with the league average.`;
+  $('.nfp-note').textContent = `${fmt === 'dk' ? 'DraftKings' : 'FanDuel'} points per game, adjusted for each opponent.`;
   const l15 = logs.slice(-15), avg = mean(cur.map((r) => nbaFP(r, fmt)));
   bars($('.nfp-chart'), l15.map((r) => { const v = fp1(nbaFP(r, fmt)); return { x: `${r.home ? '' : '@'}${r.opp}`, y: v, color: avg == null || v >= avg ? 'var(--ok)' : 'var(--bad)',
     tipTitle: `${r.date} ${r.home ? 'vs' : '@'} ${r.opp}`, tipBody: `${show(v)} pts · ${r.pts} pts, ${r.reb} reb, ${r.ast} ast in ${r.min} min` }; }),
@@ -3605,7 +3601,7 @@ function renderCBBTotals() {
     { f: 'hRec', label: 'Home O/U', l: true }, { f: 'hPct', label: 'Over %', fmt: pct },
     { f: 'final', label: 'Final', group: true }, { f: 'res', label: 'Result', l: true, fmt: (v) => v || '—', cls: (v) => (v === 'Over' ? 'diff-g' : v === 'Under' ? 'diff-r' : '') },
   ], rows, { sort: { f: 'tip', dir: 'asc' }, onClick: (r) => { S.fromHome = true; S.xgFlip = false; go(`xgame/cbb/${r.g.game_id}/totals`); } });
-  $('.ot-note').textContent = `Tap a game for its full totals breakdown. Proj = the model's total: both teams' tempo (possessions per 40 minutes) and offensive / defensive efficiency, adjusted for opponent and home court, leaning on last season until a team has a few games in. Green = the model is 3+ points over the posted total, red = 3+ under. Avg total and O/U records are this season's, or a team's last 10 games across both seasons until it has played 5. O/U records use ESPN's closing totals. Totals are pulled from ESPN each morning, so check your book.`;
+  $('.ot-note').textContent = `Proj = the model's total from both teams' tempo and efficiency. Totals from ESPN, refreshed each morning.`;
 
   // ----- model record -----
   const M = cbbModelRecord();
@@ -3639,7 +3635,7 @@ function renderCBBTotals() {
     { f: 'adjD', label: 'Def rk', title: 'Adjusted defense rank (1 = best)', cls: (v) => (v == null ? 'rk' : v <= 60 ? 'rk rk-r' : v > nb - 60 ? 'rk rk-g' : 'rk') },
   ], tRows, { sort: { f: 'tot', dir: 'desc' } });
   const sz = { cur: `${yy(CBB.season - 1)}-${yy(CBB.season)}`, prev: `${yy(CBB.season - 2)}-${yy(CBB.season - 1)}`, both: 'the last two seasons' }[S.otSeas];
-  $('.ot-tnote').textContent = `${tRows.length} D1 teams, ${sz}${S.otSite !== 'all' ? `, ${{ H: 'home', A: 'away', N: 'neutral-site' }[S.otSite]} games` : ''}${S.otConf !== 'all' ? `, ${S.otConf === 'conf' ? 'conference' : 'non-conference'} games` : ''}${nLast ? `, last ${nLast} games each` : ''}. Every game against anyone counts. Tempo / offense / defense ranks are the current adjusted ratings (green = good for overs: fast tempo, strong offense, weak defense). Tap a column to sort.`;
+  $('.ot-tnote').textContent = `${tRows.length} D1 teams, ${sz}${S.otSite !== 'all' ? `, ${{ H: 'home', A: 'away', N: 'neutral-site' }[S.otSite]} games` : ''}${S.otConf !== 'all' ? `, ${S.otConf === 'conf' ? 'conference' : 'non-conference'} games` : ''}${nLast ? `, last ${nLast} games each` : ''}.`;
 }
 $('.ot-q').addEventListener('input', (e) => { S.otQ = e.target.value.trim(); render(); });
 segs.push(seg('.ot-top', 'otTop'), seg('.ot-seas', 'otSeas'), seg('.ot-site', 'otSite'), seg('.ot-conf', 'otConf'), seg('.ot-last', 'otLast'), seg('.xgt-seas', 'xgtSeas'));
@@ -3674,7 +3670,7 @@ function xgTotals(sp, g) {
   if (sl != null && tl != null) t.push(tile(`${show((tl - sl) / 2)} / ${show((tl + sl) / 2)}`, `Implied team totals (${A} / ${H})`));
   if (fin) { const tot = g.away_score + g.home_score; t.push(tile(String(tot), tl != null ? `Final (${tot > tl ? 'over' : tot < tl ? 'under' : 'push'})` : 'Final total')); if (g.away_h1 != null) t.push(tile(String(g.away_h1 + g.home_h1), '1st-half total')); }
   $('.xgt-tiles').replaceChildren(...t);
-  $('.xgt-note').textContent = 'The model multiplies a projected number of possessions (both teams\' adjusted tempo) by what each offense scores per 100 possessions against this kind of defense, with a home-court bump. Early in the season it leans on last season. It doesn\'t know about injuries or lineup changes, so use it as one input.';
+  $('.xgt-note').textContent = 'Model total from both teams\' tempo and efficiency, with a home-court bump. Doesn\'t account for injuries.';
   // ----- notes -----
   const notes = [], ord = (r) => (r == null ? '—' : ordinal(r));
   if (e != null && Math.abs(e) >= 3) notes.push(`The model is ${show(Math.abs(e))} points ${e > 0 ? 'over' : 'under'} the posted total.`);
@@ -3903,7 +3899,7 @@ function xgMatchup(sp, g) {
   $('.xg-win').replaceChildren(...XG_WINS[sp].map(([k, l]) => h('button', { 'aria-pressed': String(k === win), onclick: () => { S.xgWin[sp] = k; render(); } }, l)));
   const off = S.xgFlip ? g.home_team : g.away_team, def = S.xgFlip ? g.away_team : g.home_team;
   const O = W.by.get(off) || {}, D = W.by.get(def) || {};
-  $('.xg-mnote').textContent = `Per-game numbers with each unit's rank among all ${N} ${{ nba: 'NBA', cfb: 'FBS', cbb: 'D1' }[sp]} teams over the same stretch of games. Ranks on this page: 1 = the best offense, or the defense that allows the least (toughest matchup); ${N} = the weakest offense, or the defense that allows the most (easiest). The longer bar is the stronger side.`;
+  $('.xg-mnote').textContent = `Per-game numbers with each unit's rank among all ${N} ${{ nba: 'NBA', cfb: 'FBS', cbb: 'D1' }[sp]} teams for the same stretch of games.`;
   $('.xg-o').replaceChildren(badge(off, 'sm'), `${TI(off).nick} offense`);
   $('.xg-d').replaceChildren(`${TI(def).nick} defense`, badge(def, 'sm'));
   let oe = 0, de = 0;
@@ -3918,7 +3914,7 @@ function xgMatchup(sp, g) {
   }));
   const span = win === 'season' ? 'this season' : `over each team's last ${win.slice(1)} games`;
   const b = (t, c) => h('b', { class: c }, t);
-  $('.xg-sum').replaceChildren(`${TI(off).nick} offense has the edge in `, b(`${oe} of ${cfg.length}`, 'g'), ` categories and the ${TI(def).nick} defense in `, b(`${de}`, 'r'), ` (${span}). Tap ⇄ to see the other side of the ball.`);
+  $('.xg-sum').replaceChildren(`${TI(off).nick} offense has the edge in `, b(`${oe} of ${cfg.length}`, 'g'), ` categories and the ${TI(def).nick} defense in `, b(`${de}`, 'r'), ` (${span}).`);
   // defense vs position
   const tbl = $('.xg-dvp'), teams = [g.away_team, g.home_team];
   const P = isBB(sp) ? [['G', 'Guards', 'pts', 'pts'], ['F', 'Forwards', 'pts', 'pts'], ['C', 'Centers', 'pts', 'pts']]
@@ -3927,7 +3923,7 @@ function xgMatchup(sp, g) {
       ['WR', 'WRs', 'receiving_yards', 'rec yds'], ['WR', 'WRs', 'receptions', 'receptions'],
       ['TE', 'TEs', 'receiving_yards', 'rec yds'], ['TE', 'TEs', 'receptions', 'receptions']];
   const X = xgX(), Nd = sp === 'nba' ? 30 : Math.max(2, X.nDef || 130);
-  $('.xg-dnote').textContent = `What each defense allows per game to each position ${sp === 'cbb' && CBB.meta.dvp_season !== String(CBB.season) ? 'last season (this season takes over once enough games are in)' : 'this season'}, ranked among all ${Nd} ${{ nba: 'teams', cfb: 'FBS defenses', cbb: 'D1 defenses' }[sp]}. * = one big game is carrying that number (details below the table).`;
+  $('.xg-dnote').textContent = `What each defense allows per game to each position ${sp === 'cbb' && CBB.meta.dvp_season !== String(CBB.season) ? 'last season (this season takes over once enough games are in)' : 'this season'}, ranked among all ${Nd} ${{ nba: 'teams', cfb: 'FBS defenses', cbb: 'D1 defenses' }[sp]}. * = one big game is carrying that number.`;
   tbl.tHead.replaceChildren(h('tr', null, h('th', { class: 'l' }, 'Vs'), ...teams.flatMap((t) => [h('th', { class: 'grp' }, `${t} D allows`), h('th', { class: 'rkh' }, 'Rk')])));
   const hiEasy = sp === 'nba' ? 23 : sp === 'cbb' ? Nd - 60 : Nd - 20, loTough = sp === 'nba' ? 8 : sp === 'cbb' ? 60 : 20;
   const dNotes = [];
@@ -3986,7 +3982,7 @@ function xgPlayers(sp, g) {
   $('.xg-pnote').textContent = (isBB(sp)
     ? `Each team's rotation (${sp === 'nba' ? 14 : 10}+ minutes a game over its last ${DC_RECENT.bb} games), guards first, then forwards and centers, with averages over the games you pick.`
     : `Each team's starting QB, then the RBs, WRs and TEs getting the most work over its last ${DC_RECENT.fb} games, with averages over the games you pick.`)
-    + ` Under each team: who has missed games, and anyone removed because he's out for the season. Matchup grade = what the opponent allows to his position (A = easiest). Tap a player for his game log.`;
+;
   $('.xg-plist').replaceChildren(...out);
 }
 
