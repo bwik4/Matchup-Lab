@@ -41,6 +41,10 @@
     {
       "from": "Chips = stats where the two defenses match (Chargers / that team, allowed per game). Green = both give up a lot, red = both shut it down. Last line = what Ravens did in that game (± vs its season average).",
       "to": "Chips = stats where the two defenses match (Chargers / that team, allowed per game). Last line = what Ravens did in that game (± vs its season average)."
+    },
+    {
+      "from": "Ravens' past opponents with offenses most like Chargers'",
+      "to": "Ravens vs similar offenses"
     }
   ],
   "cols": {},
