@@ -23,7 +23,20 @@
  */
 (() => {
   'use strict';
-  const LS_DRAFT = 'ml-site-draft', LS_TOKEN = 'ml-gh-token', LS_REPO = 'ml-gh-repo';
+  // Sandbox: a private copy of the site's look/layout. It saves to sandbox-config.json, which the real
+  // site never reads, so nothing done there can change what everyone else sees.
+  // Turn it on with the "Sandbox" button in Edit mode (or add ?sandbox to the address).
+  const LS_SANDBOX = 'ml-sandbox';
+  let SANDBOX = false;
+  try { SANDBOX = /[?&]sandbox\b/.test(location.search) || localStorage.getItem(LS_SANDBOX) === '1'; if (SANDBOX) localStorage.setItem(LS_SANDBOX, '1'); } catch (e) { /* storage off */ }
+  const CFG_FILE = SANDBOX ? 'sandbox-config.json' : 'site-config.json';
+  const LS_DRAFT = SANDBOX ? 'ml-sandbox-draft' : 'ml-site-draft', LS_TOKEN = 'ml-gh-token', LS_REPO = 'ml-gh-repo';
+  function setSandbox(on) {
+    try { if (on) localStorage.setItem(LS_SANDBOX, '1'); else localStorage.removeItem(LS_SANDBOX); } catch (e) { /* storage off */ }
+    const u = new URL(location.href); u.searchParams.delete('sandbox'); if (on) u.searchParams.set('sandbox', '');
+    if (on) u.searchParams.set('edit', ''); else u.searchParams.delete('edit');
+    location.href = u.toString().replace(/=(?=&|#|$)/g, '');
+  }
   const DEFAULT_REPO = 'bwik4/Matchup-Lab';
   const BLANK = () => ({ look: {}, siteName: '', hidden: [], order: {}, text: [], cols: {}, buttons: [], nav: [], styles: [], moves: [], caseOff: false });
   // [key, label, CSS variable, group]
@@ -1013,7 +1026,7 @@
   function saveTab() {
     let token = '', repo = DEFAULT_REPO;
     try { token = localStorage.getItem(LS_TOKEN) || ''; repo = localStorage.getItem(LS_REPO) || DEFAULT_REPO; } catch (e) { /* storage off */ }
-    const status = el('p', { class: 'ed-status' }, dirty || JSON.stringify(cfg) !== JSON.stringify(published) ? 'You have changes that are only in this browser.' : 'Everything is published.');
+    const status = el('p', { class: 'ed-status' }, SANDBOX ? (dirty || JSON.stringify(cfg) !== JSON.stringify(published) ? 'Sandbox changes are saved in this browser. Save to GitHub to see them on your other devices.' : 'Sandbox saved.') : dirty || JSON.stringify(cfg) !== JSON.stringify(published) ? 'You have changes that are only in this browser.' : 'Everything is published.');
     const tokIn = el('input', { type: 'password', value: token, placeholder: 'github_pat_…', autocomplete: 'off', 'aria-label': 'GitHub key' });
     const repoIn = el('input', { type: 'text', value: repo, 'aria-label': 'Repository' });
     const pub = el('button', { type: 'button', class: 'ed-primary', onclick: async () => {
@@ -1024,9 +1037,27 @@
       try { await publish(t, rp); status.textContent = 'Published. Everyone sees it within about a minute (refresh to check).'; }
       catch (err) { status.textContent = `Didn't publish: ${err.message}`; }
       pub.disabled = false;
-    } }, 'Publish to GitHub');
+    } }, SANDBOX ? 'Save Sandbox To GitHub' : 'Publish to GitHub');
+    const keyOf = () => { const t = tokIn.value.trim(); if (!t) status.textContent = 'Paste your GitHub key first (steps below).'; else { try { localStorage.setItem(LS_TOKEN, t); localStorage.setItem(LS_REPO, repoIn.value.trim() || DEFAULT_REPO); } catch (e) { /* */ } } return t; };
+    const sandboxBox = SANDBOX ? [
+      el('p', { class: 'ed-dim' }, 'This is your sandbox. Nothing here changes the real site until you press "Make This The Live Site".'),
+      el('div', { class: 'ed-row ed-wrap' },
+        el('button', { type: 'button', class: 'ed-primary', onclick: async () => {
+          const t = keyOf(); if (!t) return;
+          if (!confirmBox('Make the sandbox design the real site everyone sees?')) return;
+          status.textContent = 'Publishing to the live site…';
+          try { await publish(t, repoIn.value.trim() || DEFAULT_REPO, 'site-config.json'); status.textContent = 'Live site updated. Everyone sees it within about a minute.'; }
+          catch (err) { status.textContent = `Didn't publish: ${err.message}`; }
+        } }, 'Make This The Live Site'),
+        el('button', { type: 'button', onclick: async () => {
+          if (!confirmBox('Start the sandbox over from the live site\'s current design?')) return;
+          const j = await fetch(`site-config.json?v=${Date.now()}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+          cfg = norm(j); changed(); location.reload();
+        } }, 'Reset To Live Site'),
+        el('button', { type: 'button', onclick: () => setSandbox(false) }, 'Exit Sandbox')),
+    ] : [];
     return [
-      status,
+      status, ...sandboxBox,
       el('div', { class: 'ed-row ed-wrap' }, pub,
         el('button', { type: 'button', onclick: download }, 'Download file'),
         el('button', { type: 'button', onclick: () => { if (confirmBox('Throw away your unpublished changes?')) { cfg = clone(published); dirty = false; try { localStorage.removeItem(LS_DRAFT); } catch (e) { /* */ } location.reload(); } } }, 'Discard changes')),
@@ -1058,13 +1089,14 @@
     const body = { pick: pickTab, look: lookTab, layout: layoutTab, text: textTab, save: saveTab }[tab]();
     const unpub = JSON.stringify(cfg) !== JSON.stringify(published);
     panel.replaceChildren(
-      el('div', { class: 'ed-head' }, el('b', null, 'Edit site'), unpub ? el('span', { class: 'ed-dot', title: 'Unpublished changes' }, '● not published') : null,
+      el('div', { class: 'ed-head' }, el('b', null, SANDBOX ? 'Sandbox' : 'Edit site'), unpub && !SANDBOX ? el('span', { class: 'ed-dot', title: 'Unpublished changes' }, '● not published') : null,
+        el('button', { type: 'button', class: `ed-sbx${SANDBOX ? ' on' : ''}`, title: SANDBOX ? 'Leave the sandbox and go back to the real site' : 'Open a copy of the site you can change freely', onclick: () => setSandbox(!SANDBOX) }, SANDBOX ? 'Exit Sandbox' : 'Sandbox'),
         el('button', { type: 'button', class: 'ed-min', title: 'Shrink', onclick: () => panel.classList.toggle('ed-small') }, '–'),
         el('button', { type: 'button', class: 'ed-x', title: 'Done editing', onclick: () => setEditing(false) }, 'Done')),
       el('div', { class: 'ed-toggle ed-modes', role: 'group', 'aria-label': 'What clicking the page does' }, el('span', { class: 'ed-dim' }, 'Clicking the page:'),
         ...[['browse', 'Uses the site'], ['pick', 'Select & style'], ['text', 'Renames words']].map(([m, l]) =>
           el('button', { type: 'button', 'aria-pressed': String(m === (pickMode ? 'pick' : textMode ? 'text' : 'browse')), onclick: () => setMode(m) }, l))),
-      el('div', { class: 'ed-tabs', role: 'tablist' }, ...[['pick', 'Selected'], ['look', 'Look'], ['layout', 'Layout'], ['text', 'Words'], ['save', unpub ? 'Publish ●' : 'Publish']].map(([k, l]) =>
+      el('div', { class: 'ed-tabs', role: 'tablist' }, ...[['pick', 'Selected'], ['look', 'Look'], ['layout', 'Layout'], ['text', 'Words'], ['save', SANDBOX ? 'Save' : unpub ? 'Publish ●' : 'Publish']].map(([k, l]) =>
         el('button', { type: 'button', 'aria-pressed': String(tab === k), onclick: () => { tab = k; drawPanel(); } }, l))),
       el('div', { class: 'ed-body' }, ...body));
   }
@@ -1099,15 +1131,16 @@
     document.body.append(a); a.click(); a.remove();
   }
   const b64 = (s) => btoa(unescape(encodeURIComponent(s)));
-  async function publish(token, repo) {
-    const url = `https://api.github.com/repos/${repo}/contents/site-config.json`;
+  async function publish(token, repo, file = CFG_FILE, body = null) {
+    const url = `https://api.github.com/repos/${repo}/contents/${file}`;
     const hd = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
     let sha;
     const cur = await fetch(`${url}?ref=main&t=${Date.now()}`, { headers: hd, cache: 'no-store' });
     if (cur.status === 401 || cur.status === 403) throw new Error('GitHub rejected the key. Check it has Contents: Read and write on this repo, and hasn\'t expired.');
     if (cur.ok) sha = (await cur.json()).sha; else if (cur.status !== 404) throw new Error(`GitHub said ${cur.status}`);
-    const res = await fetch(url, { method: 'PUT', headers: hd, body: JSON.stringify({ message: 'Update site look/layout (Edit mode)', content: b64(out()), sha, branch: 'main' }) });
+    const res = await fetch(url, { method: 'PUT', headers: hd, body: JSON.stringify({ message: file === 'site-config.json' ? 'Update site look/layout (Edit mode)' : 'Save sandbox design (Edit mode)', content: b64(body || out()), sha, branch: 'main' }) });
     if (!res.ok) { const j = await res.json().catch(() => ({})); throw new Error(j.message || `GitHub said ${res.status}`); }
+    if (file !== CFG_FILE) return;
     published = clean(cfg); cfg = clone(published); dirty = false;
     try { localStorage.removeItem(LS_DRAFT); } catch (e) { /* storage off */ }
     drawPanel();
@@ -1118,6 +1151,11 @@
   function drawBanner() {
     const unpub = JSON.stringify(cfg) !== JSON.stringify(published);
     if (banner) { banner.remove(); banner = null; }
+    if (SANDBOX && !editing) {
+      banner = el('div', { class: 'ed-ui ed-banner ed-sbx-banner' }, 'Sandbox: changes here never touch the real site. ',
+        el('button', { type: 'button', onclick: () => setEditing(true) }, 'Edit'), ' ', el('button', { type: 'button', onclick: () => setSandbox(false) }, 'Exit'));
+      document.body.append(banner); return;
+    }
     if (editing || !unpub) return;
     banner = el('div', { class: 'ed-ui ed-banner' }, 'You\'re seeing your unpublished site edits (only on this device). ',
       el('button', { type: 'button', onclick: () => { setEditing(true); tab = 'save'; drawPanel(); } }, 'Publish or discard'));
@@ -1129,6 +1167,10 @@
     .card { padding: var(--card-pad, 18px); }
     .ml { max-width: var(--page-w, 1240px); }
     .ed-hide { display: none !important; }
+    .ed-sbx { margin-left: auto; font: inherit; font-size: .8rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; border: 1px solid #a78bfa; background: none; color: #c4b5fd; cursor: pointer; }
+    .ed-sbx.on { background: #7c3aed; color: #fff; border-color: #7c3aed; }
+    body.ed-sandbox { box-shadow: inset 0 0 0 3px #7c3aed; }
+    .ed-sbx-banner { background: #7c3aed !important; color: #fff !important; }
     .ed-col-off { display: none !important; }
     body.ed-on .ed-hide { display: revert !important; opacity: .35; outline: 2px dashed var(--muted); }
     body.ed-on .grid.ed-hide { display: grid !important; }
@@ -1213,11 +1255,14 @@
     base.radius = parseInt(cs.getPropertyValue('--radius'), 10) || 10;
     base.siteName = (document.querySelector('header h1') || {}).textContent || 'Matchup Lab';
     const foot = document.querySelector('footer');
-    if (foot) foot.append(' · ', el('button', { type: 'button', class: 'ed-edit-link', onclick: () => setEditing(!editing) }, 'Edit site'));
+    if (foot) foot.append(' · ', el('button', { type: 'button', class: 'ed-edit-link', onclick: () => setEditing(!editing) }, 'Edit site'),
+      ' · ', el('button', { type: 'button', class: 'ed-edit-link', onclick: () => setSandbox(!SANDBOX) }, SANDBOX ? 'Exit sandbox' : 'Sandbox'));
+    if (SANDBOX) document.body.classList.add('ed-sandbox');
     let draft = null;
     try { draft = JSON.parse(localStorage.getItem(LS_DRAFT) || 'null'); } catch (e) { draft = null; }
     if (draft) { cfg = norm(draft); applyAll(); }
-    fetch(`site-config.json?v=${Date.now()}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null).then((j) => {
+    const load = (f) => fetch(`${f}?v=${Date.now()}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    load(CFG_FILE).then((j) => (j || !SANDBOX ? j : load('site-config.json'))).then((j) => {
       published = clean(norm(j));
       if (!draft) cfg = clone(published);
       applyAll(); drawBanner();
