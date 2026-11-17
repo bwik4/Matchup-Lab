@@ -444,6 +444,7 @@ VX.player = function () {
       h('div', { class: 'vx-dvgrid' }, ...all.map((k) => { const d = tDv(sp, opp, p.pos, k); return d ? h('a', { class: 'vx-dv', href: `#team/${sp}/${encodeURIComponent(opp)}`, style: `--c:${vRkColor(d.rank, d.n)}` }, h('small', null, vStatLbl(sp, k)), h('b', null, show(d.pg)), h('span', null, ordinal(d.rank))) : null; })),
       sim ? h('p', { class: 'note' }, `Vs the ${sim.n} defenses most like ${opp}: ${show(sim.avg)} ${vStatLbl(sp, main)} (`, ...sim.opps.flatMap((o, i) => [i ? ', ' : '', vTeamLink(sp, o)]), ').') : null));
   }
+  if (!p.old) cards.push(vWoCard(sp, p));
   // game log
   const last10 = p.logs.slice(-12).reverse();
   const glCols = stats.slice(0, 7);
@@ -691,6 +692,8 @@ function vShotPlayerCard(p, opp) {
 }
 
 // ---------------------------------------------------------------- start-up
+// a direct link (or refresh) to one of these pages ran the router before this file added them: route again
+if (V_PAGES.includes(location.hash.slice(1).split('/')[0])) applyRoute();
 vSearchInit();
 vSlipBtn();
 window.addEventListener('storage', (e) => { if (e.key === 'ml-slip') vSlipBtn(); });
@@ -829,4 +832,57 @@ function vTotCard(sp, g, host) {
         h('td', { class: 'muted' }, r.lab.startsWith('Def') ? `both bottom ${c.cut}` : `both top ${c.cut}`))))),
     h('p', { class: 'note' }, `Ranks among ${c.n} teams${sp === 'cbb' ? ' (adjusted efficiency and tempo; top 10% = top ${c.cut})' : ''}. Over = all 3 rows met by both teams; Under = the mirror. Green = fits the over, red = fits the under.`));
   host.hidden = false;
+}
+
+// ================================================================= GAMES WITHOUT (player profiles, all sports)
+// Pick one or more teammates: his averages in games they all missed vs games they played.
+// NFL uses the snap/roster availability file (woSplit); NBA / CFB / CBB use the box scores (no line = didn't play).
+S.vWo = S.vWo || { key: '', list: [] };
+function vWoSplit(sp, p, mates) {
+  const U = tUni(sp), mine = p.logs.filter((r) => r.team === p.team);
+  if (sp === 'nfl') return mine.map((r) => ({ r, st: woSplit(U.season, p.team, r.week, mates.map((m) => m.pid)) }));
+  const played = mates.map((m) => {
+    const ks = new Set(m.logs.filter((r) => r.team === p.team).map((r) => m.key(r)));
+    const other = m.logs.some((r) => r.team !== p.team); // traded: only count games after he joined
+    const first = m.logs.filter((r) => r.team === p.team).map((r) => String(r.date || r.week)).sort()[0];
+    return { ks, other, first };
+  });
+  return mine.map((r) => {
+    const k = p.key(r), when = String(r.date || r.week);
+    let out = 0, inn = 0;
+    played.forEach((m) => { if (m.ks.has(k)) inn++; else if (!m.other || (m.first && when >= m.first)) out++; });
+    return { r, st: out === played.length ? 'without' : inn === played.length ? 'with' : null };
+  });
+}
+function vWoCard(sp, p) {
+  const U = tUni(sp), key = `${sp}|${p.pid}`;
+  if (S.vWo.key !== key) S.vWo = { key, list: [] };
+  const mates = U.players.filter((m) => m.team === p.team && m.pid !== p.pid && m.logs.some((r) => r.team === p.team))
+    .map((m) => ({ m, v: mean(m.logs.map((r) => tVal(r, T_MAIN[m.pos])).filter((x) => x != null)) || 0 }))
+    .sort((a, b) => b.v - a.v).map((x) => x.m);
+  const chosen = S.vWo.list.map((id) => mates.find((m) => m.pid === id)).filter(Boolean);
+  const dl = `vwo-${p.pid}`.replace(/\W/g, '');
+  const inp = h('input', { class: 'search', type: 'search', list: dl, placeholder: 'Add a teammate who sat out', 'aria-label': 'Teammate who sat out',
+    onchange: (e) => { const m = mates.find((x) => `${x.name} (${x.pos})` === e.target.value || x.name === e.target.value); if (m && !S.vWo.list.includes(m.pid)) { S.vWo.list.push(m.pid); render(); } } });
+  const picker = h('div', { class: 'wo vx-wo' }, h('span', { class: 'lbl' }, 'Games without'), inp,
+    h('datalist', { id: dl }, ...mates.map((m) => h('option', { value: `${m.name} (${m.pos})` }))),
+    h('div', { class: 'chips' }, ...chosen.map((m) => h('button', { type: 'button', class: 'chip', title: 'Remove', onclick: () => { S.vWo.list = S.vWo.list.filter((x) => x !== m.pid); render(); } }, `${m.name} ✕`))),
+    !chosen.length ? h('span', { class: 'vx-wo-quick' }, ...mates.slice(0, 4).map((m) => h('button', { type: 'button', class: 'chip', onclick: () => { S.vWo.list.push(m.pid); render(); } }, `+ ${m.name}`))) : null);
+  const kids = [h('h2', null, 'Games Without'), picker];
+  if (chosen.length) {
+    const split = vWoSplit(sp, p, chosen), wo = split.filter((x) => x.st === 'without').map((x) => x.r), wi = split.filter((x) => x.st === 'with').map((x) => x.r);
+    const names = chosen.map((m) => m.name).join(' + ');
+    if (!wo.length) kids.push(h('p', { class: 'empty' }, `${p.name} hasn't played a game without ${names} this season.`));
+    else {
+      const stats = tStats(sp, p.pos).map((x) => x[0]).filter(vFant).slice(0, 8);
+      const rows = stats.map((k) => {
+        const a = mean(wo.map((r) => tVal(r, k)).filter((v) => v != null)), b = wi.length ? mean(wi.map((r) => tVal(r, k)).filter((v) => v != null)) : null, d = a != null && b != null ? a - b : null;
+        return h('tr', null, h('td', { class: 'l' }, vStatLbl(sp, k)), h('td', null, h('b', null, show(a))), h('td', null, b == null ? '—' : show(b)),
+          h('td', { class: d == null ? '' : d > 0 ? 'g' : d < 0 ? 'r' : '' }, d == null ? '—' : `${d > 0 ? '+' : d < 0 ? '−' : '±'}${show(Math.abs(d))}`));
+      });
+      kids.push(h('div', { class: 'tblwrap' }, h('table', { class: 'dvp' }, h('thead', null, h('tr', null, h('th', { class: 'l' }, 'Stat'), h('th', null, `Without (${wo.length} g)`), h('th', null, `With (${wi.length} g)`), h('th', null, 'Diff'))), h('tbody', null, rows))),
+        h('p', { class: 'note' }, `Games without ${names}: `, ...wo.slice().reverse().flatMap((r, i) => [i ? ', ' : '', isBB(sp) ? String(r.date).slice(5) : `Wk ${r.week}`, ' ', r.home === 0 ? '@' : 'vs', ' ', vTeamLink(sp, r.opp)]), '.'));
+    }
+  }
+  return h('div', { class: 'card vx-card' }, ...kids);
 }
