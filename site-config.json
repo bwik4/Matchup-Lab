@@ -196,6 +196,24 @@
     {
       "from": "Over 37.5 this season and last 46%",
       "to": "Over 37.5 (46%)"
+    },
+    {
+      "from": "IND allows to TEs /g (rank 5 of 32, last 3: 3)",
+      "to": "IND allows to TEs/g (5th of 32, L3: 3rd)",
+      "tf": " allows to  /g (rank 5 of , last 3: 3)",
+      "tt": [
+        0,
+        " allows to ",
+        1,
+        "/g (5th of ",
+        2,
+        ", L3: 3rd)"
+      ],
+      "fixed": []
+    },
+    {
+      "from": "IND allows to TEs /g (rank 5 of 32, last 3: 3)",
+      "to": "IND allows to TEs/g (5 of 32, L3: 3rd)"
     }
   ],
   "cols": {},
