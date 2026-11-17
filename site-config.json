@@ -66,6 +66,14 @@
     {
       "from": "Opp rank",
       "to": "Opp Rank"
+    },
+    {
+      "from": "All tools",
+      "to": "All Tools"
+    },
+    {
+      "from": "Prop research screener",
+      "to": "Prop Research"
     }
   ],
   "cols": {},
