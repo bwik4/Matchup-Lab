@@ -42,6 +42,30 @@
     {
       "from": "Props & betting",
       "to": "Props & Betting"
+    },
+    {
+      "from": "L5 avg",
+      "to": "L5 Avg"
+    },
+    {
+      "from": "L5 over",
+      "to": "L5 Over"
+    },
+    {
+      "from": "L10 over",
+      "to": "L10 Over"
+    },
+    {
+      "from": "Season over",
+      "to": "Season Over"
+    },
+    {
+      "from": "Vs similar D",
+      "to": "Vs Similar D"
+    },
+    {
+      "from": "Opp rank",
+      "to": "Opp Rank"
     }
   ],
   "cols": {},
