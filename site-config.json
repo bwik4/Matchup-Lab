@@ -66,10 +66,6 @@
     {
       "from": "Opp rank",
       "to": "Opp Rank"
-    },
-    {
-      "from": "Prop research screener",
-      "to": "Prop Research"
     }
   ],
   "cols": {},
@@ -109,6 +105,15 @@
       "area": "",
       "base": "[data-ek=\"tools/tools\"] > p.note",
       "label": "Text · \"Every stat page, ranking and res…\"",
+      "css": {
+        "hide": true
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.tools-root > div.t-featured",
+      "label": "Section · \"Featured Prop research screener …\"",
       "css": {
         "hide": true
       }
