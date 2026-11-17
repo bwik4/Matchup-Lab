@@ -109,3 +109,16 @@ Until you publish, your edits only show in your own browser. Everything is store
 - **Home**: quick tools, starred players, best matchups, your Sleeper team and Sleeper trending adds/drops.
 
 Favorites, compare picks and your Sleeper username are saved in the browser you use.
+
+## Explore, profiles, Tale Of The Tape, Shot Zones, Bet Slip
+
+`views.js` adds these (all sports unless noted):
+
+- **Explore** (side menu): simple layouts that sit on top of the full pages. **Quick Look** (one line per game with ▲ easy / ▼ tough position matchups; also at the top of Home), **Heatmap** (every defense vs every position), **Top Edges** (one angle per card), **Board** (player table with opp rank, L5 bars and + Add) and **Totals Board** (NBA/CBB, line vs projection).
+- **Player profile** `#player/<sport>/<id>`: averages (season, L10, L5, L3, vs opponent), projection, estimated line and hit rate, the next defense vs his position, game log, and shot zones for NBA.
+- **Team profile** `#team/<sport>/<team>`: record, points for/against, offense ranks, defense vs position, players, schedule, and shot zones for NBA.
+- **Tale Of The Tape** `#tape/<sport>/<away>/<home>`: both teams side by side (defense, offense, players, results).
+- **Shots** (NBA): where each defense gives up makes by zone (overall or to guards / forwards / centers), best spots on the next slate, and who shoots from where. Built daily by `nba_shots.py` from ESPN play-by-play into `data/nba/shot_team.csv` and `shot_player.csv`. ESPN's free data has no defender-distance tracking, so "Ast'd %" (share of makes that were assisted) stands in for open looks.
+- **Search** at the top finds any player or team in the current sport. **Bet Slip** (bottom right) keeps picks in your browser and works out parlay odds from the prices you type in.
+
+Every player name and team on these pages opens that profile.

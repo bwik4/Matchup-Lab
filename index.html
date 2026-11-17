@@ -411,6 +411,142 @@
   .tabs, .seg { border: 0; background: transparent; gap: 6px; padding: 0; }
   .tabs button, .seg button { border-radius: 999px; border: 1px solid var(--line); background: var(--panel); padding: 6px 14px; }
   .tabs button[aria-pressed=true], .seg button[aria-pressed=true] { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: none; }
+
+  /* ===== views.js: Explore, profiles, tape, shot zones, bet slip, search ===== */
+  .vx-link { color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; }
+  .vx-link:hover { text-decoration: underline; }
+  td .vx-link, .vx-qt .vx-link, .vx-grow .vx-link, .vx-ht { color: inherit; }
+  td .vx-link:hover, .vx-qt .vx-link:hover { color: var(--accent); }
+  .vx-blink { display: inline-flex; text-decoration: none; }
+  .vx-stack { display: flex; flex-direction: column; gap: 14px; }
+  .vx-card > h2 { margin-bottom: 12px; }
+  .vx-ptitle { margin: 0; font-size: 1.4rem; }
+  .vx-rk { font-weight: 700; font-size: .78rem; }
+  .vx-rkp { display: inline-block; min-width: 3.1em; text-align: center; padding: 2px 7px; border-radius: 999px; font-weight: 700; font-size: .78rem; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); }
+  .vx-pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: 700; font-size: .78rem; --c: var(--muted); color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); }
+  .vx-pill.g { --c: var(--ok); } .vx-pill.r { --c: var(--bad); }
+  .vx-warn { color: var(--mid); font-size: .82rem; font-weight: 600; }
+  .vx-body { margin-top: 12px; }
+  /* search */
+  .vx-search { position: relative; flex: 1 1 220px; max-width: 420px; }
+  .vx-search input { width: 100%; font: inherit; padding: 9px 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
+  .vx-sres { position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; right: 0; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+  .vx-sres a { display: flex; gap: 10px; align-items: center; padding: 8px; border-radius: 8px; color: var(--fg); text-decoration: none; }
+  .vx-sres a:hover, .vx-sres a:first-child { background: var(--item); }
+  .vx-sres span { display: flex; flex-direction: column; } .vx-sres small { color: var(--muted); }
+  /* A: quick look */
+  .vx-qlist { display: flex; flex-direction: column; }
+  .vx-qrow { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 4px; border-top: 1px solid var(--line); cursor: pointer; }
+  .vx-qrow:hover { background: var(--item); }
+  .vx-qm small { color: var(--muted); }
+  .vx-qt { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 1.02rem; flex-wrap: wrap; }
+  .vx-qc { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+  .vx-chip { font-size: .74rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; text-decoration: none; }
+  .vx-chip.g { color: var(--ok); background: color-mix(in srgb, var(--ok) 15%, transparent); }
+  .vx-chip.r { color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, transparent); }
+  .vx-tape-btn { font-size: .78rem; font-weight: 600; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 4px 9px; text-decoration: none; }
+  .vx-tape-btn:hover { color: var(--fg); }
+  @media (max-width: 640px) { .vx-qrow { grid-template-columns: minmax(0, 1fr) auto; } .vx-qc { grid-column: 1 / -1; justify-content: flex-start; } .vx-tape-btn { grid-row: 1; grid-column: 2; } }
+  /* B: heatmap */
+  .vx-heat { display: grid; gap: 4px; max-width: 640px; }
+  .vx-hh { font: inherit; font-weight: 700; font-size: .8rem; color: var(--muted); background: none; border: 0; cursor: pointer; display: flex; flex-direction: column; align-items: center; padding: 2px; border-radius: 6px; }
+  .vx-hh small { font-weight: 500; font-size: .62rem; } .vx-hh.on { color: var(--fg); background: var(--item); }
+  .vx-ht { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: .85rem; text-decoration: none; }
+  .vx-hc { display: grid; place-items: center; border-radius: 6px; font-weight: 800; font-size: .82rem; color: #111827; padding: 7px 0; text-decoration: none; }
+  .vx-hc.none { background: var(--item); color: var(--muted); }
+  .vx-legend { display: flex; align-items: center; gap: 8px; margin-top: 12px; max-width: 640px; color: var(--muted); font-size: .8rem; }
+  .vx-legend i { flex: 1; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #ef6b6b, #e8c25a, #4fd18b); }
+  /* D: edges */
+  .vx-edge-wrap { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 760px) { .vx-edge-wrap { grid-template-columns: minmax(0, 1fr); } }
+  .vx-edge { background: var(--game); border: 1px solid var(--line); border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 4px; }
+  .vx-edge.g { border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); } .vx-edge.r { border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); }
+  .vx-edge-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .vx-edge-nm { font-size: 1.8rem; font-weight: 800; letter-spacing: -.02em; } .vx-edge-nm .vx-link { color: var(--fg); }
+  .vx-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 14px 0 6px; }
+  .vx-tiles > div { background: var(--item); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; }
+  .vx-tiles small { color: var(--muted); font-size: .72rem; } .vx-tiles b { font-size: 1.35rem; }
+  .vx-tiles.wide { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); margin: 0; }
+  .vx-tiles.wide > div { background: var(--panel); border: 1px solid var(--line); }
+  .vx-edge-why { font-size: .86rem; margin: 6px 0; }
+  .vx-edge-btns { display: flex; gap: 8px; margin-top: 8px; }
+  .vx-edge-btns button { flex: 1; font: inherit; font-weight: 700; padding: 11px; border-radius: 12px; border: 1px solid var(--line); background: var(--item); color: var(--fg); cursor: pointer; }
+  .vx-edge-btns button.pri { background: var(--ok); border-color: var(--ok); color: #0b1220; }
+  .vx-edge-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; }
+  .vx-edge-strip button { font: inherit; text-align: left; display: flex; flex-direction: column; padding: 9px 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); cursor: pointer; }
+  .vx-edge-strip button.on { border-color: var(--accent); background: var(--item); } .vx-edge-strip small { font-weight: 700; font-size: .74rem; }
+  /* F: board */
+  .vx-board { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px; align-items: start; }
+  @media (max-width: 980px) { .vx-board { grid-template-columns: minmax(0, 1fr); } .vx-board-side { display: none; } }
+  .vx-pcell { display: inline-flex; align-items: center; gap: 6px; }
+  .vx-add { font: inherit; font-size: .78rem; font-weight: 600; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--line); background: none; color: var(--fg); cursor: pointer; white-space: nowrap; }
+  .vx-add.on { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 50%, var(--line)); }
+  .vx-slipmini { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .vx-count { display: inline-block; background: var(--accent); color: #fff; border-radius: 999px; font-size: .75rem; padding: 1px 8px; }
+  /* E: totals */
+  .vx-totgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+  .vx-tot { cursor: pointer; display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; background: var(--game); }
+  .vx-tot-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .vx-tot-nums { display: flex; justify-content: space-between; color: var(--muted); font-size: .82rem; } .vx-tot-nums b { color: var(--fg); }
+  .vx-slider { position: relative; height: 6px; border-radius: 3px; background: var(--item); }
+  .vx-slider::before { content: ''; position: absolute; left: 50%; top: -3px; width: 2px; height: 12px; background: var(--muted); }
+  .vx-slider i { position: absolute; top: -3px; width: 12px; height: 12px; border-radius: 50%; transform: translateX(-50%); }
+  .vx-tot .vx-add { align-self: flex-start; }
+  /* profiles */
+  .vx-hero { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; background: linear-gradient(120deg, color-mix(in srgb, var(--tc) 28%, var(--panel)), var(--panel) 65%); }
+  .vx-hero-l { display: flex; gap: 14px; align-items: center; } .vx-hero-l .badge { width: 58px; height: 58px; font-size: 1rem; }
+  .vx-hero-nm { font-size: 1.6rem !important; font-weight: 800 !important; letter-spacing: -.02em; }
+  .vx-hero-r { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .vx-next { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; } .vx-next small { color: var(--muted); } .vx-next b { font-size: 1.1rem; }
+  .vx-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .vx-actions button { font: inherit; font-size: .85rem; font-weight: 600; padding: 7px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--item); color: var(--fg); cursor: pointer; }
+  @media (max-width: 640px) { .vx-hero-r, .vx-next { align-items: flex-start; } }
+  .vx-dvgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+  .vx-dv { display: flex; flex-direction: column; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: var(--fg); background: color-mix(in srgb, var(--c) 13%, var(--panel)); border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line)); }
+  .vx-dv small { color: var(--muted); font-size: .72rem; } .vx-dv b { font-size: 1.2rem; } .vx-dv span { color: var(--c); font-weight: 700; font-size: .8rem; }
+  .vx-sched { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  @media (max-width: 640px) { .vx-sched { grid-template-columns: minmax(0, 1fr); } }
+  .vx-grow { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 6px; border-top: 1px solid var(--line); text-decoration: none; color: var(--fg); }
+  .vx-grow:hover { background: var(--item); }
+  /* C: tape */
+  .vx-tape-hero { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; background: linear-gradient(90deg, color-mix(in srgb, var(--ca) 25%, var(--panel)), var(--panel) 40%, var(--panel) 60%, color-mix(in srgb, var(--cb) 25%, var(--panel))); }
+  .vx-tape-t { display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: var(--fg); }
+  .vx-tape-t .badge { width: 58px; height: 58px; font-size: 1rem; } .vx-tape-t small { color: var(--muted); }
+  .vx-tape-mid { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; } .vx-tape-mid b { font-size: 1.4rem; } .vx-tape-mid small { color: var(--muted); }
+  .vx-bar { margin: 14px 0; max-width: 720px; }
+  .vx-bar-hd { display: flex; justify-content: space-between; align-items: baseline; font-size: .9rem; margin-bottom: 6px; } .vx-bar-hd small { color: var(--muted); }
+  .vx-bar-tr { display: flex; gap: 4px; }
+  .vx-bar-tr > div { flex: 1; height: 8px; border-radius: 4px; background: var(--item); display: flex; } .vx-bar-tr > .l { justify-content: flex-end; }
+  .vx-bar-tr i { display: block; height: 100%; border-radius: 4px; }
+  /* shot zones */
+  .vx-court { width: 100%; max-width: 360px; display: block; border-radius: 10px; }
+  .vx-court .vx-cb { font-size: 2.6px; font-weight: 800; fill: #0b1220; }
+  .vx-court .vx-cs { font-size: 1.55px; font-weight: 600; fill: #0b1220; opacity: .85; }
+  .vx-courts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 4px 0 14px; }
+  .vx-courts.one { grid-template-columns: minmax(0, 380px); }
+  @media (max-width: 640px) { .vx-courts { grid-template-columns: minmax(0, 1fr); } }
+  .vx-courts figure { margin: 0; } .vx-courts figcaption { color: var(--muted); font-size: .78rem; margin-top: 6px; }
+  .vx-zc { display: inline-block; min-width: 3.4em; padding: 3px 6px; border-radius: 6px; font-weight: 700; color: #0b1220; background: var(--c); }
+  .vx-spots { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 6px; }
+  .vx-spot { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--game); text-decoration: none; color: var(--fg); }
+  .vx-spot > span { display: flex; flex-direction: column; min-width: 0; } .vx-spot small { color: var(--muted); font-size: .74rem; }
+  .vx-spot-r { margin-left: auto; align-items: flex-end; text-align: right; }
+  /* bet slip */
+  .vx-slip-btn { position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 50; font: inherit; font-weight: 700; font-size: .9rem; padding: 11px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); box-shadow: 0 8px 24px rgba(0,0,0,.45); cursor: pointer; display: flex; gap: 8px; align-items: center; }
+  .vx-slip-btn span { background: var(--accent); color: #fff; border-radius: 999px; padding: 0 8px; font-size: .78rem; }
+  @media (max-width: 760px) { .vx-slip-btn { bottom: calc(86px + env(safe-area-inset-bottom)); right: 12px; padding: 9px 13px; } }
+  .vx-slip { max-width: 460px; width: calc(100% - 24px); }
+  .vx-slip-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .vx-x { font: inherit; background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 4px 8px; }
+  .vx-leg { display: flex; gap: 10px; align-items: center; background: var(--item); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .vx-leg.sm { padding: 8px 10px; margin: 0; }
+  .vx-leg-tx { flex: 1; display: flex; flex-direction: column; min-width: 0; font-size: .88rem; } .vx-leg-tx small { color: var(--muted); }
+  .vx-leg input { width: 78px; font: inherit; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
+  .vx-slip-sum { display: flex; align-items: baseline; gap: 10px; margin: 12px 0 4px; } .vx-slip-sum b { font-size: 1.4rem; margin-left: auto; } .vx-slip-sum small { color: var(--muted); }
+  .vx-clear { font: inherit; background: none; border: 1px solid var(--line); color: var(--muted); padding: 7px 12px; border-radius: 10px; cursor: pointer; }
+  .vx-toast { position: fixed; left: 50%; bottom: 90px; transform: translate(-50%, 20px); opacity: 0; transition: .2s; z-index: 60; background: var(--fg); color: var(--bg); padding: 9px 16px; border-radius: 999px; font-weight: 600; font-size: .86rem; pointer-events: none; }
+  .vx-toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .d-ql .bar { margin-bottom: 4px; }
 </style>
 </head>
 <body>
@@ -420,12 +556,14 @@
   <nav class="side-nav">
     <button data-view="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg><span>Home</span></button>
     <button data-view="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Tools</span></button>
+    <button data-view="explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explore</span></button>
     <button data-view="screener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 7v6l-4 2v-8z"/></svg><span>Props</span></button>
     <button data-view="compare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M17 4v16M3 8h8M13 16h8"/></svg><span>Compare</span></button>
     <button data-view="injuries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/></svg><span>Injuries</span></button>
     <button data-view="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="12" width="4.5" height="8.5" rx="1"/><rect x="9.75" y="7" width="4.5" height="13.5" rx="1"/><rect x="16" y="3.5" width="4.5" height="17" rx="1"/></svg><span>Stats</span></button>
     <button data-view="fantasy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M8.5 20.5h7M10 17h4"/></svg><span>Fantasy</span></button>
     <button data-view="trends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Trends</span></button>
+    <button data-view="shots" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18v14H3z"/><path d="M8 4v6h8V4"/><path d="M4.5 18a7.5 7.5 0 0 1 15 0"/><circle cx="12" cy="6" r="1"/></svg><span>Shots</span></button>
     <button data-view="totals" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M8 9.5h4M10 7.5v4M14 15h3"/><path d="M7 17 17 7"/></svg><span>Totals</span></button>
   </nav>
 </aside>
@@ -440,6 +578,10 @@
 
   <!-- ================= HOME ================= -->
   <section class="view stack" data-view="home">
+    <div class="card d-ql">
+      <div class="bar"><h2>Quick Look</h2><a class="vx-link" href="#explore/quick">Explore →</a></div>
+      <div class="d-ql-body"></div>
+    </div>
     <div class="card d-quick">
       <h2>Quick tools</h2>
       <div class="d-quick-body"></div>
@@ -1048,6 +1190,24 @@
     </div>
   </section>
 
+  <!-- ================= EXPLORE / PROFILES / SHOTS (views.js) ================= -->
+  <section class="view stack" data-view="explore" hidden>
+    <div class="card"><h2 class="vx-title">Explore</h2><div class="vx-root"></div></div>
+  </section>
+  <section class="view stack vx-page" data-view="player" hidden>
+    <div class="vx-root"></div>
+  </section>
+  <section class="view stack vx-page" data-view="team" hidden>
+    <div class="vx-root"></div>
+  </section>
+  <section class="view stack vx-page" data-view="tape" hidden>
+    <div class="vx-root"></div>
+  </section>
+  <section class="view stack vx-page" data-view="shots" hidden>
+    <h2 class="vx-title vx-ptitle">Shot Zones</h2>
+    <div class="vx-root"></div>
+  </section>
+
   <footer>Data: <a class="src-link" href="https://github.com/nflverse/nflverse-data">nflverse</a> · built <span class="built">—</span> · Not betting advice.</footer>
 </main>
 </div>
@@ -1258,7 +1418,7 @@ function renderLog() {
   const unit = skewUnit(rkStat), noRank = seas !== dvSeason;
   const posL = { G: 'guards', F: 'forwards', C: 'centers' }[pos] || `${pos}s`;
   box.replaceChildren(...[
-    h('div', { class: 'plog-hd' }, badge(last.team), h('div', null, h('h2', null, last.player), h('small', null, `${pos} · ${TI(last.team).name || last.team}`)),
+    h('div', { class: 'plog-hd' }, badge(last.team), h('div', null, h('h2', null, last.player), h('small', null, `${pos} · ${TI(last.team).name || last.team} · `, h('a', { class: 'vx-link', href: `#player/${sp}/${L.pid}`, onclick: () => $('.plog').close() }, 'Full Profile →'))),
       h('button', { class: 'plog-x', 'aria-label': 'Close', onclick: () => $('.plog').close() }, '×')),
     h('div', { class: 'plog-bar' }, seg),
     prop, h('div', { class: 'stats' }, ...tiles),
@@ -1631,7 +1791,7 @@ function applyRoute() {
   // links saved from the old one-page layout
   const legacy = { games: 'home', props: 'stats/players', matchups: 'stats/dvp', teams: 'stats/teams' };
   if (legacy[v]) { history.replaceState(null, '', '#' + legacy[v]); applyRoute(); return; }
-  const prev = `${S.view}|${S.game}`;
+  const prev = `${S.view}|${S.game}|${(S.vArgs || []).join('/')}`;
   if (v === 'game' && a) { S.view = 'game'; S.game = a; S.gameTab = GTABS.includes(b) ? b : 'odds'; }
   else if (v === 'xgame' && (a === 'nba' || a === 'cfb' || a === 'cbb') && b) {
     S.view = 'xgame'; S.sport = a; S.xgId = b; S.xgTab = XG_TABS[a].includes(c) ? c : 'odds';
@@ -1640,7 +1800,11 @@ function applyRoute() {
   else if (v === 'stats') { S.view = 'stats'; if (SUBS.includes(a)) S.statsSub = a; }
   else if (v === 'fantasy') S.view = 'fantasy';
   else if (v === 'trends') S.view = 'trends';
-  else if (['tools', 'screener', 'compare', 'injuries'].includes(v)) S.view = v;
+  else if (NEW_VIEWS.includes(v)) {
+    S.view = v; S.vArgs = [a, b, c].filter((x) => x != null && x !== '');
+    const vsp = ['player', 'team', 'tape'].includes(v) && ['nfl', 'nba', 'cfb', 'cbb'].includes(a) ? a : v === 'shots' ? 'nba' : null;
+    if (vsp) { S.sport = vsp; try { localStorage.setItem('ml-sport', vsp); } catch (e) { /* storage off */ } }
+  }
   else if (v === 'totals') { S.view = 'totals'; S.sport = 'cbb'; try { localStorage.setItem('ml-sport', 'cbb'); } catch (e) { /* storage off */ } }
   else S.view = 'home';
   if (S.view !== 'game' && S.view !== 'xgame') S.fromHome = false;
@@ -1653,7 +1817,7 @@ function applyRoute() {
   document.querySelectorAll('.st-tabs button').forEach((bt) => bt.setAttribute('aria-current', String(bt.dataset.v === S.statsSub)));
   document.querySelectorAll('.gp-panel').forEach((pn) => { pn.hidden = pn.dataset.gp !== S.gameTab; });
   document.querySelectorAll('.gp-tabs button').forEach((bt) => bt.setAttribute('aria-current', String(bt.dataset.v === S.gameTab)));
-  if (prev !== `${S.view}|${S.game}`) window.scrollTo(0, 0);
+  if (prev !== `${S.view}|${S.game}|${(S.vArgs || []).join('/')}`) window.scrollTo(0, 0);
   render();
 }
 window.addEventListener('hashchange', applyRoute);
@@ -2174,7 +2338,7 @@ function h(tag, attrs, ...kids) {
 const NEW_VIEWS = ['tools', 'screener', 'compare', 'injuries'];
 const SPORT_VIEWS = { nba: ['home', 'trends', 'fantasy', 'xgame', ...NEW_VIEWS], cfb: ['home', 'trends', 'xgame', ...NEW_VIEWS], cbb: ['home', 'totals', 'trends', 'xgame', ...NEW_VIEWS] };
 const SWITCH_VIEWS = ['home', 'trends', 'fantasy', 'totals', ...NEW_VIEWS];
-const sportHas = (sp, v) => (!SPORT_VIEWS[sp] ? v !== 'xgame' && v !== 'totals' : SPORT_VIEWS[sp].includes(v));
+const sportHas = (sp, v) => (!SPORT_VIEWS[sp] ? v !== 'xgame' && v !== 'totals' && v !== 'shots' : SPORT_VIEWS[sp].includes(v));
 const curInfo = () => {
   if (S.sport === 'nba' && sportHas('nba', S.view) && NBA.info) return NBA.info;
   if (S.sport === 'cfb' && sportHas('cfb', S.view) && CFB.info) return CFB.info;
@@ -4238,13 +4402,14 @@ function render() {
     if (S.view === 'home') { $('.h-days').replaceChildren(); $('.glist').replaceChildren(msg); }
     else if (S.view === 'fantasy') $('.nfp-note').replaceChildren(msg);
     else if (S.view === 'totals') $('.ot-note').replaceChildren(msg);
-    else if (NEW_VIEWS.includes(S.view)) { const r = $(`.${{ tools: 'tools', screener: 'scr', compare: 'cmp', injuries: 'inj' }[S.view]}-root`); if (r) r.replaceChildren(msg); }
+    else if (NEW_VIEWS.includes(S.view)) { const r = $(`.${{ tools: 'tools', screener: 'scr', compare: 'cmp', injuries: 'inj' }[S.view]}-root`) || document.querySelector(`section[data-view="${S.view}"] .vx-root`); if (r) r.replaceChildren(msg); }
     else $('.tr-list').replaceChildren(msg);
     if (!L[0].error) L[1]().then(render);
     return;
   }
   segs.forEach((sg) => sg());
-  if (S.view === 'home') { renderHome(); renderDash(); }
+  if (S.view === 'home') { renderHome(); renderDash(); if (typeof vHomeQuick === 'function') vHomeQuick(); }
+  else if (typeof VX !== 'undefined' && VX[S.view]) VX[S.view]();
   else if (S.view === 'tools') renderTools();
   else if (S.view === 'screener') renderScreener();
   else if (S.view === 'compare') renderCompare();
@@ -4284,6 +4449,7 @@ Promise.all([
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 </script>
 <script src="tools.js"></script>
+<script src="views.js"></script>
 <script src="editor.js"></script>
 </body>
 </html>

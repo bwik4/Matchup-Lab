@@ -27,6 +27,9 @@ jobs:
       - name: NBA data (a failure here never blocks the NFL update)
         run: python nba_pipeline.py --out data/nba
         continue-on-error: true
+      - name: NBA shot zones (a failure here never blocks anything else)
+        run: python nba_shots.py --out data/nba
+        continue-on-error: true
       - name: College football data (a failure here never blocks the NFL update)
         run: python cfb_pipeline.py --out data/cfb
         continue-on-error: true
