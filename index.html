@@ -4175,7 +4175,8 @@ function xgMatchup(sp, g) {
   $('.xg-sum').replaceChildren(`${TI(off).nick} offense has the edge in `, b(`${oe} of ${cfg.length}`, 'g'), ` categories and the ${TI(def).nick} defense in `, b(`${de}`, 'r'), ` (${span}).`);
   // defense vs position
   const tbl = $('.xg-dvp'), teams = [g.away_team, g.home_team];
-  const P = isBB(sp) ? [['G', 'Guards', 'pts', 'pts'], ['F', 'Forwards', 'pts', 'pts'], ['C', 'Centers', 'pts', 'pts']]
+  const BB_DV = [['pts', 'pts'], ['reb', 'reb'], ['ast', 'ast'], ['fg3m', '3PM'], ['sb', 'stl + blk'], ['pra', 'PRA']];
+  const P = isBB(sp) ? [['G', 'Guards'], ['F', 'Forwards'], ['C', 'Centers']].flatMap(([pos, lab]) => BB_DV.map(([st, unit]) => [pos, lab, st, unit]))
     : [['QB', 'QBs', 'passing_yards', 'pass yds'], ['QB', 'QBs', 'rushing_yards', 'rush yds'],
       ['RB', 'RBs', 'rushing_yards', 'rush yds'], ['RB', 'RBs', 'carries', 'carries'], ['RB', 'RBs', 'receiving_yards', 'rec yds'], ['RB', 'RBs', 'receptions', 'receptions'],
       ['WR', 'WRs', 'receiving_yards', 'rec yds'], ['WR', 'WRs', 'receptions', 'receptions'],
