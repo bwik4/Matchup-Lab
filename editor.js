@@ -184,8 +184,167 @@
       });
     });
   }
+  // ---------------- renames that work for every version (all players, teams, numbers...) ----------------
+  // When you rename text that has a player, team, position, number or date in it, the rename is saved as a pattern:
+  // "Aaron Rodgers' game log" -> "Rodgers log" also turns "Josh Allen's game log" into "Allen log".
+  // A rule like that is stored as { from, to, tf, tt }: tf = the original text's "shape" (each changing part replaced by a
+  // marker), tt = the new text as pieces, where a number n means "put the n-th changing part here".
+  const VK = { p: 'player', t: 'team', s: 'position', n: 'number', d: 'date' };
+  const MK = { p: '', t: '', s: '', n: '', d: '' };
+  const KM = Object.fromEntries(Object.entries(MK).map(([k, v]) => [v, k]));
+  const isMk = (c) => !!KM[c];
+  const WCH = /[A-Za-z0-9]/;
+  const isW = (c) => !!c && WCH.test(c);
+  const NUM = /\d+(?:\.\d+)?(?:st|nd|rd|th)?/y;
+  const POSW = /(?:QB|RB|WR|TE|FB)s?/y;
+  const DATEW = /(?:January|February|March|April|June|July|August|September|October|November|December|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Sep|Oct|Nov|Dec|Mon|Tues|Tue|Wed|Thurs|Thu|Fri|Sat|Sun)\.?/y;
+  const firstWord = (s) => { const m = /^[A-Za-z0-9][A-Za-z0-9.'’&-]*/.exec(s); return m ? m[0].replace(/[.'’&-]+$/, '') : ''; };
+  let ENT = null, entSig = '';
+  function siteSig() {
+    try {
+      const n = (x) => (x && x.length) || 0;
+      return [typeof DATA !== 'undefined' ? n(DATA.players) + n(DATA.logs) : 0,
+        ...[typeof NBA !== 'undefined' && NBA, typeof CFB !== 'undefined' && CFB, typeof CBB !== 'undefined' && CBB].map((X) => (X ? n(X.logs) + n(X.teams) : 0))].join('|');
+    } catch (e) { return ''; }
+  }
+  function entities() {
+    const sig = siteSig();
+    if (ENT && sig === entSig) return ENT;
+    entSig = sig;
+    const by = new Map(), seen = new Set();
+    const add = (name, k) => {
+      name = String(name || '').trim();
+      if (name.length < 2 || seen.has(name) || /^\d+$/.test(name)) return;
+      seen.add(name);
+      const fw = firstWord(name); if (!fw) return;
+      if (!by.has(fw)) by.set(fw, []);
+      by.get(fw).push({ name, k });
+    };
+    const team = (t) => { add(t.team, 't'); add(t.name, 't'); add(t.nick, 't'); };
+    const player = (nm) => {
+      add(nm, 'p');
+      const w = String(nm || '').trim().split(/\s+/);
+      if (w.length > 1 && /^[A-Z]/.test(w[0])) add(`${w[0][0]}. ${w.slice(1).join(' ')}`, 'p');
+    };
+    try {
+      (DATA.team_info || []).forEach(team);
+      (DATA.players || []).forEach((r) => player(r.player));
+      (DATA.logs || []).forEach((r) => player(r.player));
+    } catch (e) { /* site data not loaded yet */ }
+    try {
+      [typeof NBA !== 'undefined' && NBA, typeof CFB !== 'undefined' && CFB, typeof CBB !== 'undefined' && CBB].forEach((X) => {
+        if (!X) return;
+        (X.teams || []).forEach(team);
+        (X.logs || []).forEach((r) => player(r.player));
+      });
+    } catch (e) { /* not loaded */ }
+    by.forEach((a) => a.sort((x, y) => y.name.length - x.name.length));
+    ENT = by;
+    tokCache.clear();
+    return ENT;
+  }
+  // split text into plain pieces and changing pieces: [{ t: 'Aaron Rodgers', k: 'p' }, { t: "'s game log" }]
+  const tokCache = new Map();
+  function tokenize(s) {
+    if (tokCache.has(s)) return tokCache.get(s);
+    const E = entities(), segs = [];
+    let lit = '', i = 0;
+    const push = (t, k) => { if (lit) { segs.push({ t: lit }); lit = ''; } segs.push({ t, k }); };
+    const sticky = (re) => { re.lastIndex = i; const m = re.exec(s); return m && !isW(s[i + m[0].length]) ? m[0] : null; };
+    while (i < s.length) {
+      const c = s[i];
+      if (!isW(c) || isW(s[i - 1])) { lit += c; i++; continue; }
+      let hit = null;
+      const cands = E.get(firstWord(s.slice(i, i + 60)));
+      if (cands) hit = cands.find((x) => s.startsWith(x.name, i) && !isW(s[i + x.name.length]));
+      if (hit) { push(hit.name, hit.k); i += hit.name.length; continue; }
+      let m;
+      if ((m = sticky(NUM))) { push(m, 'n'); i += m.length; continue; }
+      if ((m = sticky(POSW))) { push(m, 's'); i += m.length; continue; }
+      if ((m = sticky(DATEW))) { push(m, 'd'); i += m.length; continue; }
+      const w = /^[A-Za-z0-9]+/.exec(s.slice(i))[0]; // an ordinary word
+      lit += w; i += w.length;
+    }
+    if (lit) segs.push({ t: lit });
+    if (tokCache.size > 4000) tokCache.clear();
+    tokCache.set(s, segs);
+    return segs;
+  }
+  // shape of a text: plain text with markers where the changing parts were, plus where each piece sits in the original
+  function shapeOf(s) {
+    const segs = tokenize(s);
+    let shape = '', pos = 0;
+    const map = []; // map[i] = [start, end] in the original string for shape char i
+    segs.forEach((g) => {
+      if (g.k) { shape += MK[g.k]; map.push([pos, pos + g.t.length, g.t]); } else { for (let j = 0; j < g.t.length; j++) map.push([pos + j, pos + j + 1]); shape += g.t; }
+      pos += g.t.length;
+    });
+    return { shape, map };
+  }
+  // build a pattern rule from the original text, the new text, and which changing parts the user wants kept fixed
+  function buildTemplate(from, to, fixed) {
+    const segs = tokenize(from), vars = [];
+    segs.forEach((g, i) => { if (g.k) vars.push({ i, t: g.t, k: g.k }); });
+    if (!vars.length) return null;
+    // numbers that vanish from the new text were probably reworded on purpose ("last 5" -> "last five"): keep them fixed
+    const used = []; // [start, end, varIndex] places in `to` where an original value was kept
+    const live = [];
+    vars.forEach((v, j) => {
+      if (fixed && fixed.includes(j)) return;
+      let at = -1, from0 = 0;
+      while ((at = to.indexOf(v.t, from0)) >= 0) {
+        const end = at + v.t.length;
+        if (!isW(to[at - 1]) && !isW(to[end]) && !used.some(([a, b]) => at < b && end > a)) break;
+        from0 = at + 1;
+      }
+      if (at < 0 && v.k === 'n') return; // number dropped -> fixed
+      live.push(j);
+      if (at >= 0) used.push([at, at + v.t.length, j]);
+    });
+    if (!live.length) return null;
+    let tf = '';
+    segs.forEach((g, i) => { const j = vars.findIndex((v) => v.i === i); tf += j >= 0 && live.includes(j) ? MK[g.k] : g.t; });
+    used.sort((a, b) => a[0] - b[0]);
+    const tt = []; let c = 0;
+    used.forEach(([a, b, j]) => { if (a > c) tt.push(to.slice(c, a)); tt.push(live.indexOf(j)); c = b; });
+    if (c < to.length) tt.push(to.slice(c));
+    return { tf, tt, vars: vars.map((v, j) => ({ t: v.t, k: v.k, on: live.includes(j) })) };
+  }
+  const markers = (tf) => (tf.match(/[\uE001-\uE005]/g) || []).length;
+  // safe to use everywhere: has some real wording, or several changing parts together ("Name · QB · PIT"), not a bare name
+  const tplOk = (t) => !!t && (keyOfTf(t.tf).length >= 3 || markers(t.tf) >= 2);
+  const keyOfTf = (tf) => tf.split(/[-]/).reduce((a, b) => (b.trim().length > a.length ? b.trim() : a), '');
+  // apply pattern rules to one string; returns the new string (or the same one)
+  function applyTemplates(v, rules) {
+    let shp = null;
+    rules.forEach((r) => {
+      if (r._key === undefined) r._key = keyOfTf(r.tf);
+      if (r._key && !v.includes(r._key)) return;
+      if (!shp) shp = shapeOf(v);
+      const { shape, map } = shp;
+      const hits = [];
+      let at = shape.indexOf(r.tf);
+      while (at >= 0) { hits.push(at); at = shape.indexOf(r.tf, at + r.tf.length); }
+      if (!hits.length) return;
+      let out = v;
+      hits.reverse().forEach((p) => {
+        const vals = [];
+        for (let i = p; i < p + r.tf.length; i++) if (isMk(shape[i])) vals.push(map[i][2]);
+        const a = map[p][0], b = map[p + r.tf.length - 1][1];
+        const rep = r.tt.map((x) => (typeof x === 'number' ? vals[x] ?? '' : x)).join('');
+        if (out.startsWith(rep, a)) return; // already says the new wording
+        out = out.slice(0, a) + rep + out.slice(b);
+      });
+      if (out !== v) { v = out; shp = null; }
+    });
+    return v;
+  }
+
+  // text node -> { out: what we set, orig: the site's own text, ver } so renames can be redone from the original
+  const done = new WeakMap();
+  let textVer = 0;
   function applyText() {
-    if (!cfg.text.length) return;
+    const plain = cfg.text.filter((r) => !r.tf), tpls = cfg.text.filter((r) => r.tf);
     const roots = [document.querySelector('main'), document.querySelector('aside')].filter(Boolean);
     roots.forEach((root) => {
       const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
@@ -193,16 +352,24 @@
       });
       let n;
       while ((n = w.nextNode())) {
-        let v = n.nodeValue;
-        if (!v || !v.trim()) continue;
-        cfg.text.forEach(({ from, to }) => { if (from && v.includes(from) && !(to && to.includes(from) && v.includes(to))) v = v.split(from).join(to); });
-        if (v !== n.nodeValue) n.nodeValue = v;
+        const v0 = n.nodeValue;
+        if (!v0 || !v0.trim()) continue;
+        const prev = done.get(n);
+        if (prev && prev.out === v0 && prev.ver === textVer) continue;
+        const base = prev && prev.out === v0 ? prev.orig : v0; // re-apply from the site's own wording
+        if (!prev && !cfg.text.length) continue;
+        let v = base;
+        plain.forEach(({ from, to }) => { if (from && v.includes(from) && !(to && to.includes(from) && v.includes(to))) v = v.split(from).join(to); });
+        if (tpls.length) v = applyTemplates(v, tpls);
+        done.set(n, { out: v, orig: base, ver: textVer });
+        if (v !== v0) n.nodeValue = v;
       }
     });
   }
   let applying = false;
   function applyAll() {
     applying = true;
+    textVer++;
     try { syncSport(); applyLook(); applyCustomCSS(); applyLayout(); applyText(); applyCols(); if (editing) decorate(); } finally { applying = false; }
   }
   // the site re-draws parts of the page all the time; re-apply column/text/layout rules after it does
@@ -259,25 +426,78 @@
     e.preventDefault(); e.stopPropagation();
     openPop(t, e.clientX, e.clientY);
   }, true);
+  function longestNode(elm) {
+    let best = null;
+    const w = document.createTreeWalker(elm, NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = w.nextNode())) { if (n.parentElement.closest('.ed-ui')) continue; const t = n.nodeValue.trim(); if (t && (!best || t.length > best.nodeValue.trim().length)) best = n; }
+    return best;
+  }
+  function countOnScreen(tf) {
+    let c = 0;
+    const root = document.querySelector('main'); if (!root) return 0;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.parentElement && n.parentElement.closest('td, script, style, .ed-ui, [hidden]') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT) });
+    const key = keyOfTf(tf); let n;
+    while ((n = w.nextNode()) && c < 999) {
+      const info = done.get(n), v = info && info.out === n.nodeValue ? info.orig : n.nodeValue;
+      if (v && (!key || v.includes(key)) && shapeOf(v).shape.includes(tf)) c++;
+    }
+    return c;
+  }
   function openPop(target, x, y) {
     closePop();
-    const from = longestText(target);
+    const node = longestNode(target);
     const isTh = target.tagName === 'TH' && target.closest('table');
-    if (!from && !isTh) return;
-    // if this text was already renamed, edit that rule instead of stacking a new one
-    const prior = cfg.text.find((r) => r.to === from);
-    const input = el('input', { type: 'text', value: from || '', 'aria-label': 'New text' });
+    if (!node && !isTh) return;
+    const shown = node ? node.nodeValue.trim() : '';
+    const info = node && done.get(node);
+    const site = info && info.out === node.nodeValue ? info.orig.trim() : shown; // the site's own wording, before any rename
+    // the saved rename that produced what's on screen, if any (edit it instead of stacking a new one)
+    const prior = cfg.text.find((r) => !r.tf && (r.from === site || r.to === shown))
+      || cfg.text.find((r) => r.tf && site && applyTemplates(site, [r]) !== site) || null;
+    const orig = prior && !prior.tf && prior.to === shown && prior.from !== site ? prior.from : site;
+    const input = el('input', { type: 'text', value: shown || '', 'aria-label': 'New text' });
+    let fixed = prior && prior.tf && prior.fixed ? prior.fixed.slice() : [];
+    let every = null; // null = use the default
+    const scopeBox = el('div', { class: 'ed-tplbox' });
+    const drawScope = () => {
+      scopeBox.replaceChildren();
+      const v = input.value.trim();
+      const all = orig ? buildTemplate(orig, v || orig, []) : null;
+      if (!all) return;
+      const t = buildTemplate(orig, v || orig, fixed);
+      const keyOk = tplOk(t);
+      const on = every === null ? keyOk : every && !!t;
+      const n = on && t ? countOnScreen(t.tf) : 0;
+      scopeBox.append(...[
+        el('label', { class: 'ed-check' }, el('input', { type: 'checkbox', checked: on, disabled: !tplOk(all), onchange: (e) => { every = e.target.checked; drawScope(); } }),
+          el('span', null, 'Change every version of this (other players, teams, numbers)')),
+        !keyOk ? el('small', { class: 'ed-dim' }, !t && tplOk(all) ? 'Every changing part is set to "only this one", so this changes just this exact text.' : 'This is only a name or number by itself, so it changes just this spot.') : null,
+        on || (tplOk(all) && every !== false) ? el('div', { class: 'ed-chips' }, ...all.vars.map((x, j) => {
+          const live = t && t.vars[j] && t.vars[j].on;
+          const dropped = !live && !fixed.includes(j) && x.k === 'n';
+          return el('button', { type: 'button', class: `ed-chip${live ? ' on' : ''}`, title: live ? 'Click to keep this exact one' : 'Click to let this change',
+            onclick: () => { fixed = fixed.includes(j) ? fixed.filter((i) => i !== j) : [...fixed, j]; drawScope(); } },
+          el('b', null, x.t), live ? ` → any ${VK[x.k]}` : dropped ? ' (you reworded it, so it stays)' : ' (only this one)');
+        })) : null,
+        on && t ? el('small', { class: 'ed-dim' }, n > 1 ? `Changes ${n} spots on this screen, and the same kind of text on every other player/team page.` : 'Also changes the same kind of text on every other player/team page.') : null].filter(Boolean));
+    };
     const save = () => {
-      const v = input.value.trim(), orig = prior ? prior.from : from;
-      cfg.text = cfg.text.filter((r) => r !== prior && r.from !== orig);
-      if (v && v !== orig) cfg.text.push({ from: orig, to: v });
+      const v = input.value.trim();
+      cfg.text = cfg.text.filter((r) => r !== prior && !(!r.tf && r.from === orig));
+      if (v && v !== orig) {
+        const t = buildTemplate(orig, v, fixed);
+        const on = every === null ? tplOk(t) : every && !!t;
+        cfg.text.push(on ? { from: orig, to: v, tf: t.tf, tt: t.tt, fixed: fixed.slice() } : { from: orig, to: v });
+      }
       closePop(); changed();
-      if (prior) location.reload(); // the page still shows the old rename; reload so the new wording applies cleanly
     };
     input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') save(); if (ev.key === 'Escape') closePop(); });
-    const kids = [el('div', { class: 'ed-pop-h' }, 'Rename'), input,
+    input.addEventListener('input', () => drawScope());
+    drawScope();
+    const kids = [el('div', { class: 'ed-pop-h' }, 'Rename'), input, scopeBox,
       el('div', { class: 'ed-row' }, el('button', { type: 'button', class: 'ed-primary', onclick: save }, 'Save'), el('button', { type: 'button', onclick: closePop }, 'Cancel'),
-        prior ? el('button', { type: 'button', onclick: () => { cfg.text = cfg.text.filter((r) => r !== prior); closePop(); changed(); location.reload(); } }, 'Undo rename') : null)];
+        prior ? el('button', { type: 'button', onclick: () => { cfg.text = cfg.text.filter((r) => r !== prior); closePop(); changed(); } }, 'Undo rename') : null)];
     if (isTh) {
       const tk = tableKey(target.closest('table')), lab = thLabel(target);
       kids.push(el('div', { class: 'ed-sep' }), el('button', { type: 'button', onclick: () => { cfg.cols[tk] = [...new Set([...(cfg.cols[tk] || []), lab])]; closePop(); changed(); } }, `Hide the "${lab}" column`));
@@ -711,10 +931,13 @@
   }
   function textTab() {
     return [
-      el('p', { class: 'ed-help' }, 'Turn on "Click to rename", then click any title, tab, button, column header or note on the page and type new words. The change applies everywhere that wording appears, including on other games and players. Turn it off to click around the site normally.'),
+      el('p', { class: 'ed-help' }, 'Pick "Renames words" at the top, then click any title, tab, button, column header or note and type new words. If the text has a player, team, position or number in it, the rename works like a pattern and changes every version of it (every player, every team, every game). Click a part in the rename box to keep just that one fixed.'),
       el('h4', null, `Renamed (${cfg.text.length})`),
-      cfg.text.length ? el('ul', { class: 'ed-list' }, ...cfg.text.map((r) => el('li', null, el('span', null, el('s', { class: 'ed-dim' }, r.from), ' → ', r.to),
-        el('button', { type: 'button', class: 'ed-mini', onclick: () => { cfg.text = cfg.text.filter((x) => x !== r); changed(); location.reload(); } }, 'Undo')))) : el('p', { class: 'ed-dim' }, 'Nothing yet'),
+      cfg.text.length ? el('ul', { class: 'ed-list' }, ...cfg.text.map((r) => el('li', null, el('span', null, el('s', { class: 'ed-dim' }, r.from), ' → ', r.to, r.tf ? el('small', { class: 'ed-tag' }, 'every version') : null),
+        el('button', { type: 'button', class: 'ed-mini', onclick: () => { cfg.text = cfg.text.filter((x) => x !== r); changed(); } }, 'Undo')))) : el('p', { class: 'ed-dim' }, 'Nothing yet'),
+      cfg.text.some((r) => !r.tf && tplOk(buildTemplate(r.from, r.to, [])))
+        ? el('button', { type: 'button', onclick: () => { cfg.text = cfg.text.map((r) => { if (r.tf) return r; const t = buildTemplate(r.from, r.to, []); return tplOk(t) ? { from: r.from, to: r.to, tf: t.tf, tt: t.tt, fixed: [] } : r; }); changed(); flash('Older renames now change every version'); } },
+          'Make my older renames work for every player / team') : null,
     ];
   }
   function saveTab() {
@@ -792,7 +1015,7 @@
   // ---------------- publish / download ----------------
   const out = () => JSON.stringify(clean(cfg), null, 2) + '\n';
   function clean(c) {
-    const o = { look: {}, siteName: c.siteName || '', hidden: [...new Set(c.hidden)], order: {}, text: c.text.filter((r) => r.from && r.to != null), cols: {}, buttons: [...new Set(c.buttons || [])], nav: (c.nav || []).slice(),
+    const o = { look: {}, siteName: c.siteName || '', hidden: [...new Set(c.hidden)], order: {}, text: c.text.filter((r) => r.from && r.to != null).map((r) => (r.tf ? { from: r.from, to: r.to, tf: r.tf, tt: r.tt.slice(), fixed: (r.fixed || []).slice() } : { from: r.from, to: r.to })), cols: {}, buttons: [...new Set(c.buttons || [])], nav: (c.nav || []).slice(),
       styles: (c.styles || []).map((r) => ({ sp: r.sp || '', area: r.area || '', base: r.base, label: r.label || '', css: Object.fromEntries(Object.entries(r.css || {}).filter(([, v]) => v != null && v !== '')) })).filter((r) => r.base && Object.keys(r.css).length),
       moves: (c.moves || []).filter((m) => m && m.base && m.order && m.order.length).map((m) => ({ sp: m.sp || '', area: m.area || '', base: m.base, label: m.label || '', flex: !!m.flex, order: m.order.slice() })) };
     Object.entries(c.look).forEach(([k, v]) => { if (v != null && v !== '') o.look[k] = v; });
@@ -895,6 +1118,11 @@
     body.ed-on .ed-picked { outline: 3px solid #2563eb !important; outline-offset: 2px; }
     .ed-modes { flex-wrap: wrap; gap: 4px !important; }
     .ed-modes button[aria-pressed=true] { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .ed-tplbox { margin: 6px 0; display: grid; gap: 5px; max-width: 340px; }
+    .ed-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ed-ui .ed-chip { font-size: .78rem; padding: 3px 8px; border-radius: 999px; background: #f1f5f9; border: 1px dashed #94a3b8; color: #334155; }
+    .ed-ui .ed-chip.on { background: #dbeafe; border: 1px solid #60a5fa; color: #1e3a8a; }
+    .ed-tag { margin-left: 6px; font-size: .7rem; background: #dbeafe; color: #1e3a8a; border-radius: 999px; padding: 1px 6px; }
     .ed-check { display: flex; gap: 6px; align-items: center; margin: 4px 0; cursor: pointer; }
     .ed-picked-name { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 6px 9px; margin-bottom: 6px; }
     .ed-ui .ed-danger { color: #b91c1c; border-color: #fca5a5; }
