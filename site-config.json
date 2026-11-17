@@ -66,6 +66,10 @@
     {
       "from": "Opp rank",
       "to": "Opp Rank"
+    },
+    {
+      "from": "Prop research screener",
+      "to": "Prop Research"
     }
   ],
   "cols": {},
