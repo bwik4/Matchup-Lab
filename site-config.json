@@ -74,6 +74,14 @@
     {
       "from": "Prop research screener",
       "to": "Prop Research"
+    },
+    {
+      "from": "Injury report",
+      "to": "Injury Report"
+    },
+    {
+      "from": "Quick tools",
+      "to": "Quick Tools"
     }
   ],
   "cols": {},
@@ -140,6 +148,24 @@
         "div:nth-of-type(3)",
         "div:nth-of-type(4)",
         "div:nth-of-type(5)"
+      ]
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "nav.side-nav",
+      "label": "Section · \"Home Tools Props Compare Injurie…\"",
+      "flex": false,
+      "order": [
+        "button:nth-of-type(1)",
+        "button:nth-of-type(2)",
+        "button:nth-of-type(6)",
+        "button:nth-of-type(3)",
+        "button:nth-of-type(7)",
+        "button:nth-of-type(4)",
+        "button:nth-of-type(8)",
+        "button:nth-of-type(5)",
+        "button:nth-of-type(9)"
       ]
     }
   ]
