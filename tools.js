@@ -525,7 +525,7 @@ function renderTools() {
   const cats = [['all', 'All'], ['research', 'Research'], ['props', 'Props & betting'], ['fantasy', 'Fantasy'], ['injuries', 'Injuries'], ['fav', `Favorites (${avail.filter((t) => fav.includes(t.id)).length})`]];
   const q = S.toolsQ.trim().toLowerCase();
   const shown = avail.filter((t) => (S.toolsCat === 'all' || (S.toolsCat === 'fav' ? fav.includes(t.id) : t.cats.includes(S.toolsCat))) && (!q || `${t.title} ${t.desc} ${t.cats.join(' ')}`.toLowerCase().includes(q)));
-  const card = (t) => h('div', { class: 't-tool', role: 'button', tabIndex: 0, style: `--tc:${t.color}`, onclick: () => tOpenTool(t), onkeydown: (e) => { if (e.key === 'Enter') tOpenTool(t); } },
+  const card = (t) => h('div', { class: 't-tool', 'data-tool': t.id, role: 'button', tabIndex: 0, style: `--tc:${t.color}`, onclick: () => tOpenTool(t), onkeydown: (e) => { if (e.key === 'Enter') tOpenTool(t); } },
     tToolIcon(t), h('div', { class: 't-tool-tx' }, h('b', null, t.title), h('span', null, t.desc)),
     h('button', { type: 'button', class: `t-star${fav.includes(t.id) ? ' on' : ''}`, title: 'Favorite tool', onclick: (e) => { e.stopPropagation(); tStore.set('ml-fav-tools', fav.includes(t.id) ? fav.filter((x) => x !== t.id) : [...fav, t.id]); render(); } }, fav.includes(t.id) ? '★' : '☆'));
   const featured = S.toolsCat === 'all' && !q ? shown.filter((t) => t.featured) : [];
@@ -538,10 +538,10 @@ function renderTools() {
     h('div', { class: 't-controls' },
       h('select', { 'aria-label': 'Sport', onchange: (e) => { const b = document.querySelector(`.sport-sw button[data-s="${e.target.value}"]`); if (b) b.click(); } }, ...T_SP.map((s) => h('option', { value: s, selected: s === sp }, T_SPNAME[s]))),
       h('input', { type: 'search', class: 't-search t-wide', placeholder: 'Search tools…', value: S.toolsQ, 'aria-label': 'Search tools', oninput: (e) => { S.toolsQ = e.target.value; const pos = e.target.selectionStart; render(); const el = $('.tools-root input[type=search]'); if (el) { el.focus(); el.setSelectionRange(pos, pos); } } })),
-    featured.length ? h('h3', { class: 't-h' }, 'Featured') : null,
-    featured.length ? h('div', { class: cls }, ...featured.map(card)) : null,
-    h('h3', { class: 't-h' }, featured.length ? 'All tools' : `${shown.length} tool${shown.length === 1 ? '' : 's'}`),
-    shown.length ? h('div', { class: cls }, ...rest.map(card)) : h('p', { class: 'empty' }, S.toolsCat === 'fav' ? 'Star a tool to keep it here.' : 'No tools match.'));
+    // each section is its own block (Featured / All tools) so it can be hidden or styled on its own in Edit site
+    featured.length ? h('div', { class: 't-featured' }, h('h3', { class: 't-h' }, 'Featured'), h('div', { class: cls }, ...featured.map(card))) : null,
+    h('div', { class: 't-all' }, h('h3', { class: 't-h' }, featured.length ? 'All tools' : `${shown.length} tool${shown.length === 1 ? '' : 's'}`),
+      shown.length ? h('div', { class: cls }, ...rest.map(card)) : h('p', { class: 'empty' }, S.toolsCat === 'fav' ? 'Star a tool to keep it here.' : 'No tools match.')));
 }
 
 // ================================================================= HOME DASHBOARD
@@ -550,7 +550,7 @@ function renderDash() {
   const quick = $('.d-quick-body'), favs = $('.d-favs-body'), slp = $('.d-sleeper'), best = $('.d-best-body'), trend = $('.d-trend');
   if (!quick) return;
   tRC(quick, h('div', { class: 't-tools mini' }, ...T_TOOLS.filter((t) => t.featured || t.id === 'props' || t.id === 'dvp').filter((t) => !t.sports || t.sports.includes(sp)).slice(0, 5)
-    .map((t) => h('div', { class: 't-tool', role: 'button', tabIndex: 0, onclick: () => tOpenTool(t), onkeydown: (e) => { if (e.key === 'Enter') tOpenTool(t); } }, tToolIcon(t), h('div', { class: 't-tool-tx' }, h('b', null, t.title))))),
+    .map((t) => h('div', { class: 't-tool', 'data-tool': t.id, role: 'button', tabIndex: 0, onclick: () => tOpenTool(t), onkeydown: (e) => { if (e.key === 'Enter') tOpenTool(t); } }, tToolIcon(t), h('div', { class: 't-tool-tx' }, h('b', null, t.title))))),
   h('button', { type: 'button', class: 'more', onclick: () => go('tools') }, 'All tools →'));
   if (slp) slp.hidden = sp !== 'nfl';
   if (trend) trend.hidden = sp !== 'nfl';

@@ -524,7 +524,7 @@
   const SPORTS = { nfl: 'NFL', nba: 'NBA', cfb: 'college football', cbb: 'college basketball' };
   const SKIP_CLS = /^(ed-|click$|static$|active$|current$|on$|off$|sel$|selected$|win$|loss$|open$|show$|hidden$|is-|has-)/;
   const ANCHOR = 'section[data-view], section[data-page], main > header, aside.side, main > footer';
-  const scope = { page: false, sport: false };
+  const scope = { page: false, sport: false, which: 'all' };
   let picked = null, pickedSel = null, hoverEl = null;
   function syncSport() {
     let sp = null;
@@ -568,11 +568,50 @@
     if (top && !top.classed && !top.stop && anchor) base = `${anchorSel(anchor)} > ${base}`;
     return { base, area };
   }
+  // ---- narrower choices: "only the ones in this group" and "only this one" ----
+  const IDATTR = ['data-tool', 'data-pid', 'data-player', 'data-team', 'data-game', 'data-id', 'data-view', 'data-s', 'data-gp', 'data-xg'];
+  const idOf = (x) => { for (const a of IDATTR) if (x.hasAttribute && x.hasAttribute(a)) return `[${a}=${q(x.getAttribute(a))}]`; return ''; };
+  // nearest container around the piece that is the only one of its kind on the page ("Featured" section, one box...)
+  function groupOf(e) {
+    const anchor = e.closest(ANCHOR), within = anchor || document;
+    let a = e.parentElement;
+    while (a && a !== anchor && a !== document.body && !a.matches('main')) {
+      const k = tokOf(a);
+      if (k.classed || k.stop) { try { if (within.querySelectorAll(k.t).length === 1) return a; } catch (x) { /* bad selector */ } }
+      a = a.parentElement;
+    }
+    return null;
+  }
+  // a selector for just this one piece, using a label the site gives it (which tool, which player...)
+  function oneSel(e, A) {
+    let x = e; const path = [];
+    while (x && x !== A && x !== document.body && !x.matches(ANCHOR)) {
+      const id = idOf(x);
+      if (id) return [A ? tokOf(A).t : '', [tokOf(x).t + id, ...path].join(' > ')].filter(Boolean).join(' ');
+      path.unshift(tokOf(x).t);
+      x = x.parentElement;
+    }
+    return null;
+  }
+  const groupName = (A) => { const hd = A.querySelector('h1, h2, h3, h4'); const t = hd && hd.textContent.trim(); return t ? `"${t.length > 28 ? `${t.slice(0, 26)}…` : t}"` : 'this section'; };
+  function whichChoices(e) {
+    const { base, area } = selFor(e), A = groupOf(e);
+    const o = { all: base };
+    if (A && !base.includes(tokOf(A).t)) o.group = `${tokOf(A).t} ${base}`;
+    const one = oneSel(e, A); if (one) o.one = one;
+    const cnt = (b) => { try { return document.querySelectorAll(compose({ base: b, area: scope.page ? area : '', sp: scope.sport ? curSport() : '' })).length; } catch (x) { return 0; } };
+    const n = { all: cnt(o.all), group: o.group ? cnt(o.group) : 0, one: o.one ? cnt(o.one) : 0 };
+    const list = [['all', `Every one like this (${n.all} on screen)`]];
+    if (o.group && n.group && n.group < n.all) list.push(['group', `Only the ones in ${groupName(A)} (${n.group})`]);
+    if (o.one && n.one === 1 && n.one < (list.length > 1 ? n.group : n.all)) list.push(['one', 'Only this one']);
+    const eff = list.some(([k]) => k === scope.which) ? scope.which : 'all';
+    return { o, list, eff, n };
+  }
   const compose = (r, mid) => [r.sp ? `html[data-sport=${q(r.sp)}]` : '', mid || '', r.area && !r.base.startsWith(r.area) ? r.area : '', r.base].filter(Boolean).join(' ');
   const keyOf = (r) => compose(r);
   function target(e) {
-    const { base, area } = selFor(e);
-    return { base, area: scope.page ? area : '', sp: scope.sport ? curSport() : '' };
+    const { area } = selFor(e), w = whichChoices(e);
+    return { base: w.o[w.eff], area: scope.page ? area : '', sp: scope.sport ? curSport() : '' };
   }
   function describe(e) {
     if (e.dataset.elabel) return e.dataset.elabel;
@@ -613,9 +652,11 @@
   function select(t) {
     picked = t;
     // already styled under some scope? show that one
-    const { base } = selFor(t);
-    const prior = (cfg.styles || []).concat(cfg.moves || []).find((r) => r.base === base && (!r.sp || r.sp === curSport()));
-    if (prior) { scope.page = !!prior.area; scope.sport = !!prior.sp; }
+    const { o } = whichChoices(t), rules = (cfg.styles || []).concat(cfg.moves || []);
+    for (const w of ['one', 'group', 'all']) {
+      const prior = o[w] && rules.find((r) => r.base === o[w] && (!r.sp || r.sp === curSport()));
+      if (prior) { scope.which = w; scope.page = !!prior.area; scope.sport = !!prior.sp; break; }
+    }
     highlight();
     tab = 'pick'; drawPanel();
     if (panel) panel.classList.remove('ed-small');
@@ -773,18 +814,24 @@
     const help = el('p', { class: 'ed-help' }, 'Pick "Select & style" at the top, then click anything on the page: a title, a button, the time bar under a game, a whole box. Its own colors, size, spacing, order and delete controls show up here.');
     if (!picked || !picked.isConnected) return [help, picked === null && pickedSel ? el('p', { class: 'ed-dim' }, 'The piece you picked isn\'t on this screen anymore.') : null];
     const n = highlight();
+    const wc = whichChoices(picked);
     const t = target(picked), r = ruleFor(false), c = (r && r.css) || {};
     const sp = curSport(), pg = picked.closest('section[data-view], section[data-page]');
     const isBox = !!picked.dataset.ek, boxHidden = isBox && cfg.hidden.includes(picked.dataset.ek);
     const why = canArrange(picked);
     const up = picked.parentElement && !picked.parentElement.matches('main.ml, body') ? picked.parentElement : null;
+    // clicked the words inside a card (one tool, one player...)? offer the whole card in one click
+    let item = picked.parentElement && picked.parentElement.closest(IDATTR.map((x) => `[${x}]`).join(', '));
+    if (item && (item.matches(ANCHOR) || !item.closest('main, aside.side'))) item = null;
     const sameCount = n > 1 ? `Changes ${n} pieces like it on this screen (outlined in light blue)` : 'Changes this piece';
     return [
       el('div', { class: 'ed-picked-name' }, el('b', null, describe(picked))),
       el('div', { class: 'ed-row ed-wrap' },
+        item ? el('button', { type: 'button', class: 'ed-primary', onclick: () => select(item) }, `⤒ Select the whole ${item.matches('button') ? 'button' : 'card'}`) : null,
         up ? el('button', { type: 'button', onclick: () => select(pickTarget(up) || up) }, '⤒ Select the part around it') : null,
         el('button', { type: 'button', onclick: () => { unpick(); drawPanel(); } }, 'Deselect')),
-      el('h4', null, 'Where this change applies'),
+      el('h4', null, 'Which ones'),
+      ...wc.list.map(([k, l]) => el('label', { class: 'ed-check' }, el('input', { type: 'radio', name: 'ed-which', checked: wc.eff === k, onchange: () => { scope.which = k; drawPanel(); } }), el('span', null, l))),
       el('p', { class: 'ed-dim' }, `${sameCount}${t.sp || t.area ? '' : ', on every page and sport where it appears'}.`),
       pg ? el('label', { class: 'ed-check' }, el('input', { type: 'checkbox', checked: scope.page, onchange: (e) => { scope.page = e.target.checked; drawPanel(); } }), el('span', null, `Only on this page (${pg.dataset.view || pg.dataset.page})`)) : null,
       sp ? el('label', { class: 'ed-check' }, el('input', { type: 'checkbox', checked: scope.sport, onchange: (e) => { scope.sport = e.target.checked; drawPanel(); } }), el('span', null, `Only for ${SPORTS[sp] || sp}`)) : null,
