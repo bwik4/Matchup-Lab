@@ -276,6 +276,7 @@
       }
     }
   ],
+  "caseOff": false,
   "moves": [
     {
       "sp": "",
