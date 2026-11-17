@@ -71,6 +71,15 @@
       "css": {
         "bg": "#1d2842"
       }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "[data-ek=\"tools/tools\"] > p.note",
+      "label": "Text · \"Every stat page, ranking and res…\"",
+      "css": {
+        "hide": true
+      }
     }
   ],
   "moves": [
