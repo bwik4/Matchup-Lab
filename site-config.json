@@ -82,6 +82,43 @@
     {
       "from": "Quick tools",
       "to": "Quick Tools"
+    },
+    {
+      "from": "This season's game log",
+      "to": "Game Log"
+    },
+    {
+      "from": "TE1s vs CIN defense",
+      "to": "TE1s vs CIN Defense",
+      "tf": "TE1s vs  defense",
+      "tt": [
+        "TE1s vs ",
+        0,
+        " Defense"
+      ],
+      "fixed": []
+    },
+    {
+      "from": "Last 5 games 60%",
+      "to": "L5 games: 60%",
+      "tf": "Last 5 games %",
+      "tt": [
+        "L5 games: ",
+        0,
+        "%"
+      ],
+      "fixed": []
+    },
+    {
+      "from": "Last 5 games 60%",
+      "to": "L5 games 60%",
+      "tf": "Last 5 games %",
+      "tt": [
+        "L5 games ",
+        0,
+        "%"
+      ],
+      "fixed": []
     }
   ],
   "cols": {},
@@ -166,6 +203,17 @@
         "button:nth-of-type(8)",
         "button:nth-of-type(5)",
         "button:nth-of-type(9)"
+      ]
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.stats.p-stats > div.stat",
+      "label": "Section · \"3/7 Over 37.5 this season 43%\"",
+      "flex": true,
+      "order": [
+        "div.v",
+        "div.k"
       ]
     }
   ]
