@@ -274,6 +274,17 @@
       "css": {
         "mt": 6
       }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "aside.vx-board-side > div.card.vx-slipmini",
+      "label": "Section · \"Bet Slip Add players with + Add.\"",
+      "css": {
+        "width": 60,
+        "mt": 34,
+        "zoom": 100
+      }
     }
   ],
   "caseOff": false,
