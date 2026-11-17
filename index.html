@@ -583,6 +583,9 @@
   .m-bv { text-align: right; } .m-bo { color: var(--muted); text-align: right; }
   @media (max-width: 640px) { .m-brow { grid-template-columns: 70px minmax(60px, 1fr) 56px auto; } .m-bo { display: none; } }
   .m-more .more { margin-top: 8px; }
+
+  /* game log: a line between every column */
+  table.t-plog th + th, table.t-plog td + td { border-left: 1px solid color-mix(in srgb, var(--fg) 16%, transparent); }
 </style>
 </head>
 <body>
@@ -2210,12 +2213,13 @@ function renderMatchups() {
     });
     mSplit.textContent = msgs.join('. ') + '. Its numbers and ranks below use only those games; every other defense uses all of its games.';
   }
-  // layouts: key = first 4 stats (+ All Stats button), bars = one stat as ranked bars, full = every stat
-  if (!S.mLay) { try { S.mLay = localStorage.getItem('ml-m-lay') || 'key'; } catch (e) { S.mLay = 'key'; } }
-  $('.m-lay').replaceChildren(...[['key', 'Key Stats'], ['bars', 'Ranked Bars'], ['full', 'All Stats']].map(([k, l]) => h('button', { type: 'button', 'aria-pressed': String(S.mLay === k),
+  // layouts: full = every stat (table), bars = one stat as ranked bars
+  if (!S.mLay) { try { S.mLay = localStorage.getItem('ml-m-lay') || 'full'; } catch (e) { S.mLay = 'full'; } }
+  if (S.mLay !== 'bars') S.mLay = 'full';
+  $('.m-lay').replaceChildren(...[['full', 'All Stats'], ['bars', 'Ranked Bars']].map(([k, l]) => h('button', { type: 'button', 'aria-pressed': String(S.mLay === k),
     onclick: () => { S.mLay = k; try { localStorage.setItem('ml-m-lay', k); } catch (e) { /* */ } render(); } }, l)));
   const allKeys = keys.slice();
-  const shown = S.mLay === 'key' && !S.mAll ? keys.slice(0, 4) : keys;
+  const shown = keys;
   const cols = [{ f: 'defense', label: 'Defense', l: true }, { f: 'games', label: 'GP' }];
   const mNotes = [];
   const mWeeks = (o) => (o.wo ? S.mOut.get(o.defense) : S.mWin === 'last3' ? winWeeks : null);
@@ -2228,13 +2232,7 @@ function renderMatchups() {
     selected: (r) => r.defense === S.mDef || r.wo,
   });
   skewList($('.t-match'), mNotes);
-  // Key Stats: "+ All Stats" button under the table
   const mCard = $('.t-match').closest('.card'), mScroll = $('.t-match').closest('.scroll');
-  let mMore = mCard.querySelector('.m-more');
-  if (!mMore) { mMore = h('div', { class: 'm-more' }); mCard.querySelector('.legend').after(mMore); }
-  const rest = allKeys.slice(4);
-  mMore.replaceChildren(...(S.mLay === 'key' && rest.length ? [h('button', { type: 'button', class: 'more', onclick: () => { S.mAll = !S.mAll; render(); } },
-    S.mAll ? 'Fewer Stats' : `+ All Stats (${rest.map((k) => statLabel(k).replace(/ \(.*\)/, '')).join(', ')})`)] : []));
   // Ranked Bars: one stat, every defense sorted toughest first
   let mBars = mCard.querySelector('.m-bars');
   if (!mBars) { mBars = h('div', { class: 'm-bars' }); mScroll.before(mBars); }
