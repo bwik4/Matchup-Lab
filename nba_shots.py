@@ -121,10 +121,49 @@ def build(season, out):
     g["rank_fgm"] = g["rank_fgm"].astype("Int64")
     g.sort_values(["player_id", "zone"]).to_csv(f"{out}/shot_player.csv", index=False)
 
+    team_efficiency(pbp, logs, out)
+
     with open(f"{out}/shots_meta.txt", "w") as f:
         f.write(f"season={season}\ngames={s['game_id'].nunique()}\nshots={len(s)}\nthrough_date={str(pbp['game_date'].max())[:10]}\n"
                 f"built_at={dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds')}\n")
     print(f"nba shots: {len(s)} shots from {s['game_id'].nunique()} games, {g['player_id'].nunique()} players")
+
+
+def team_efficiency(pbp, logs, out):
+    """Possessions, offensive and defensive efficiency (points per 100 possessions) and pace for every team.
+    Possessions = FGA + 0.44 x FTA - offensive rebounds + turnovers (turnovers from the player box scores)."""
+    p = pbp.copy()
+    p["game_id"] = p["game_id"].astype(str)
+    tid = pd.to_numeric(p["team_id"], errors="coerce")
+    home = (tid == pd.to_numeric(p["home_team_id"], errors="coerce")).to_numpy()
+    away = (tid == pd.to_numeric(p["away_team_id"], errors="coerce")).to_numpy()
+    p["team"] = np.where(home, p["home_team_abbrev"], np.where(away, p["away_team_abbrev"], None))
+    p = p[p["team"].notna()]
+    tt = p["type_text"].fillna("")
+    p["fga"] = ((p["shooting_play"] == True) & ~tt.str.contains("Free Throw")).astype(int)  # noqa: E712
+    p["fta"] = (tt.str.startswith("Free Throw") & ~tt.str.contains("Technical")).astype(int)
+    p["oreb"] = ((tt == "Offensive Rebound") & p["athlete_id_1"].notna()).astype(int)  # team rebounds (no player) are not possessions
+    g = p.groupby(["game_id", "team"])[["fga", "fta", "oreb"]].sum().reset_index()
+    cur = logs.copy(); cur["game_id"] = cur["game_id"].astype(str)
+    tov = cur.groupby(["game_id", "team"])["tov"].sum().reset_index()
+    g = g.merge(tov, on=["game_id", "team"], how="left").fillna({"tov": 0})
+    g["poss"] = g["fga"] + 0.44 * g["fta"] - g["oreb"] + g["tov"]
+    games = pd.read_csv(f"{out}/games.csv", dtype={"game_id": str})
+    games = games[games["status"] == "final"]
+    sc = pd.concat([games[["game_id", "away_team", "away_score", "home_score"]].rename(columns={"away_team": "team", "away_score": "pf", "home_score": "pa"}),
+                    games[["game_id", "home_team", "home_score", "away_score"]].rename(columns={"home_team": "team", "home_score": "pf", "away_score": "pa"})])
+    g = g.merge(sc, on=["game_id", "team"], how="inner")
+    opp = g[["game_id", "team", "poss"]].rename(columns={"team": "opp", "poss": "opp_poss"})
+    g = g.merge(opp, on="game_id"); g = g[g["team"] != g["opp"]]
+    g["pace"] = (g["poss"] + g["opp_poss"]) / 2
+    t = g.groupby("team").agg(games=("game_id", "nunique"), pf=("pf", "sum"), pa=("pa", "sum"), poss=("poss", "sum"), opp_poss=("opp_poss", "sum"), pace=("pace", "mean")).reset_index()
+    t["off_eff"] = (t["pf"] / t["poss"] * 100).round(1)
+    t["def_eff"] = (t["pa"] / t["opp_poss"] * 100).round(1)
+    t["pace"] = t["pace"].round(1)
+    t["off_eff_rk"] = t["off_eff"].rank(ascending=False, method="min").astype(int)
+    t["def_eff_rk"] = t["def_eff"].rank(ascending=True, method="min").astype(int)
+    t["pace_rk"] = t["pace"].rank(ascending=False, method="min").astype(int)
+    t[["team", "games", "off_eff", "def_eff", "pace", "off_eff_rk", "def_eff_rk", "pace_rk"]].to_csv(f"{out}/team_eff.csv", index=False)
 
 
 if __name__ == "__main__":

@@ -586,6 +586,21 @@
 
   /* game log: a line between every column */
   table.t-plog th + th, table.t-plog td + td { border-left: 1px solid color-mix(in srgb, var(--fg) 16%, transparent); }
+
+  /* matchup edges */
+  .vx-edges h2, .vx-gedges h2 { margin-bottom: 8px; }
+  .vx-edge-ln { display: flex; gap: 10px; align-items: baseline; font-size: .88rem; padding: 4px 0; }
+  .vx-edge-k { flex: none; min-width: 6.5rem; font-weight: 700; font-size: .75rem; color: var(--ok); background: color-mix(in srgb, var(--ok) 13%, transparent); border-radius: 999px; padding: 2px 9px; text-align: center; }
+  .vx-gedge { display: grid; grid-template-columns: minmax(150px, 210px) minmax(0, 1fr); gap: 12px; padding: 9px 2px; border-top: 1px solid var(--line); }
+  .vx-gedge-who { display: flex; align-items: center; gap: 6px; font-weight: 700; } .vx-gedge-who .vx-link { color: var(--fg); }
+  @media (max-width: 640px) { .vx-gedge { grid-template-columns: minmax(0, 1fr); gap: 4px; } .vx-edge-k { min-width: 5rem; } }
+
+  .vx-tct { width: 100%; max-width: 620px; border-collapse: collapse; font-size: .88rem; }
+  .vx-tct th, .vx-tct td { padding: 6px 8px; text-align: right; border-bottom: 1px solid var(--line); }
+  .vx-tct th.l, .vx-tct td.l { text-align: left; }
+  .vx-tc { display: inline-block; min-width: 3em; text-align: center; border-radius: 999px; padding: 1px 7px; font-weight: 700; font-size: .76rem; background: color-mix(in srgb, var(--muted) 16%, transparent); }
+  .vx-tc.g { color: var(--ok); background: color-mix(in srgb, var(--ok) 16%, transparent); } .vx-tc.r { color: var(--bad); background: color-mix(in srgb, var(--bad) 16%, transparent); }
+  .vx-tot-sig { display: flex; align-items: center; gap: 8px; }
 </style>
 </head>
 <body>
@@ -691,6 +706,7 @@
           <div class="scroll" style="max-height: none"><table class="cmp t-cmp"><thead></thead><tbody></tbody></table></div>
         </div>
       </div>
+      <div class="card vx-gedges gp-pedges" hidden></div>
       <div class="card">
         <div class="bar"><h2>Defense vs position</h2><div class="seg dvp-lay" role="group" aria-label="Layout"></div></div>
         <p class="note">What each defense allows per game to each position this season, ranked among all 32 defenses. * = one big game is carrying that number.</p>
@@ -1070,6 +1086,8 @@
         <div class="tc-rows xg-rows"></div>
         <p class="summary xg-sum"></p>
       </div>
+      <div class="card vx-totcheck xg-totcheck" hidden></div>
+      <div class="card vx-gedges xg-pedges" hidden></div>
       <div class="card">
         <div class="bar"><h2>Defense vs position</h2><div class="seg dvp-lay" role="group" aria-label="Layout"></div></div>
         <p class="note xg-dnote"></p>
@@ -2617,6 +2635,7 @@ function renderGameDvP(g) {
   }), 5));
   skewList(tbl, notes);
   renderSimDefs('nfl', g, $('.gp-sim'), S.tcFlip, (v) => { S.tcFlip = v; render(); });
+  if (typeof vGameEdges === 'function') vGameEdges('nfl', g, $('.gp-pedges'));
 }
 
 // ---------- players: starting QBs + top receivers/rushers ----------
@@ -4196,6 +4215,8 @@ function xgMatchup(sp, g) {
   }), 5));
   skewList(tbl, dNotes);
   renderSimDefs(sp, g, $('.xg-sim'), S.xgFlip, (v) => { S.xgFlip = v; render(); });
+  if (typeof vGameEdges === 'function') vGameEdges(sp, g, $('.xg-pedges'));
+  if (typeof vTotCard === 'function') vTotCard(sp, g, $('.xg-totcheck'));
 }
 
 function xgPlayers(sp, g) {

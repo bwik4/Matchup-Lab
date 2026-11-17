@@ -122,3 +122,8 @@ Favorites, compare picks and your Sleeper username are saved in the browser you 
 - **Search** at the top finds any player or team in the current sport. **Bet Slip** (bottom right) keeps picks in your browser and works out parlay odds from the prices you type in.
 
 Every player name and team on these pages opens that profile.
+
+## Player Edges and Totals Check
+
+- **Player Edges** (player profiles, and the Matchup tab of every game): for each player, the 1–3 spots where a strong part of his game meets a soft spot in the defense. A stat counts when the defense ranks in the easiest ~28% against his position, he's in the top 40% of his position in it, and he isn't trending down. Also counted: a big jump vs the defenses most like this one, and (NBA) a shot zone where he makes 1+ per game at an above-league rate and the defense gives his position some of the most makes there. Players with no edge aren't listed.
+- **Totals Check** (NBA and CBB Matchup tab, and the Totals Board): Ben's over rule, which needs both teams top 10 in offensive efficiency, bottom 10 in defensive efficiency and top 10 in possessions per game. The under is the mirror. CBB uses the top / bottom 10% (about 37 of 366) because a literal top 10 almost never happens. NBA efficiency and pace come from `data/nba/team_eff.csv`, built daily by `nba_shots.py`. Possessions = FGA + 0.44 × FTA − offensive rebounds + turnovers.

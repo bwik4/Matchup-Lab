@@ -381,6 +381,7 @@ function vTotals(sp, root) {
         g.proj_tempo != null ? h('span', null, 'Pace ', h('b', null, show(g.proj_tempo))) : h('span', null, tmTxt(kickDate(g))),
         h('span', null, 'Diff ', h('b', { style: `color:${col}` }, diff == null ? '—' : `${diff > 0 ? '+' : ''}${show(diff)}`))),
       h('div', { class: 'vx-slider' }, h('i', { style: `left:${pct}%;background:${col}` })),
+      (() => { if (sp === 'nba' && !VEFF.ready) { vEffLoad().then((ok) => { if (ok && S.view === 'explore') render(); }); return null; } const c = vTotCheck(sp, g); return c ? h('div', { class: 'vx-tot-sig' }, c.call ? h('span', { class: `vx-pill ${c.call === 'Over' ? 'g' : 'r'}` }, `${c.call} Rule ✓`) : null, h('small', { class: 'muted' }, `Over rule ${c.ov}/3 · Under ${c.un}/3`)) : null; })(),
       lean && g.total_line != null ? vAddBtn({ id: `${sp}|tot|${g.game_id}|${lean}`, sp, label: `${g.away_team} @ ${g.home_team} ${lean} ${show(g.total_line)}`, sub: `Proj ${show(proj)}`, odds: lean === 'Over' ? g.over_odds ?? -110 : g.under_odds ?? -110, href: `#${tabR}` }) : null);
   });
   tRC(root, h('p', { class: 'note' }, `${vSlateLabel(sp, sl)} · ${sp === 'cbb' ? 'Projection = tempo + efficiency model' : 'Projection = each team\'s points scored and allowed per game'}. Biggest gaps first.`), h('div', { class: 'vx-totgrid' }, cards));
@@ -430,6 +431,7 @@ VX.player = function () {
       h('td', null, `${show(line)} · ${hit.h}/${hit.n}`),
       h('td', null, nx ? vAddBtn({ id: `${sp}|${p.pid}|${k}|over`, sp, label: `${p.name} Over ${show(line)} ${vStatLbl(sp, k)}`, sub: `${p.team} ${nx.home ? 'vs' : '@'} ${nx.opp}`, href: `#player/${sp}/${p.pid}` }) : null));
   }).filter(Boolean);
+  if (opp) { const ec = vEdgeCard(sp, p, opp); if (ec) cards.push(ec); }
   cards.push(vCard('Averages & Matchup', h('div', { class: 'tblwrap' }, h('table', { class: 'dvp' },
     h('thead', null, h('tr', null, ...['Stat', 'Season', 'L10', 'L5', 'L3', opp ? `Vs ${opp}` : 'Vs Opp', 'Proj', 'Opp Rank', 'Line · L10 Over', ''].map((x, i) => h('th', { class: i ? '' : 'l' }, x)))),
     h('tbody', null, avgRows))),
@@ -702,4 +704,129 @@ function vHomeQuick() {
   vQuick(sp, tmp);
   const list = tmp.querySelector('.vx-qlist');
   if (list) { [...list.children].slice(6).forEach((c) => c.remove()); tRC(box, list); } else tRC(box, ...tmp.childNodes);
+}
+
+// ================================================================= MATCHUP EDGES
+// For one player vs one defense: the few spots where a strong part of HIS game meets a weak part of THEIR defense.
+// Nothing is shown when nothing lines up. Used on player profiles and on every game page (Matchup tab).
+const V_EDGE_SKIP = /tds?$|_tds|interceptions|long_|^fp|pra|^pr$|^pa$|^ra$|^sb$|rush_rec|pass_rush/;
+const V_PCT = {};
+// where his season average ranks among regulars at his position (0..1, 1 = best)
+function vPctOf(sp, p, stat, v) {
+  const U = tUni(sp), key = `${p.pos}|${stat}`;
+  if (!V_PCT[sp] || V_PCT[sp].U !== U) V_PCT[sp] = { U, m: new Map() };
+  const M = V_PCT[sp].m;
+  if (!M.has(key)) M.set(key, U.players.filter((x) => x.pos === p.pos && x.logs.length >= 3).map((x) => mean(x.logs.map((r) => tVal(r, stat)).filter((y) => y != null))).filter((y) => y != null && !Number.isNaN(y)).sort((a, b) => a - b));
+  const arr = M.get(key); if (arr.length < 8) return null;
+  let i = 0; while (i < arr.length && arr[i] < v) i++;
+  return i / arr.length;
+}
+function vPlayerEdges(sp, p, opp) {
+  if (!opp || !p || p.logs.length < 3) return [];
+  const out = [], posL = { G: 'guards', F: 'forwards', C: 'centers' }[p.pos] || `${p.pos}s`;
+  tStats(sp, p.pos).map((x) => x[0]).filter((k) => !V_EDGE_SKIP.test(k)).forEach((k) => {
+    const vals = p.logs.map((r) => tVal(r, k)).filter((v) => v != null);
+    if (vals.length < 3) return;
+    const seas = mean(vals), l5 = mean(vals.slice(-5)), d = tDv(sp, opp, p.pos, k);
+    if (!d || !seas) return;
+    const ease = (d.rank - 1) / Math.max(1, d.n - 1), pct = vPctOf(sp, p, k, seas);
+    if (ease < 0.72 || pct == null || pct < 0.6 || l5 < seas * 0.85) return;
+    const most = d.n + 1 - d.rank, top = Math.max(1, Math.round((1 - pct) * 100));
+    out.push({ k, score: ease * pct * Math.min(1.3, l5 / seas), label: vStatLbl(sp, k),
+      txt: `${opp} gives ${posL} the ${most === 1 ? 'most' : `${ordinal(most)}-most`} (${show(d.pg)}/g). He averages ${show(seas)}${vals.length >= 5 ? `, L5 ${show(l5)}` : ''} (top ${top}% of ${posL}).` });
+  });
+  // vs the defenses most like this one
+  const main = T_MAIN[p.pos];
+  if (main) {
+    const sim = tVsSimilar(sp, p, main, opp), seas = mean(p.logs.map((r) => tVal(r, main)).filter((v) => v != null));
+    const reg = seas ? vPctOf(sp, p, main, seas) : null;
+    if (sim && sim.n >= 2 && seas && reg != null && reg >= 0.5 && sim.avg >= seas * 1.2) out.push({ k: `sim-${main}`, score: 0.55 + Math.min(0.3, sim.avg / seas - 1.2), label: 'Similar D',
+      txt: `Vs the ${sim.n} defenses most like ${opp}: ${show(sim.avg)} ${vStatLbl(sp, main)} (season ${show(seas)}).` });
+  }
+  // NBA shot zones: he makes a lot from a zone where this defense gives his position the most
+  if (sp === 'nba' && VSH.ready) {
+    const zs = VSH.p.get(String(p.pid)), n = VSH.nT;
+    if (zs) ZN.forEach(([z]) => {
+      const r = zs[z], dz = VSH.t.get(`def|${opp}|${p.pos}|${z}`);
+      if (!r || !dz || r.games < 3 || r.fgm_pg < 1 || r.fg_pct < (VSH.lg[z] || 0) + 1) return;
+      if (dz.rank_fgm < n - 7) return;
+      const most = n + 1 - dz.rank_fgm;
+      out.push({ k: `zone-${z}`, score: 0.7 + (dz.rank_fgm / n) * 0.2 + Math.min(0.2, r.fgm_pg / 20), label: ZS[z],
+        txt: `${opp} gives ${posL} the ${most === 1 ? 'most' : `${ordinal(most)}-most`} makes there (${vNum(dz.fgm_pg)}/g at ${vNum(dz.fg_pct, 0)}%). He makes ${vNum(r.fgm_pg)}/g at ${vNum(r.fg_pct, 0)}% (league ${vNum(VSH.lg[z], 0)}%).` });
+    });
+  }
+  // keep combos from repeating the same idea: one rec-yds-type edge per family
+  const seen = new Set();
+  return out.sort((a, b) => b.score - a.score).filter((e) => { const fam = e.k.replace(/receiving_yards|receptions|targets/, 'rec').replace(/rushing_yards|carries/, 'rush').replace(/passing_yards|attempts|completions/, 'pass'); if (seen.has(fam)) return false; seen.add(fam); return true; }).slice(0, 3);
+}
+const vEdgeRow = (e) => h('div', { class: 'vx-edge-ln' }, h('span', { class: 'vx-edge-k' }, e.label), h('span', null, e.txt));
+function vEdgeCard(sp, p, opp) {
+  if (sp === 'nba' && !VSH.ready && !VSH.error) vShotsLoad().then((ok) => { if (ok) render(); });
+  const es = vPlayerEdges(sp, p, opp);
+  return es.length ? h('div', { class: 'card vx-edges' }, h('h2', null, `Edges vs ${opp}`), ...es.map(vEdgeRow)) : null;
+}
+// game page: the players with the clearest edges in this game (both teams), one line each
+function vGameEdges(sp, g, host) {
+  if (!host) return;
+  host.hidden = true;
+  if (!g || g.status === 'final' || !tEnsure(sp)) { host.replaceChildren(); if (!tReady(sp)) tEnsure(sp); return; }
+  if (sp === 'nba' && !VSH.ready && !VSH.error) vShotsLoad().then((ok) => { if (ok) render(); });
+  const U = tUni(sp), rows = [];
+  [[g.away_team, g.home_team], [g.home_team, g.away_team]].forEach(([t, opp]) => U.players.filter((p) => p.team === t && !p.missed).forEach((p) => {
+    const es = vPlayerEdges(sp, p, opp); if (es.length) rows.push({ p, es, score: es[0].score + 0.05 * (es.length - 1) });
+  }));
+  rows.sort((a, b) => b.score - a.score);
+  if (!rows.length) { host.replaceChildren(); return; }
+  const open = S.vEdgeAll, list = open ? rows : rows.slice(0, 5);
+  host.replaceChildren(h('div', { class: 'bar' }, h('h2', null, 'Player Edges'), h('small', { class: 'muted' }, 'Where a strength meets a soft spot')),
+    ...list.map(({ p, es }) => h('div', { class: 'vx-gedge' },
+      h('div', { class: 'vx-gedge-who' }, badge(p.team, 'sm'), vPlayerLink(sp, p.pid, p.name), h('small', { class: 'muted' }, p.pos)),
+      h('div', { class: 'vx-gedge-list' }, ...es.slice(0, open ? 3 : 2).map(vEdgeRow)))),
+    ...(rows.length > 5 ? [h('button', { type: 'button', class: 'more', onclick: () => { S.vEdgeAll = !S.vEdgeAll; render(); } }, open ? 'Show fewer' : `All ${rows.length} players with an edge`)] : []));
+  host.hidden = false;
+}
+
+// ================================================================= TOTALS CHECK (NBA / CBB)
+// Ben's over rule: both teams top 10 in offensive efficiency, both bottom 10 in defensive efficiency, both top 10 in possessions per game.
+// The under is the mirror: both bottom 10 on offense, both top 10 on defense, both bottom 10 in possessions.
+// NBA numbers come from data/nba/team_eff.csv (nba_shots.py); CBB from data/cbb/ratings.csv (adjusted efficiency and tempo).
+const VEFF = { ready: false, loading: null };
+function vEffLoad() {
+  if (VEFF.loading) return VEFF.loading;
+  VEFF.loading = d3.csv(`data/nba/team_eff.csv?v=${Date.now()}`).then((r) => { VEFF.m = new Map(r.map(clean).map((x) => [x.team, x])); VEFF.n = VEFF.m.size; VEFF.ready = true; return true; }).catch(() => { VEFF.error = true; return false; });
+  return VEFF.loading;
+}
+function vTotEff(sp, t) {
+  if (sp === 'cbb') { const r = CBB.rt && CBB.rt.get(t); return r ? { o: r.adj_o, ork: r.adj_o_rk, d: r.adj_d, drk: r.adj_d_rk, p: r.adj_t, prk: r.adj_t_rk, n: CBB.nRt || 365 } : null; }
+  if (sp === 'nba') { if (!VEFF.ready) return null; const r = VEFF.m.get(t); return r ? { o: r.off_eff, ork: r.off_eff_rk, d: r.def_eff, drk: r.def_eff_rk, p: r.pace, prk: r.pace_rk, n: VEFF.n } : null; }
+  return null;
+}
+function vTotCheck(sp, g) {
+  const A = vTotEff(sp, g.away_team), H = vTotEff(sp, g.home_team);
+  if (!A || !H) return null;
+  // NBA: literal top / bottom 10 of 30. CBB has ~365 teams, so top 10 would almost never happen: use the top / bottom 10% (about 36) instead
+  const n = A.n, cut = sp === 'cbb' ? Math.round(n * 0.1) : 10, top = (r) => r <= cut, bot = (r) => r > n - cut;
+  const rows = [
+    { lab: 'Offensive efficiency', a: A.ork, b: H.ork, av: A.o, bv: H.o, over: top, under: bot },
+    { lab: 'Defensive efficiency', a: A.drk, b: H.drk, av: A.d, bv: H.d, over: bot, under: top },
+    { lab: 'Possessions / game', a: A.prk, b: H.prk, av: A.p, bv: H.p, over: top, under: bot },
+  ];
+  const ov = rows.filter((r) => r.over(r.a) && r.over(r.b)).length, un = rows.filter((r) => r.under(r.a) && r.under(r.b)).length;
+  return { rows, n, cut, ov, un, call: ov === 3 ? 'Over' : un === 3 ? 'Under' : null };
+}
+function vTotCard(sp, g, host) {
+  if (!host) return;
+  host.hidden = true;
+  if (!isBB(sp) || !g || g.status === 'final') return;
+  if (sp === 'nba' && !VEFF.ready) { if (!VEFF.error) vEffLoad().then((ok) => { if (ok) render(); }); return; }
+  const c = vTotCheck(sp, g); if (!c) return;
+  const ck = (r, v) => h('span', { class: `vx-tc ${r.over(v) ? 'g' : r.under(v) ? 'r' : ''}` }, ordinal(v));
+  const verdict = c.call ? h('span', { class: `vx-pill ${c.call === 'Over' ? 'g' : 'r'}` }, `${c.call}${g.total_line != null ? ` ${show(g.total_line)}` : ''}`)
+    : h('span', { class: 'vx-pill' }, `Over ${c.ov}/3 · Under ${c.un}/3`);
+  host.replaceChildren(h('div', { class: 'bar' }, h('h2', null, 'Totals Check'), verdict),
+    h('table', { class: 'vx-tct' }, h('thead', null, h('tr', null, h('th', { class: 'l' }, ''), h('th', null, g.away_team), h('th', null, g.home_team), h('th', null, 'Over Needs'))),
+      h('tbody', null, c.rows.map((r) => h('tr', null, h('td', { class: 'l' }, r.lab), h('td', null, show(r.av), ' ', ck(r, r.a)), h('td', null, show(r.bv), ' ', ck(r, r.b)),
+        h('td', { class: 'muted' }, r.lab.startsWith('Def') ? `both bottom ${c.cut}` : `both top ${c.cut}`))))),
+    h('p', { class: 'note' }, `Ranks among ${c.n} teams${sp === 'cbb' ? ' (adjusted efficiency and tempo; top 10% = top ${c.cut})' : ''}. Over = all 3 rows met by both teams; Under = the mirror. Green = fits the over, red = fits the under.`));
+  host.hidden = false;
 }
