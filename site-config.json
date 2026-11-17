@@ -192,6 +192,10 @@
     {
       "from": "Target share (share of his team's targets)",
       "to": "Target share"
+    },
+    {
+      "from": "Over 37.5 this season and last 46%",
+      "to": "Over 37.5 (46%)"
     }
   ],
   "cols": {},
