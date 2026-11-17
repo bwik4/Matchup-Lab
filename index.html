@@ -547,6 +547,42 @@
   .vx-toast { position: fixed; left: 50%; bottom: 90px; transform: translate(-50%, 20px); opacity: 0; transition: .2s; z-index: 60; background: var(--fg); color: var(--bg); padding: 9px 16px; border-radius: 999px; font-weight: 600; font-size: .86rem; pointer-events: none; }
   .vx-toast.on { opacity: 1; transform: translate(-50%, 0); }
   .d-ql .bar { margin-bottom: 4px; }
+
+  /* rank pills next to their stat (all dvp tables) */
+  table.dvp td.rk { width: 1%; min-width: 0; padding-left: 2px; padding-right: 10px; text-align: left; white-space: nowrap; background: transparent !important; }
+  table.dvp th.rkh { width: 1%; padding-left: 2px; text-align: left; }
+  table.dvp td.grp { padding-right: 6px; }
+  table.dvp tbody tr:nth-child(even) td.rk { background: var(--stripe) !important; }
+  .rkp { display: inline-block; min-width: 2.9em; text-align: center; padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: .78rem; background: color-mix(in srgb, var(--muted) 16%, transparent); color: var(--fg); }
+  td.rk-r .rkp, .rk-r .rkp { color: var(--bad); background: color-mix(in srgb, var(--bad) 16%, transparent); }
+  td.rk-g .rkp, .rk-g .rkp { color: var(--ok); background: color-mix(in srgb, var(--ok) 16%, transparent); }
+  .dvp-lay { margin-left: auto; }
+  tr.dvp-grp td { background: color-mix(in srgb, var(--fg) 5%, var(--panel)) !important; color: var(--muted); font-size: .72rem; font-weight: 700 !important; letter-spacing: .08em; text-transform: uppercase; padding: 6px 10px !important; }
+  /* similar opponents: summary + lines + side by side */
+  .sim-sumt td.l { font-weight: 600; }
+  .sim-lines { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+  .sim-line { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr) auto; gap: 12px; align-items: center; background: var(--tile); border-radius: 10px; padding: 9px 12px; cursor: pointer; }
+  .sim-line:hover { background: var(--item); }
+  .sim-ln-t { display: flex; align-items: center; gap: 6px; } .sim-ln-t small { color: var(--muted); }
+  .sim-ln-r { color: var(--muted); font-size: .85rem; }
+  @media (max-width: 640px) { .sim-line { grid-template-columns: minmax(0, 1fr) auto; } .sim-ln-r { grid-column: 1 / -1; grid-row: 2; } }
+  .sim-sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 760px) { .sim-sides { grid-template-columns: minmax(0, 1fr); } }
+  .sim-side { background: var(--tile); border-radius: 12px; padding: 12px; }
+  .sim-side-hd { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .sim-side-t td:first-child { background: transparent; white-space: nowrap; }
+  .sim-side-t td:first-child .badge { vertical-align: middle; }
+  /* stats page: ranked bars */
+  .m-bars .m-bstat { margin: 4px 0 10px; flex-wrap: wrap; }
+  .m-blist { display: flex; flex-direction: column; }
+  .m-brow { display: grid; grid-template-columns: 90px minmax(80px, 1fr) 70px auto minmax(0, 1.1fr); gap: 12px; align-items: center; padding: 7px 6px; border-top: 1px solid var(--line); cursor: pointer; }
+  .m-brow:hover, .m-brow.sel { background: var(--item); }
+  .m-bt { display: flex; align-items: center; gap: 6px; }
+  .m-btrack { height: 8px; border-radius: 4px; background: var(--tile); display: flex; }
+  .m-btrack i { display: block; border-radius: 4px; height: 100%; background: #e8c25a; } .m-btrack i.r { background: var(--bad); } .m-btrack i.g { background: var(--ok); }
+  .m-bv { text-align: right; } .m-bo { color: var(--muted); text-align: right; }
+  @media (max-width: 640px) { .m-brow { grid-template-columns: 70px minmax(60px, 1fr) 56px auto; } .m-bo { display: none; } }
+  .m-more .more { margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -653,7 +689,7 @@
         </div>
       </div>
       <div class="card">
-        <h2>Defense vs position</h2>
+        <div class="bar"><h2>Defense vs position</h2><div class="seg dvp-lay" role="group" aria-label="Layout"></div></div>
         <p class="note">What each defense allows per game to each position this season, ranked among all 32 defenses. * = one big game is carrying that number.</p>
         <div class="scroll" style="max-height: none"><table class="gp-dvp dvp"><thead></thead><tbody></tbody></table></div>
         <div class="sim gp-sim"></div>
@@ -813,6 +849,7 @@
             <div class="seg m-win" role="group" aria-label="Window">
               <button data-v="season">Season</button><button data-v="last3">L3</button>
             </div>
+            <div class="seg m-lay" role="group" aria-label="Layout"></div>
           </div>
         </div>
         <p class="note">What every player at that position put up against the defense, per game. <b style="color: var(--c2)">*</b> = one big game is carrying that number.</p>
@@ -1031,7 +1068,7 @@
         <p class="summary xg-sum"></p>
       </div>
       <div class="card">
-        <h2>Defense vs position</h2>
+        <div class="bar"><h2>Defense vs position</h2><div class="seg dvp-lay" role="group" aria-label="Layout"></div></div>
         <p class="note xg-dnote"></p>
         <div class="scroll" style="max-height: none"><table class="xg-dvp dvp"><thead></thead><tbody></tbody></table></div>
         <div class="sim xg-sim"></div>
@@ -1264,6 +1301,27 @@ const pct = (v) => (v == null ? '—' : `${Math.round(v)}%`);
 const rankCls = (r) => (r == null ? 'rk' : r <= 8 ? 'rk rk-g' : r >= 25 ? 'rk rk-r' : 'rk');
 // opponent / defense ranks: 1 = toughest matchup (red), 32 = easiest (green)
 const rankClsOpp = (r) => (r == null ? 'rk' : r <= 8 ? 'rk rk-r' : r >= 25 ? 'rk rk-g' : 'rk');
+// rank as a small pill (ordinal) that sits right next to its stat
+const rkPill = (v) => (v == null ? '—' : h('span', { class: 'rkp' }, ordinal(v)));
+// Defense vs position layouts on game pages: a = summary, b = table, c = grouped + side by side, cards = top-3 cards
+S.dvpLay = (() => { try { return localStorage.getItem('ml-dvp-lay') || 'a'; } catch (e) { return 'a'; } })();
+const DVP_LAYS = [['a', 'Summary'], ['b', 'Table'], ['c', 'Side By Side'], ['cards', 'Cards']];
+function dvpLaySeg() {
+  document.querySelectorAll('.dvp-lay').forEach((el) => el.replaceChildren(...DVP_LAYS.map(([k, l]) => h('button', { type: 'button', 'aria-pressed': String(S.dvpLay === k),
+    onclick: () => { S.dvpLay = k; try { localStorage.setItem('ml-dvp-lay', k); } catch (e) { /* storage off */ } render(); } }, l))));
+}
+// game-page table rows, grouped under a position header in layout c
+const DVP_GRP = { QB: 'Quarterbacks', RB: 'Running Backs', WR: 'Wide Receivers', TE: 'Tight Ends', K: 'Kickers', G: 'Guards', F: 'Forwards', C: 'Centers' };
+function dvpRows(list, cellsFor, ncol) {
+  const grouped = S.dvpLay === 'c', out = [];
+  let last = null;
+  list.forEach(([pos, lab, st, unit]) => {
+    if (grouped && pos !== last) out.push(h('tr', { class: 'dvp-grp' }, h('td', { class: 'l', colspan: ncol }, DVP_GRP[pos] || lab)));
+    last = pos;
+    out.push(h('tr', null, h('td', { class: 'l' }, grouped ? unit.replace(/^\w/, (c) => c.toUpperCase()) : `${lab} (${unit})`), ...cellsFor(pos, lab, st, unit)));
+  });
+  return out;
+}
 const fpKey = () => `fp_${S.fmt}`;
 const statLabel = (k) => (k.startsWith('fp_') ? `Fantasy pts (${FMT_NAME[S.fmt]})` : STATS[k] || k);
 const posStats = (pos) => [...POS_STATS[pos], ...(S.fantasy ? [fpKey()] : [])];
@@ -1314,6 +1372,7 @@ function table(el, name, cols, data, opts = {}) {
       td.textContent = c.fmt ? c.fmt(v, r) : show(v);
       const note = c.mark ? c.mark(r) : null;
       if (note) { td.append(h('sup', { class: 'skew', title: note }, '*')); td.title = note; }
+      if (c.rank && v != null && el.classList.contains('dvp') && !c.fmt) td.replaceChildren(rkPill(v));
       td.className = [c.l ? 'l' : '', c.group ? 'grp' : '', c.rank ? (c.rank === 'nba' ? (v == null ? 'rk' : v <= 8 ? 'rk rk-r' : v >= 23 ? 'rk rk-g' : 'rk') : c.rank === 'opp' ? rankClsOpp(v) : rankCls(v)) : '', c.cls ? c.cls(v, r) : ''].join(' ').trim();
       if (bx && c.f === opts.expand.f) {
         td.classList.add('xres'); if (S.boxOpen.has(bx)) td.classList.add('open');
@@ -2151,10 +2210,16 @@ function renderMatchups() {
     });
     mSplit.textContent = msgs.join('. ') + '. Its numbers and ranks below use only those games; every other defense uses all of its games.';
   }
+  // layouts: key = first 4 stats (+ All Stats button), bars = one stat as ranked bars, full = every stat
+  if (!S.mLay) { try { S.mLay = localStorage.getItem('ml-m-lay') || 'key'; } catch (e) { S.mLay = 'key'; } }
+  $('.m-lay').replaceChildren(...[['key', 'Key Stats'], ['bars', 'Ranked Bars'], ['full', 'All Stats']].map(([k, l]) => h('button', { type: 'button', 'aria-pressed': String(S.mLay === k),
+    onclick: () => { S.mLay = k; try { localStorage.setItem('ml-m-lay', k); } catch (e) { /* */ } render(); } }, l)));
+  const allKeys = keys.slice();
+  const shown = S.mLay === 'key' && !S.mAll ? keys.slice(0, 4) : keys;
   const cols = [{ f: 'defense', label: 'Defense', l: true }, { f: 'games', label: 'GP' }];
   const mNotes = [];
   const mWeeks = (o) => (o.wo ? S.mOut.get(o.defense) : S.mWin === 'last3' ? winWeeks : null);
-  keys.forEach((k) => cols.push({ f: k, label: statLabel(k).replace(/ \(.*\)/, ''), group: true, mark: (o) => o[`sk_${k}`] }, { f: `${k}_rk`, label: 'Rk', rank: 'opp' }));
+  shown.forEach((k) => cols.push({ f: k, label: statLabel(k).replace(/ \(.*\)/, ''), group: true, mark: (o) => o[`sk_${k}`] }, { f: `${k}_rk`, label: 'Rk', rank: 'opp' }));
   rows.forEach((o) => keys.forEach((k) => { const n = nflSkew(o.defense, S.mPos, k, mWeeks(o)); if (n) { o[`sk_${k}`] = n; mNotes.push(n); } }));
   if (!S.mDef) S.mDef = rows.slice().sort((a, b) => (b[`${keys[0]}_rk`] ?? 0) - (a[`${keys[0]}_rk`] ?? 0))[0].defense;
   table($('.t-match'), 'match' + S.mPos, cols, rows, {
@@ -2163,6 +2228,33 @@ function renderMatchups() {
     selected: (r) => r.defense === S.mDef || r.wo,
   });
   skewList($('.t-match'), mNotes);
+  // Key Stats: "+ All Stats" button under the table
+  const mCard = $('.t-match').closest('.card'), mScroll = $('.t-match').closest('.scroll');
+  let mMore = mCard.querySelector('.m-more');
+  if (!mMore) { mMore = h('div', { class: 'm-more' }); mCard.querySelector('.legend').after(mMore); }
+  const rest = allKeys.slice(4);
+  mMore.replaceChildren(...(S.mLay === 'key' && rest.length ? [h('button', { type: 'button', class: 'more', onclick: () => { S.mAll = !S.mAll; render(); } },
+    S.mAll ? 'Fewer Stats' : `+ All Stats (${rest.map((k) => statLabel(k).replace(/ \(.*\)/, '')).join(', ')})`)] : []));
+  // Ranked Bars: one stat, every defense sorted toughest first
+  let mBars = mCard.querySelector('.m-bars');
+  if (!mBars) { mBars = h('div', { class: 'm-bars' }); mScroll.before(mBars); }
+  mScroll.hidden = S.mLay === 'bars'; mBars.hidden = S.mLay !== 'bars';
+  if (S.mLay === 'bars') {
+    if (!S.mBarStat || !allKeys.includes(S.mBarStat)) S.mBarStat = allKeys[1] || allKeys[0];
+    const k = S.mBarStat, max = Math.max(...rows.map((o) => o[k] || 0)) || 1;
+    const lst = rows.filter((o) => o[k] != null).sort((a, b) => (a[`${k}_rk`] ?? 99) - (b[`${k}_rk`] ?? 99));
+    const others = allKeys.filter((x) => x !== k).slice(0, 3);
+    mBars.replaceChildren(
+      h('div', { class: 'seg m-bstat', role: 'group', 'aria-label': 'Stat' }, ...allKeys.map((x) => h('button', { type: 'button', 'aria-pressed': String(x === k), onclick: () => { S.mBarStat = x; render(); } }, statLabel(x).replace(/ \(.*\)/, '')))),
+      h('div', { class: 'm-blist' }, ...lst.map((o) => { const rk = o[`${k}_rk`], cls = rankClsOpp(rk);
+        return h('div', { class: `m-brow${o.defense === S.mDef ? ' sel' : ''}`, ...pressable(() => { S.mDef = o.defense; render(); $('#m-detail').scrollIntoView({ behavior: 'smooth', block: 'start' }); }) },
+          h('span', { class: 'm-bt' }, badge(o.defense, 'sm'), h('b', null, o.defense)),
+          h('span', { class: 'm-btrack' }, h('i', { class: cls.includes('rk-r') ? 'r' : cls.includes('rk-g') ? 'g' : 'y', style: `width:${Math.max(2, (o[k] / max) * 100)}%` })),
+          h('span', { class: 'm-bv' }, h('b', null, show(o[k])), o[`sk_${k}`] ? h('sup', { class: 'skew', title: o[`sk_${k}`] }, '*') : null),
+          h('span', { class: cls }, rkPill(rk)),
+          h('small', { class: 'm-bo' }, others.map((x) => `${show(o[x])} ${statLabel(x).replace(/ \(.*\)/, '').toLowerCase()}`).join(' · ')));
+      })));
+  }
   if (!S.mdStat || !keys.includes(S.mdStat)) S.mdStat = keys[0];
   fillSelect($('.md-stat'), keys, S.mdStat);
   const stat = S.mdStat;
@@ -2516,18 +2608,16 @@ function renderGameDvP(g) {
   const tbl = $('.gp-dvp'), teams = [g.away_team, g.home_team];
   tbl.tHead.replaceChildren(h('tr', null, h('th', { class: 'l' }, 'Vs'), ...teams.flatMap((t) => [h('th', { class: 'grp' }, `${t} D allows`), h('th', { class: 'rkh' }, 'Rk')])));
   const notes = [];
-  tbl.tBodies[0].replaceChildren(...GP_DVP.map(([pos, lab, st, unit]) => h('tr', null, h('td', { class: 'l' }, `${lab} (${unit})`),
-    ...teams.flatMap((t) => {
-      const r = mrow(t, pos, st), note = r ? nflSkew(t, pos, st) : null;
-      if (note) notes.push(note);
-      const v = r ? (st.endsWith('_tds') ? r.per_game.toFixed(1) : show(r.per_game)) : '—';
-      const cell = h('td', { class: 'grp' }, v);
-      if (note) { cell.title = note; cell.append(h('sup', { class: 'skew', title: note }, '*')); }
-      return [cell, h('td', { class: r ? rankClsOpp(r.rank) : 'rk' }, r ? r.rank : '—')];
-    }))));
-  let dn = tbl.closest('.scroll').nextElementSibling;
-  if (!dn || !dn.classList.contains('gp-skew')) { dn = h('ul', { class: 'note gp-skew' }); tbl.closest('.scroll').after(dn); }
-  skewBlock(dn, notes);
+  dvpLaySeg();
+  tbl.tBodies[0].replaceChildren(...dvpRows(GP_DVP, (pos, lab, st) => teams.flatMap((t) => {
+    const r = mrow(t, pos, st), note = r ? nflSkew(t, pos, st) : null;
+    if (note) notes.push(note);
+    const v = r ? (st.endsWith('_tds') ? r.per_game.toFixed(1) : show(r.per_game)) : '—';
+    const cell = h('td', { class: 'grp' }, v);
+    if (note) { cell.title = note; cell.append(h('sup', { class: 'skew', title: note }, '*')); }
+    return [cell, h('td', { class: r ? rankClsOpp(r.rank) : 'rk' }, r ? rkPill(r.rank) : '—')];
+  }), 5));
+  skewList(tbl, notes);
   renderSimDefs('nfl', g, $('.gp-sim'), S.tcFlip, (v) => { S.tcFlip = v; render(); });
 }
 
@@ -4097,17 +4187,15 @@ function xgMatchup(sp, g) {
   tbl.tHead.replaceChildren(h('tr', null, h('th', { class: 'l' }, 'Vs'), ...teams.flatMap((t) => [h('th', { class: 'grp' }, `${t} D allows`), h('th', { class: 'rkh' }, 'Rk')])));
   const hiEasy = sp === 'nba' ? 23 : sp === 'cbb' ? Nd - 60 : Nd - 20, loTough = sp === 'nba' ? 8 : sp === 'cbb' ? 60 : 20;
   const dNotes = [];
-  tbl.tBodies[0].replaceChildren(...P.map(([pos, lab, st, unit]) => h('tr', null, h('td', { class: 'l' }, `${lab} (${unit})`),
-    ...teams.flatMap((t) => {
-      const r = X.dv.get(`${t}|${pos}|${st}`), note = r ? logSkew(sp, t, pos, st, { posLabel: lab, unit }) : null;
-      if (note) dNotes.push(note);
-      const cell = h('td', { class: 'grp' }, r ? show(r.per_game) : '—');
-      if (note) { cell.title = note; cell.append(h('sup', { class: 'skew', title: note }, '*')); }
-      return [cell, h('td', { class: `rk${r && r.rank >= hiEasy ? ' rk-g' : r && r.rank <= loTough ? ' rk-r' : ''}` }, r ? r.rank : '—')];
-    }))));
-  let dn = tbl.closest('.scroll').nextElementSibling;
-  if (!dn || !dn.classList.contains('xg-skew')) { dn = h('ul', { class: 'note xg-skew' }); tbl.closest('.scroll').after(dn); }
-  skewBlock(dn, dNotes);
+  dvpLaySeg();
+  tbl.tBodies[0].replaceChildren(...dvpRows(P, (pos, lab, st, unit) => teams.flatMap((t) => {
+    const r = X.dv.get(`${t}|${pos}|${st}`), note = r ? logSkew(sp, t, pos, st, { posLabel: lab, unit }) : null;
+    if (note) dNotes.push(note);
+    const cell = h('td', { class: 'grp' }, r ? show(r.per_game) : '—');
+    if (note) { cell.title = note; cell.append(h('sup', { class: 'skew', title: note }, '*')); }
+    return [cell, h('td', { class: `rk${r && r.rank >= hiEasy ? ' rk-g' : r && r.rank <= loTough ? ' rk-r' : ''}` }, r ? rkPill(r.rank) : '—')];
+  }), 5));
+  skewList(tbl, dNotes);
   renderSimDefs(sp, g, $('.xg-sim'), S.xgFlip, (v) => { S.xgFlip = v; render(); });
 }
 
@@ -4293,8 +4381,37 @@ function simAlike(sp, target, other, mode, k = 3) {
     return { f, i, a: a[i], b: b[i], za, d: Math.abs(za - zb), score: Math.abs(za - zb) - 0.35 * Math.min(Math.abs(za), 2) + (/td/.test(f[1]) ? 0.35 : 0) };
   }).filter((x) => x.d < 0.6 && (x.a > 0 || x.b > 0)).sort((x, y) => x.score - y.score).slice(0, k);
 }
+// what one team did against the past opponents most like tonight's opponent (used by every layout)
+function simData(sp, me, them, mode) {
+  const kind = isBB(sp) ? 'bb' : 'fb', cols = SIM_OUT[kind], sc = simScores(sp, them, mode);
+  const all = simGames(sp, me, mode).map((x) => { const o = { ...x, oppN: TI(x.opp).nick || x.opp }; cols.forEach(([k, , fn]) => { o[k] = fn(x.rs); }); const v = sc && sc.get(x.opp); o.sim = v ? v.sim : null; o.srank = v ? v.rank : null; o.sn = v ? v.n : null; return o; });
+  const rows = all.filter((x) => x.opp !== them);
+  const ranked = rows.filter((x) => x.sim != null).sort((a, b) => b.sim - a.sim);
+  const avgAll = {}; [['pf'], ...cols].forEach(([k]) => { avgAll[k] = mean(all.map((x) => x[k]).filter((v) => v != null)); });
+  return { cols, sc, all, rows, ranked, top: ranked.slice(0, 3), avgAll };
+}
+// layout c: both teams' offenses vs past defenses like the other team's, side by side
+function renderSimSide(sp, g, host) {
+  const rnd = (v) => (Math.abs(v) >= 10 ? String(Math.round(v)) : show(v));
+  const col = (me, them) => {
+    const D = simData(sp, me, them, 'off'), ME = TI(me).nick || me, THEM = TI(them).nick || them;
+    const head = h('div', { class: 'sim-side-hd' }, badge(me, 'sm'), h('b', null, `${ME} O vs ${THEM}-like D`));
+    if (!D.sc || !D.ranked.length) return h('div', { class: 'sim-side' }, head, h('p', { class: 'empty' }, 'Not enough games yet.'));
+    const avg = D.avgAll.pf;
+    const tr = D.ranked.slice(0, 4).map((x, i) => { const d = x.pf - avg;
+      return h('tr', { class: `click${i < 3 ? ' sel' : ''}`, title: 'See every game', onclick: () => { S.simTeam = me; S.simMode = 'off'; S.dvpLay = 'b'; try { localStorage.setItem('ml-dvp-lay', 'b'); } catch (e) { /* */ } render(); } },
+        h('td', { class: 'l' }, badge(x.opp, 'sm'), ` ${x.oppN}`), h('td', null, h('span', { class: 'sim-pct' }, `${x.sim}%`)), h('td', null, show(x.pf)), h('td', { class: d > 0 ? 'g' : d < 0 ? 'r' : '' }, `${d > 0 ? '+' : d < 0 ? '−' : '±'}${rnd(Math.abs(d))}`)); });
+    const A = mean(D.top.map((x) => x.pf));
+    return h('div', { class: 'sim-side' }, head,
+      h('div', { class: 'scroll', style: 'max-height: none' }, h('table', { class: 'dvp sim-side-t' }, h('thead', null, h('tr', null, h('th', { class: 'l' }, 'Opponent'), h('th', null, 'Match'), h('th', null, 'Pts'), h('th', null, 'Vs Avg'))), h('tbody', null, tr))),
+      h('p', { class: 'note' }, `Vs top 3: `, h('b', null, `${rnd(A)} pts`), ` (season ${rnd(avg)})`));
+  };
+  host.replaceChildren(h('h3', null, 'Vs Similar Opponents'), h('div', { class: 'sim-sides' }, col(g.away_team, g.home_team), col(g.home_team, g.away_team)),
+    h('p', { class: 'note' }, 'Tap a row to see every game and the box scores.'));
+}
 function renderSimDefs(sp, g, host, flip, setFlip) {
   if (!host) return;
+  if (S.dvpLay === 'c') { renderSimSide(sp, g, host); return; }
   // main tabs = the two teams (whose games we look back at); sub-tabs = that team's offense or its defense
   if (S.simTeam !== g.away_team && S.simTeam !== g.home_team) S.simTeam = g.away_team;
   const mine = S.simTeam, other = mine === g.home_team ? g.away_team : g.home_team;
@@ -4320,6 +4437,40 @@ function renderSimDefs(sp, g, host, flip, setFlip) {
     ? `Chips = stats where the two defenses match (${THEM} / that team, allowed per game). Last line = what ${ME} did in that game (± vs its season average).`
     : `Chips = stats where the two offenses match (${THEM} / that team, gained per game). Last line = what ${ME} allowed in that game (± vs what it allows on average).`));
   const rnd = (v) => (Math.abs(v) >= 10 ? String(Math.round(v)) : show(v));
+  if (S.dvpLay === 'a' || S.dvpLay === 'b') {
+    kids.pop(); // the chips note only applies to the cards
+    const keys = [['pf', mode === 'off' ? 'Pts' : 'Pts allowed'], ...cols.map(([k, l]) => [k, l])];
+    const A = Object.fromEntries(keys.map(([k]) => [k, mean(top.map((x) => x[k]).filter((v) => v != null))]));
+    const sgn = (d) => h('td', { class: d > 0 ? 'g' : d < 0 ? 'r' : '' }, `${d > 0 ? '+' : d < 0 ? '−' : '±'}${rnd(Math.abs(d))}`);
+    const box = (x) => (sp === 'nfl' ? boxNFL(S.season, x.ord, me, x.opp) : boxById(sp, x.gid, [me, x.opp], mode === 'off' ? { [me]: x.pf, [x.opp]: x.pa } : { [me]: x.pa, [x.opp]: x.pf }));
+    if (S.dvpLay === 'a') {
+      kids.push(h('div', { class: 'scroll', style: 'max-height: none' }, h('table', { class: 'dvp sim-sumt' },
+        h('thead', null, h('tr', null, h('th', { class: 'l' }, ''), ...keys.map(([, l]) => h('th', null, l)))),
+        h('tbody', null,
+          h('tr', null, h('td', { class: 'l' }, `Vs ${top.length} most similar`), ...keys.map(([k]) => h('td', null, h('b', null, A[k] == null ? '—' : rnd(A[k]))))),
+          h('tr', null, h('td', { class: 'l' }, `Season avg (${all.length} g)`), ...keys.map(([k]) => h('td', null, avgAll[k] == null ? '—' : rnd(avgAll[k])))),
+          h('tr', null, h('td', { class: 'l' }, 'Difference'), ...keys.map(([k]) => (A[k] == null || avgAll[k] == null ? h('td', null, '—') : sgn(A[k] - avgAll[k]))))))));
+      kids.push(h('h3', null, `${top.length} Most Similar`), h('div', { class: 'sim-lines' }, ...top.map((x) => {
+        const bx = `siml|${mode}|${me}|${x.key}`, open = S.boxOpen.has(bx);
+        return h('div', { class: 'sim-line-w' }, h('div', { class: 'sim-line', ...pressable(() => { if (open) S.boxOpen.delete(bx); else S.boxOpen.add(bx); render(); }), title: 'Box score' },
+          h('span', { class: 'sim-ln-t' }, badge(x.opp, 'sm'), h('b', null, x.oppN), h('small', null, x.label)),
+          h('span', { class: 'sim-ln-r' }, [['pf', 'pts'], ...cols.slice(0, 3).map(([k, l]) => [k, l])].map(([k, l]) => `${show(x[k])} ${l}`).join(' · ')),
+          h('span', { class: 'sim-pct' }, `${x.sim}% match`)),
+        open ? h('div', { class: 'sim-box' }, (() => { try { return box(x); } catch (e) { return 'Box score unavailable.'; } })()) : null);
+      })));
+    } else {
+      kids.push(h('p', { class: 'summary' }, `Against the ${top.length} ${side}s most like ${poss(THEM)}, ${ME} ${mode === 'off' ? 'scored' : 'allowed'} `, h('b', null, `${rnd(A.pf)}`), ' pts per game, ', h('span', { class: A.pf - avgAll.pf > 0 ? 'g' : 'r' }, `${A.pf - avgAll.pf > 0 ? '+' : '−'}${rnd(Math.abs(A.pf - avgAll.pf))}`), ` vs ${mode === 'off' ? 'its season average' : 'what it usually allows'}.`));
+    }
+    const tb = newTable(); tb.classList.add('dvp');
+    table(tb, `sim-${sp}-${mode}-${me}`, [
+      { f: 'oppN', label: 'Opponent', l: true }, { f: 'ord', label: isBB(sp) ? 'Date' : 'Wk', fmt: (v, r) => r.label },
+      { f: 'sim', label: 'Match %', fmt: (v) => (v == null ? '—' : `${v}%`) }, { f: 'pf', label: mode === 'off' ? 'Pts' : 'Pts allowed' }, ...cols.map(([k, l]) => ({ f: k, label: l })),
+    ], rows, { sort: { f: 'sim', dir: 'desc' }, limit: S.simAll ? null : (S.dvpLay === 'b' ? 5 : 0), selected: (r) => topSet.has(r.key), expand: { f: 'oppN', key: (r) => r.key, render: box } });
+    if (S.dvpLay === 'b' || S.simAll) kids.push(h('div', { class: 'scroll sim-scroll', style: 'max-height: none' }, tb));
+    kids.push(h('button', { class: 'more', type: 'button', onclick: () => { S.simAll = !S.simAll; render(); } }, S.simAll ? 'Show fewer' : S.dvpLay === 'b' ? `Show all ${rows.length}` : `All ${rows.length} games ranked by match`));
+    host.replaceChildren(...kids);
+    return;
+  }
   const dlt = (v, k) => { const a = avgAll[k]; if (v == null || a == null) return null; const d = v - a; return h('span', { class: d > 0 ? 'g' : d < 0 ? 'r' : '' }, ` (${d > 0 ? '+' : d < 0 ? '−' : '±'}${rnd(Math.abs(d))})`); };
   const fmtV = (v, st) => (/tds?$|_tds$|receptions|fg3m|ast/.test(st) || v < 10 ? (Math.round(v * 10) / 10).toFixed(1) : String(Math.round(v)));
   kids.push(h('div', { class: 'sim-cards' }, ...top.map((x) => {
