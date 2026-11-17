@@ -36,9 +36,9 @@
     ['side', 'Side menu background', '--side-bg', 'Side menu'], ['sideFg', 'Side menu text & icons', '--side-fg', 'Side menu'], ['sideActive', 'Current page tile', '--side-active', 'Side menu'],
   ];
   const FONTS = {
-    system: ['System (default)', 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'],
+    system: ['System', 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'],
     helvetica: ['Clean (Helvetica / Arial)', '"Helvetica Neue", Helvetica, Arial, sans-serif'],
-    inter: ['Inter', '"Inter", system-ui, sans-serif', 'Inter:wght@400;500;600;700'],
+    inter: ['Inter (default)', '"Inter", system-ui, sans-serif', 'Inter:wght@400;500;600;700'],
     poppins: ['Poppins (FantasyPros-style)', '"Poppins", system-ui, sans-serif', 'Poppins:wght@400;500;600;700'],
     barlow: ['Barlow (sporty)', '"Barlow", system-ui, sans-serif', 'Barlow:wght@400;500;600;700'],
     condensed: ['Roboto Condensed', '"Roboto Condensed", "Arial Narrow", sans-serif', 'Roboto+Condensed:wght@400;600;700'],
@@ -47,7 +47,7 @@
     georgia: ['Georgia (serif)', 'Georgia, "Times New Roman", serif'],
     mono: ['Monospace', 'ui-monospace, Menlo, Consolas, monospace'],
   };
-  const DEF_HEAD = 'georgia';
+  const DEF_HEAD = 'inter';
 
   // ---------------- state ----------------
   let published = BLANK();   // what's in site-config.json on the site
@@ -654,7 +654,7 @@
         el('input', { type: 'text', value: cfg.siteName || base.siteName, oninput: (e) => { cfg.siteName = e.target.value.trim() === base.siteName ? '' : e.target.value.trim(); dirty = true; applyLook(); }, onchange: () => changed() })),
       ...['Backgrounds', 'Text & lines', 'Results', 'Side menu'].flatMap((g) => [el('h4', null, g), el('div', { class: 'ed-grid2' }, ...LOOK_FIELDS.filter((f) => f[3] === g).map(lookInput))]),
       slider('sideStroke', 'Side menu icon thickness', 1.4, 3.2, 0.2, '', 2.4),
-      el('h4', null, 'Fonts'), fontSelect('font', 'Main text', 'system'), fontSelect('headFont', 'Big titles', DEF_HEAD),
+      el('h4', null, 'Fonts'), fontSelect('font', 'Main text', 'inter'), fontSelect('headFont', 'Big titles', DEF_HEAD),
       el('h4', null, 'Size & spacing'),
       slider('size', 'Text size', 85, 125, 5, '%', 100),
       slider('radius', 'Corner roundness', 0, 24, 1, 'px', base.radius),

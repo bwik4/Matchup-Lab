@@ -1,9 +1,6 @@
 {
   "look": {
-    "muted": "#000000",
-    "sideActive": "#3a6ea5",
-    "sideStroke": 2.8,
-    "radius": 6
+    "sideStroke": 2.8
   },
   "siteName": "",
   "hidden": [],
