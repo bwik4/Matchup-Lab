@@ -63,7 +63,7 @@ NE,,New England Patriots,NE,DEF,,,,
 6927,,Quez Watkins,IND,WR,,,Active,
 8111,,Cade Otton,TB,TE,TE,1,Active,
 13957,,Kenny Fletcher Jr.,GB,TE,,,Active,
-3269,00-0032398,Chris Moore,BAL,WR,LWR,6,Active,
+3269,00-0032398,Chris Moore,BAL,WR,,,Active,
 12374,,Brenden Bates,JAX,TE,,,Active,
 13554,,CJ Williams,JAX,WR,LWR,8,Active,Out
 13270,,CJ Daniels,LA,WR,LWR,3,Active,
@@ -81,7 +81,7 @@ NE,,New England Patriots,NE,DEF,,,,
 13047,,Jacardia Wright,SEA,RB,RB,8,Active,Out
 13318,,Noah Thomas,CIN,WR,,,Active,
 BAL,,Baltimore Ravens,BAL,DEF,,,,
-13380,,Brenen Thompson,LAC,WR,SWR,9,Active,Out
+13380,,Brenen Thompson,LAC,WR,SWR,5,Active,Out
 2944,00-0031744,Matt LaCosse,NE,TE,,,Active,
 13400,,Justin Joly,MIA,TE,TE,6,Active,Out
 2197,00-0031236,Brandin Cooks,SF,WR,LWR,6,Active,Out
@@ -108,7 +108,7 @@ BAL,,Baltimore Ravens,BAL,DEF,,,,
 13905,,Omari Evans,KC,WR,,,Active,
 7538,,Zach Wilson,NO,QB,QB,3,Active,Out
 7561,,Elijah Mitchell,PHI,RB,,,Active,
-11635,,Ladd McConkey,LAC,WR,SWR,6,Active,Out
+11635,,Ladd McConkey,LAC,WR,SWR,1,Active,Out
 13347,,Demond Claiborne,MIN,RB,RB,5,Inactive,IR
 12475,,Ricky White III,SEA,WR,,,Active,
 8154,,Brian Robinson Jr.,ATL,RB,RB,4,Inactive,IR
@@ -146,7 +146,7 @@ IND,,Indianapolis Colts,IND,DEF,,,,
 260, 00-0026300,Josh Johnson,ARI,QB,QB,2,Active,
 13557,,Athan Kaliakmanis,WAS,QB,QB,4,Active,Out
 8259,,Cameron Dicker,LAC,K,K,1,Active,
-10220,,Will Mallory,IND,TE,TE,3,Active,Out
+10220,,Will Mallory,IND,TE,TE,2,Active,Out
 13249,,Thomas Gordon,DET,TE,,,Active,
 8205,,Isiah Pacheco,DET,RB,RB,4,Inactive,IR
 1166,00-0029604,Kirk Cousins,MIN,QB,QB,1,Active,
@@ -221,7 +221,7 @@ NYJ,,New York Jets,NYJ,DEF,,,,
 12897,,Nate Carter,KC,RB,,,Active,
 5223,00-0034243,Caleb Scott,TEN,WR,,,Active,
 9999,,Will Levis,NYJ,QB,,,Active,
-12509,,Tre' Harris,LAC,WR,RWR,2,Active,
+12509,,Tre' Harris,LAC,WR,RWR,3,Active,
 5947, 00-0034960,Jakobi Meyers,JAX,WR,RWR,2,Active,
 12946,,Dontae Fleming,NYG,WR,,,Active,
 14026,,DJ Herman,MIA,RB,RB,4,Active,
@@ -266,7 +266,7 @@ DAL,,Dallas Cowboys,DAL,DEF,,,,
 8146,,Garrett Wilson,NYJ,WR,LWR,1,Active,
 4663,00-0033699,Austin Ekeler,WAS,RB,RB,2,Active,
 9511,,Keaton Mitchell,LAC,RB,RB,3,Active,
-13311,,Chris Bell,MIA,WR,LWR,4,Active,Out
+13311,,Chris Bell,MIA,WR,LWR,3,Active,Out
 7521,,Chris Blair,ATL,WR,LWR,4,Active,
 12543,,Tahj Brooks,CIN,RB,RB,3,Active,
 13299,,Nate Boerkircher,JAX,TE,TE,2,Active,
@@ -321,7 +321,7 @@ LAC,,Los Angeles Chargers,LAC,DEF,,,,
 12656,,Robbie Ouzts,SEA,RB,RB,7,Inactive,IR
 6847,,Devin Duvernay,ARI,WR,SWR,3,Active,
 2750,00-0031763,DeAndre Carter,DET,WR,RWR,5,Active,
-9493,,Puka Nacua,LA,WR,RWR,7,Inactive,IR
+9493,,Puka Nacua,LA,WR,RWR,6,Inactive,IR
 13321,,Dan Villari,LA,TE,,,Active,
 13968,,Drew Stevens,WAS,K,K,1,Active,
 10226,,Andrei Iosivas,CIN,WR,SWR,6,Inactive,IR
@@ -439,7 +439,7 @@ LAR,,Los Angeles Rams,LA,DEF,,,,
 1945,00-0031136,Chris Boswell,PIT,K,K,1,Active,
 12457,,Jaydon Blue,PHI,RB,,,Active,
 12548,,Lenny Krieg,GB,K,,,Active,
-7039,,Cody White,LV,WR,RWR,7,Active,
+7039,,Cody White,LV,WR,RWR,5,Active,
 8112,,Drake London,ATL,WR,LWR,1,Active,Questionable
 11632,,Malik Nabers,NYG,WR,LWR,1,Active,
 4177,00-0033555,Mack Hollins,NE,WR,RWR,3,Active,
@@ -489,7 +489,7 @@ GB,,Green Bay Packers,GB,DEF,,,,
 4924,,Zach Terrell,BAL,QB,,,Active,
 13032,,Marshall Lang,MIN,TE,,,Active,
 1479,00-0030279,Keenan Allen,SF,WR,RWR,3,Active,
-3258,00-0032394,Nick Vannett,BAL,TE,TE,4,Active,
+3258,00-0032394,Nick Vannett,BAL,TE,,,Active,
 1264,00-0029597,Justin Tucker,KC,K,,,Active,
 12477,,Kurtis Rourke,SF,QB,QB,3,Active,Out
 7204,,Reggie Gilliam,NE,RB,RB,4,Active,
@@ -564,7 +564,7 @@ GB,,Green Bay Packers,GB,DEF,,,,
 12217,,Shawn Bowman,ARI,TE,,,Active,
 13804,,Kansei Matsuzawa,LV,K,,,Active,
 6001, 00-0035631,Drew Sample,CIN,TE,TE,2,Active,
-7757,,Ben Skowronek,PIT,WR,RWR,4,Active,
+7757,,Ben Skowronek,PIT,WR,RWR,3,Active,
 8583,,Stone Smartt,NO,TE,,,Active,Out
 13343,,Vinny Anthony II,ATL,WR,,,Active,
 12984,,CJ Dippre,TB,TE,,,Active,
@@ -617,7 +617,7 @@ MIA,,Miami Dolphins,MIA,DEF,,,,
 10218,,Xavier Hutchinson,HOU,WR,LWR,2,Active,Questionable
 6154, 00-0035359,David Sills V,TB,WR,,,Active,
 6931,,DeeJay Dallas,MIN,RB,RB,3,Active,
-11623,,Jordan Whittington,LA,WR,KR,9,Inactive,IR
+11623,,Jordan Whittington,LA,WR,KR,7,Inactive,IR
 4995,00-0034365,Ian Thomas,LV,TE,TE,3,Active,
 9225,,Tank Bigsby,PHI,RB,RB,3,Inactive,IR
 DET,,Detroit Lions,DET,DEF,,,,
@@ -638,9 +638,9 @@ PHI,,Philadelphia Eagles,PHI,DEF,,,,
 3161,00-0032950,Carson Wentz,MIN,QB,QB,2,Active,
 12705,,Graham Mertz,HOU,QB,QB,3,Inactive,IR
 7600,,Pat Freiermuth,PIT,TE,TE,1,Active,
-8527,,Dareke Young,LV,WR,SWR,5,Active,
+8527,,Dareke Young,LV,WR,SWR,7,Active,
 11199,,Emari Demercado,HOU,RB,RB,3,Active,
-12860,,Theo Wease Jr.,LAC,WR,RWR,5,Active,
+12860,,Theo Wease Jr.,LAC,WR,RWR,7,Active,
 12688,,Cam Miller,GB,QB,,,Active,
 4922,,Garrett Scantling,ATL,WR,,,Active,
 12486,,Dillon Gabriel,CLE,QB,QB,2,Active,Out
@@ -682,7 +682,7 @@ SF,,San Francisco 49ers,SF,DEF,,,,
 12713,,Andy Borregales,NE,K,K,1,Active,
 9230,,Tanner McKee,PHI,QB,QB,3,Active,
 5008,00-0034798,Durham Smythe,BAL,TE,TE,5,Inactive,IR
-9754,,Quentin Johnston,LAC,WR,LWR,1,Active,
+9754,,Quentin Johnston,LAC,WR,LWR,2,Active,
 NYG,,New York Giants,NYG,DEF,,,,
 13288,,Nicholas Singleton,TEN,RB,RB,3,Active,Out
 6453, 00-0035045,D.J. Montgomery,IND,WR,,7,Inactive,IR
@@ -709,7 +709,7 @@ TEN,,Tennessee Titans,TEN,DEF,,,,
 12516,,Kalel Mullings,TEN,RB,,,Active,
 12357,,David Martin-Robinson,TEN,TE,TE,3,Active,
 3668,00-0032599,Joshua Perkins,NYJ,TE,,,Active,
-13315,,Dean Connors,LA,RB,RB,5,Inactive,IR
+13315,,Dean Connors,LA,RB,RB,4,Inactive,IR
 6039, 00-0035537,Ty Johnson,BUF,RB,RB,2,Active,
 6803,,Brandon Aiyuk,SF,WR,,9,Active,DNR
 12544,,LeQuint Allen Jr.,JAX,RB,RB,4,Active,
@@ -727,7 +727,7 @@ TEN,,Tennessee Titans,TEN,DEF,,,,
 11168,,Xavier Smith,LA,WR,SWR,4,Active,
 6853,,Van Jefferson,WAS,WR,LWR,4,Active,
 13293,,Ja'Kobi Lane,BAL,WR,RWR,3,Active,
-8489,,Drew Ogletree,IND,TE,TE,2,Active,
+8489,,Drew Ogletree,IND,TE,TE,3,Active,
 6528, 00-0035192,Joey Slye,TEN,K,K,1,Active,
 8235,,Samori Toure,IND,WR,,,Active,
 13122,,Carter Runyon,LV,TE,,,Active,
@@ -811,7 +811,7 @@ DEN,,Denver Broncos,DEN,DEF,,,,
 12045,,Jack Westover,WAS,TE,,,Active,
 6451, 00-0035039,Stephen Carlson,CHI,TE,TE,3,Active,
 8210,,Chig Okonkwo,WAS,TE,TE,1,Active,Questionable
-12670,,KeAndre Lambert-Smith,LAC,WR,LWR,3,Active,
+12670,,KeAndre Lambert-Smith,LAC,WR,LWR,6,Active,
 13306,,Taylen Green,CLE,QB,QB,4,Active,Out
 11256,,Tyson Bagent,CHI,QB,QB,3,Active,
 13770,,J. Michael Sturdivant,GB,WR,LWR,6,Active,
@@ -821,7 +821,7 @@ DEN,,Denver Broncos,DEN,DEF,,,,
 4490,,Wyatt Houston,CAR,TE,TE,40,Active,
 13317,,Ted Hurst III,TB,WR,RWR,4,Active,
 13435,,Joe Royer,CLE,TE,TE,4,Active,PUP
-7865,,Brandon Smith,PIT,WR,LWR,3,Active,
+7865,,Brandon Smith,PIT,WR,LWR,4,Active,
 13580,,Carsen Ryan,CLE,TE,TE,5,Active,
 5850, 00-0035700,Josh Jacobs,GB,RB,RB,4,Active,Out
 9753,,Zach Charbonnet,SEA,RB,RB,1,Active,
@@ -836,7 +836,7 @@ DEN,,Denver Broncos,DEN,DEF,,,,
 11604,,Brock Bowers,LV,TE,TE,1,Active,Out
 11566,,Jayden Daniels,WAS,QB,QB,1,Active,
 6588, 00-0035544,Tom Kennedy,DET,WR,,6,Inactive,IR
-13338,,Kevin Coleman Jr.,MIA,WR,SWR,3,Active,
+13338,,Kevin Coleman Jr.,MIA,WR,SWR,4,Active,
 13322,,Sam Roush,CHI,TE,TE,2,Active,
 12015,,Harrison Mevis,BAL,K,,,Active,
 12185,,Spencer Shrader,IND,K,K,1,Active,
