@@ -119,6 +119,79 @@
         "%"
       ],
       "fixed": []
+    },
+    {
+      "from": "CIN allows to TEs /g (rank 30 of 32, last 3: 19)",
+      "to": "CIN allows to TEs /g (30 of 32, L3: 19th)",
+      "tf": " allows to  /g (rank  of , last 3: 19)",
+      "tt": [
+        0,
+        " allows to ",
+        1,
+        " /g (",
+        2,
+        " of ",
+        3,
+        ", L3: 19th)"
+      ],
+      "fixed": []
+    },
+    {
+      "from": "CIN allows to TEs /g (rank 30 of 32, last 3: 19)",
+      "to": "CIN allows to TEs/g (30th of 32, L3: 19th)",
+      "tf": " allows to  /g (rank 30 of , last 3: 19)",
+      "tt": [
+        0,
+        " allows to ",
+        1,
+        "/g (30th of ",
+        2,
+        ", L3: 19th)"
+      ],
+      "fixed": []
+    },
+    {
+      "from": "CIN allows to TEs /g (rank 30 of 32, last 3: 19)",
+      "to": "CIN allows to TEs/g (30th of 32, L3: 19th)"
+    },
+    {
+      "from": "Over 37.5 this season 43%",
+      "to": "Over 37.5 (43%)",
+      "tf": "Over  this season %",
+      "tt": [
+        "Over ",
+        0,
+        " (",
+        1,
+        "%)"
+      ],
+      "fixed": []
+    },
+    {
+      "from": "Last 5 games 60%",
+      "to": "L5 games 60%",
+      "tf": "Last 5 games %",
+      "tt": [
+        "L5 games ",
+        0,
+        "%"
+      ],
+      "fixed": []
+    },
+    {
+      "from": "Last 5 games 60%",
+      "to": "L5 games 60%",
+      "tf": "Last 5 games %",
+      "tt": [
+        "L5 games ",
+        0,
+        "%"
+      ],
+      "fixed": []
+    },
+    {
+      "from": "Target share (share of his team's targets)",
+      "to": "Target share"
     }
   ],
   "cols": {},
