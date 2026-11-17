@@ -66,10 +66,10 @@
     {
       "sp": "",
       "area": "",
-      "base": "div.gcard > div.gfoot",
-      "label": "Section · \"Final DET covered · Under (45) R…\"",
+      "base": "div.gcard > div.grow",
+      "label": "Section · \"MIA MIA Dolphins 1-8 +16.5 -112 …\"",
       "css": {
-        "bg": "#ffffff"
+        "bg": "#1d2842"
       }
     }
   ],
