@@ -571,7 +571,7 @@
   .sim-side { background: var(--tile); border-radius: 12px; padding: 12px; }
   .sim-side-hd { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
   .sim-side-t td:first-child { background: transparent; white-space: nowrap; }
-  .sim-side-t td:first-child .badge { vertical-align: middle; }
+  .sim-op { display: inline-flex; align-items: center; gap: 6px; }
   /* stats page: ranked bars */
   .m-bars .m-bstat { margin: 4px 0 10px; flex-wrap: wrap; }
   .m-blist { display: flex; flex-direction: column; }
@@ -4400,7 +4400,7 @@ function renderSimSide(sp, g, host) {
     const avg = D.avgAll.pf;
     const tr = D.ranked.slice(0, 4).map((x, i) => { const d = x.pf - avg;
       return h('tr', { class: `click${i < 3 ? ' sel' : ''}`, title: 'See every game', onclick: () => { S.simTeam = me; S.simMode = 'off'; S.dvpLay = 'b'; try { localStorage.setItem('ml-dvp-lay', 'b'); } catch (e) { /* */ } render(); } },
-        h('td', { class: 'l' }, badge(x.opp, 'sm'), ` ${x.oppN}`), h('td', null, h('span', { class: 'sim-pct' }, `${x.sim}%`)), h('td', null, show(x.pf)), h('td', { class: d > 0 ? 'g' : d < 0 ? 'r' : '' }, `${d > 0 ? '+' : d < 0 ? '−' : '±'}${rnd(Math.abs(d))}`)); });
+        h('td', { class: 'l' }, h('span', { class: 'sim-op' }, badge(x.opp, 'sm'), x.oppN)), h('td', null, h('span', { class: 'sim-pct' }, `${x.sim}%`)), h('td', null, show(x.pf)), h('td', { class: d > 0 ? 'g' : d < 0 ? 'r' : '' }, `${d > 0 ? '+' : d < 0 ? '−' : '±'}${rnd(Math.abs(d))}`)); });
     const A = mean(D.top.map((x) => x.pf));
     return h('div', { class: 'sim-side' }, head,
       h('div', { class: 'scroll', style: 'max-height: none' }, h('table', { class: 'dvp sim-side-t' }, h('thead', null, h('tr', null, h('th', { class: 'l' }, 'Opponent'), h('th', null, 'Match'), h('th', null, 'Pts'), h('th', null, 'Vs Avg'))), h('tbody', null, tr))),
