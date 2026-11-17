@@ -25,7 +25,7 @@
   'use strict';
   const LS_DRAFT = 'ml-site-draft', LS_TOKEN = 'ml-gh-token', LS_REPO = 'ml-gh-repo';
   const DEFAULT_REPO = 'bwik4/Matchup-Lab';
-  const BLANK = () => ({ look: {}, siteName: '', hidden: [], order: {}, text: [], cols: {}, buttons: [], nav: [], styles: [], moves: [] });
+  const BLANK = () => ({ look: {}, siteName: '', hidden: [], order: {}, text: [], cols: {}, buttons: [], nav: [], styles: [], moves: [], caseOff: false });
   // [key, label, CSS variable, group]
   const LOOK_FIELDS = [
     ['bg', 'Page background', '--bg', 'Backgrounds'], ['panel', 'Boxes', '--panel', 'Backgrounds'], ['game', 'Game cards', '--game', 'Backgrounds'],
@@ -291,25 +291,27 @@
     const live = [];
     vars.forEach((v, j) => {
       if (fixed && fixed.includes(j)) return;
-      let at = -1, from0 = 0;
+      let at = -1, from0 = 0, ord = false;
       while ((at = to.indexOf(v.t, from0)) >= 0) {
         const end = at + v.t.length;
-        if (!isW(to[at - 1]) && !isW(to[end]) && !used.some(([a, b]) => at < b && end > a)) break;
+        ord = v.k === 'n' && /^\d+$/.test(v.t) && /^(st|nd|rd|th)(?![A-Za-z0-9])/.test(to.slice(end));
+        if (!isW(to[at - 1]) && (!isW(to[end]) || ord) && !used.some(([a, b]) => at < b && end > a)) break;
         from0 = at + 1;
       }
       if (at < 0 && v.k === 'n') return; // number dropped -> fixed
       live.push(j);
-      if (at >= 0) used.push([at, at + v.t.length, j]);
+      if (at >= 0) used.push([at, at + v.t.length + (ord ? 2 : 0), j, ord]);
     });
     if (!live.length) return null;
     let tf = '';
     segs.forEach((g, i) => { const j = vars.findIndex((v) => v.i === i); tf += j >= 0 && live.includes(j) ? MK[g.k] : g.t; });
     used.sort((a, b) => a[0] - b[0]);
     const tt = []; let c = 0;
-    used.forEach(([a, b, j]) => { if (a > c) tt.push(to.slice(c, a)); tt.push(live.indexOf(j)); c = b; });
+    used.forEach(([a, b, j, ord]) => { if (a > c) tt.push(to.slice(c, a)); tt.push(ord ? { i: live.indexOf(j), ord: 1 } : live.indexOf(j)); c = b; });
     if (c < to.length) tt.push(to.slice(c));
     return { tf, tt, vars: vars.map((v, j) => ({ t: v.t, k: v.k, on: live.includes(j) })) };
   }
+  const ordTxt = (v) => { if (v == null) return ''; if (!/^\d+$/.test(v)) return v; const n = Number(v), s2 = ['th', 'st', 'nd', 'rd'], m = n % 100; return n + (s2[(m - 20) % 10] || s2[m] || s2[0]); };
   const markers = (tf) => (tf.match(/[\uE001-\uE005]/g) || []).length;
   // safe to use everywhere: has some real wording, or several changing parts together ("Name · QB · PIT"), not a bare name
   const tplOk = (t) => !!t && (keyOfTf(t.tf).length >= 3 || markers(t.tf) >= 2);
@@ -331,7 +333,7 @@
         const vals = [];
         for (let i = p; i < p + r.tf.length; i++) if (isMk(shape[i])) vals.push(map[i][2]);
         const a = map[p][0], b = map[p + r.tf.length - 1][1];
-        const rep = r.tt.map((x) => (typeof x === 'number' ? vals[x] ?? '' : x)).join('');
+        const rep = r.tt.map((x) => (typeof x === 'number' ? vals[x] ?? '' : x && typeof x === 'object' ? ordTxt(vals[x.i]) : x)).join('');
         if (out.startsWith(rep, a)) return; // already says the new wording
         out = out.slice(0, a) + rep + out.slice(b);
       });
@@ -340,10 +342,28 @@
     return v;
   }
 
+  // ---- Title Case for headings, tabs, buttons and column headers ("Player stats" -> "Player Stats") ----
+  const SMALL = new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'into', 'of', 'on', 'or', 'per', 'the', 'to', 'vs', 'vs.', 'via', 'with', 'w/', 'w/o']);
+  const HEADS = 'h1, h2, h3, h4, h5, th, legend, .subnav button, .tabs button, .seg button, .t-cats button, .t-tool-tx b';
+  function titleCase(s) {
+    let k = 0, prevColon = false;
+    return s.split(/(\s+)/).map((w) => {
+      if (!w.trim()) return w;
+      const first = k === 0 || prevColon; k++;
+      prevColon = /[:—–-]$/.test(w);
+      if (/[A-Z0-9]/.test(w)) return w;               // already has capitals or numbers (TEs, L5, 3rd, O/U)
+      const bare = w.replace(/^[^a-z]+|[^a-z/.]+$/g, '');
+      if (!first && SMALL.has(bare)) return w;
+      const i = w.search(/[a-z]/);
+      return i < 0 ? w : w.slice(0, i) + w[i].toUpperCase() + w.slice(i + 1);
+    }).join('');
+  }
+  const isHeadNode = (n) => { const p = n.parentElement; return !!p && !!p.closest(HEADS) && !p.closest('.ed-ui, select, option'); };
   // text node -> { out: what we set, orig: the site's own text, ver } so renames can be redone from the original
   const done = new WeakMap();
   let textVer = 0;
   function applyText() {
+    if (!cfg.text.length && cfg.caseOff) return;
     const plain = cfg.text.filter((r) => !r.tf), tpls = cfg.text.filter((r) => r.tf);
     const roots = [document.querySelector('main'), document.querySelector('aside')].filter(Boolean);
     roots.forEach((root) => {
@@ -357,10 +377,11 @@
         const prev = done.get(n);
         if (prev && prev.out === v0 && prev.ver === textVer) continue;
         const base = prev && prev.out === v0 ? prev.orig : v0; // re-apply from the site's own wording
-        if (!prev && !cfg.text.length) continue;
+        if (!prev && !cfg.text.length && cfg.caseOff) continue;
         let v = base;
         plain.forEach(({ from, to }) => { if (from && v.includes(from) && !(to && to.includes(from) && v.includes(to))) v = v.split(from).join(to); });
         if (tpls.length) v = applyTemplates(v, tpls);
+        if (v === base && !cfg.caseOff && v.length < 60 && isHeadNode(n)) v = titleCase(v); // your own renames win over auto-capitals
         done.set(n, { out: v, orig: base, ver: textVer });
         if (v !== v0) n.nodeValue = v;
       }
@@ -921,6 +942,8 @@
         el('input', { type: 'text', value: cfg.siteName || base.siteName, oninput: (e) => { cfg.siteName = e.target.value.trim() === base.siteName ? '' : e.target.value.trim(); dirty = true; applyLook(); }, onchange: () => changed() })),
       ...['Backgrounds', 'Text & lines', 'Results', 'Side menu'].flatMap((g) => [el('h4', null, g), el('div', { class: 'ed-grid2' }, ...LOOK_FIELDS.filter((f) => f[3] === g).map(lookInput))]),
       slider('sideStroke', 'Side menu icon thickness', 1.4, 3.2, 0.2, '', 2.4),
+      el('label', { class: 'ed-check' }, el('input', { type: 'checkbox', checked: !cfg.caseOff, onchange: (e) => { cfg.caseOff = !e.target.checked; changed(); } }),
+        el('span', null, 'Capitalize headings, tabs, buttons and column headers (Player Stats)')),
       el('h4', null, 'Fonts'), fontSelect('font', 'Main text', 'inter'), fontSelect('headFont', 'Big titles', DEF_HEAD),
       el('h4', null, 'Size & spacing'),
       slider('size', 'Text size', 85, 125, 5, '%', 100),
@@ -1062,8 +1085,9 @@
   // ---------------- publish / download ----------------
   const out = () => JSON.stringify(clean(cfg), null, 2) + '\n';
   function clean(c) {
-    const o = { look: {}, siteName: c.siteName || '', hidden: [...new Set(c.hidden)], order: {}, text: c.text.filter((r) => r.from && r.to != null).map((r) => (r.tf ? { from: r.from, to: r.to, tf: r.tf, tt: r.tt.slice(), fixed: (r.fixed || []).slice() } : { from: r.from, to: r.to })), cols: {}, buttons: [...new Set(c.buttons || [])], nav: (c.nav || []).slice(),
+    const o = { look: {}, siteName: c.siteName || '', hidden: [...new Set(c.hidden)], order: {}, text: c.text.filter((r) => r.from && r.to != null).map((r) => (r.tf ? { from: r.from, to: r.to, tf: r.tf, tt: r.tt.map((x) => (x && typeof x === 'object' ? { ...x } : x)), fixed: (r.fixed || []).slice() } : { from: r.from, to: r.to })), cols: {}, buttons: [...new Set(c.buttons || [])], nav: (c.nav || []).slice(),
       styles: (c.styles || []).map((r) => ({ sp: r.sp || '', area: r.area || '', base: r.base, label: r.label || '', css: Object.fromEntries(Object.entries(r.css || {}).filter(([, v]) => v != null && v !== '')) })).filter((r) => r.base && Object.keys(r.css).length),
+      caseOff: !!c.caseOff,
       moves: (c.moves || []).filter((m) => m && m.base && m.order && m.order.length).map((m) => ({ sp: m.sp || '', area: m.area || '', base: m.base, label: m.label || '', flex: !!m.flex, order: m.order.slice() })) };
     Object.entries(c.look).forEach(([k, v]) => { if (v != null && v !== '') o.look[k] = v; });
     Object.entries(c.order).forEach(([k, v]) => { if (v && v.length) o.order[k] = v; });

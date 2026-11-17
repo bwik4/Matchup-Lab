@@ -248,7 +248,7 @@ function renderScreener() {
     { k: 'opp', label: 'Next', l: true, sv: (r) => (r.nx ? r.nx.opp : null), fmt: (r) => (r.nx ? `${r.nx.home ? 'vs' : '@'} ${r.nx.opp}` : '—'), tip: (r) => (r.nx ? r.nx.label : null) },
     { k: 'mrank', label: 'Opp rank', title: `How the opponent ranks against ${c.pos}s at this stat: 1 = allows the least (toughest)`, sv: (r) => (r.d ? (r.d.rank - 1) / Math.max(1, r.d.n - 1) : null),
       fmt: (r) => (r.d ? `${ordinal(r.d.rank)}` : '—'), cls: (r) => (r.d ? tPctCls(r.d.rank, r.d.n) : ''), tip: (r) => (r.d ? `Allows ${show(r.d.pg)} per game (${ordinal(r.d.rank)} of ${r.d.n})` : null) },
-    { k: 'proj', label: 'Proj', title: '60% season average + 40% last 5, adjusted for what the opponent allows', sv: (r) => r.pr.proj, fmt: (r) => h('b', null, show(r.pr.proj)) },
+    { k: 'proj', label: 'Proj', title: '60% season avg + 40% L5, adjusted for the opponent', sv: (r) => r.pr.proj, fmt: (r) => h('b', null, show(r.pr.proj)) },
     { k: 'edge', label: 'Proj − line', sv: (r) => r.edge, fmt: (r) => `${r.edge > 0 ? '+' : ''}${show(r.edge)}`, cls: (r) => (r.edge >= 0.1 * Math.max(1, line) ? 'g' : r.edge <= -0.1 * Math.max(1, line) ? 'r' : '') },
     { k: 'avg', label: 'Avg', sv: (r) => r.pr.seas, fmt: (r) => show(r.pr.seas) },
     { k: 'l5', label: 'L5 avg', sv: (r) => r.pr.l5, fmt: (r) => show(r.pr.l5) },
@@ -337,7 +337,7 @@ function renderCompare() {
       reasons.push(`Matchup: ${top.nx.opp} ranks ${ordinal(top.pr.d.rank)} of ${top.pr.d.n} against ${top.p.pos}s (${qt >= 0.66 ? 'soft' : qt <= 0.33 ? 'tough' : 'average'}); ${second.nx.opp} ranks ${ordinal(second.pr.d.rank)} against ${second.p.pos}s (${qs >= 0.66 ? 'soft' : qs <= 0.33 ? 'tough' : 'average'}).`);
     }
     const form = (x) => (x.pr.l3 > x.pr.seas * 1.15 ? 'trending up' : x.pr.l3 < x.pr.seas * 0.85 ? 'trending down' : 'steady');
-    reasons.push(`Form: ${top.p.name} ${form(top)} (${show(top.pr.l3)} last 3 vs ${show(top.pr.seas)} season); ${second.p.name} ${form(second)} (${show(second.pr.l3)} vs ${show(second.pr.seas)}).`);
+    reasons.push(`Form: ${top.p.name} ${form(top)} (${show(top.pr.l3)} L3 vs ${show(top.pr.seas)} season); ${second.p.name} ${form(second)} (${show(second.pr.l3)} vs ${show(second.pr.seas)}).`);
     reasons.push(`Floor (bad game, 20th percentile): ${show(top.pr.floor)} vs ${show(second.pr.floor)}. Ceiling (80th): ${show(top.pr.ceil)} vs ${show(second.pr.ceil)}.`);
     [top, second].forEach((x) => { if (x.ij) reasons.push(`Injury: ${x.p.name} is listed ${x.ij.label}${x.ij.detail ? ` (${x.ij.detail})` : ''}.`); if (x.p.missed) reasons.push(`${x.p.name} has missed his team's last ${x.p.missed} game${x.p.missed > 1 ? 's' : ''}.`); if (!x.nx) reasons.push(`${x.p.name} has no game scheduled next.`); });
     if (d < 0.08 * Math.max(1, top.pr.proj)) reasons.push('Close call: the projections are within about 8%. Lean on the matchup, the injury news and your gut.');
@@ -356,8 +356,8 @@ function renderCompare() {
       row('Status', (x) => (x.ij ? h('span', { class: `t-pill ${x.ij.status}` }, `${x.ij.label}${x.ij.detail ? ` · ${x.ij.detail}` : ''}`) : x.p.missed ? `Missed last ${x.p.missed}` : 'Active'), { cls: (x) => (x.ij || x.p.missed ? 'r' : '') }),
       row(h('b', null, `Projection (${lab})`), (x) => (x.pr ? h('b', null, show(x.pr.proj)) : null), { best: maxBy(projOf) }),
       row('Season avg', (x) => (x.pr ? show(x.pr.seas) : null), { best: maxBy((x) => (x.pr ? x.pr.seas : null)) }),
-      row('Last 5 avg', (x) => (x.pr ? show(x.pr.l5) : null), { best: maxBy((x) => (x.pr ? x.pr.l5 : null)) }),
-      row('Last 3 avg', (x) => (x.pr ? show(x.pr.l3) : null), { best: maxBy((x) => (x.pr ? x.pr.l3 : null)) }),
+      row('L5 avg', (x) => (x.pr ? show(x.pr.l5) : null), { best: maxBy((x) => (x.pr ? x.pr.l5 : null)) }),
+      row('L3 avg', (x) => (x.pr ? show(x.pr.l3) : null), { best: maxBy((x) => (x.pr ? x.pr.l3 : null)) }),
       row('Median', (x) => (x.pr ? show(x.pr.med) : null)),
       row('Floor / ceiling', (x) => (x.pr ? `${show(x.pr.floor)} / ${show(x.pr.ceil)}` : null), { best: maxBy((x) => (x.pr ? x.pr.floor : null)) }),
       row('Opponent allows', (x) => (x.pr && x.pr.d ? `${show(x.pr.d.pg)} to ${x.p.pos}s · ${ordinal(x.pr.d.rank)} of ${x.pr.d.n}` : null), { cls: (x) => (x.pr && x.pr.d ? tPctCls(x.pr.d.rank, x.pr.d.n) : '') }),
@@ -365,9 +365,9 @@ function renderCompare() {
       row(isBB(sp) ? 'Team implied pts' : 'Team implied total', (x) => (x.nx && x.nx.implied != null ? show(x.nx.implied) : null), { best: maxBy((x) => (x.nx && x.nx.implied != null ? x.nx.implied : null)) }),
       row('Role', (x) => x.usage),
       row('Games', (x) => `${x.p.logs.length}${x.p.missedN ? ` (missed ${x.p.missedN})` : ''}`),
-      row('Last 8 games', (x) => tSpark(x.pr ? x.pr.vals.slice(-8) : [], x.pr ? x.pr.proj : null))));
+      row('L8', (x) => tSpark(x.pr ? x.pr.vals.slice(-8) : [], x.pr ? x.pr.proj : null))));
   tRC(root, ...head, verdict, h('div', { class: 'scroll', style: 'max-height: none' }, tbl),
-    h('p', { class: 'note' }, 'Projection = 60% season average + 40% last 5, adjusted for the opponent.'));
+    h('p', { class: 'note' }, 'Projection = 60% season avg + 40% L5, adjusted for the opponent.'));
 }
 function tSpark(vals, ref) {
   if (!vals.length) return null;

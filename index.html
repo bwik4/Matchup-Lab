@@ -560,7 +560,7 @@
         </div>
         <div class="card">
           <h2 class="gl-h2h-title">Head to head</h2>
-          <p class="note">Their meetings this season and last.</p>
+          <p class="note">Their recent meetings.</p>
           <div class="scroll" style="max-height: none"><table class="t-h2h"><thead></thead><tbody></tbody></table></div>
           <p class="empty gl-h2h-empty" hidden>They haven't played each other in the last two seasons.</p>
         </div>
@@ -614,12 +614,12 @@
       <div class="grid">
         <div class="card">
           <h2 class="p-vs-title">History vs next opponent</h2>
-          <p class="note">Every game against this week's opponent, this season and last.</p>
+          <p class="note">Every game vs this week's opponent.</p>
           <div class="scroll" style="max-height: 24rem"><table class="t-pvs"><thead></thead><tbody></tbody></table></div>
           <p class="empty p-vs-empty" hidden>No games against them in the last two seasons.</p>
         </div>
         <div class="card">
-          <div class="bar"><h2 class="plog-title">This season's game log</h2><div class="seg plog-pair" role="group" aria-label="Whose stats"></div></div>
+          <div class="bar"><h2 class="plog-title">Game log</h2><div class="seg plog-pair" role="group" aria-label="Whose stats"></div></div>
           <p class="note plog-note"></p>
           <div class="scroll" style="max-height: 24rem"><table class="t-plog"><thead></thead><tbody></tbody></table></div>
         </div>
@@ -630,7 +630,7 @@
           <div class="controls">
             <div class="seg pd-depth" role="group" aria-label="Depth"></div>
             <div class="seg pd-win" role="group" aria-label="Seasons">
-              <button data-v="both">This + last season</button><button data-v="cur">This season</button>
+              <button data-v="both">This + last</button><button data-v="cur">This season</button>
             </div>
           </div>
         </div>
@@ -669,7 +669,7 @@
               <button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button><button data-v="K">K</button>
             </div>
             <div class="seg m-win" role="group" aria-label="Window">
-              <button data-v="season">Season</button><button data-v="last3">Last 3 wks</button>
+              <button data-v="season">Season</button><button data-v="last3">L3</button>
             </div>
           </div>
         </div>
@@ -748,7 +748,7 @@
         <div class="bar">
           <h2>Defense vs fantasy positions</h2>
           <div class="controls">
-            <div class="seg ff-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="last3">Last 3 wks</button></div>
+            <div class="seg ff-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="last3">L3</button></div>
           </div>
         </div>
         <p class="note">Fantasy points each defense allows to every QB, RB, WR, TE and kicker combined.</p>
@@ -813,7 +813,7 @@
       <div class="card">
         <div class="bar">
           <h2>Defense vs fantasy positions</h2>
-          <div class="controls"><div class="seg nf-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="l10">Last 10 games</button></div></div>
+          <div class="controls"><div class="seg nf-win" role="group" aria-label="Window"><button data-v="season">Season</button><button data-v="l10">L10</button></div></div>
         </div>
         <p class="note">Fantasy points each defense allows to all guards, forwards and centers combined.</p>
         <div class="scroll"><table class="t-nfdef dvp"><thead></thead><tbody></tbody></table></div>
@@ -843,7 +843,7 @@
       </div>
       <p class="note nfp-note"></p>
       <div class="stats nfp-tiles"></div>
-      <h3>Last 15 games</h3>
+      <h3>L15</h3>
       <div class="chart nfp-chart"></div>
       <h3>Next 10 games</h3>
       <p class="note">B2B = second night of a back-to-back.</p>
@@ -921,7 +921,7 @@
       </div>
       <div class="card">
         <h2>Head to head</h2>
-        <p class="note">Meetings between these two teams this season and last.</p>
+        <p class="note">Recent meetings between these two teams.</p>
         <div class="xgt-h2h"></div>
       </div>
     </div>
@@ -972,7 +972,7 @@
         <div class="seg ot-seas" role="group" aria-label="Season"><button data-v="cur">This season</button><button data-v="prev">Last season</button><button data-v="both">Both</button></div>
         <div class="seg ot-site" role="group" aria-label="Site"><button data-v="all">All</button><button data-v="H">Home</button><button data-v="A">Away</button><button data-v="N">Neutral</button></div>
         <div class="seg ot-conf" role="group" aria-label="Game type"><button data-v="all">All games</button><button data-v="conf">Conference</button><button data-v="non">Non-conference</button></div>
-        <div class="seg ot-last" role="group" aria-label="Games"><button data-v="all">All</button><button data-v="10">Last 10</button><button data-v="5">Last 5</button></div>
+        <div class="seg ot-last" role="group" aria-label="Games"><button data-v="all">All</button><button data-v="10">L10</button><button data-v="5">L5</button></div>
       </div>
       <p class="note ot-tnote"></p>
       <div class="scroll"><table class="ot-teams"><thead></thead><tbody></tbody></table></div>
@@ -1782,7 +1782,6 @@ function renderProps() {
   const vals = games.map((r) => r[stat]).filter((v) => v != null);
   const both = S.pSeas === 'both';
   const gx = (r) => (both ? `'${String(r.season).slice(2)} W${r.week} ${r.opp}` : `W${r.week} ${r.opp}`);
-  const scope = both ? 'this season and last' : 'this season';
   const split = $('.p-split');
   split.hidden = !wo; split.replaceChildren();
   if (wo) {
@@ -1790,7 +1789,7 @@ function renderProps() {
     const withV = tagged.filter((t) => t.sp === 'with').map((t) => t.r[stat]).filter((v) => v != null);
     const bb = (txt) => { const e = document.createElement('b'); e.textContent = txt; return e; };
     const lbl = statLabel(stat).toLowerCase();
-    if (!vals.length) split.append(`No games ${scope} where ${p.player} played and ${names} didn't.`, both ? '' : ' Try "This + last".');
+    if (!vals.length) split.append(`No games${both ? '' : ' this season'} where ${p.player} played and ${names} didn't.`, both ? '' : ' Try "This + last".');
     else {
       split.append(`${lbl[0].toUpperCase() + lbl.slice(1)} without ${names}: `, bb(`${show(mean(vals))} avg`), ` in ${vals.length} game${vals.length > 1 ? 's' : ''}`,
         withV.length ? ` · with: ` : '', withV.length ? bb(`${show(mean(withV))} avg`) : '', withV.length ? ` in ${withV.length}` : '', '.');
@@ -1812,18 +1811,18 @@ function renderProps() {
   $('.p-title').textContent = `${p.player} · ${p.position} · ${p.team}`;
   $('.p-note').textContent = opp === 'BYE' ? 'On bye this week.' : `Next: ${p.home ? 'vs' : '@'} ${opp}${p.team_implied != null ? ` · ${p.team} implied total ${p.team_implied}` : ''}`;
   const tiles = [
-    [fmtHit(hs), `Over ${line} ${wo ? 'in these games' : scope} ${pctHit(hs)}`],
-    [fmtHit(h5), `Last 5 games ${pctHit(h5)}`],
-    [fmtHit(h3), `Last 3 games ${pctHit(h3)}`],
-    [show(avg), `Average ${statLabel(stat).toLowerCase()}`],
+    [fmtHit(hs), `Over ${line}${pctHit(hs) ? ` (${pctHit(hs)})` : ''}`],
+    [fmtHit(h5), `L5${pctHit(h5) ? ` (${pctHit(h5)})` : ''}`],
+    [fmtHit(h3), `L3${pctHit(h3) ? ` (${pctHit(h3)})` : ''}`],
+    [show(avg), `Avg ${statLabel(stat).toLowerCase()}`],
     [show(median(vals)), 'Median'],
     [vals.length ? `${show(Math.min(...vals))}–${show(Math.max(...vals))}` : '—', 'Low–high'],
   ];
   if (p.position !== 'QB' && p.position !== 'K' && stat !== 'target_share') {
     const ts = mean(games.map((r) => r.target_share).filter((v) => v != null));
-    tiles.push([ts == null ? '—' : `${show(ts)}%`, `Target share${wo ? ' in these games' : ''} (share of his team's targets)`]);
+    tiles.push([ts == null ? '—' : `${show(ts)}%`, 'Target share']);
   }
-  if (mr) tiles.push([show(mr.per_game), `${opp} allows to ${p.position}s /g (rank ${mr.rank} of 32${mr3 ? `, last 3: ${mr3.rank}` : ''})`]);
+  if (mr) tiles.push([show(mr.per_game), `${opp} allows to ${p.position}s/g (${ordinal(mr.rank)} of 32${mr3 ? `, L3: ${ordinal(mr3.rank)}` : ''})`]);
   const st = $('.p-stats'); st.replaceChildren();
   tiles.forEach(([v, k]) => { const d = document.createElement('div'); d.className = 'stat'; const a = document.createElement('div'); a.className = 'v'; a.textContent = v; const b = document.createElement('div'); b.className = 'k'; b.textContent = k; d.append(a, b); st.appendChild(d); });
   bars($('.p-chart'), games.map((r) => ({
@@ -1843,7 +1842,7 @@ function renderProps() {
   statCols.forEach((c) => { if (c.f === stat) c.cls = hl; });
   // opponent ranks are this season's, so they're left blank for last season's games
   const cur = games.slice().map((r) => ({ ...r, gkey: r.season * 100 + r.week, opp_rank: r.season === S.season ? (mrow(r.opp, p.position, stat) || {}).rank : null }));
-  $('.plog-title').textContent = `${both ? 'This season + last' : "This season's"} game log${wo ? ` without ${woNames(S.pWo, woCache)}` : ''}`;
+  $('.plog-title').textContent = `Game log${wo ? ` without ${woNames(S.pWo, woCache)}` : ''}`;
   // RB / WR: optional view with the team's top two at his position added together each game
   const canPair = p.position === 'RB' || p.position === 'WR', pair = canPair && S.plogPair;
   const pairSeg = $('.plog-pair');
@@ -1948,7 +1947,7 @@ function renderFinder() {
   if (S.fq) rows = rows.filter((p) => `${p.player} ${p.team} ${p.next_opp}`.toLowerCase().includes(S.fq));
   table($('.t-finder'), 'finder', [
     { f: 'player', label: 'Player', l: true }, { f: 'team', label: 'Team', l: true }, { f: 'next_opp', label: 'Opp', l: true },
-    { f: 'games', label: 'GP' }, ...(S.fPos === 'QB' || S.fPos === 'K' ? [] : [{ f: 'tsh', label: 'Tgt share %' }]), { f: 'avg', label: `Avg ${statLabel(stat)}` }, { f: 'med', label: 'Median' }, { f: 'l3', label: 'Last 3 avg' },
+    { f: 'games', label: 'GP' }, ...(S.fPos === 'QB' || S.fPos === 'K' ? [] : [{ f: 'tsh', label: 'Tgt share %' }]), { f: 'avg', label: `Avg ${statLabel(stat)}` }, { f: 'med', label: 'Median' }, { f: 'l3', label: 'L3 avg' },
     { f: 'opp_allows', label: 'Opp allows /g' }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, { f: 'team_implied', label: 'Team implied' },
   ], rows, { sort: { f: 'avg', dir: 'desc' }, limit: 200, onClick: (p) => openProp(p.player_id, stat) });
 }
@@ -1979,7 +1978,7 @@ function renderMatchups() {
       o.games = weeks.length; o.wo = true;
       const pr = wk.filter((r) => r.position === S.mPos && weeks.includes(r.week));
       keys.forEach((k) => { o[k] = weeks.length ? Math.round((pr.reduce((a, r) => a + (r[k] || 0), 0) / weeks.length) * 100) / 100 : null; });
-      msgs.push(`${o.defense} has ${weeks.length || 'no'} game${weeks.length === 1 ? '' : 's'} without ${woNames(S.mWo.filter((k) => k.endsWith(`|${o.defense}`)), woCache)}${S.mWin === 'last3' ? ' in the last 3 weeks' : ' this season'}`);
+      msgs.push(`${o.defense} has ${weeks.length || 'no'} game${weeks.length === 1 ? '' : 's'} without ${woNames(S.mWo.filter((k) => k.endsWith(`|${o.defense}`)), woCache)}${S.mWin === 'last3' ? ' in L3' : ' this season'}`);
     });
     keys.forEach((k) => {
       const flip = k === 'passing_interceptions' || k === 'sacks_suffered';
@@ -2130,8 +2129,7 @@ function renderTeams() {
     return { team: t.team, next_opp: t.next_opp, ...aggTeam(gs), wo: !!pids };
   });
   addTeamRanks(rows);
-  const scope = S.tSeas === 'both' ? 'this season and last' : 'this season';
-  $('.t-note').textContent = V.note + ` Covers ${scope}.`;
+  $('.t-note').textContent = V.note;
   table($('.t-teams'), 'teams-' + S.tView, [{ f: 'team', label: 'Team', l: true }, { f: 'games', label: 'GP' }, ...V.cols, { f: 'next_opp', label: 'Next', l: true }], rows,
     { sort: V.sort, selected: (r) => r.wo });
   // with vs without comparison for each filtered team
@@ -2152,7 +2150,7 @@ function renderTeams() {
       tb.tBodies[0].appendChild(tr);
     });
     box.append(h, tb);
-    if (!B.games) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = `No ${scope} games where ${team} played without them${S.tSeas === 'both' ? '' : '. Try "This + last"'}.`; box.appendChild(p); }
+    if (!B.games) { const p = document.createElement('p'); p.className = 'empty'; p.textContent = `No games where ${team} played without them${S.tSeas === 'both' ? '' : '. Try "This + last"'}.`; box.appendChild(p); }
     body.appendChild(box);
   });
 }
@@ -2338,7 +2336,7 @@ function renderTC(g) {
       h('span', { class: 'v rt' }, `${ordinal(rd)} (${fv(D[`def_${k}`], k)})`),
       h('div', { class: 'tc-bars' }, h('span', { class: edge === 'o' ? 'edge-o' : '', style: `flex: ${so || 0.5}` }), h('span', { class: edge === 'd' ? 'edge-d' : '', style: `flex: ${sd || 0.5}` })));
   }));
-  const span = S.tcWin === 'season' ? 'this season' : `over each team's last ${S.tcWin.slice(1)} games`;
+  const span = S.tcWin === 'season' ? 'this season' : `L${S.tcWin.slice(1)}`;
   const b = (t, c) => h('b', { class: c }, t);
   $('.tc-sum').replaceChildren(`${TI(off).nick} offense has the edge in `, b(`${oe} of ${TC_ROWS.length}`, 'g'), ` categories and the ${TI(def).nick} defense in `, b(`${de}`, 'r'), ` (${span}).`);
   renderGameDvP(g);
@@ -2580,8 +2578,8 @@ function teamKeys(team, win) {
 function renderUsage(g) {
   const key = S.usType === 'targets' ? (S.usZone === 'rz' ? 'rz_targets' : 'targets') : (S.usZone === 'rz' ? 'rz_carries' : 'carries');
   const noun = S.usType === 'targets' ? 'targets' : 'carries';
-  const span = { l3: 'last 3 games', l5: 'last 5 games', l10: 'last 10 games', cur: 'games this season', both: 'games this season and last' }[S.usWin];
-  $('.us-note').textContent = `Each player's share of his team's ${S.usZone === 'rz' ? 'red-zone (inside the 20) ' : ''}${noun} over the team's ${span}, shown per team game.`;
+  const span = { l3: 'L3', l5: 'L5', l10: 'L10', cur: '', both: '' }[S.usWin];
+  $('.us-note').textContent = `Each player's share of his team's ${S.usZone === 'rz' ? 'red-zone ' : ''}${noun}${span ? ` (${span})` : ''}, per team game.`;
   $('.us-body').replaceChildren(...[g.away_team, g.home_team].map((team) => {
     const keys = teamKeys(team, S.usWin), n = keys.size;
     const m = new Map();
@@ -2631,7 +2629,7 @@ function lineRows(gs) {
 }
 function renderLines(g) {
   const seas = seasonsFor(S.glSeas), both = S.glSeas === 'both';
-  const scope = both ? 'this season and last' : 'this season';
+  const scope = both ? '' : 'this season';
   const mySpread = { [g.away_team]: g.spread_line == null ? null : g.spread_line, [g.home_team]: g.spread_line == null ? null : -g.spread_line };
   $('.gl-body').replaceChildren(...[g.away_team, g.home_team].map((team) => {
     const gs = DATA.team_games.filter((x) => x.team === team && seas.includes(x.season));
@@ -2640,7 +2638,7 @@ function renderLines(g) {
     if (!A.games) { box.append(h('p', { class: 'empty' }, 'No games yet.')); return box; }
     if (sp != null && g.status !== 'final') {
       const fav = sp < 0, rec = sp === 0 ? null : fav ? A.ats_fav : A.ats_dog;
-      box.append(h('p', { class: 'summary' }, `This week: ${team} ${spreadTxt(sp)}. `, rec ? [`${fav ? 'As a favorite' : 'As an underdog'} ${scope} they're `, h('b', null, `${rec} ATS`), '.'] : null));
+      box.append(h('p', { class: 'summary' }, `This week: ${team} ${spreadTxt(sp)}. `, rec ? [`${fav ? 'As a favorite' : 'As an underdog'}${scope ? ` ${scope}` : ''} they're `, h('b', null, `${rec} ATS`), '.'] : null));
     }
     box.append(h('div', { class: 'stats tight' }, tile(A.su, 'Record'), tile(A.ats, `ATS · ${pct(A.ats_pct)} cover`), tile(A.ou, `O/U · ${pct(A.over_pct)} over`),
       tile(A.ats_fav, 'ATS as favorite'), tile(A.ats_dog, 'ATS as underdog'), tile(`${A.ats_home} / ${A.ats_away}`, 'ATS home / away'),
@@ -2802,7 +2800,7 @@ function renderFFPlayer() {
   $('.ffp-title').style.cssText = 'display:flex;align-items:center;gap:6px';
   $('.ffp-note').textContent = `${FMT_NAME[S.fmt]} points per game, adjusted for each opponent.`;
   $('.ffp-tiles').replaceChildren(
-    tile(show(base.A), `Fantasy pts /g this season (${base.n} g)`), tile(show(base.L3), 'Last 3 games avg'),
+    tile(show(base.A), `Fantasy pts/g (${base.n} g)`), tile(show(base.L3), 'L3 avg'),
     tile(sos.rank ? `#${sos.rank}` : '—', `Rest-of-season schedule vs ${pos}s (of 32)`, sos.rank ? rankWord(sos.rank) : ''),
     tile(projs.length ? show(projs.reduce((a, b) => a + b, 0)) : '—', `Projected pts, rest of season (${games.length} games)`),
     tile(show(mean(projs)), 'Projected per game'), tile(`${easy} / ${tough}`, 'Easy / tough matchups left'),
@@ -2844,7 +2842,7 @@ function renderFFSeason(p, sched) {
     const b = (t, c) => h('b', { class: c }, t);
     const byPts = played.filter((r) => r.fpv != null).sort((x, y) => y.fpv - x.fpv), hi = byPts[0], lo = byPts[byPts.length - 1];
     const dnp = rows.filter((r) => r.dnp).length;
-    sum.append(`${vals.length} game${vals.length === 1 ? '' : 's'} played: `, b(`${show(avg)} ${FMT_NAME[S.fmt]} pts`), ' per game, last 3 ', b(show(mean(vals.slice(-3)))),
+    sum.append(`${vals.length} game${vals.length === 1 ? '' : 's'} played: `, b(`${show(avg)} ${FMT_NAME[S.fmt]} pts`), ' per game, L3 ', b(show(mean(vals.slice(-3)))),
       '. Best ', b(show(hi.fpv), 'g'), ` (Wk ${hi.week} ${hi.opp}), worst `, b(show(lo.fpv), 'r'), ` (Wk ${lo.week} ${lo.opp})`, dnp ? `. Missed ${dnp} game${dnp === 1 ? '' : 's'}.` : '.');
   }
   const stat = ffCols(pos).map((c) => ({ ...c, fmt: (v, r) => (r.played && !r.dnp ? show(v) : '') }));
@@ -3351,7 +3349,7 @@ function renderNFPlayer(D) {
   const easy = next.filter((x) => x.rk >= 23).length, tough = next.filter((x) => x.rk != null && x.rk <= 8).length;
   $('.nfp-tiles').replaceChildren(
     tile(show(fp1(mean(cur.map((r) => nbaFP(r, fmt))))), `Fantasy pts /g this season (${cur.length} g)`),
-    tile(show(fp1(mean(logs.slice(-5).map((r) => nbaFP(r, fmt))))), 'Last 5 games avg'),
+    tile(show(fp1(mean(logs.slice(-5).map((r) => nbaFP(r, fmt))))), 'L5 avg'),
     tile(next.length ? show(next[0].proj) : '—', next.length ? `Next game: ${next[0].opp}` : 'No games scheduled'),
     tile(show(fp1(mean(next.map((x) => x.proj).filter((v) => v != null)))), 'Projected per game, next 10'),
     tile(`${thisWk} / ${nextWk}`, 'Games this week / next week'),
@@ -3604,7 +3602,7 @@ function renderCBBTotals() {
     { f: 'edge', label: 'Proj − total', title: 'Projection minus the posted total (+ leans over)', fmt: (v) => sgn(v), cls: (v) => ouCls(v, 2.99) },
     { f: 'tempo', label: 'Pace', title: 'Projected possessions' , group: true },
     { f: 'avgTot', label: 'Avg total', title: 'Average final total in the two teams\' games this season' },
-    { f: 'l5Tot', label: 'L5 avg', title: 'Same, last 5 games each' },
+    { f: 'l5Tot', label: 'L5 avg', title: 'Same, L5' },
     { f: 'aRec', label: 'Away O/U', l: true, group: true }, { f: 'aPct', label: 'Over %', fmt: pct },
     { f: 'hRec', label: 'Home O/U', l: true }, { f: 'hPct', label: 'Over %', fmt: pct },
     { f: 'final', label: 'Final', group: true }, { f: 'res', label: 'Result', l: true, fmt: (v) => v || '—', cls: (v) => (v === 'Over' ? 'diff-g' : v === 'Under' ? 'diff-r' : '') },
@@ -3720,7 +3718,7 @@ function xgTotals(sp, g) {
     ['Avg 1st-half total', show(sa.h1), show(sh.h1)],
     ['Avg 2nd-half total (no OT)', show(sa.h2), show(sh.h2)],
     [g.neutral ? 'Neutral site: avg total (O/U)' : `On the road / at home: avg total (O/U)`, `${show(aSite.tot)} (${ouRec(aSite)})`, `${show(hSite.tot)} (${ouRec(hSite)})`],
-    ['Last 5 games: avg total (O/U)', `${show(l5(A).tot)} (${ouRec(l5(A))})`, `${show(l5(H).tot)} (${ouRec(l5(H))})`],
+    ['L5 avg total (O/U)', `${show(l5(A).tot)} (${ouRec(l5(A))})`, `${show(l5(H).tot)} (${ouRec(l5(H))})`],
     ['Points for / against', `${show(sa.pf)} / ${show(sa.pa)}`, `${show(sh.pf)} / ${show(sh.pa)}`],
     ['Possessions per 40', show(sa.tempo), show(sh.tempo)],
     ['3-point attempts', show(sa.fg3a), show(sh.fg3a)],
@@ -3920,7 +3918,7 @@ function xgMatchup(sp, g) {
       h('span', { class: 'v' }, `${ordinal(ro)} (${show(O[`o${i}`])})`), h('span', { class: 'k' }, lab), h('span', { class: 'v rt' }, `${ordinal(rd)} (${show(D[`d${i}`])})`),
       h('div', { class: 'tc-bars' }, h('span', { class: edge === 'o' ? 'edge-o' : '', style: `flex: ${so || 0.5}` }), h('span', { class: edge === 'd' ? 'edge-d' : '', style: `flex: ${sd || 0.5}` })));
   }));
-  const span = win === 'season' ? 'this season' : `over each team's last ${win.slice(1)} games`;
+  const span = win === 'season' ? 'this season' : `L${win.slice(1)}`;
   const b = (t, c) => h('b', { class: c }, t);
   $('.xg-sum').replaceChildren(`${TI(off).nick} offense has the edge in `, b(`${oe} of ${cfg.length}`, 'g'), ` categories and the ${TI(def).nick} defense in `, b(`${de}`, 'r'), ` (${span}).`);
   // defense vs position
