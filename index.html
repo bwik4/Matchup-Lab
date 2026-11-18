@@ -261,8 +261,12 @@
   .inj-q { background: color-mix(in srgb, var(--mid) 18%, transparent); color: var(--mid); }
   .inj-d, .inj-o { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
   .inj-p { background: color-mix(in srgb, var(--fg) 10%, transparent); color: var(--muted); }
-  .pl-out { margin: 8px 0 0; }
-  .pl-out i { font-style: normal; color: var(--muted); }
+  .pl-inj { margin: 10px 0 0; }
+  .pl-inj h4 { margin: 0 0 4px; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .pl-inj ul { list-style: none; margin: 0; padding: 0; }
+  .pl-inj li { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 5px 0; border-top: 1px solid var(--line); font-size: .84rem; }
+  .pl-inj li:first-child { border-top: 0; }
+  .pl-inj li > small { font-size: .75rem; }
   .prow .who { display: flex; gap: 10px; align-items: center; min-width: 0; }
   .prow .who > div { min-width: 0; }
   .prow .who b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -441,6 +445,7 @@
   .vx-qm small { color: var(--muted); }
   .vx-qt { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 1.02rem; flex-wrap: wrap; }
   .vx-qc { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+  .vx-qc.vx-gchips { justify-content: flex-start; margin: 2px 0 10px; }
   .vx-chip { font-size: .74rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; text-decoration: none; }
   .vx-chip.g { color: var(--ok); background: color-mix(in srgb, var(--ok) 15%, transparent); }
   .vx-chip.r { color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, transparent); }
@@ -589,6 +594,8 @@
 
   /* matchup edges */
   .vx-edges h2, .vx-gedges h2 { margin-bottom: 8px; }
+  .vx-edges-in { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .vx-edges-in h3 { margin: 0 0 8px; font-size: .95rem; }
   .vx-edge-ln { display: flex; gap: 10px; align-items: baseline; font-size: .88rem; padding: 4px 0; }
   .vx-edge-k { flex: none; min-width: 6.5rem; font-weight: 700; font-size: .75rem; color: var(--ok); background: color-mix(in srgb, var(--ok) 13%, transparent); border-radius: 999px; padding: 2px 9px; text-align: center; }
   .vx-gedge { display: grid; grid-template-columns: minmax(150px, 210px) minmax(0, 1fr); gap: 12px; padding: 9px 2px; border-top: 1px solid var(--line); }
@@ -636,10 +643,6 @@
 
   <!-- ================= HOME ================= -->
   <section class="view stack" data-view="home">
-    <div class="card d-ql">
-      <div class="bar"><h2>Quick Look</h2><a class="vx-link" href="#explore/quick">Explore →</a></div>
-      <div class="d-ql-body"></div>
-    </div>
     <div class="card d-quick">
       <h2>Quick tools</h2>
       <div class="d-quick-body"></div>
@@ -704,11 +707,6 @@
           <div class="tc-rows"></div>
           <p class="summary tc-sum"></p>
         </div>
-        <div class="card" id="game-detail">
-          <h2 class="gd-title">Full season comparison</h2>
-          <p class="note">Season stats for both teams.</p>
-          <div class="scroll" style="max-height: none"><table class="cmp t-cmp"><thead></thead><tbody></tbody></table></div>
-        </div>
       </div>
       <div class="card vx-gedges gp-pedges" hidden></div>
       <div class="card">
@@ -716,6 +714,11 @@
         <p class="note">What each defense allows per game to each position this season, ranked among all 32 defenses. * = one big game is carrying that number.</p>
         <div class="scroll" style="max-height: none"><table class="gp-dvp dvp"><thead></thead><tbody></tbody></table></div>
         <div class="sim gp-sim"></div>
+      </div>
+      <div class="card" id="game-detail">
+          <h2 class="gd-title">Full season comparison</h2>
+          <p class="note">Season stats for both teams.</p>
+          <div class="scroll" style="max-height: none"><table class="cmp t-cmp"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
 
@@ -812,18 +815,16 @@
         <div class="chart p-chart"></div>
         <div class="legend"><span class="lg">Over the line</span><span class="lr">Under the line</span></div>
       </div>
-      <div class="grid">
-        <div class="card">
-          <h2 class="p-vs-title">History vs next opponent</h2>
-          <p class="note">Every game vs this week's opponent.</p>
-          <div class="scroll" style="max-height: 24rem"><table class="t-pvs"><thead></thead><tbody></tbody></table></div>
-          <p class="empty p-vs-empty" hidden>No games against them in the last two seasons.</p>
-        </div>
-        <div class="card">
-          <div class="bar"><h2 class="plog-title">Game log</h2><div class="seg plog-pair" role="group" aria-label="Whose stats"></div></div>
-          <p class="note plog-note"></p>
-          <div class="scroll" style="max-height: 24rem"><table class="t-plog"><thead></thead><tbody></tbody></table></div>
-        </div>
+      <div class="card">
+        <div class="bar"><h2 class="plog-title">Game log</h2><div class="seg plog-pair" role="group" aria-label="Whose stats"></div></div>
+        <p class="note plog-note"></p>
+        <div class="scroll" style="max-height: 32rem"><table class="t-plog"><thead></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card">
+        <h2 class="p-vs-title">History vs next opponent</h2>
+        <p class="note">Every game vs this week's opponent.</p>
+        <div class="scroll" style="max-height: 14rem"><table class="t-pvs"><thead></thead><tbody></tbody></table></div>
+        <p class="empty p-vs-empty" hidden>No games against them in the last two seasons.</p>
       </div>
       <div class="card">
         <div class="bar">
@@ -841,21 +842,6 @@
         <p class="empty pd-empty" hidden>No games to show.</p>
         <div class="legend"><span class="lg">Over your line</span><span class="lr">Under your line</span></div>
       </div>
-    </div>
-    <div class="card">
-      <div class="bar">
-        <h2>Prop finder</h2>
-        <div class="controls">
-          <div class="seg f-pos" role="group" aria-label="Position">
-            <button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button><button data-v="K">K</button>
-          </div>
-          <select class="f-stat" aria-label="Stat"></select>
-          <input class="search f-q" type="search" placeholder="Filter player or team" aria-label="Filter players">
-        </div>
-      </div>
-      <p class="note">Every player with 3+ games this season, for the stat you pick.</p>
-      <div class="scroll"><table class="t-finder"><thead></thead><tbody></tbody></table></div>
-      <div class="legend"><span class="lr">Tough matchup (opponent rank 1–8)</span><span class="lg">Easy matchup (25–32)</span></div>
     </div>
   </section>
 
@@ -946,7 +932,8 @@
     </div>
 
     <div class="joined">
-      <div class="card">
+      <!-- NFL: the main defense vs position chart lives in Stats (Show fantasy), so these two stay hidden -->
+      <div class="card" hidden>
         <div class="bar">
           <h2>Defense vs fantasy positions</h2>
           <div class="controls">
@@ -958,7 +945,7 @@
         <div class="legend"><span class="lr">Toughest (rank 1–8)</span><span class="lg">Easiest (25–32)</span></div>
       </div>
   
-      <div class="card" id="ff-detail">
+      <div class="card" id="ff-detail" hidden>
         <div class="bar">
           <h2 class="ffd-title">Pick a defense</h2>
           <div class="seg ff-pos" role="group" aria-label="Position"><button data-v="QB">QB</button><button data-v="RB">RB</button><button data-v="WR">WR</button><button data-v="TE">TE</button><button data-v="K">K</button></div>
@@ -1252,9 +1239,12 @@
     </div>
   </section>
 
-  <!-- ================= EXPLORE / PROFILES / SHOTS (views.js) ================= -->
-  <section class="view stack" data-view="explore" hidden>
-    <div class="card"><h2 class="vx-title">Explore</h2><div class="vx-root"></div></div>
+  <!-- ================= TOP EDGES / PROFILES / SHOTS (views.js) ================= -->
+  <section class="view stack" data-view="edges" hidden>
+    <div class="card"><h2 class="vx-title">Top Edges</h2><div class="vx-root"></div></div>
+  </section>
+  <section class="view stack" data-view="tboard" hidden>
+    <div class="card"><h2 class="vx-title">Totals Board</h2><div class="vx-root"></div></div>
   </section>
   <section class="view stack vx-page" data-view="player" hidden>
     <div class="vx-root"></div>
@@ -1835,7 +1825,6 @@ const segs = [
   seg('.fmt', 'fmt', fmtAfter), seg('.ff-fmt', 'fmt', fmtAfter), seg('.m-win', 'mWin'), seg('.t-view', 'tView'),
   seg('.tc-win', 'tcWin'), seg('.pl-win', 'plWin'), seg('.us-win', 'usWin'), seg('.us-type', 'usType'), seg('.us-zone', 'usZone'), seg('.gl-seas', 'glSeas'),
   seg('.ff-win', 'ffWin'), seg('.ff-pos', 'ffPos'),
-  seg('.f-pos', 'fPos', () => { if (!propStats(S.fPos).includes(S.fStat)) S.fStat = POS_STATS[S.fPos][0]; }),
   seg('.m-pos', 'mPos', () => { S.mdStat = null; }), seg('.pd-win', 'pdWin'), seg('.p-seas', 'pSeas'), seg('.t-seas', 'tSeas'),
 ];
 const pickP = picker('.p-wo', 'pWo', () => {
@@ -1873,7 +1862,7 @@ function go(path) { if (location.hash.slice(1) === path) applyRoute(); else loca
 function applyRoute() {
   const [v, a, b, c] = decodeURIComponent(location.hash.slice(1)).split('/');
   // links saved from the old one-page layout
-  const legacy = { games: 'home', props: 'stats/players', matchups: 'stats/dvp', teams: 'stats/teams' };
+  const legacy = { games: 'home', props: 'stats/players', matchups: 'stats/dvp', teams: 'stats/teams', explore: a === 'totals' ? 'tboard' : a === 'edges' || !a ? 'edges' : 'home' };
   if (legacy[v]) { history.replaceState(null, '', '#' + legacy[v]); applyRoute(); return; }
   const prev = `${S.view}|${S.game}|${(S.vArgs || []).join('/')}`;
   if (v === 'game' && a) { S.view = 'game'; S.game = a; S.gameTab = GTABS.includes(b) ? b : 'odds'; }
@@ -1926,8 +1915,6 @@ $('.p-search').addEventListener('change', (e) => {
 });
 $('.p-stat').addEventListener('change', (e) => { S.pStat = e.target.value; S.pLine = null; render(); });
 $('.p-line').addEventListener('input', (e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v)) { S.pLine = v; render(); } });
-$('.f-stat').addEventListener('change', (e) => { S.fStat = e.target.value; render(); });
-$('.f-q').addEventListener('input', (e) => { S.fq = e.target.value.trim().toLowerCase(); render(); });
 $('.pd-depth').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; S.pdDepth = b.dataset.v; render(); });
 $('.md-stat').addEventListener('change', (e) => { S.mdStat = e.target.value; render(); });
 window.addEventListener('resize', () => { clearTimeout(window._rt); window._rt = setTimeout(render, 150); });
@@ -2014,7 +2001,6 @@ function renderProps() {
   if (dl.childElementCount !== ps.length) dl.replaceChildren(...ps.map((p) => { const o = document.createElement('option'); o.value = `${p.player} (${p.position}, ${p.team})`; return o; }));
   if (!S.player) { const top = ps.filter((p) => p.position === 'WR' && p.games >= 3).sort((a, b) => b.receiving_yards - a.receiving_yards)[0]; S.player = top.player_id; }
   const p = IDX.player.get(S.player);
-  renderFinder();
   if (!p) return;
   const keys = propStats(p.position);
   if (!S.pStat || !keys.includes(S.pStat)) { S.pStat = keys[0]; S.pLine = null; }
@@ -2180,27 +2166,6 @@ function renderPosVsDef(p, opp, stat, line, statCols) {
   table($('.t-pdef'), 'pdef', cols, rows, { sort: { f: 'when', dir: 'desc' }, onClick: (r) => openProp(r.player_id, stat), selected: (r) => r.me });
 }
 
-function renderFinder() {
-  const keys = propStats(S.fPos);
-  if (!keys.includes(S.fStat)) S.fStat = keys[0];
-  fillSelect($('.f-stat'), keys, S.fStat);
-  const stat = S.fStat;
-  let rows = DATA.players.filter((p) => p.position === S.fPos && p.games >= 3).map((p) => {
-    const gs = curGames(p.player_id);
-    const vals = gs.map((r) => r[stat]).filter((v) => v != null);
-    const tsh = mean(gs.map((r) => r.target_share).filter((v) => v != null));
-    const mr = p.next_opp !== 'BYE' ? mrow(p.next_opp, p.position, stat) : null;
-    return { ...p, tsh, avg: mean(vals), med: median(vals), l3: mean(vals.slice(-3)), opp_allows: mr ? mr.per_game : null, opp_rank: mr ? mr.rank : null };
-  });
-  if (S.fq) rows = rows.filter((p) => `${p.player} ${p.team} ${p.next_opp}`.toLowerCase().includes(S.fq));
-  table($('.t-finder'), 'finder', [
-    { f: 'player', label: 'Player', l: true }, { f: 'team', label: 'Team', l: true }, { f: 'next_opp', label: 'Opp', l: true },
-    { f: 'games', label: 'GP' }, ...(S.fPos === 'QB' || S.fPos === 'K' ? [] : [{ f: 'tsh', label: 'Tgt share %' }]), { f: 'avg', label: `Avg ${statLabel(stat)}` }, { f: 'med', label: 'Median' }, { f: 'l3', label: 'L3 avg' },
-    { f: 'opp_allows', label: 'Opp allows /g' }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, { f: 'team_implied', label: 'Team implied' },
-  ], rows, { sort: { f: 'avg', dir: 'desc' }, limit: 200, onClick: (p) => openProp(p.player_id, stat) });
-}
-
-// ===================== MATCHUPS =====================
 function renderMatchups() {
   const keys = posStats(S.mPos);
   const defs = [...new Set(DATA.matchups.map((r) => r.defense))].sort();
@@ -2783,12 +2748,13 @@ function depthChart(sp, team, g) {
   return { list, outs, missedNotes };
 }
 function dcOutLine(dc) {
-  const parts = [];
-  if (dc.missedNotes.length) parts.push(h('p', { class: 'note pl-out' }, h('b', null, 'Missed games: '),
-    ...dc.missedNotes.flatMap(({ x, txt }, i) => [i ? ' · ' : '', `${x.player} (${x.pos}) `, h('i', null, txt)])));
-  if (dc.outs.length) parts.push(h('p', { class: 'note pl-out' }, h('b', null, 'Removed: '),
-    ...dc.outs.flatMap((x, i) => [i ? ' · ' : '', `${x.player} (${x.pos}${x.inj && x.inj.detail ? `, ${x.inj.detail}` : ''}) `, h('i', null, x.why.toLowerCase())])));
-  return parts.length ? h('div', null, ...parts) : null;
+  // one short "Injuries" list under each team: who's out (and left off the list above), then who has been missing games
+  const lab = (x) => (x.inj ? h('span', { class: `t-pill ${x.inj.status}` }, x.inj.label) : null);
+  const rows = [
+    ...dc.outs.map((x) => h('li', null, h('b', null, x.player), h('small', { class: 'muted' }, x.pos), h('span', { class: 't-pill out' }, x.why), x.inj && x.inj.detail ? h('small', { class: 'muted' }, x.inj.detail) : null)),
+    ...dc.missedNotes.map(({ x, txt }) => h('li', null, h('b', null, x.player), h('small', { class: 'muted' }, x.pos), lab(x), h('span', null, txt.charAt(0).toUpperCase() + txt.slice(1)))),
+  ];
+  return rows.length ? h('div', { class: 'pl-inj' }, h('h4', null, 'Injuries'), h('ul', null, ...rows)) : null;
 }
 
 const PL_N = { l3: 3, l5: 5, l10: 10 };
@@ -4538,7 +4504,7 @@ function syncSport() {
   const sp = S.sport;
   document.querySelectorAll('.sport-sw button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.s === sp)));
   $('.sport-sw').hidden = !SWITCH_VIEWS.includes(S.view);
-  document.querySelectorAll('.side-nav button').forEach((b) => { b.hidden = !sportHas(sp, b.dataset.view); });
+  document.querySelectorAll('.side-nav button').forEach((b) => { b.hidden = b.dataset.view === 'explore' || !sportHas(sp, b.dataset.view); });
   $('.ff-nfl').hidden = sp !== 'nfl'; $('.ff-nba').hidden = sp !== 'nba';
   ['nfl', 'nba', 'cfb', 'cbb'].forEach((k) => { $(`.sub-${k}`).hidden = sp !== k; });
   const src = $('.src-link');
@@ -4583,7 +4549,7 @@ function render() {
     return;
   }
   segs.forEach((sg) => sg());
-  if (S.view === 'home') { renderHome(); renderDash(); if (typeof vHomeQuick === 'function') vHomeQuick(); }
+  if (S.view === 'home') { renderHome(); renderDash(); }
   else if (typeof VX !== 'undefined' && VX[S.view]) VX[S.view]();
   else if (S.view === 'tools') renderTools();
   else if (S.view === 'screener') renderScreener();

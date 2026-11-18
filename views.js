@@ -3,7 +3,8 @@
  * ========================================================================================================
  * Loaded after tools.js and uses the same helpers (h, $, badge, show, mean, ordinal, tUni, tDv, tProject ...).
  * Pages (all sports unless noted):
- *   #explore/<tab>            simple layouts: quick (one line per game), heatmap, edges, board, totals (NBA/CBB)
+ *   #edges                    Top Edges: the clearest player-vs-defense spots on the next slate
+ *   #tboard                   NBA totals board (projected total vs the line)
  *   #player/<sport>/<id>      player profile: averages, next matchup, defense vs his position, game log, shot zones (NBA)
  *   #team/<sport>/<team>      team profile: record, defense vs position, offense, roster, schedule, shot zones (NBA)
  *   #tape/<sport>/<away>/<home>  tale of the tape for one game
@@ -14,13 +15,12 @@
 'use strict';
 const VX = {};
 const V_SP = ['nfl', 'nba', 'cfb', 'cbb'];
-const V_PAGES = ['explore', 'player', 'team', 'tape', 'shots'];
+const V_PAGES = ['edges', 'tboard', 'player', 'team', 'tape', 'shots'];
 NEW_VIEWS.push(...V_PAGES);
-['nba', 'cfb', 'cbb'].forEach((sp) => SPORT_VIEWS[sp].push('explore', 'player', 'team', 'tape'));
-SPORT_VIEWS.nba.push('shots');
-SWITCH_VIEWS.push('explore', 'shots');
+['nba', 'cfb', 'cbb'].forEach((sp) => SPORT_VIEWS[sp].push('edges', 'player', 'team', 'tape'));
+SPORT_VIEWS.nba.push('shots', 'tboard');
+SWITCH_VIEWS.push('edges', 'shots');
 S.vArgs = S.vArgs || [];
-S.vTab = tStore.get('ml-explore-tab', 'quick');
 
 // ---------------------------------------------------------------- small helpers
 const vRoot = () => document.querySelector(`section[data-view="${S.view}"] .vx-root`);
@@ -205,72 +205,28 @@ function vSearchInit() {
   bar.insertBefore(wrap, $('.sport-sw'));
 }
 
-// ================================================================= EXPLORE
-const V_TABS = [['quick', 'Quick Look'], ['heatmap', 'Heatmap'], ['edges', 'Top Edges'], ['board', 'Board'], ['totals', 'Totals Board']];
-VX.explore = function () {
-  const sp = S.sport, tabs = V_TABS.filter(([k]) => k !== 'totals' || isBB(sp));
-  const want = S.vArgs[0];
-  if (want && tabs.some(([k]) => k === want)) S.vTab = want;
-  if (!tabs.some(([k]) => k === S.vTab)) S.vTab = 'quick';
-  vTitle('Explore');
-  const root = vRoot(); if (!root) return;
+// ================================================================= TOP EDGES / NBA TOTALS BOARD
+VX.edges = function () {
+  const sp = S.sport, root = vRoot(); if (!root) return;
   if (!tEnsure(sp)) { tLoading(root, sp); return; }
-  const body = h('div', { class: 'vx-body' });
-  tRC(root, h('div', { class: 't-controls' }, vSeg(tabs, S.vTab, (k) => { S.vTab = k; tStore.set('ml-explore-tab', k); history.replaceState(null, '', `#explore/${k}`); S.vArgs = [k]; render(); }, 'Layout')), body);
-  ({ quick: vQuick, heatmap: vHeat, edges: vEdges, board: vBoard, totals: vTotals })[S.vTab](sp, body);
+  vEdges(sp, root);
+};
+VX.tboard = function () {
+  const sp = 'nba', root = vRoot(); if (!root) return;
+  if (!tEnsure(sp)) { tLoading(root, sp); return; }
+  vTotals(sp, root);
 };
 
-// ---------- A: quick look, one line per game ----------
-function vQuick(sp, root) {
-  const sl = vSlate(sp);
-  if (!sl.length) { tRC(root, h('p', { class: 'empty' }, 'No upcoming games yet.')); return; }
-  const pos = T_POS[sp], n = isBB(sp) ? null : null;
+// green / red tags for one game: positions with an easy (top quarter) or tough (bottom quarter) matchup, main stat
+function vMatchChips(sp, g) {
+  const pos = T_POS[sp];
   const chips = (team, opp) => pos.map((p) => {
     const d = tDv(sp, opp, p, T_MAIN[p]); if (!d) return null;
-    const q = (d.rank - 1) / Math.max(1, d.n - 1);
-    if (q >= 0.75) return h('a', { class: 'vx-chip g', href: `#team/${sp}/${encodeURIComponent(opp)}`, title: `${opp} D is ${ordinal(d.rank)} of ${d.n} vs ${p} (${vStatLbl(sp, T_MAIN[p])}): easy`, onclick: (e) => e.stopPropagation() }, `${team} ${p} ▲`);
-    if (q <= 0.25) return h('a', { class: 'vx-chip r', href: `#team/${sp}/${encodeURIComponent(opp)}`, title: `${opp} D is ${ordinal(d.rank)} of ${d.n} vs ${p} (${vStatLbl(sp, T_MAIN[p])}): tough`, onclick: (e) => e.stopPropagation() }, `${team} ${p} ▼`);
-    return null;
+    const q = (d.rank - 1) / Math.max(1, d.n - 1), easy = q >= 0.75;
+    if (!easy && q > 0.25) return null;
+    return h('a', { class: `vx-chip ${easy ? 'g' : 'r'}`, href: `#team/${sp}/${encodeURIComponent(opp)}`, title: `${opp} D is ${ordinal(d.rank)} of ${d.n} vs ${p} (${vStatLbl(sp, T_MAIN[p])}): ${easy ? 'easy' : 'tough'}`, onclick: (e) => e.stopPropagation() }, `${team} ${p} ${easy ? '▲' : '▼'}`);
   }).filter(Boolean);
-  void n;
-  const rows = sl.map(({ g }) => {
-    const c = [...chips(g.away_team, g.home_team), ...chips(g.home_team, g.away_team)];
-    const line = g.spread_line != null ? `${g.spread_line > 0 ? g.home_team : g.away_team} ${spreadTxt(-Math.abs(g.spread_line))}` : '';
-    return h('div', { class: 'vx-qrow', ...pressable(() => { S.fromHome = true; go(vGameRoute(sp, g)); }) },
-      h('div', { class: 'vx-qm' },
-        h('div', { class: 'vx-qt' }, vBadge(sp, g.away_team, 'sm'), vTeamLink(sp, g.away_team), h('span', { class: 'muted' }, '@'), vBadge(sp, g.home_team, 'sm'), vTeamLink(sp, g.home_team)),
-        h('small', null, [vWhen(sp, g), line, g.total_line != null ? `O/U ${show(g.total_line)}` : ''].filter(Boolean).join(' · '))),
-      h('div', { class: 'vx-qc' }, c.length ? c : h('small', { class: 'muted' }, 'Neutral')),
-      h('a', { class: 'vx-tape-btn', href: `#tape/${sp}/${encodeURIComponent(g.away_team)}/${encodeURIComponent(g.home_team)}`, onclick: (e) => e.stopPropagation(), title: 'Tale Of The Tape' }, 'Tape'));
-  });
-  tRC(root, h('p', { class: 'note' }, `${vSlateLabel(sp, sl)} · ▲ easy · ▼ tough (defense vs position, main stat). Tap a game for everything.`), h('div', { class: 'vx-qlist' }, rows));
-}
-
-// ---------- B: heatmap, every defense vs every position ----------
-S.vHeat = S.vHeat || { mode: 'main', bb: 'pts', slate: null, q: '' };
-function vHeat(sp, root) {
-  const H = S.vHeat, pos = T_POS[sp], big = sp === 'cfb' || sp === 'cbb';
-  const slateOnly = H.slate == null ? big : H.slate;
-  const statOf = (p) => (isBB(sp) ? H.bb : H.mode === 'td' ? { QB: 'passing_tds', RB: 'rushing_tds', WR: 'receiving_tds', TE: 'receiving_tds' }[p] : H.mode === 'fp' ? 'fp_ppr' : T_MAIN[p]);
-  const slTeams = new Set(vSlate(sp).flatMap(({ g }) => [g.away_team, g.home_team]));
-  let teams = vTeams(sp).filter((t) => (!slateOnly || slTeams.has(t)) && (!H.q || `${t} ${TI(t).name || ''}`.toLowerCase().includes(H.q)));
-  const sortK = H.sort;
-  const cell = (t, p) => tDv(sp, t, p, statOf(p));
-  if (sortK) teams = teams.slice().sort((a, b) => ((cell(b, sortK) || {}).rank || 0) - ((cell(a, sortK) || {}).rank || 0));
-  const modes = isBB(sp) ? null : vSeg([['main', 'Main Stat'], ['td', 'TDs'], ...(sp === 'nfl' && S.fantasy ? [['fp', 'Fantasy']] : [])], H.mode, (k) => { H.mode = k; render(); }, 'Stat');
-  const bbSel = isBB(sp) ? h('select', { 'aria-label': 'Stat', onchange: (e) => { H.bb = e.target.value; render(); } }, ...['pts', 'reb', 'ast', 'fg3m', 'pra', 'pr', 'pa', 'ra', 'sb'].map((k) => h('option', { value: k, selected: k === H.bb }, vStatLbl(sp, k)))) : null;
-  const grid = h('div', { class: 'vx-heat', style: `grid-template-columns: minmax(64px, 1.3fr) repeat(${pos.length}, minmax(44px, 1fr))` },
-    h('div'), ...pos.map((p) => h('button', { type: 'button', class: `vx-hh${sortK === p ? ' on' : ''}`, title: `Sort by ${p} (easiest first)`, onclick: () => { H.sort = sortK === p ? null : p; render(); } }, p, h('small', null, vStatLbl(sp, statOf(p))))),
-    ...teams.flatMap((t) => [
-      h('a', { class: 'vx-ht', href: `#team/${sp}/${encodeURIComponent(t)}` }, badge(t, 'sm'), h('span', null, t)),
-      ...pos.map((p) => { const d = cell(t, p); return d ? h('a', { class: 'vx-hc', href: `#team/${sp}/${encodeURIComponent(t)}`, style: `background:${vRkColor(d.rank, d.n)}`, title: `${t} vs ${p}: ${show(d.pg)} ${vStatLbl(sp, statOf(p))}/g · ${ordinal(d.rank)} of ${d.n}` }, d.rank) : h('div', { class: 'vx-hc none' }, '—'); }),
-    ]));
-  tRC(root, h('div', { class: 't-controls' }, modes, bbSel,
-    h('label', { class: 'toggle' }, h('input', { type: 'checkbox', checked: slateOnly, onchange: (e) => { H.slate = e.target.checked; render(); } }), 'Playing Next Slate'),
-    h('input', { type: 'search', class: 't-search', placeholder: 'Team…', value: H.q, 'aria-label': 'Filter teams', oninput: (e) => { H.q = e.target.value.trim().toLowerCase(); const pos0 = e.target.selectionStart; render(); const el = $('section[data-view="explore"] .t-search'); if (el) { el.focus(); el.setSelectionRange(pos0, pos0); } } })),
-    h('p', { class: 'note' }, 'Defense vs position rank, this season. Red = tough · Green = easy. Tap a team for its full page; tap a position to sort.'),
-    teams.length ? grid : h('p', { class: 'empty' }, 'No teams match.'),
-    h('div', { class: 'vx-legend' }, '1st', h('i'), 'Last'));
+  return [...chips(g.away_team, g.home_team), ...chips(g.home_team, g.away_team)];
 }
 
 // ---------- D: edge cards ----------
@@ -318,47 +274,6 @@ function vEdges(sp, root) {
   tRC(root, h('div', { class: 'vx-edge-wrap' }, card, strip), h('p', { class: 'note' }, 'Lines are estimates (his L10 median). Check your book.'));
 }
 
-// ---------- F: board (player table) ----------
-S.vBoard = S.vBoard || { pos: 'All', bb: 'pts', more: false };
-function vBoard(sp, root) {
-  const B = S.vBoard, U = tUni(sp), pos = ['All', ...T_POS[sp]];
-  if (!pos.includes(B.pos)) B.pos = 'All';
-  const rows = [];
-  U.players.forEach((p) => {
-    if (!U.next.has(p.team) || (B.pos !== 'All' && p.pos !== B.pos) || p.missed > 1) return;
-    const stat = isBB(sp) ? B.bb : T_MAIN[p.pos];
-    const pr = tProject(sp, p, stat); if (!pr || pr.vals.length < 2) return;
-    rows.push({ p, pr, stat, name: p.name, team: p.team, opp: pr.nx.opp, rank: pr.d ? pr.d.rank : null, n: pr.d ? pr.d.n : null, l5: pr.l5, proj: pr.proj, seas: pr.seas, line: vLine(pr.vals) });
-  });
-  // regulars only: top share of each position by season average
-  const keep = new Set();
-  T_POS[sp].forEach((ps) => { const a = rows.filter((r) => r.p.pos === ps).sort((x, y) => y.seas - x.seas); a.slice(0, Math.max(12, Math.round(a.length * 0.4))).forEach((r) => keep.add(r)); });
-  const list = rows.filter((r) => keep.has(r));
-  const cols = [
-    { k: 'name', label: 'Player', l: true, fmt: (r) => h('span', { class: 'vx-pcell' }, tStar(sp, r.p.pid), vPlayerLink(sp, r.p.pid, r.name)) },
-    { k: 'pos', label: 'Pos', sv: (r) => r.p.pos, fmt: (r) => r.p.pos },
-    { k: 'team', label: 'Team', fmt: (r) => vTeamLink(sp, r.team) },
-    { k: 'opp', label: 'Opp', fmt: (r) => h('span', null, r.pr.nx.home ? 'vs ' : '@ ', vTeamLink(sp, r.opp)) },
-    { k: 'rank', label: 'Opp Rank', title: 'Defense vs his position, this stat (1st = toughest)', fmt: (r) => (r.rank ? vRkPill(r.rank, r.n) : '—') },
-    { k: 'l5', label: 'L5', nosort: true, fmt: (r) => tSpark(r.pr.vals.slice(-5), r.line) },
-    { k: 'l5v', label: 'L5 Avg', sv: (r) => r.l5, fmt: (r) => show(r.l5) },
-    { k: 'proj', label: 'Proj', fmt: (r) => h('b', null, show(r.proj)) },
-    { k: 'line', label: 'Est. Line', fmt: (r) => show(r.line) },
-    { k: 'add', label: '', nosort: true, fmt: (r) => vAddBtn({ id: `${sp}|${r.p.pid}|${r.stat}|over`, sp, label: `${r.name} Over ${show(r.line)} ${vStatLbl(sp, r.stat)}`, sub: `${r.team} vs ${r.opp}`, href: `#player/${sp}/${r.p.pid}` }) },
-  ];
-  const t = tTable(`vboard-${sp}`, cols, list, { sort: { k: 'rank', dir: 'desc' }, limit: B.more ? 400 : 40 });
-  tRC(root, h('div', { class: 't-controls' }, vSeg(pos.map((x) => [x, x]), B.pos, (k) => { B.pos = k; render(); }, 'Position'),
-    isBB(sp) ? h('select', { 'aria-label': 'Stat', onchange: (e) => { B.bb = e.target.value; render(); } }, ...['pts', 'reb', 'ast', 'fg3m', 'pra'].map((k) => h('option', { value: k, selected: k === B.bb }, vStatLbl(sp, k)))) : h('span', { class: 'lbl' }, 'QB Pass Yds · RB Rush + Rec · WR/TE Rec Yds')),
-  h('div', { class: 'vx-board' }, h('div', { class: 'tblwrap' }, t.el), h('aside', { class: 'vx-board-side' }, vSlipMini())),
-  t.total > t.shown || B.more ? h('button', { type: 'button', class: 'tr-more', onclick: () => { B.more = !B.more; render(); } }, B.more ? 'Show Less' : `Show All ${t.total}`) : null);
-}
-function vSlipMini() {
-  const s = vSlip();
-  return h('div', { class: 'card vx-slipmini' }, h('h2', null, 'Bet Slip ', s.length ? h('span', { class: 'vx-count' }, s.length) : null),
-    s.length ? [...s.slice(0, 6).map((x) => h('div', { class: 'vx-leg sm' }, h('div', { class: 'vx-leg-tx' }, h('b', null, x.label), h('small', null, x.sub || '')))),
-      h('button', { type: 'button', class: 'tr-more', onclick: vSlipOpen }, 'Open Slip')] : h('p', { class: 'empty' }, 'Add players with + Add.'));
-}
-
 // ---------- E: totals board (NBA / CBB) ----------
 function vTotals(sp, root) {
   const sl = vSlate(sp), P = vTeamPts(sp);
@@ -381,7 +296,7 @@ function vTotals(sp, root) {
         g.proj_tempo != null ? h('span', null, 'Pace ', h('b', null, show(g.proj_tempo))) : h('span', null, tmTxt(kickDate(g))),
         h('span', null, 'Diff ', h('b', { style: `color:${col}` }, diff == null ? '—' : `${diff > 0 ? '+' : ''}${show(diff)}`))),
       h('div', { class: 'vx-slider' }, h('i', { style: `left:${pct}%;background:${col}` })),
-      (() => { if (sp === 'nba' && !VEFF.ready) { vEffLoad().then((ok) => { if (ok && S.view === 'explore') render(); }); return null; } const c = vTotCheck(sp, g); return c ? h('div', { class: 'vx-tot-sig' }, c.call ? h('span', { class: `vx-pill ${c.call === 'Over' ? 'g' : 'r'}` }, `${c.call} Rule ✓`) : null, h('small', { class: 'muted' }, `Over rule ${c.ov}/3 · Under ${c.un}/3`)) : null; })(),
+      (() => { if (sp === 'nba' && !VEFF.ready) { vEffLoad().then((ok) => { if (ok && S.view === 'tboard') render(); }); return null; } const c = vTotCheck(sp, g); return c ? h('div', { class: 'vx-tot-sig' }, c.call ? h('span', { class: `vx-pill ${c.call === 'Over' ? 'g' : 'r'}` }, `${c.call} Rule ✓`) : null, h('small', { class: 'muted' }, `Over rule ${c.ov}/3 · Under ${c.un}/3`)) : null; })(),
       lean && g.total_line != null ? vAddBtn({ id: `${sp}|tot|${g.game_id}|${lean}`, sp, label: `${g.away_team} @ ${g.home_team} ${lean} ${show(g.total_line)}`, sub: `Proj ${show(proj)}`, odds: lean === 'Over' ? g.over_odds ?? -110 : g.under_odds ?? -110, href: `#${tabR}` }) : null);
   });
   tRC(root, h('p', { class: 'note' }, `${vSlateLabel(sp, sl)} · ${sp === 'cbb' ? 'Projection = tempo + efficiency model' : 'Projection = each team\'s points scored and allowed per game'}. Biggest gaps first.`), h('div', { class: 'vx-totgrid' }, cards));
@@ -424,26 +339,30 @@ VX.player = function () {
     const pr = tProject(sp, p, k); if (!pr) return null;
     const vsOpp = opp ? p.logs.filter((r) => r.opp === opp).map((r) => tVal(r, k)) : [];
     const line = vLine(pr.vals), hit = vHits(pr.vals, line, 10);
-    return h('tr', null, h('td', { class: 'l' }, vStatLbl(sp, k)), h('td', null, show(pr.seas)), h('td', null, show(mean(pr.vals.slice(-10)))), h('td', null, show(pr.l5)), h('td', null, show(pr.l3)),
+    return h('tr', null, h('td', { class: 'l' }, vStatLbl(sp, k)), h('td', null, show(pr.seas)), h('td', null, show(mean(pr.vals.slice(-10)))), h('td', null, show(pr.l3)),
       h('td', null, vsOpp.length ? `${show(mean(vsOpp))} (${vsOpp.length})` : '—'),
       h('td', null, h('b', null, nx ? show(pr.proj) : '—')),
       h('td', null, pr.d ? vRkPill(pr.d.rank, pr.d.n) : '—'),
       h('td', null, `${show(line)} · ${hit.h}/${hit.n}`),
       h('td', null, nx ? vAddBtn({ id: `${sp}|${p.pid}|${k}|over`, sp, label: `${p.name} Over ${show(line)} ${vStatLbl(sp, k)}`, sub: `${p.team} ${nx.home ? 'vs' : '@'} ${nx.opp}`, href: `#player/${sp}/${p.pid}` }) : null));
   }).filter(Boolean);
-  if (opp) { const ec = vEdgeCard(sp, p, opp); if (ec) cards.push(ec); }
-  cards.push(vCard('Averages & Matchup', h('div', { class: 'tblwrap' }, h('table', { class: 'dvp' },
-    h('thead', null, h('tr', null, ...['Stat', 'Season', 'L10', 'L5', 'L3', opp ? `Vs ${opp}` : 'Vs Opp', 'Proj', 'Opp Rank', 'Line · L10 Over', ''].map((x, i) => h('th', { class: i ? '' : 'l' }, x)))),
-    h('tbody', null, avgRows))),
-  h('p', { class: 'note' }, 'Opp Rank = next defense vs his position for that stat (1st = toughest). Line = his L10 median (estimate).')));
-  // next defense vs his position, plus similar defenses
+  // next defense vs his position, with his edges against it underneath
   if (opp) {
     const all = (isBB(sp) ? ['pts', 'reb', 'ast', 'fg3m', 'pra', 'pr', 'pa', 'ra', 'sb'] : vPosStats(sp, p.pos));
     const sim = tVsSimilar(sp, p, main, opp);
+    if (sp === 'nba' && !VSH.ready && !VSH.error) vShotsLoad().then((ok) => { if (ok && S.view === 'player') render(); });
+    const es = vPlayerEdges(sp, p, opp);
     cards.push(vCard(`${opp} Defense vs ${p.pos}`,
       h('div', { class: 'vx-dvgrid' }, ...all.map((k) => { const d = tDv(sp, opp, p.pos, k); return d ? h('a', { class: 'vx-dv', href: `#team/${sp}/${encodeURIComponent(opp)}`, style: `--c:${vRkColor(d.rank, d.n)}` }, h('small', null, vStatLbl(sp, k)), h('b', null, show(d.pg)), h('span', null, ordinal(d.rank))) : null; })),
-      sim ? h('p', { class: 'note' }, `Vs the ${sim.n} defenses most like ${opp}: ${show(sim.avg)} ${vStatLbl(sp, main)} (`, ...sim.opps.flatMap((o, i) => [i ? ', ' : '', vTeamLink(sp, o)]), ').') : null));
+      sim ? h('p', { class: 'note' }, `Vs the ${sim.n} defenses most like ${opp}: ${show(sim.avg)} ${vStatLbl(sp, main)} (`, ...sim.opps.flatMap((o, i) => [i ? ', ' : '', vTeamLink(sp, o)]), ').') : null,
+      es.length ? h('div', { class: 'vx-edges vx-edges-in' }, h('h3', null, `His Edges vs ${opp}`), ...es.map(vEdgeRow)) : null));
   }
+  const avgCard = vCard('Averages & Matchup', h('div', { class: 'tblwrap' }, h('table', { class: 'dvp' },
+    h('thead', null, h('tr', null, ...['Stat', 'Season', 'L10', 'L3', opp ? `Vs ${opp}` : 'Vs Opp', 'Proj', 'Opp Rank', 'Line · L10 Over', ''].map((x, i) => h('th', { class: i ? '' : 'l' }, x)))),
+    h('tbody', null, avgRows))),
+  h('p', { class: 'note' }, 'Opp Rank = next defense vs his position for that stat (1st = toughest). Line = his L10 median (estimate).'));
+  avgCard.classList.add('vx-avg');
+  cards.push(avgCard);
   if (!p.old) cards.push(vWoCard(sp, p));
   // game log
   const last10 = p.logs.slice(-12).reverse();
@@ -455,7 +374,7 @@ VX.player = function () {
   h('button', { type: 'button', class: 'tr-more', onclick: () => openLog(sp === 'nfl' ? 'nfl' : sp, p.pid) }, 'Full Game Log')));
   if (sp === 'nfl') cards[cards.length - 1].lastChild.remove(); // NFL log lives on the prop card
   tRC(root, h('div', { class: 'vx-stack' }, cards));
-  if (sp === 'nba') vShotsLoad().then((ok) => { if (ok && S.view === 'player') { const c = vShotPlayerCard(p, opp); if (c) root.firstChild.insertBefore(c, root.firstChild.children[2] || null); } });
+  if (sp === 'nba') vShotsLoad().then((ok) => { if (ok && S.view === 'player') { const c = vShotPlayerCard(p, opp), a = root.querySelector('.vx-avg'); if (c && a && !root.querySelector('.vx-shotp')) { c.classList.add('vx-shotp'); a.after(c); } } });
   void prMain;
 };
 
@@ -699,16 +618,6 @@ vSlipBtn();
 window.addEventListener('storage', (e) => { if (e.key === 'ml-slip') vSlipBtn(); });
 if (DATA.teams) render();
 
-// Quick Look card at the top of Home (first 6 games of the next slate)
-function vHomeQuick() {
-  const box = $('.d-ql-body'); if (!box) return;
-  const sp = S.sport; if (!tReady(sp)) return;
-  const tmp = h('div');
-  vQuick(sp, tmp);
-  const list = tmp.querySelector('.vx-qlist');
-  if (list) { [...list.children].slice(6).forEach((c) => c.remove()); tRC(box, list); } else tRC(box, ...tmp.childNodes);
-}
-
 // ================================================================= MATCHUP EDGES
 // For one player vs one defense: the few spots where a strong part of HIS game meets a weak part of THEIR defense.
 // Nothing is shown when nothing lines up. Used on player profiles and on every game page (Matchup tab).
@@ -763,11 +672,6 @@ function vPlayerEdges(sp, p, opp) {
   return out.sort((a, b) => b.score - a.score).filter((e) => { const fam = e.k.replace(/receiving_yards|receptions|targets/, 'rec').replace(/rushing_yards|carries/, 'rush').replace(/passing_yards|attempts|completions/, 'pass'); if (seen.has(fam)) return false; seen.add(fam); return true; }).slice(0, 3);
 }
 const vEdgeRow = (e) => h('div', { class: 'vx-edge-ln' }, h('span', { class: 'vx-edge-k' }, e.label), h('span', null, e.txt));
-function vEdgeCard(sp, p, opp) {
-  if (sp === 'nba' && !VSH.ready && !VSH.error) vShotsLoad().then((ok) => { if (ok) render(); });
-  const es = vPlayerEdges(sp, p, opp);
-  return es.length ? h('div', { class: 'card vx-edges' }, h('h2', null, `Edges vs ${opp}`), ...es.map(vEdgeRow)) : null;
-}
 // game page: the players with the clearest edges in this game (both teams), one line each
 function vGameEdges(sp, g, host) {
   if (!host) return;
@@ -779,9 +683,11 @@ function vGameEdges(sp, g, host) {
     const es = vPlayerEdges(sp, p, opp); if (es.length) rows.push({ p, es, score: es[0].score + 0.05 * (es.length - 1) });
   }));
   rows.sort((a, b) => b.score - a.score);
-  if (!rows.length) { host.replaceChildren(); return; }
+  const chips = vMatchChips(sp, g);
+  if (!rows.length && !chips.length) { host.replaceChildren(); return; }
   const open = S.vEdgeAll, list = open ? rows : rows.slice(0, 5);
   host.replaceChildren(h('div', { class: 'bar' }, h('h2', null, 'Player Edges'), h('small', { class: 'muted' }, 'Where a strength meets a soft spot')),
+    chips.length ? h('div', { class: 'vx-qc vx-gchips' }, ...chips) : null,
     ...list.map(({ p, es }) => h('div', { class: 'vx-gedge' },
       h('div', { class: 'vx-gedge-who' }, badge(p.team, 'sm'), vPlayerLink(sp, p.pid, p.name), h('small', { class: 'muted' }, p.pos)),
       h('div', { class: 'vx-gedge-list' }, ...es.slice(0, open ? 3 : 2).map(vEdgeRow)))),

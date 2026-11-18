@@ -563,6 +563,7 @@ const T_ICONS = {
 const T_TOOLS = [
   { id: 'screener', title: 'Prop research screener', desc: 'Rank every player at any stat against your line: hit rates, projection, matchup and similar-defense results in one table.', cats: ['props', 'research'], route: 'screener', icon: 'filter', color: '#16a34a', featured: true },
   { id: 'compare', title: 'Compare & Start/Sit', desc: 'Put 2 to 4 players side by side and get a start/sit call with the reasons behind it.', cats: ['fantasy', 'research'], route: 'compare', icon: 'compare', color: '#16a34a', featured: true },
+  { id: 'edges', title: 'Top Edges', desc: 'The clearest player-vs-defense spots on the next slate, one card at a time, with an estimated line and a one-tap add to your bet slip.', cats: ['props', 'research'], route: 'edges', icon: 'trend', color: '#0d9488', featured: true },
   { id: 'injuries', title: 'Injury report', desc: 'Everyone on the injury report, by position, with status, injury and practice notes.', cats: ['injuries'], route: 'injuries', icon: 'cross', color: '#e11d48', featured: true },
   { id: 'games', title: 'Games & matchup research', desc: 'Every upcoming game with lines. Open a game for odds, defense vs position, players, usage and trends.', cats: ['research', 'props'], route: 'home', icon: 'games', color: '#2563eb', featured: true },
   { id: 'props', title: 'Player prop card', desc: 'One player against any line: hit rates, game log, history vs the opponent and how his position does against them.', cats: ['props', 'research'], route: 'stats/players', icon: 'player', color: '#7c3aed', sports: ['nfl'] },
@@ -570,6 +571,7 @@ const T_TOOLS = [
   { id: 'teams', title: 'Team stats & with/without splits', desc: 'Team offense and defense numbers, and how players do with or without a teammate.', cats: ['research'], route: 'stats/teams', icon: 'team', color: '#0891b2', sports: ['nfl'] },
   { id: 'fantasy', title: 'Fantasy matchups & rankings', desc: 'Defense vs fantasy positions, weekly projections and rest-of-season schedules.', cats: ['fantasy'], route: 'fantasy', icon: 'trophy', color: '#ca8a04', sports: ['nfl', 'nba'] },
   { id: 'trends', title: 'Betting trends', desc: 'Against-the-spread and over/under trends for the next slate, sorted by edge.', cats: ['research', 'props'], route: 'trends', icon: 'trend', color: '#ea580c' },
+  { id: 'nbatotals', title: 'Totals board', desc: 'Projected game totals vs the posted line for the next slate, with the over/under rule check.', cats: ['props'], route: 'tboard', icon: 'total', color: '#ea580c', sports: ['nba'] },
   { id: 'totals', title: 'Totals board', desc: 'Projected totals from tempo and efficiency vs the posted line, with the model\'s track record.', cats: ['props'], route: 'totals', icon: 'total', color: '#ea580c', sports: ['cbb'] },
   // { id: 'sleeper', ... } My Sleeper team: off for now
   { id: 'favorites', title: 'Your favorite players', desc: 'Players you starred, with their next matchup and projection, on the Home dashboard.', cats: ['fantasy', 'research'], route: 'home', anchor: '.d-favs', icon: 'home', color: '#64748b' },
@@ -619,7 +621,7 @@ function renderDash() {
   const sp = S.sport;
   const quick = $('.d-quick-body'), favs = $('.d-favs-body'), slp = $('.d-sleeper'), best = $('.d-best-body'), trend = $('.d-trend');
   if (!quick) return;
-  tRC(quick, h('div', { class: 't-tools mini' }, ...T_TOOLS.filter((t) => t.featured || t.id === 'props' || t.id === 'dvp').filter((t) => !t.sports || t.sports.includes(sp)).slice(0, 5)
+  tRC(quick, h('div', { class: 't-tools mini' }, ...T_TOOLS.filter((t) => t.featured || t.id === 'props' || t.id === 'dvp').filter((t) => (!t.sports || t.sports.includes(sp)) && t.route !== 'home').slice(0, 5)
     .map((t) => h('div', { class: 't-tool', 'data-tool': t.id, role: 'button', tabIndex: 0, onclick: () => tOpenTool(t), onkeydown: (e) => { if (e.key === 'Enter') tOpenTool(t); } }, tToolIcon(t), h('div', { class: 't-tool-tx' }, h('b', null, t.title))))),
   h('button', { type: 'button', class: 'more', onclick: () => go('tools') }, 'All tools →'));
   if (slp) slp.hidden = sp !== 'nfl';
