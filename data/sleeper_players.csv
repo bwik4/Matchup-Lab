@@ -118,7 +118,7 @@ BAL,,Baltimore Ravens,BAL,DEF,,,,
 13438,,DeaMonte Trayanum,NYJ,RB,RB,6,Inactive,
 4744,,Barrett Burns,BAL,TE,,,Active,
 11620,,Rome Odunze,CHI,WR,LWR,2,Active,
-10232,,Michael Wilson,ARI,WR,,9,Inactive,IR
+10232,,Michael Wilson,ARI,WR,,10,Inactive,IR
 PIT,,Pittsburgh Steelers,PIT,DEF,,,,
 6804,,Jordan Love,GB,QB,QB,1,Active,
 5121,00-0034419,Braxton Berrios,NYG,WR,,5,Inactive,IR
@@ -290,7 +290,7 @@ WAS,,Washington Commanders,WAS,DEF,,,,
 8013,,Tim Jones,JAX,WR,,,Active,
 13074,,Isaiah Neyor,GB,WR,,,Active,
 13415,,Haynes King,CAR,QB,QB,3,Active,
-6185, 00-0035282,Easton Stick,TB,QB,QB,3,Active,
+6185, 00-0035282,Easton Stick,TB,QB,QB,4,Active,
 LAC,,Los Angeles Chargers,LAC,DEF,,,,
 2216,00-0031408,Mike Evans,SF,WR,LWR,1,Active,Questionable
 7562,,Tutu Atwell,LA,WR,RWR,2,Active,
@@ -598,7 +598,7 @@ GB,,Green Bay Packers,GB,DEF,,,,
 12933,,Caden Prieskorn,CIN,TE,,,Active,
 4274,00-0033589,David Moore,CAR,WR,,,Active,
 13179,,Ja'seem Reed,CAR,WR,,,Active,
-13425,,Jalon Daniels,TB,QB,QB,4,Active,
+13425,,Jalon Daniels,TB,QB,QB,2,Active,
 8219,,Jelani Woods,NYJ,TE,TE,4,Active,
 MIA,,Miami Dolphins,MIA,DEF,,,,
 13297,,Reggie Virgil,ARI,WR,RWR,2,Active,
@@ -668,7 +668,7 @@ SF,,San Francisco 49ers,SF,DEF,,,,
 12500,,Quinn Ewers,JAX,QB,QB,3,Active,
 5154,00-0034487,Trent Sherfield,BUF,WR,,,Active,
 9224,,Chase Brown,CIN,RB,RB,1,Active,
-12520,,Xavier Restrepo,TEN,WR,RWR,8,Active,
+12520,,Xavier Restrepo,TEN,WR,RWR,9,Active,
 8204,,Bo Melton,GB,WR,RWR,5,Active,Questionable
 13477,,Colbie Young,CIN,WR,LWR,5,Active,
 12521,,Elijah Arroyo,SEA,TE,TE,5,Inactive,IR
@@ -811,10 +811,10 @@ DEN,,Denver Broncos,DEN,DEF,,,,
 11588,,Jawhar Jordan,HOU,RB,RB,5,Active,Out
 5095,00-0034161,Daniel Carlson,MIA,K,,,Active,
 13778,,EJ Smith,KC,RB,,,Active,
-12510,,Jalen Milroe,SEA,QB,QB,4,Active,
+12510,,Jalen Milroe,SEA,QB,QB,3,Active,
 2505,00-0031610,Darren Waller,CAR,TE,TE,1,Active,
 11963,,Chris Collier,LV,RB,,,Inactive,Questionable
-11034,,Jalen Brooks,ARI,WR,,10,Inactive,IR
+11034,,Jalen Brooks,ARI,WR,,11,Inactive,IR
 12045,,Jack Westover,WAS,TE,,,Active,
 6451, 00-0035039,Stephen Carlson,CHI,TE,TE,3,Active,
 8210,,Chig Okonkwo,WAS,TE,TE,1,Active,
