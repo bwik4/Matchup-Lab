@@ -285,6 +285,15 @@
         "mt": 34,
         "zoom": 100
       }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.vx-edge-wrap > div.vx-edge.g",
+      "label": "Section · \"Easy Matchup 1 of 42 TE vs CIN C…\"",
+      "css": {
+        "mt": 8
+      }
     }
   ],
   "caseOff": false,
