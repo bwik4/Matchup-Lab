@@ -593,6 +593,10 @@
   .m-more .more { margin-top: 8px; }
 
   /* game log: a line between every column */
+  /* full-width game log: even stat columns instead of a few stretched ones */
+  table.t-plog { table-layout: fixed; }
+  table.t-plog th:first-child, table.t-plog td:first-child { width: 3.6rem; }
+  table.t-plog th:nth-child(2), table.t-plog td:nth-child(2) { width: 4.6rem; }
   table.t-plog th + th, table.t-plog td + td { border-left: 1px solid color-mix(in srgb, var(--fg) 16%, transparent); }
 
   /* matchup edges */
