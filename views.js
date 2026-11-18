@@ -4,7 +4,7 @@
  * Loaded after tools.js and uses the same helpers (h, $, badge, show, mean, ordinal, tUni, tDv, tProject ...).
  * Pages (all sports unless noted):
  *   #edges                    Top Edges: the clearest player-vs-defense spots on the next slate
- *   #tboard                   NBA totals board (projected total vs the line)
+ *   #tboard                   NBA / CBB totals board (projected total vs the line)
  *   #player/<sport>/<id>      player profile: averages, next matchup, defense vs his position, game log, shot zones (NBA)
  *   #team/<sport>/<team>      team profile: record, defense vs position, offense, roster, schedule, shot zones (NBA)
  *   #tape/<sport>/<away>/<home>  tale of the tape for one game
@@ -19,6 +19,7 @@ const V_PAGES = ['edges', 'tboard', 'player', 'team', 'tape', 'shots'];
 NEW_VIEWS.push(...V_PAGES);
 ['nba', 'cfb', 'cbb'].forEach((sp) => SPORT_VIEWS[sp].push('edges', 'player', 'team', 'tape'));
 SPORT_VIEWS.nba.push('shots', 'tboard');
+SPORT_VIEWS.cbb.push('tboard');
 SWITCH_VIEWS.push('edges', 'shots');
 S.vArgs = S.vArgs || [];
 
@@ -212,7 +213,7 @@ VX.edges = function () {
   vEdges(sp, root);
 };
 VX.tboard = function () {
-  const sp = 'nba', root = vRoot(); if (!root) return;
+  const sp = S.sport === 'cbb' ? 'cbb' : 'nba', root = vRoot(); if (!root) return;
   if (!tEnsure(sp)) { tLoading(root, sp); return; }
   vTotals(sp, root);
 };
@@ -244,7 +245,10 @@ function vEdgeList(sp) {
     a.slice(0, Math.max(6, Math.round(a.length * (isBB(sp) ? 0.25 : 0.35)))).forEach((x) => out.push(x));
   });
   out.forEach((x) => { x.line = vLine(x.pr.vals); x.hit = vHits(x.pr.vals, x.line, 5); x.side = x.pr.f >= 1 ? 'over' : 'under'; x.score = Math.abs(x.pr.f - 1); });
-  return out.sort((a, b) => b.score - a.score).slice(0, 14);
+  // best edges first (biggest boost from the matchup), down to the toughest spots last: green to red
+  const ranked = out.filter((x) => Math.abs(x.pr.f - 1) >= 0.02).sort((a, b) => b.pr.f - a.pr.f);
+  const pos = ranked.filter((x) => x.pr.f >= 1), neg = ranked.filter((x) => x.pr.f < 1);
+  return [...pos.slice(0, 30), ...neg.slice(-12)];
 }
 function vEdges(sp, root) {
   const list = vEdgeList(sp);
@@ -269,8 +273,10 @@ function vEdges(sp, root) {
       h('button', { type: 'button', onclick: () => { S.vEdgeI = (i - 1 + list.length) % list.length; render(); } }, '← Prev'),
       h('button', { type: 'button', onclick: () => { S.vEdgeI = (i + 1) % list.length; render(); } }, 'Skip →'),
       h('button', { type: 'button', class: 'pri', onclick: () => { vSlipAdd(item); S.vEdgeI = (i + 1) % list.length; render(); } }, vInSlip(item.id) ? '✓ In Slip' : '+ Bet Slip')));
-  const strip = h('div', { class: 'vx-edge-strip' }, ...list.map((y, j) => h('button', { type: 'button', class: j === i ? 'on' : '', onclick: () => { S.vEdgeI = j; render(); } },
-    h('b', null, y.p.name), h('small', { style: `color:${vRkColor(y.pr.d.rank, y.pr.d.n)}` }, `${y.p.pos} vs ${y.pr.nx.opp} · ${ordinal(y.pr.d.rank)}`))));
+  const pctTxt = (y) => { const v = Math.round((y.pr.f - 1) * 100); return `${v > 0 ? '+' : ''}${v}%`; };
+  const strip = h('div', { class: 'vx-edge-strip' }, ...list.map((y, j) => h('button', { type: 'button', class: j === i ? 'on' : '', style: `--c:${vRkColor(y.pr.d.rank, y.pr.d.n)}`, onclick: () => { S.vEdgeI = j; render(); } },
+    h('span', { class: 'vx-es-top' }, h('b', null, y.p.name), h('em', null, pctTxt(y))),
+    h('small', null, `${y.p.pos} vs ${y.pr.nx.opp} · ${ordinal(y.pr.d.rank)} · ${vStatLbl(sp, y.stat)}`))));
   tRC(root, h('div', { class: 'vx-edge-wrap' }, card, strip), h('p', { class: 'note' }, 'Lines are estimates (his L10 median). Check your book.'));
 }
 
@@ -736,7 +742,7 @@ function vTotCard(sp, g, host) {
     h('table', { class: 'vx-tct' }, h('thead', null, h('tr', null, h('th', { class: 'l' }, ''), h('th', null, g.away_team), h('th', null, g.home_team), h('th', null, 'Over Needs'))),
       h('tbody', null, c.rows.map((r) => h('tr', null, h('td', { class: 'l' }, r.lab), h('td', null, show(r.av), ' ', ck(r, r.a)), h('td', null, show(r.bv), ' ', ck(r, r.b)),
         h('td', { class: 'muted' }, r.lab.startsWith('Def') ? `both bottom ${c.cut}` : `both top ${c.cut}`))))),
-    h('p', { class: 'note' }, `Ranks among ${c.n} teams${sp === 'cbb' ? ' (adjusted efficiency and tempo; top 10% = top ${c.cut})' : ''}. Over = all 3 rows met by both teams; Under = the mirror. Green = fits the over, red = fits the under.`));
+    h('p', { class: 'note' }, `Ranks among ${c.n} teams${sp === 'cbb' ? ` (adjusted efficiency and tempo; top 10% = top ${c.cut})` : ''}. Over = all 3 rows met by both teams; Under = the mirror. Green = fits the over, red = fits the under.`));
   host.hidden = false;
 }
 

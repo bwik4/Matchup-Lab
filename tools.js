@@ -571,8 +571,8 @@ const T_TOOLS = [
   { id: 'teams', title: 'Team stats & with/without splits', desc: 'Team offense and defense numbers, and how players do with or without a teammate.', cats: ['research'], route: 'stats/teams', icon: 'team', color: '#0891b2', sports: ['nfl'] },
   { id: 'fantasy', title: 'Fantasy matchups & rankings', desc: 'Defense vs fantasy positions, weekly projections and rest-of-season schedules.', cats: ['fantasy'], route: 'fantasy', icon: 'trophy', color: '#ca8a04', sports: ['nfl', 'nba'] },
   { id: 'trends', title: 'Betting trends', desc: 'Against-the-spread and over/under trends for the next slate, sorted by edge.', cats: ['research', 'props'], route: 'trends', icon: 'trend', color: '#ea580c' },
-  { id: 'nbatotals', title: 'Totals board', desc: 'Projected game totals vs the posted line for the next slate, with the over/under rule check.', cats: ['props'], route: 'tboard', icon: 'total', color: '#ea580c', sports: ['nba'] },
-  { id: 'totals', title: 'Totals board', desc: 'Projected totals from tempo and efficiency vs the posted line, with the model\'s track record.', cats: ['props'], route: 'totals', icon: 'total', color: '#ea580c', sports: ['cbb'] },
+  { id: 'nbatotals', title: 'Totals board', desc: 'Projected game totals vs the posted line for the next slate, with the over/under rule check.', cats: ['props'], route: 'tboard', icon: 'total', color: '#ea580c', sports: ['nba', 'cbb'] },
+  // { id: 'totals', ... } old CBB Totals page: replaced by the Totals board tool (#tboard)
   // { id: 'sleeper', ... } My Sleeper team: off for now
   { id: 'favorites', title: 'Your favorite players', desc: 'Players you starred, with their next matchup and projection, on the Home dashboard.', cats: ['fantasy', 'research'], route: 'home', anchor: '.d-favs', icon: 'home', color: '#64748b' },
   { id: 'edit', title: 'Edit site look & layout', desc: 'Change colors and fonts, reorder or hide sections, and rename anything, without code.', cats: ['site'], route: null, icon: 'edit', color: '#64748b' },

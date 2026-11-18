@@ -477,9 +477,12 @@
   .vx-edge-btns { display: flex; gap: 8px; margin-top: 8px; }
   .vx-edge-btns button { flex: 1; font: inherit; font-weight: 700; padding: 11px; border-radius: 12px; border: 1px solid var(--line); background: var(--item); color: var(--fg); cursor: pointer; }
   .vx-edge-btns button.pri { background: var(--ok); border-color: var(--ok); color: #0b1220; }
-  .vx-edge-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px; }
+  .vx-edge-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; }
   .vx-edge-strip button { font: inherit; text-align: left; display: flex; flex-direction: column; padding: 9px 11px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); cursor: pointer; }
-  .vx-edge-strip button.on { border-color: var(--accent); background: var(--item); } .vx-edge-strip small { font-weight: 700; font-size: .74rem; }
+  .vx-edge-strip button.on { border-color: var(--accent); background: var(--item); } .vx-edge-strip small { font-weight: 700; font-size: .74rem; color: var(--c); }
+  .vx-edge-strip button { border-left: 4px solid var(--c); gap: 2px; }
+  .vx-es-top { display: flex; justify-content: space-between; gap: 6px; align-items: baseline; }
+  .vx-es-top em { font-style: normal; font-weight: 800; font-size: .8rem; color: var(--c); }
   /* F: board */
   .vx-board { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px; align-items: start; }
   @media (max-width: 980px) { .vx-board { grid-template-columns: minmax(0, 1fr); } .vx-board-side { display: none; } }
@@ -1096,12 +1099,12 @@
           <h3>What moves this total</h3>
           <ul class="edges xgt-edges"></ul>
         </div>
+        <div class="card vx-totcheck xgt-totcheck" hidden></div>
         <div class="card">
           <div class="bar">
             <h2>Over/under profile</h2>
             <div class="seg xgt-seas" role="group" aria-label="Season"><button data-v="cur">This season</button><button data-v="prev">Last season</button><button data-v="both">Both</button></div>
           </div>
-          <p class="note">Points per 100 possessions and possessions per 40 minutes, adjusted for opponent and home court.</p>
           <div class="scroll" style="max-height: none"><table class="cmp xgt-cmp"><thead></thead><tbody></tbody></table></div>
         </div>
         <div class="card">
@@ -1878,7 +1881,7 @@ function applyRoute() {
     const vsp = ['player', 'team', 'tape'].includes(v) && ['nfl', 'nba', 'cfb', 'cbb'].includes(a) ? a : v === 'shots' ? 'nba' : null;
     if (vsp) { S.sport = vsp; try { localStorage.setItem('ml-sport', vsp); } catch (e) { /* storage off */ } }
   }
-  else if (v === 'totals') { S.view = 'totals'; S.sport = 'cbb'; try { localStorage.setItem('ml-sport', 'cbb'); } catch (e) { /* storage off */ } }
+  else if (v === 'totals') { S.view = 'tboard'; S.sport = 'cbb'; history.replaceState(null, '', '#tboard'); try { localStorage.setItem('ml-sport', 'cbb'); } catch (e) { /* storage off */ } }
   else S.view = 'home';
   if (S.view !== 'game' && S.view !== 'xgame') S.fromHome = false;
   document.querySelectorAll('section.view').forEach((sec) => { sec.hidden = sec.dataset.view !== S.view; });
@@ -3917,6 +3920,7 @@ function xgTotals(sp, g) {
   if (sl != null && tl != null) t.push(tile(`${show((tl - sl) / 2)} / ${show((tl + sl) / 2)}`, `Implied team totals (${A} / ${H})`));
   if (fin) { const tot = g.away_score + g.home_score; t.push(tile(String(tot), tl != null ? `Final (${tot > tl ? 'over' : tot < tl ? 'under' : 'push'})` : 'Final total')); if (g.away_h1 != null) t.push(tile(String(g.away_h1 + g.home_h1), '1st-half total')); }
   $('.xgt-tiles').replaceChildren(...t);
+  if (typeof vTotCard === 'function') vTotCard(sp, g, $('.xgt-totcheck'));
   $('.xgt-note').textContent = 'Model total from both teams\' tempo and efficiency, with a home-court bump. Doesn\'t account for injuries.';
   // ----- notes -----
   const notes = [], ord = (r) => (r == null ? '—' : ordinal(r));
@@ -3945,26 +3949,13 @@ function xgTotals(sp, g) {
   const site = (tm, s) => ouSum(cbbSeasonRows(tm, mode).filter((r) => r.site === s));
   const aSite = g.neutral ? site(A, 'N') : site(A, 'A'), hSite = g.neutral ? site(H, 'N') : site(H, 'H');
   const l5 = (tm) => ouSum(cbbSeasonRows(tm, 'both').slice(-5));
-  const rk = (v, r) => (v == null ? '—' : `${show(v)} (${ord(r)})`);
+  // kept short: how their games have gone against the total (pace and efficiency are in Totals Check above)
   const rowsT = [
-    ['Adjusted tempo', rk(ra.adj_t, ra.adj_t_rk), rk(rh.adj_t, rh.adj_t_rk)],
-    ['Adjusted offense', rk(ra.adj_o, ra.adj_o_rk), rk(rh.adj_o, rh.adj_o_rk)],
-    ['Adjusted defense', rk(ra.adj_d, ra.adj_d_rk), rk(rh.adj_d, rh.adj_d_rk)],
-    ['Games', String(sa.n), String(sh.n)],
-    ['Over/under record', ouRec(sa), ouRec(sh)],
-    ['Over %', pct(sa.pct), pct(sh.pct)],
-    ['Avg game total', show(sa.tot), show(sh.tot)],
-    ['Avg closing total', show(sa.line), show(sh.line)],
-    ['Avg vs the total', sgn(sa.mar), sgn(sh.mar)],
-    ['Avg 1st-half total', show(sa.h1), show(sh.h1)],
-    ['Avg 2nd-half total (no OT)', show(sa.h2), show(sh.h2)],
-    [g.neutral ? 'Neutral site: avg total (O/U)' : `On the road / at home: avg total (O/U)`, `${show(aSite.tot)} (${ouRec(aSite)})`, `${show(hSite.tot)} (${ouRec(hSite)})`],
-    ['L5 avg total (O/U)', `${show(l5(A).tot)} (${ouRec(l5(A))})`, `${show(l5(H).tot)} (${ouRec(l5(H))})`],
-    ['Points for / against', `${show(sa.pf)} / ${show(sa.pa)}`, `${show(sh.pf)} / ${show(sh.pa)}`],
-    ['Possessions per 40', show(sa.tempo), show(sh.tempo)],
-    ['3-point attempts', show(sa.fg3a), show(sh.fg3a)],
-    ['Free throw attempts', show(sa.fta), show(sh.fta)],
-    ['Overtime games', String(sa.ot), String(sh.ot)],
+    ['O/U', `${ouRec(sa)}${sa.pct != null ? ` (${pct(sa.pct)})` : ''}`, `${ouRec(sh)}${sh.pct != null ? ` (${pct(sh.pct)})` : ''}`],
+    ['Avg total', show(sa.tot), show(sh.tot)],
+    ['Vs total', sgn(sa.mar), sgn(sh.mar)],
+    [g.neutral ? 'Neutral' : 'Road / Home', `${show(aSite.tot)} (${ouRec(aSite)})`, `${show(hSite.tot)} (${ouRec(hSite)})`],
+    ['L5 total', `${show(l5(A).tot)} (${ouRec(l5(A))})`, `${show(l5(H).tot)} (${ouRec(l5(H))})`],
   ];
   const tb = $('.xgt-cmp');
   tb.tHead.replaceChildren(h('tr', null, h('th', { class: 'l' }, ''), h('th', null, `${A} ${TI(A).nick}`), h('th', null, `${H} ${TI(H).nick}`)));
@@ -4186,7 +4177,9 @@ function xgMatchup(sp, g) {
   skewList(tbl, dNotes);
   renderSimDefs(sp, g, $('.xg-sim'), S.xgFlip, (v) => { S.xgFlip = v; render(); });
   if (typeof vGameEdges === 'function') vGameEdges(sp, g, $('.xg-pedges'));
-  if (typeof vTotCard === 'function') vTotCard(sp, g, $('.xg-totcheck'));
+  // CBB keeps its Totals Check on the Totals tab
+  if (typeof vTotCard === 'function') vTotCard(sp, g, sp === 'cbb' ? null : $('.xg-totcheck'));
+  if (sp === 'cbb') $('.xg-totcheck').hidden = true;
 }
 
 function xgPlayers(sp, g) {
@@ -4504,7 +4497,7 @@ function syncSport() {
   const sp = S.sport;
   document.querySelectorAll('.sport-sw button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.s === sp)));
   $('.sport-sw').hidden = !SWITCH_VIEWS.includes(S.view);
-  document.querySelectorAll('.side-nav button').forEach((b) => { b.hidden = b.dataset.view === 'explore' || !sportHas(sp, b.dataset.view); });
+  document.querySelectorAll('.side-nav button').forEach((b) => { b.hidden = b.dataset.view === 'explore' || b.dataset.view === 'totals' || !sportHas(sp, b.dataset.view); });
   $('.ff-nfl').hidden = sp !== 'nfl'; $('.ff-nba').hidden = sp !== 'nba';
   ['nfl', 'nba', 'cfb', 'cbb'].forEach((k) => { $(`.sub-${k}`).hidden = sp !== k; });
   const src = $('.src-link');
