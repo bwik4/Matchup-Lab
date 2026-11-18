@@ -11,7 +11,7 @@ sleeper_id,gsis_id,player,team,position,depth_pos,depth,status,injury
 9504,,Kayshon Boutte,HOU,WR,RWR,4,Active,
 12507,,Omarion Hampton,LAC,RB,RB,1,Active,
 11439,,Jaleel McLaughlin,CLE,RB,RB,3,Active,
-13302,,Adam Randall,BAL,RB,RB,5,Inactive,IR
+13302,,Adam Randall,BAL,RB,RB,5,Inactive,
 11629,,Devontez Walker,BAL,WR,RWR,4,Active,
 13295,,Behren Morton,NE,QB,QB,3,Active,Out
 12493,,Oronde Gadsden,LAC,TE,TE,1,Active,
@@ -873,7 +873,7 @@ DEN,,Denver Broncos,DEN,DEF,,,,
 13437,,Noah Whittington,HOU,RB,RB,7,Active,Out
 KC,,Kansas City Chiefs,KC,DEF,,,,
 6992,,Michael Warren,DET,RB,,,Inactive,
-13200,,Max Hurleman,PIT,WR,,12,Active,Out
+13200,,Max Hurleman,PIT,WR,,12,Active,
 7716,,John Bates,WAS,TE,TE,3,Active,
 13333,,Deion Burks,IND,WR,LWR,3,Active,
 13949,,Damon Bankston,MIN,RB,,,Active,
