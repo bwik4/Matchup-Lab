@@ -294,6 +294,15 @@
       "css": {
         "mt": 8
       }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.bar > h2.p-title",
+      "label": "Title · \"Jaxon Smith-Njigba · WR · SEA\"",
+      "css": {
+        "mt": 41
+      }
     }
   ],
   "caseOff": false,
