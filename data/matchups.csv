@@ -1209,7 +1209,7 @@ IND,season,WR,targets,10,17.0,10
 IND,season,TE,targets,10,6.2,3
 JAX,season,QB,targets,9,0.0,1
 JAX,season,RB,targets,9,6.44,25
-JAX,season,WR,targets,9,18.89,20
+JAX,season,WR,targets,9,18.89,19
 JAX,season,TE,targets,9,6.44,6
 KC,season,QB,targets,9,0.0,1
 KC,season,RB,targets,9,6.11,21
@@ -1269,7 +1269,7 @@ SF,season,WR,targets,9,19.67,23
 SF,season,TE,targets,9,7.89,21
 TB,season,QB,targets,9,0.0,1
 TB,season,RB,targets,9,5.44,15
-TB,season,WR,targets,9,18.78,19
+TB,season,WR,targets,9,18.89,19
 TB,season,TE,targets,9,8.11,23
 TEN,season,QB,targets,9,0.0,1
 TEN,season,RB,targets,9,4.89,7
@@ -4585,7 +4585,7 @@ PHI,last3,WR,targets,2,18.5,20
 PHI,last3,TE,targets,2,5.0,4
 PIT,last3,QB,targets,2,0.0,1
 PIT,last3,RB,targets,2,11.5,32
-PIT,last3,WR,targets,2,19.5,23
+PIT,last3,WR,targets,2,19.5,22
 PIT,last3,TE,targets,2,10.0,28
 SEA,last3,QB,targets,3,0.0,1
 SEA,last3,RB,targets,3,5.0,11
@@ -4597,7 +4597,7 @@ SF,last3,WR,targets,2,27.5,32
 SF,last3,TE,targets,2,8.0,21
 TB,last3,QB,targets,2,0.0,1
 TB,last3,RB,targets,2,1.5,1
-TB,last3,WR,targets,2,19.0,22
+TB,last3,WR,targets,2,19.5,22
 TB,last3,TE,targets,2,8.0,21
 TEN,last3,QB,targets,2,0.0,1
 TEN,last3,RB,targets,2,7.0,24
