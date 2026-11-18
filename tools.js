@@ -72,7 +72,8 @@ const T_UNI = {};
 function tUni(sp) {
   const src = sp === 'nfl' ? DATA.logs : SPX[sp]().logs;
   if (T_UNI[sp] && T_UNI[sp].src === src) return T_UNI[sp];
-  const players = [], next = new Map(), keysByTeam = new Map();
+  const players = [], next = new Map(), sched = new Map(), keysByTeam = new Map();
+  const addSched = (t, x) => { if (!sched.has(t)) sched.set(t, []); sched.get(t).push(x); };
   let season;
   const addKey = (team, k, ord) => { if (!keysByTeam.has(team)) keysByTeam.set(team, new Map()); keysByTeam.get(team).set(k, ord); };
   if (sp === 'nfl') {
@@ -86,7 +87,9 @@ function tUni(sp) {
     DATA.team_games.filter((x) => x.season === season).forEach((x) => addKey(x.team, x.week, x.week));
     DATA.games.filter((g) => g.status !== 'final' && g.week >= S.upWeek).sort((a, b) => a.week - b.week).forEach((g) => {
       [[g.home_team, g.away_team, true], [g.away_team, g.home_team, false]].forEach(([t, o, home]) => {
-        if (!next.has(t)) next.set(t, { opp: o, home, label: `Wk ${g.week}`, when: kickDate(g), total: g.total_line, implied: home ? g.home_implied : g.away_implied, g });
+        const x = { opp: o, home, label: `Wk ${g.week}`, when: kickDate(g), total: g.total_line, implied: home ? g.home_implied : g.away_implied, g };
+        if (!next.has(t)) next.set(t, x);
+        addSched(t, x);
       });
     });
   } else {
@@ -107,10 +110,11 @@ function tUni(sp) {
       .forEach((g) => {
         const sl = g.spread_line, tot = g.total_line;
         [[g.home_team, g.away_team, true], [g.away_team, g.home_team, false]].forEach(([t, o, home]) => {
-          if (next.has(t)) return;
           const imp = sl != null && tot != null ? (home ? (tot + sl) / 2 : (tot - sl) / 2) : null;
           const d = kickDate(g);
-          next.set(t, { opp: o, home, label: isBB(sp) ? (d ? d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) : g.gameday) : `Wk ${g.week}`, when: d, total: tot, implied: imp, g });
+          const x = { opp: o, home, label: isBB(sp) ? (d ? d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) : g.gameday) : `Wk ${g.week}`, when: d, total: tot, implied: imp, g };
+          if (!next.has(t)) next.set(t, x);
+          addSched(t, x);
         });
       });
   }
@@ -126,7 +130,7 @@ function tUni(sp) {
     p.mins = isBB(sp) ? mean(p.logs.slice(-5).map((r) => r.min || 0)) : null;
   });
   const byPid = new Map(players.map((p) => [p.pid, p]));
-  return (T_UNI[sp] = { src, sp, season, players, byPid, next, teamKeys });
+  return (T_UNI[sp] = { src, sp, season, players, byPid, next, sched, teamKeys });
 }
 // what a defense allows to a position (rank 1 = allows the least)
 const T_DV = {};
@@ -150,15 +154,34 @@ function tLg(sp, pos, stat) {
   return T_LG[k];
 }
 // projection: 60% season + 40% last 5, nudged by how much the opponent allows to his position (shrunk toward average early on)
+// fantasy points have no defense ranks in basketball / CFB, so they lean on the closest stat that does
+const tDvStat = (sp, pos, stat) => (stat === 'fpts' ? 'pra' : stat === 'fp_ppr' && sp !== 'nfl' ? T_MAIN[pos] : stat);
+function tFactor(sp, opp, pos, stat) {
+  stat = tDvStat(sp, pos, stat);
+  const d = opp ? tDv(sp, opp, pos, stat) : null, lg = tLg(sp, pos, stat);
+  let f = 1;
+  if (d && lg) { const g = d.games || 6, shr = (g * (d.pg / lg) + 4) / (g + 4); f = Math.min(1.25, Math.max(0.75, 1 + 0.5 * (shr - 1))); }
+  return { d, f };
+}
 function tProject(sp, p, stat) {
   const U = tUni(sp), vals = p.logs.map((r) => tVal(r, stat)).filter((v) => v != null);
   if (!vals.length) return null;
   const seas = mean(vals), l5 = mean(vals.slice(-5)), l3 = mean(vals.slice(-3));
   const base = vals.length >= 5 ? 0.6 * seas + 0.4 * l5 : seas;
-  const nx = U.next.get(p.team), d = nx ? tDv(sp, nx.opp, p.pos, stat) : null, lg = tLg(sp, p.pos, stat);
-  let f = 1;
-  if (d && lg) { const g = d.games || 6, shr = (g * (d.pg / lg) + 4) / (g + 4); f = Math.min(1.25, Math.max(0.75, 1 + 0.5 * (shr - 1))); }
+  const nx = U.next.get(p.team), { d, f } = tFactor(sp, nx && nx.opp, p.pos, stat);
   return { proj: base * f, base, f, d, nx, seas, l5, l3, vals, med: median(vals), floor: tQuant(vals, 0.2), ceil: tQuant(vals, 0.8) };
+}
+// rest of season: the same base rate run against every game left on his team's schedule
+function tProjectROS(sp, p, stat) {
+  const pr = tProject(sp, p, stat);
+  if (!pr) return null;
+  const games = (tUni(sp).sched.get(p.team) || []).map((x) => { const { d, f } = tFactor(sp, x.opp, p.pos, stat); return { ...x, d, f, proj: pr.base * f }; });
+  const total = games.reduce((a, x) => a + x.proj, 0);
+  const rk = games.filter((x) => x.d);
+  const q = (x) => (x.d.rank - 1) / Math.max(1, x.d.n - 1);
+  return { ...pr, games, n: games.length, total, proj: games.length ? total / games.length : null,
+    sos: rk.length ? mean(rk.map(q)) : null, avgRank: rk.length ? mean(rk.map((x) => x.d.rank)) : null, rankN: rk.length ? rk[0].d.n : null,
+    soft: rk.filter((x) => q(x) >= 0.75).length, tough: rk.filter((x) => q(x) <= 0.25).length };
 }
 // his average in games against the 3 defenses he's faced that most resemble the next opponent's
 function tVsSimilar(sp, p, stat, opp) {
@@ -290,9 +313,13 @@ function tCmpAdd(sp, pid) {
   render();
 }
 S.cmpStat = S.cmpStat || {};
+const T_NOW = (sp) => (isBB(sp) ? 'Next Game' : 'This Week');
 function renderCompare() {
   const root = $('.cmp-root'), sp = S.sport;
   if (!tEnsure(sp)) { tLoading(root, sp); return; }
+  const ros = tStore.get('ml-cmp-mode', 'week') === 'ros';
+  const modeSeg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Compare for' }, ...[['week', T_NOW(sp)], ['ros', 'Rest of Season']].map(([k, l]) =>
+    h('button', { type: 'button', 'aria-pressed': String((k === 'ros') === ros), onclick: () => { tStore.set('ml-cmp-mode', k); render(); } }, l)));
   const U = tUni(sp), ids = tCmpIds(sp).filter((id) => U.byPid.has(id)), ps = ids.map((id) => U.byPid.get(id));
   const opts = U.players.slice().sort((a, b) => a.name.localeCompare(b.name));
   const list = h('datalist', { id: 'cmp-list' }, ...opts.map((p) => h('option', { value: `${p.name} (${p.pos}, ${p.team})` })));
@@ -307,14 +334,14 @@ function renderCompare() {
   if (!stat || !statOpts.some((x) => x[0] === stat)) stat = S.cmpStat[sp] = isBB(sp) ? 'fpts' : 'fp_ppr';
   const statSel = h('select', { 'aria-label': 'Compare on', onchange: (e) => { S.cmpStat[sp] = e.target.value; render(); } }, ...statOpts.map(([k, l]) => h('option', { value: k, selected: k === stat }, l)));
   const chips = h('div', { class: 't-chips' }, ...ps.map((p) => h('span', { class: 't-chip' }, badge(p.team, 'sm'), `${p.name}`, h('button', { type: 'button', title: 'Remove', onclick: () => tCmpAdd(sp, p.pid) }, '×'))));
-  const head = [h('div', { class: 't-controls' }, inp, list, h('label', { class: 't-lab' }, 'Compare on', statSel), ps.length ? h('button', { type: 'button', class: 'more', onclick: () => { tCmpSet(sp, []); render(); } }, 'Clear') : null), chips];
+  const head = [h('div', { class: 't-controls' }, modeSeg, inp, list, h('label', { class: 't-lab' }, 'Compare on', statSel), ps.length ? h('button', { type: 'button', class: 'more', onclick: () => { tCmpSet(sp, []); render(); } }, 'Clear') : null), chips];
   if (ps.length < 2) {
     tRC(root, ...head, h('p', { class: 'empty' }, ps.length ? 'Add at least one more player to compare.' : `Pick 2 to 4 ${T_SPNAME[sp]} players to see them side by side with a start/sit call. You can also add players from the Prop screener with "+ Compare".`));
     return;
   }
   const inj = tInjRows(sp);
   const info = ps.map((p) => {
-    const pr = tProject(sp, p, stat), nx = pr && pr.nx;
+    const pr = ros ? tProjectROS(sp, p, stat) : tProject(sp, p, stat), nx = pr && pr.nx;
     const sim = tVsSimilar(sp, p, stat, nx && nx.opp);
     const ij = inj.find((r) => r.team === p.team && nmKey(r.player) === nmKey(p.name));
     let usage = null;
@@ -324,12 +351,13 @@ function renderCompare() {
     else usage = `${show(mean(p.logs.slice(-5).map((r) => (r.carries || 0) + (r.receptions || 0))))} touches (L5)`;
     return { p, pr, nx, sim, ij, usage };
   });
-  const best = info.slice().filter((x) => x.pr).sort((a, b) => b.pr.proj - a.pr.proj);
+  const best = info.slice().filter((x) => x.pr && x.pr.proj != null).sort((a, b) => (ros ? b.pr.total - a.pr.total : b.pr.proj - a.pr.proj));
   const top = best[0], second = best[1];
   const lab = tLow(tStatLabel(sp, stat));
   // verdict + reasons
   const reasons = [];
-  if (top && second) {
+  if (ros && top && second) tRosReasons(reasons, top, second, lab);
+  else if (top && second) {
     const d = top.pr.proj - second.pr.proj;
     reasons.push(`Projects ${show(top.pr.proj)} ${lab} vs ${show(second.pr.proj)} for ${second.p.name} (${d >= 0 ? '+' : ''}${show(d)}).`);
     if (top.pr.d && second.pr.d) {
@@ -343,14 +371,36 @@ function renderCompare() {
     if (d < 0.08 * Math.max(1, top.pr.proj)) reasons.push('Close call: the projections are within about 8%. Lean on the matchup, the injury news and your gut.');
   }
   const verdict = top && second ? h('div', { class: 't-verdict' },
-    h('div', { class: 't-verdict-h' }, h('span', { class: 't-verdict-k' }, 'Start'), badge(top.p.team, 'sm'), h('b', null, top.p.name), second ? h('span', { class: 'muted' }, ` over ${best.slice(1).map((x) => x.p.name).join(', ')}`) : null),
+    h('div', { class: 't-verdict-h' }, h('span', { class: 't-verdict-k' }, ros ? 'ROS Pick' : 'Start'), badge(top.p.team, 'sm'), h('b', null, top.p.name), second ? h('span', { class: 'muted' }, ` over ${best.slice(1).map((x) => x.p.name).join(', ')}`) : null),
     h('ul', null, ...reasons.map((r) => h('li', null, r)))) : null;
   // side-by-side table
   const row = (label, fn, opts2 = {}) => h('tr', null, h('th', { class: 'l', scope: 'row' }, label), ...info.map((x) => { const v = fn(x); return h('td', { class: (opts2.best && opts2.best(x) ? 'g ' : '') + (opts2.cls ? opts2.cls(x) : '') }, v == null ? '—' : v); }));
-  const maxBy = (fn) => { const vs = info.map(fn).filter((v) => v != null); const m = Math.max(...vs); return (x) => vs.length > 1 && fn(x) === m; };
+  const maxBy = (fn) => { const vs = info.map(fn).filter((v) => v != null); const m = Math.max(...vs); return (x) => vs.length > 1 && Math.min(...vs) !== m && fn(x) === m; };
   const projOf = (x) => (x.pr ? x.pr.proj : null);
-  const tbl = h('table', { class: 'dvp t-cmp' },
-    h('thead', null, h('tr', null, h('th', null, ''), ...info.map((x) => h('th', null, h('div', { class: 't-cmp-h', onclick: () => tOpenPlayer(sp, x.p.pid, stat) }, badge(x.p.team, 'sm'), h('b', null, x.p.name), h('small', null, `${x.p.pos} · ${x.p.team}`)), tStar(sp, x.p.pid))))),
+  const headRow = h('thead', null, h('tr', null, h('th', null, ''), ...info.map((x) => h('th', null, h('div', { class: 't-cmp-h', onclick: () => tOpenPlayer(sp, x.p.pid, stat) }, badge(x.p.team, 'sm'), h('b', null, x.p.name), h('small', null, `${x.p.pos} · ${x.p.team}`)), tStar(sp, x.p.pid)))));
+  if (ros) {
+    const tblR = h('table', { class: 'dvp t-cmp' }, headRow,
+      h('tbody', null,
+        row('Games left', (x) => (x.pr ? x.pr.n : null), { best: maxBy((x) => (x.pr ? x.pr.n : null)) }),
+        row(h('b', null, 'ROS Total'), (x) => (x.pr && x.pr.n ? h('b', null, show(x.pr.total)) : null), { best: maxBy((x) => (x.pr && x.pr.n ? x.pr.total : null)) }),
+        row('ROS Per Game', (x) => (x.pr ? show(x.pr.proj) : null), { best: maxBy(projOf) }),
+        row('Status', (x) => (x.ij ? h('span', { class: `t-pill ${x.ij.status}` }, `${x.ij.label}${x.ij.detail ? ` · ${x.ij.detail}` : ''}`) : x.p.missed ? `Missed last ${x.p.missed}` : 'Active'), { cls: (x) => (x.ij || x.p.missed ? 'r' : '') }),
+        row('Season avg', (x) => (x.pr ? show(x.pr.seas) : null), { best: maxBy((x) => (x.pr ? x.pr.seas : null)) }),
+        row('L5 avg', (x) => (x.pr ? show(x.pr.l5) : null), { best: maxBy((x) => (x.pr ? x.pr.l5 : null)) }),
+        row('L3 avg', (x) => (x.pr ? show(x.pr.l3) : null), { best: maxBy((x) => (x.pr ? x.pr.l3 : null)) }),
+        row('Floor / ceiling', (x) => (x.pr ? `${show(x.pr.floor)} / ${show(x.pr.ceil)}` : null), { best: maxBy((x) => (x.pr ? x.pr.floor : null)) }),
+        row('Schedule', (x) => (x.pr && x.pr.avgRank != null ? `Avg opp ${ordinal(Math.round(x.pr.avgRank))} of ${x.pr.rankN} vs ${x.p.pos}s` : null),
+          { cls: (x) => (x.pr && x.pr.sos != null ? (x.pr.sos >= 0.6 ? 'g' : x.pr.sos <= 0.4 ? 'r' : '') : '') }),
+        row('Easy / tough', (x) => (x.pr && x.pr.n ? `${x.pr.soft} easy · ${x.pr.tough} tough` : null)),
+        row('Upcoming', (x) => (x.pr && x.pr.n ? tRosOpps(x.pr.games) : null)),
+        row('Role', (x) => x.usage),
+        row('Games', (x) => `${x.p.logs.length}${x.p.missedN ? ` (missed ${x.p.missedN})` : ''}`),
+        row('L8', (x) => tSpark(x.pr ? x.pr.vals.slice(-8) : [], x.pr ? x.pr.proj : null))));
+    tRC(root, ...head, verdict, h('div', { class: 'scroll', style: 'max-height: none' }, tblR),
+      h('p', { class: 'note' }, 'ROS = 60% season avg + 40% L5, adjusted for each opponent left on the schedule.'));
+    return;
+  }
+  const tbl = h('table', { class: 'dvp t-cmp' }, headRow,
     h('tbody', null,
       row('Next game', (x) => (x.nx ? `${x.nx.home ? 'vs' : '@'} ${x.nx.opp} · ${x.nx.label}` : 'None scheduled')),
       row('Status', (x) => (x.ij ? h('span', { class: `t-pill ${x.ij.status}` }, `${x.ij.label}${x.ij.detail ? ` · ${x.ij.detail}` : ''}`) : x.p.missed ? `Missed last ${x.p.missed}` : 'Active'), { cls: (x) => (x.ij || x.p.missed ? 'r' : '') }),
@@ -368,6 +418,26 @@ function renderCompare() {
       row('L8', (x) => tSpark(x.pr ? x.pr.vals.slice(-8) : [], x.pr ? x.pr.proj : null))));
   tRC(root, ...head, verdict, h('div', { class: 'scroll', style: 'max-height: none' }, tbl),
     h('p', { class: 'note' }, 'Projection = 60% season avg + 40% L5, adjusted for the opponent.'));
+}
+// rest-of-season verdict reasons
+function tRosReasons(reasons, top, second, lab) {
+  const a = top.pr, b = second.pr, d = a.total - b.total;
+  reasons.push(`Projects ${show(a.total)} ${lab} over ${a.n} game${a.n === 1 ? '' : 's'} vs ${show(b.total)} over ${b.n} for ${second.p.name} (${d >= 0 ? '+' : ''}${show(d)}).`);
+  if (a.n !== b.n) reasons.push(`${a.n > b.n ? top.p.name : second.p.name} has ${Math.abs(a.n - b.n)} more game${Math.abs(a.n - b.n) > 1 ? 's' : ''} left.`);
+  if (a.avgRank != null && b.avgRank != null) {
+    const w = (x) => (x.sos >= 0.6 ? 'easy' : x.sos <= 0.4 ? 'tough' : 'average');
+    reasons.push(`Schedule: ${top.p.name} ${w(a)} (avg opp ${ordinal(Math.round(a.avgRank))}, ${a.soft} easy · ${a.tough} tough); ${second.p.name} ${w(b)} (avg opp ${ordinal(Math.round(b.avgRank))}, ${b.soft} easy · ${b.tough} tough).`);
+  }
+  const form = (x) => (x.pr.l3 > x.pr.seas * 1.15 ? 'trending up' : x.pr.l3 < x.pr.seas * 0.85 ? 'trending down' : 'steady');
+  reasons.push(`Form: ${top.p.name} ${form(top)} (${show(a.l3)} L3 vs ${show(a.seas)} season); ${second.p.name} ${form(second)} (${show(b.l3)} vs ${show(b.seas)}).`);
+  [top, second].forEach((x) => { if (x.ij) reasons.push(`Injury: ${x.p.name} is listed ${x.ij.label}${x.ij.detail ? ` (${x.ij.detail})` : ''}.`); if (x.p.missed) reasons.push(`${x.p.name} has missed his team's last ${x.p.missed} game${x.p.missed > 1 ? 's' : ''}.`); });
+  if (Math.abs(d) < 0.08 * Math.max(1, a.total)) reasons.push('Close call: the ROS totals are within about 8%.');
+}
+// remaining opponents as small colored tags (red = tough, green = easy)
+function tRosOpps(games) {
+  const N = 8, shown = games.slice(0, N);
+  return h('div', { class: 't-opps' }, ...shown.map((x) => h('span', { class: `t-opp ${x.d ? tPctCls(x.d.rank, x.d.n) : ''}`, title: `${x.label}${x.d ? ` · allows ${show(x.d.pg)} (${ordinal(x.d.rank)} of ${x.d.n})` : ''}` }, `${x.home ? '' : '@'}${x.opp}`)),
+    games.length > N ? h('span', { class: 'muted t-opp-more' }, `+${games.length - N}`) : null);
 }
 function tSpark(vals, ref) {
   if (!vals.length) return null;
@@ -715,6 +785,11 @@ document.head.append(h('style', null, `
   .t-cmp thead th { vertical-align: bottom; text-align: left; }
   .t-cmp td { text-align: left; vertical-align: middle; }
   .t-cmp td.g { color: var(--ok); font-weight: 700; } .t-cmp td.r { color: var(--bad); }
+  .t-opps { display: flex; flex-wrap: wrap; gap: 4px; max-width: 260px; }
+  .t-opp { font-size: .72rem; font-weight: 600; padding: 2px 6px; border-radius: 6px; background: color-mix(in srgb, var(--muted) 14%, transparent); white-space: nowrap; }
+  .t-opp.r { color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, transparent); }
+  .t-opp.g { color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .t-opp-more { font-size: .72rem; align-self: center; }
   .t-cmp-h { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
   .t-cmp-h small { display: block; color: var(--muted); font-weight: 400; }
   .t-spark { display: block; }
