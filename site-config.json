@@ -340,6 +340,36 @@
         "div.v",
         "div.k"
       ]
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.vx-root > div.vx-stack",
+      "label": "Section · \"OKC Shai Gilgeous-Alexander G · …\"",
+      "flex": false,
+      "order": [
+        "div:nth-of-type(6)",
+        "div:nth-of-type(5)",
+        "div.card.vx-hero",
+        "div:nth-of-type(2)",
+        "div.card.vx-card.vx-avg",
+        "div.card.vx-card.vx-shotp"
+      ]
+    },
+    {
+      "sp": "nba",
+      "area": "",
+      "base": "div.vx-root > div.vx-stack",
+      "label": "Section · \"OKC Shai Gilgeous-Alexander G · …\"",
+      "flex": false,
+      "order": [
+        "div.card.vx-hero",
+        "div:nth-of-type(5)",
+        "div:nth-of-type(6)",
+        "div:nth-of-type(2)",
+        "div.card.vx-card.vx-avg",
+        "div.card.vx-card.vx-shotp"
+      ]
     }
   ]
 }
