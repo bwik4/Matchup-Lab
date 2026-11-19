@@ -19,6 +19,10 @@
  *   nav       side menu order                 ["home", "tools", ...]
  *   styles    one piece's own look            [{ sp, area, base, label, css: { bg, fg, inner, border, bw, radius, zoom, weight, italic, caps, align, pad, mt, width, opacity, hide } }]
  *   moves     order of pieces inside a part   [{ sp, area, base, label, flex, order: ["<child selector>", ...] }]
+ *   adds      your own words                 [{ id, sel, kind: "text" | "heading", text }]  (placed right after every piece matching sel)
+ *   styles.css also holds what the drag tools write: width + gap (side by side), h (height), free + dx/dy (free move),
+ *             row (part around it lays pieces side by side), joinT / flatB (joined to the piece above). Sizes and free
+ *             moves only apply on screens wider than 700px, so phones keep the one-column layout.
  *             (sp = only for that sport, area = only on that page, base = which pieces; "Select & style" writes these)
  */
 (() => {
@@ -38,7 +42,7 @@
     location.href = u.toString().replace(/=(?=&|#|$)/g, '');
   }
   const DEFAULT_REPO = 'bwik4/Matchup-Lab';
-  const BLANK = () => ({ look: {}, siteName: '', hidden: [], order: {}, text: [], cols: {}, buttons: [], nav: [], styles: [], moves: [], caseOff: false });
+  const BLANK = () => ({ look: {}, siteName: '', hidden: [], order: {}, text: [], cols: {}, buttons: [], nav: [], styles: [], moves: [], adds: [], caseOff: false });
   // [key, label, CSS variable, group]
   const LOOK_FIELDS = [
     ['bg', 'Page background', '--bg', 'Backgrounds'], ['panel', 'Boxes', '--panel', 'Backgrounds'], ['game', 'Game cards', '--game', 'Backgrounds'],
@@ -404,14 +408,14 @@
   function applyAll() {
     applying = true;
     textVer++;
-    try { syncSport(); applyLook(); applyCustomCSS(); applyLayout(); applyText(); applyCols(); if (editing) decorate(); } finally { applying = false; }
+    try { syncSport(); applyLook(); applyCustomCSS(); applyLayout(); applyText(); applyCols(); applyAdds(); if (editing) decorate(); } finally { applying = false; }
   }
   // the site re-draws parts of the page all the time; re-apply column/text/layout rules after it does
   let queued = false;
   new MutationObserver(() => {
     if (applying || queued) return;
     queued = true;
-    requestAnimationFrame(() => { queued = false; applying = true; try { syncSport(); applyLayout(); applyText(); applyCols(); if (editing) { decorate(); repick(); } } finally { applying = false; } });
+    requestAnimationFrame(() => { queued = false; applying = true; try { syncSport(); applyLayout(); applyText(); applyCols(); applyAdds(); if (editing) { decorate(); repick(); } } finally { applying = false; } });
   }).observe(document.body, { childList: true, subtree: true, characterData: true });
 
   // ---------------- edit-mode decorations on the page ----------------
@@ -656,7 +660,7 @@
   }
   function pickTarget(t) {
     if (!t || !t.closest || t.closest('.ed-ui')) return null;
-    if (!t.closest('main, aside.side') || t === document.body) return null;
+    if (!t.closest('main, aside.side') || t === document.body || t.closest('[contenteditable=true]')) return null;
     const svg = t.closest('svg'); if (svg) t = svg;
     if (t.closest('td') || t.closest('tbody, tfoot')) t = t.closest('table');
     if (t.tagName === 'TR' || t.tagName === 'THEAD') t = t.closest('table');
@@ -743,11 +747,20 @@
     if (c.align) d.push(`text-align:${c.align}`, `justify-content:${JUST[c.align]}`);
     if (c.pad != null) d.push(`padding:${c.pad}px`);
     if (c.mt != null) d.push(`margin-top:${c.mt}px`);
-    if (c.width) d.push(`width:${c.width}%`, 'box-sizing:border-box');
+    if (c.width && c.gap == null) d.push(`width:${c.width}%`, 'box-sizing:border-box');
+    if (c.joinT != null) d.push(`margin-top:${c.joinT}px`, 'border-top-left-radius:0', 'border-top-right-radius:0');
+    if (c.flatB) d.push('border-bottom-left-radius:0', 'border-bottom-right-radius:0');
     if (c.opacity != null) d.push(`opacity:${c.opacity / 100}`);
     let inner = '', own = '';
     if (c.fg && c.inner !== false) inner = `${S1} :where(:not(.badge, .badge *)) { color: ${c.fg} !important; }\n`;
     if (d.length) own = `${S1} { ${d.map((x) => `${x} !important`).join('; ')}; }\n`;
+    // drag-made sizes and spots: computer screens only, phones keep the tidy one-column layout
+    const big = [];
+    if (c.width && c.gap != null) { const w = `calc(${c.width}% - ${c.gap}px * ${Math.round((1 - c.width / 100) * 1e4) / 1e4})`; big.push(`width:${w}`, `flex:0 0 ${w}`, 'max-width:100%', 'box-sizing:border-box', 'min-width:0', 'overflow-x:auto'); }
+    if (c.h != null) big.push(`height:${c.h}px`, 'overflow:auto', 'box-sizing:border-box');
+    if (c.free && (c.dx || c.dy)) big.push('position:relative', 'z-index:6', `translate:${c.dx || 0}px ${c.dy || 0}px`);
+    if (c.row != null) big.push('display:flex', 'flex-direction:row', 'flex-wrap:wrap', 'align-items:flex-start', `gap:${c.row}px`);
+    if (big.length) own += `@media (min-width: 701px) { ${S1} { ${big.map((x) => `${x} !important`).join('; ')}; }${c.row != null ? ` ${S1} > :where(:not(.ed-ui)) { flex: 1 1 100%; min-width: 0; }` : ''} }\n`;
     if (c.hide) own += `${compose(r, 'body:not(.ed-on)')} { display: none !important; }\n${compose(r, 'body.ed-on')} { opacity: .35 !important; outline: 2px dashed #94a3b8 !important; }\n`;
     return [inner, own];
   }
@@ -792,16 +805,22 @@
     const why = canArrange(e);
     if (why) { flash(why); return; }
     const t = target(par), k = keyOf(t);
-    let m = (cfg.moves || []).find((x) => keyOf(x) === k);
+    // an order saved just for this sport (or page) wins on screen, so change that one if there is one
+    let m = (cfg.moves || []).find((x) => x.base === t.base && x.sp && x.sp === curSport() && (!x.area || x.area === selFor(par).area))
+      || (cfg.moves || []).find((x) => x.base === t.base && !x.sp && x.area && x.area === selFor(par).area)
+      || (cfg.moves || []).find((x) => keyOf(x) === k);
     // boxes keep using the simple box order unless this area already has a custom order
     if (!m && e.dataset.ek && (dir === -1 || dir === 1)) { move(e, dir); return; }
+    const given = dir && typeof dir === 'object' ? dir.list : null;
     const kids = realKids(par);
     const ord = (c) => { const o = parseInt(getComputedStyle(c).order, 10) || 0; return o * 1e4 + kids.indexOf(c); };
     const vis = kids.slice().sort((a, b) => ord(a) - ord(b));
     const shown = vis.filter((c) => c === e || getComputedStyle(c).display !== 'none');
-    let i = shown.indexOf(e), j = dir === 'first' ? 0 : dir === 'last' ? shown.length - 1 : i + dir;
-    if (j < 0 || j >= shown.length || j === i) { flash(j <= 0 && dir !== 'last' ? 'Already first' : 'Already last'); return; }
-    shown.splice(i, 1); shown.splice(j, 0, e);
+    if (given) { if (given.every((x, n) => x === shown[n])) return; shown.splice(0, shown.length, ...given); } else {
+      const i = shown.indexOf(e), j = dir === 'first' ? 0 : dir === 'last' ? shown.length - 1 : i + dir;
+      if (j < 0 || j >= shown.length || j === i) { flash(j <= 0 && dir !== 'last' ? 'Already first' : 'Already last'); return; }
+      shown.splice(i, 1); shown.splice(j, 0, e);
+    }
     // put hidden kids back where they were
     const full = []; let si = 0;
     vis.forEach((c) => { full.push(c === e || getComputedStyle(c).display !== 'none' ? shown[si++] : c); });
@@ -845,7 +864,7 @@
     return el('label', { class: 'ed-check' }, el('input', { type: 'checkbox', checked: cur == null ? !!on : !!cur, onchange: (e) => setCss(prop, e.target.checked === !!on ? null : e.target.checked) }), el('span', null, label));
   }
   function pickTab() {
-    const help = el('p', { class: 'ed-help' }, 'Pick "Select & style" at the top, then click anything on the page: a title, a button, the time bar under a game, a whole box. Its own colors, size, spacing, order and delete controls show up here.');
+    const help = el('p', { class: 'ed-help' }, 'Pick "Select & style" at the top, then click anything on the page: a title, a button, the time bar under a game, a whole box. Its own colors, size, spacing, order and delete controls show up here. On the page: drag ✥ to move it, pull the blue handles to resize (make two boxes half width to put them side by side), Join ↑ to connect it to the piece above, + Text to add words, double-click any words to change them. Ctrl/Cmd+Z undoes.');
     if (!picked || !picked.isConnected) return [help, picked === null && pickedSel ? el('p', { class: 'ed-dim' }, 'The piece you picked isn\'t on this screen anymore.') : null];
     const n = highlight();
     const wc = whichChoices(picked);
@@ -860,6 +879,7 @@
     const sameCount = n > 1 ? `Changes ${n} pieces like it on this screen (outlined in light blue)` : 'Changes this piece';
     return [
       el('div', { class: 'ed-picked-name' }, el('b', null, describe(picked))),
+      el('p', { class: 'ed-dim' }, 'On the page: drag ✥ to move, pull the blue handles to resize, double-click words to change them.'),
       el('div', { class: 'ed-row ed-wrap' },
         item ? el('button', { type: 'button', class: 'ed-primary', onclick: () => select(item) }, `⤒ Select the whole ${item.matches('button') ? 'button' : 'card'}`) : null,
         up ? el('button', { type: 'button', onclick: () => select(pickTarget(up) || up) }, '⤒ Select the part around it') : null,
@@ -916,10 +936,236 @@
     drawPanel();
   }
 
+  // ---------------- canvas tools: drag, resize, join, add words (Select & style mode) ----------------
+  // A frame goes around the piece you picked:
+  //   ✥ drag      snap mode: drop it before/after its neighbours (writes a "moves" order)
+  //               free mode: put it at any spot (writes css.dx / css.dy, computer screens only)
+  //   handles     right edge = width (boxes slide next to each other), bottom = height, corner = both
+  //   Join ↑      glue it to the piece above it (no gap, square corners where they meet)
+  //   + Text      add your own words after it (cfg.adds), double-click them to type
+  //   ↶ ↷         undo / redo (also Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z), Delete key deletes, Esc deselects
+  const undoS = [], redoS = [];
+  let lastSnap = null, frame = null, framePicked = null, dragging = null;
+  function snapNow() { lastSnap = JSON.stringify(cfg); }
+  let mergeNext = false;
+  function history() { const now = JSON.stringify(cfg); if (mergeNext) { mergeNext = false; lastSnap = now; return; } if (lastSnap != null && lastSnap !== now) { undoS.push(lastSnap); if (undoS.length > 100) undoS.shift(); redoS.length = 0; } lastSnap = now; }
+  function restore(json) {
+    cfg = norm(JSON.parse(json)); lastSnap = json; dirty = true;
+    try { localStorage.setItem(LS_DRAFT, JSON.stringify(cfg)); } catch (e) { /* storage off */ }
+    applyAll(); repick(); drawPanel(); framePicked = null;
+  }
+  function undo() { if (!undoS.length) { flash('Nothing to undo'); return; } redoS.push(JSON.stringify(cfg)); restore(undoS.pop()); }
+  function redo() { if (!redoS.length) { flash('Nothing to redo'); return; } undoS.push(JSON.stringify(cfg)); restore(redoS.pop()); }
+
+  // a rule for another element (the part around the piece, the piece above it), same page/sport choice as now
+  function ruleForEl(e, make) {
+    const { base: b, area } = selFor(e), t = { base: b, area: scope.page ? area : '', sp: scope.sport ? curSport() : '' }, k = keyOf(t);
+    let r = (cfg.styles || []).find((x) => keyOf(x) === k);
+    if (!r && make) { r = { ...t, label: describe(e), css: {} }; cfg.styles = [...(cfg.styles || []), r]; }
+    return r;
+  }
+  function setCssEl(e, prop, v) {
+    const r = ruleForEl(e, v != null && v !== false);
+    if (!r) return;
+    if (v == null || v === false) delete r.css[prop]; else r.css[prop] = v;
+    if (!Object.keys(r.css).length) cfg.styles = cfg.styles.filter((x) => x !== r);
+  }
+  const visible = (c) => getComputedStyle(c).display !== 'none';
+  function visualKids(par) {
+    const kids = realKids(par);
+    const ord = (c) => (parseInt(getComputedStyle(c).order, 10) || 0) * 1e4 + kids.indexOf(c);
+    return kids.filter((c) => !c.classList.contains('ed-tools')).sort((a, b) => ord(a) - ord(b));
+  }
+  function prevPiece(e) { const v = visualKids(e.parentElement).filter((c) => c === e || visible(c)); const i = v.indexOf(e); return i > 0 ? v[i - 1] : null; }
+  const myCss = () => ((picked && ruleFor(false)) || {}).css || {};
+  function delPicked() {
+    if (!picked) return;
+    if (picked.classList.contains('ml-add')) { const id = picked.dataset.id; cfg.adds = (cfg.adds || []).filter((a) => a.id !== id); unpick(); changed(); return; }
+    if (picked.dataset.ek) { if (!cfg.hidden.includes(picked.dataset.ek)) toggleHide(picked.dataset.ek); return; }
+    setCss('hide', true);
+  }
+
+  // ---- words you add yourself ----
+  function applyAdds() {
+    const adds = cfg.adds || [], want = new Set(adds.map((a) => a.id));
+    document.querySelectorAll('.ml-add').forEach((n) => { if (!want.has(n.dataset.id)) n.remove(); });
+    adds.forEach((a) => {
+      let hosts = [];
+      try { hosts = [...document.querySelectorAll(a.sel)].slice(0, 60); } catch (e) { hosts = []; }
+      hosts.forEach((hst) => {
+        if (hst.closest('.ed-ui') || hst.classList.contains('ml-add') || !hst.parentElement) return;
+        let ex = null, nx = hst.nextElementSibling;
+        while (nx && nx.classList.contains('ml-add')) { if (nx.dataset.id === a.id) { ex = nx; break; } nx = nx.nextElementSibling; }
+        if (!ex) { ex = el('p', { class: `ml-add ml-add-${a.id}${a.kind === 'heading' ? ' ml-add-h' : ''}`, 'data-id': a.id }); hst.after(ex); }
+        if (document.activeElement !== ex && ex.textContent !== a.text) ex.textContent = a.text;
+      });
+    });
+  }
+  function addWords(kind) {
+    if (!picked) return;
+    const id = Math.random().toString(36).slice(2, 8);
+    cfg.adds = [...(cfg.adds || []), { id, sel: compose(target(picked)), kind, text: kind === 'heading' ? 'New heading' : 'New text', fresh: true }];
+    changed();
+    const n = document.querySelector(`.ml-add[data-id="${id}"]`);
+    if (n) { select(n); typeIn(n); }
+  }
+  function typeIn(n) {
+    const a = (cfg.adds || []).find((x) => x.id === n.dataset.id); if (!a) return;
+    n.contentEditable = 'true'; n.focus();
+    const rg = document.createRange(); rg.selectNodeContents(n); const s = getSelection(); s.removeAllRanges(); s.addRange(rg);
+    const done = () => {
+      n.removeEventListener('blur', done); n.contentEditable = 'false';
+      const v = n.innerText.trim();
+      if (!v) cfg.adds = cfg.adds.filter((x) => x !== a); else a.text = v;
+      if (a.fresh) { delete a.fresh; mergeNext = true; }
+      changed();
+    };
+    n.addEventListener('blur', done);
+    n.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); n.blur(); } if (ev.key === 'Escape') { n.textContent = a.text; n.blur(); } });
+  }
+  document.addEventListener('dblclick', (e) => {
+    if (!editing || e.target.closest('.ed-ui')) return;
+    const add = e.target.closest('.ml-add');
+    if (add) { e.preventDefault(); e.stopPropagation(); select(add); typeIn(add); return; }
+    if (!pickMode) return;
+    const t = e.target.closest(PICK);
+    if (t && t.closest('main, aside')) { e.preventDefault(); e.stopPropagation(); openPop(t, e.clientX, e.clientY); }
+  }, true);
+
+  // ---- the frame around the picked piece ----
+  function frameBtn(label, title, fn, cls) { return el('button', { type: 'button', title, class: cls || null, onpointerdown: (e) => e.stopPropagation(), onclick: (e) => { e.stopPropagation(); fn(); } }, label); }
+  function buildFrame() {
+    const c = myCss(), prev = prevPiece(picked), joined = c.joinT != null;
+    const grip = el('button', { type: 'button', class: 'ed-grip', title: c.free ? 'Drag to put it anywhere' : 'Drag to move it before or after the pieces next to it', onpointerdown: startDrag }, '✥ Drag');
+    const bar = el('div', { class: 'ed-fbar' }, grip,
+      el('span', { class: 'ed-fseg' },
+        frameBtn('Snap', 'Moves slot in between the other pieces', () => { setCss('free', null); }, c.free ? '' : 'on'),
+        frameBtn('Free', 'Move it to any exact spot (computer screens; phones keep the tidy layout)', () => { setCss('free', true); }, c.free ? 'on' : '')),
+      prev || joined ? frameBtn(joined ? 'Unjoin' : 'Join ↑', joined ? 'Put the gap back' : 'Attach it to the piece above (no gap)', joined ? unjoin : joinUp) : null,
+      frameBtn('+ Text', 'Add your own words under it', () => addWords('text')),
+      frameBtn('+ Heading', 'Add a heading under it', () => addWords('heading')),
+      c.width != null || c.h != null || c.dx || c.dy ? frameBtn('Reset size', 'Original size and spot', () => { const r = ruleFor(false); if (r) { ['width', 'gap', 'h', 'dx', 'dy'].forEach((k) => delete r.css[k]); if (!Object.keys(r.css).length) cfg.styles = cfg.styles.filter((x) => x !== r); } changed(); }) : null,
+      frameBtn('↶', 'Undo (Ctrl/Cmd+Z)', undo), frameBtn('↷', 'Redo (Ctrl/Cmd+Shift+Z)', redo),
+      frameBtn('✕', 'Delete (Delete key)', delPicked, 'ed-fdel'));
+    const hd = (k) => el('div', { class: `ed-hdl ed-hdl-${k}`, title: k === 'r' ? 'Drag to change the width' : k === 'b' ? 'Drag to change the height' : 'Drag to change the size', onpointerdown: (e) => startResize(e, k) });
+    const size = el('div', { class: 'ed-fsize' });
+    frame.replaceChildren(bar, hd('r'), hd('b'), hd('br'), size);
+  }
+  function posFrame() {
+    if (!editing || !picked || !picked.isConnected || picked.classList.contains('ed-hide') && !document.body.classList.contains('ed-on')) { if (frame) { frame.remove(); frame = null; framePicked = null; } return; }
+    if (!frame) { frame = el('div', { class: 'ed-ui ed-frame' }); document.body.append(frame); }
+    if (framePicked !== picked || frame.dataset.ver !== String(lastSnap && lastSnap.length) + JSON.stringify(myCss())) { framePicked = picked; frame.dataset.ver = String(lastSnap && lastSnap.length) + JSON.stringify(myCss()); buildFrame(); }
+    const r = picked.getBoundingClientRect();
+    frame.style.left = `${r.left + scrollX}px`; frame.style.top = `${r.top + scrollY}px`;
+    frame.style.width = `${r.width}px`; frame.style.height = `${r.height}px`;
+    frame.classList.toggle('ed-fbar-in', r.top < 46);
+    const sz = frame.querySelector('.ed-fsize'); if (sz) sz.textContent = `${Math.round(r.width)} × ${Math.round(r.height)}`;
+  }
+  (function tick() { if (editing) posFrame(); else if (frame) { frame.remove(); frame = null; framePicked = null; } requestAnimationFrame(tick); })();
+
+  // ---- drag to move ----
+  function startDrag(e) {
+    if (!picked || e.button > 0) return;
+    e.preventDefault(); e.stopPropagation();
+    const c = myCss(), sx = e.clientX, sy = e.clientY;
+    if (c.free) {
+      if (innerWidth <= 700) { flash('Free moves only show on computer screens. Use Snap on a phone.'); return; }
+      const ox = c.dx || 0, oy = c.dy || 0;
+      const mv = (ev) => { setCss('dx', Math.round(ox + ev.clientX - sx), true); setCss('dy', Math.round(oy + ev.clientY - sy), true); };
+      const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); changed(); };
+      addEventListener('pointermove', mv); addEventListener('pointerup', up);
+      return;
+    }
+    const why = canArrange(picked);
+    if (why) { flash(`${why} (Or switch to Free.)`); return; }
+    const me = picked, par = me.parentElement, sibs = visualKids(par).filter((x) => x !== me && visible(x));
+    const line = el('div', { class: 'ed-ui ed-dropline' }); document.body.append(line);
+    me.classList.add('ed-dragging');
+    let drop = null;
+    const mv = (ev) => {
+      let best = null, bd = Infinity;
+      sibs.forEach((s) => { const r = s.getBoundingClientRect(); const dx = Math.max(r.left - ev.clientX, 0, ev.clientX - r.right), dy = Math.max(r.top - ev.clientY, 0, ev.clientY - r.bottom); const d = Math.hypot(dx, dy); if (d < bd) { bd = d; best = { s, r }; } });
+      if (!best || (Math.abs(ev.clientX - sx) + Math.abs(ev.clientY - sy) < 4)) { line.style.display = 'none'; drop = null; return; }
+      const { s, r } = best, inRow = ev.clientY >= r.top && ev.clientY <= r.bottom && (r.width < par.getBoundingClientRect().width * 0.9);
+      const after = inRow ? ev.clientX > r.left + r.width / 2 : ev.clientY > r.top + r.height / 2;
+      drop = { s, after };
+      line.style.display = 'block';
+      if (inRow) Object.assign(line.style, { left: `${(after ? r.right + 3 : r.left - 5) + scrollX}px`, top: `${r.top + scrollY}px`, width: '3px', height: `${r.height}px` });
+      else Object.assign(line.style, { left: `${r.left + scrollX}px`, top: `${(after ? r.bottom + 3 : r.top - 5) + scrollY}px`, width: `${r.width}px`, height: '3px' });
+    };
+    const up = () => {
+      removeEventListener('pointermove', mv); removeEventListener('pointerup', up);
+      line.remove(); me.classList.remove('ed-dragging');
+      if (!drop) return;
+      const list = visualKids(par).filter((x) => x === me || visible(x)).filter((x) => x !== me);
+      list.splice(list.indexOf(drop.s) + (drop.after ? 1 : 0), 0, me);
+      arrange({ list });
+    };
+    addEventListener('pointermove', mv); addEventListener('pointerup', up);
+  }
+
+  // ---- drag to resize ----
+  const SNAPS = [25, 100 / 3, 50, 200 / 3, 75, 100];
+  function startResize(e, kind) {
+    if (!picked) return;
+    e.preventDefault(); e.stopPropagation();
+    if (innerWidth <= 700) { flash('Resizing shows on computer screens. Phones keep the tidy one-column layout.'); return; }
+    const me = picked, par = me.parentElement, r0 = me.getBoundingClientRect(), W = par.getBoundingClientRect().width;
+    const pcs = getComputedStyle(par), gap = Math.round(parseFloat(pcs.columnGap) || parseFloat(pcs.rowGap) || 14);
+    const grid = pcs.display.includes('grid'), sx = e.clientX, sy = e.clientY;
+    const mv = (ev) => {
+      if (kind !== 'b') {
+        const wpx = r0.width + ev.clientX - sx;
+        let p = Math.max(10, Math.min(100, ((wpx + gap) / (W + gap)) * 100));
+        const near = SNAPS.find((s) => Math.abs(s - p) < 2.2); if (near) p = near;
+        p = Math.round(p * 100) / 100;
+        if (p >= 100) { setCss('width', null, true); setCss('gap', null, true); } else { setCss('width', p, true); if (!grid) setCss('gap', gap, true); }
+        if ((!grid && !/row/.test(pcs.flexDirection)) || pcs.display === 'block') {
+          const others = realKids(par).some((x) => x !== me && visible(x) && x.getBoundingClientRect().width < W * 0.97);
+          setCssEl(par, 'row', p < 100 || others ? gap : null); applyCustomCSS();
+        }
+      }
+      if (kind !== 'r') setCss('h', Math.max(24, Math.round(r0.height + ev.clientY - sy)), true);
+    };
+    const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); changed(); };
+    addEventListener('pointermove', mv); addEventListener('pointerup', up);
+  }
+
+  // ---- join to the piece above ----
+  function joinUp() {
+    const prev = prevPiece(picked);
+    if (!prev) { flash('Nothing above it to join to.'); return; }
+    const d = picked.getBoundingClientRect().top - prev.getBoundingClientRect().bottom, mt = parseFloat(getComputedStyle(picked).marginTop) || 0;
+    const r = ruleFor(true); r.css.joinT = Math.round(mt - d);
+    setCssEl(prev, 'flatB', true);
+    changed();
+  }
+  function unjoin() {
+    const prev = prevPiece(picked), r = ruleFor(false);
+    if (r) { delete r.css.joinT; if (!Object.keys(r.css).length) cfg.styles = cfg.styles.filter((x) => x !== r); }
+    if (prev) setCssEl(prev, 'flatB', null);
+    changed();
+  }
+
+  // ---- keys ----
+  document.addEventListener('keydown', (e) => {
+    if (!editing) return;
+    const typing = e.target.closest && (e.target.closest('input, textarea, select, [contenteditable=true]'));
+    const mod = e.metaKey || e.ctrlKey;
+    if (mod && e.key.toLowerCase() === 'z' && !typing) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
+    if (mod && e.key.toLowerCase() === 'y' && !typing) { e.preventDefault(); redo(); return; }
+    if (typing || !picked) return;
+    if (e.key === 'Escape') { unpick(); drawPanel(); return; }
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); delPicked(); return; }
+    const c = myCss(), step = e.shiftKey ? 10 : 1, k = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
+    if (k && c.free) { e.preventDefault(); setCss('dx', (c.dx || 0) + k[0], true); setCss('dy', (c.dy || 0) + k[1]); }
+  });
+
   // ---------------- the edit panel ----------------
   let panel = null, tab = 'pick';
   function changed() {
     dirty = true;
+    history();
     try { localStorage.setItem(LS_DRAFT, JSON.stringify(cfg)); } catch (e) { /* storage off */ }
     applyAll();
     drawPanel();
@@ -1106,7 +1352,7 @@
     if (!on) { textMode = false; pickMode = false; document.body.classList.remove('ed-textmode', 'ed-pickmode'); }
     if (on) {
       if (!panel) { panel = el('div', { class: 'ed-ui ed-panel', role: 'dialog', 'aria-label': 'Edit site' }); document.body.append(panel); }
-      decorate(); drawPanel();
+      snapNow(); decorate(); drawPanel();
     } else {
       undecorate();
       if (panel) { panel.remove(); panel = null; }
@@ -1120,6 +1366,7 @@
     const o = { look: {}, siteName: c.siteName || '', hidden: [...new Set(c.hidden)], order: {}, text: c.text.filter((r) => r.from && r.to != null).map((r) => (r.tf ? { from: r.from, to: r.to, tf: r.tf, tt: r.tt.map((x) => (x && typeof x === 'object' ? { ...x } : x)), fixed: (r.fixed || []).slice() } : { from: r.from, to: r.to })), cols: {}, buttons: [...new Set(c.buttons || [])], nav: (c.nav || []).slice(),
       styles: (c.styles || []).map((r) => ({ sp: r.sp || '', area: r.area || '', base: r.base, label: r.label || '', css: Object.fromEntries(Object.entries(r.css || {}).filter(([, v]) => v != null && v !== '')) })).filter((r) => r.base && Object.keys(r.css).length),
       caseOff: !!c.caseOff,
+      adds: (c.adds || []).filter((a) => a && a.id && a.sel && a.text).map((a) => ({ id: a.id, sel: a.sel, kind: a.kind === 'heading' ? 'heading' : 'text', text: a.text })),
       moves: (c.moves || []).filter((m) => m && m.base && m.order && m.order.length).map((m) => ({ sp: m.sp || '', area: m.area || '', base: m.base, label: m.label || '', flex: !!m.flex, order: m.order.slice() })) };
     Object.entries(c.look).forEach(([k, v]) => { if (v != null && v !== '') o.look[k] = v; });
     Object.entries(c.order).forEach(([k, v]) => { if (v && v.length) o.order[k] = v; });
@@ -1242,6 +1489,30 @@
     .ed-ui .ed-danger:hover { background: #fef2f2; }
     .ed-panel { width: 360px; }
     .ed-edit-link { font: inherit; background: none; border: 0; padding: 0; color: inherit; text-decoration: underline; cursor: pointer; }
+    .ml-add { margin: 6px 0; white-space: pre-wrap; }
+    .ml-add-h { font-size: 1.15rem; font-weight: 700; margin-top: 10px; }
+    .ml-add[contenteditable=true] { outline: 2px solid #2563eb; outline-offset: 2px; cursor: text !important; background: color-mix(in srgb, #2563eb 8%, transparent); }
+    body.ed-on .ml-add:empty::before { content: 'Type here'; opacity: .5; }
+    .ed-frame { position: absolute; z-index: 990; pointer-events: none; outline: 2px solid #2563eb; outline-offset: 2px; border-radius: 4px; }
+    .ed-fbar { position: absolute; left: -2px; bottom: calc(100% + 6px); display: flex; gap: 3px; align-items: center; flex-wrap: nowrap; white-space: nowrap; pointer-events: auto; background: #1f2329; padding: 3px; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.35); }
+    .ed-frame.ed-fbar-in .ed-fbar { bottom: auto; top: 6px; left: 6px; }
+    .ed-fbar button { padding: 2px 8px; font-size: 12px; background: #2d333b; color: #fff; border-color: #444c56; }
+    .ed-fbar button:hover { background: #444c56; }
+    .ed-fbar .ed-grip { background: #2563eb; border-color: #2563eb; cursor: grab; touch-action: none; }
+    .ed-fbar .ed-grip:active { cursor: grabbing; }
+    .ed-fseg { display: inline-flex; }
+    .ed-fseg button { border-radius: 0; }
+    .ed-fseg button:first-child { border-radius: 6px 0 0 6px; }
+    .ed-fseg button:last-child { border-radius: 0 6px 6px 0; margin-left: -1px; }
+    .ed-fseg button.on { background: #e5e7eb; color: #111827; }
+    .ed-fbar .ed-fdel { color: #fca5a5; }
+    .ed-hdl { position: absolute; pointer-events: auto; background: #2563eb; border: 2px solid #fff; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.4); touch-action: none; }
+    .ed-hdl-r { right: -8px; top: 50%; width: 10px; height: 34px; margin-top: -17px; cursor: ew-resize; }
+    .ed-hdl-b { bottom: -8px; left: 50%; width: 34px; height: 10px; margin-left: -17px; cursor: ns-resize; }
+    .ed-hdl-br { right: -8px; bottom: -8px; width: 14px; height: 14px; cursor: nwse-resize; border-radius: 50%; }
+    .ed-fsize { position: absolute; right: 0; top: calc(100% + 8px); font-size: 11px; background: #2563eb; color: #fff; padding: 1px 6px; border-radius: 4px; pointer-events: none; }
+    .ed-dropline { position: absolute; z-index: 995; background: #f59e0b; border-radius: 3px; box-shadow: 0 0 0 2px rgba(245,158,11,.35); pointer-events: none; display: none; }
+    .ed-dragging { opacity: .45 !important; }
     @media (max-width: 640px) { .ed-panel { left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 62vh; } }
   `));
 
