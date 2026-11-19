@@ -360,8 +360,8 @@
       "label": "Section · \"Games without\"",
       "css": {
         "free": true,
-        "dx": -6,
-        "dy": -60,
+        "dx": -5,
+        "dy": -54,
         "flatB": true,
         "mt": 10
       }
@@ -375,7 +375,7 @@
         "joinT": -62,
         "free": true,
         "dx": -6,
-        "dy": -5
+        "dy": 5
       }
     },
     {
