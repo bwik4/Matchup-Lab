@@ -294,6 +294,28 @@
       "css": {
         "mt": 8
       }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.bar > div.seg.plog-pair",
+      "label": "Section · \"Just Him WR1 + WR2\"",
+      "css": {
+        "free": true,
+        "dx": -4,
+        "dy": -8
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.bar > h2.plog-title",
+      "label": "Title · \"Game Log\"",
+      "css": {
+        "free": true,
+        "dx": 0,
+        "dy": -8
+      }
     }
   ],
   "caseOff": false,
