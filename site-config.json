@@ -294,6 +294,98 @@
       "css": {
         "mt": 8
       }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.bar > h2.p-title",
+      "label": "Title · \"Chig Okonkwo · TE · WAS\"",
+      "css": {
+        "free": true,
+        "dx": -6,
+        "dy": -30,
+        "width": 21.84,
+        "gap": 10,
+        "h": 24
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.bar > div.controls",
+      "label": "Section · \"Line This Season This + Last\"",
+      "css": {
+        "free": true,
+        "zoom": 100,
+        "pad": 0,
+        "dx": -348,
+        "dy": -13
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.controls > div.seg.p-seas",
+      "label": "Section · \"This Season This + Last\"",
+      "css": {
+        "free": true,
+        "dx": 583,
+        "dy": -38
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.controls > input.search.p-search",
+      "label": "Input",
+      "css": {
+        "free": true,
+        "dx": 802,
+        "dy": 0
+      }
+    },
+    {
+      "sp": "nfl",
+      "area": "",
+      "base": "div.bar > div.controls",
+      "label": "Section · \"Line This Season This + Last\"",
+      "css": {
+        "free": true
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "[data-ek=\"props/p-title\"] > div.wo.p-wo",
+      "label": "Section · \"Games without\"",
+      "css": {
+        "free": true,
+        "dx": -2,
+        "dy": -52,
+        "flatB": true,
+        "mt": 10
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "[data-ek=\"props/p-title\"] > p.note.p-note",
+      "label": "Text · \"Next: vs CIN · WAS implied total…\"",
+      "css": {
+        "joinT": -62,
+        "free": true,
+        "dx": -2,
+        "dy": 4
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "[data-ek=\"props/p-title\"] > div.stats.p-stats",
+      "label": "Section · \"3/7 Over 37.5 (43%) 3/5 L5 (60%)…\"",
+      "css": {
+        "free": true
+      }
     }
   ],
   "caseOff": false,
