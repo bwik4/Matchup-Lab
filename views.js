@@ -373,7 +373,7 @@ VX.player = function () {
   let ps = null;
   if (sp !== 'nfl') {
     ps = vPlayerStats(sp, p, U, nx);
-    cards.push(ps.stats, ps.more);
+    cards.push(ps.block);
     tRC(root, h('div', { class: 'vx-stack' }, cards));
     ps.mount();
     if (sp === 'nba') vShotsLoad().then((ok) => { if (ok && S.view === 'player') { const c = vShotPlayerCard(p, opp), a = root.querySelector('.vx-avg'); if (c && a && !root.querySelector('.vx-shotp')) { c.classList.add('vx-shotp'); a.after(c); } } });
@@ -946,7 +946,7 @@ function vPlayerStats(sp, p, U, nx) {
         : h('p', { class: 'empty' }, 'No games against them in the last two seasons.')));
     cards.push(vPosVsDef(sp, p, U, opp, stat, line, statCols, fill));
   }
-  return { stats: h('div', { class: 'joined vx-ps' }, statsCard), more: h('div', { class: 'joined vx-ps-more' }, ...cards), mount: () => bars(chartBox, chartData, { height: 220, line }) };
+  return { block: h('div', { class: 'joined vx-ps' }, statsCard, ...cards), mount: () => bars(chartBox, chartData, { height: 220, line }) };
 }
 
 // every game a player at his position had against the next opponent (collapsible)
