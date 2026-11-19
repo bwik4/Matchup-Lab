@@ -255,7 +255,7 @@ DAL,,Dallas Cowboys,DAL,DEF,,,,
 13296,,Caleb Douglas,MIA,WR,RWR,1,Active,Questionable
 7021,,Rico Dowdle,PIT,RB,RB,2,Active,
 11895,,Mason Tipton,NO,WR,RWR,9,Active,PUP
-11630,,Roman Wilson,PIT,WR,SWR,10,Inactive,IR
+11630,,Roman Wilson,PIT,WR,SWR,9,Inactive,IR
 7083,,Tyler Huntley,BAL,QB,QB,3,Inactive,IR
 12735,,Caleb Lohner,DEN,TE,TE,5,Inactive,IR
 8137,,George Pickens,DAL,WR,RWR,2,Active,
@@ -477,7 +477,7 @@ NO,,New Orleans Saints,NO,DEF,,,,
 GB,,Green Bay Packers,GB,DEF,,,,
 13429,,Seydou Traore,MIA,TE,TE,3,Active,
 10234,,Derius Davis,LAC,WR,SWR,4,Active,
-7531,,Feleipe Franks,CAR,TE,TE,4,Active,
+7531,,Feleipe Franks,CAR,TE,TE,5,Active,
 11786,,Cam Little,JAX,K,K,1,Active,
 8148,,Jameson Williams,DET,WR,RWR,2,Active,
 10444,,Cedric Tillman,NO,WR,,,Active,
@@ -680,7 +680,7 @@ SF,,San Francisco 49ers,SF,DEF,,,,
 3202,00-0032392,Austin Hooper,ATL,TE,TE,2,Active,
 6794,,Justin Jefferson,MIN,WR,LWR,1,Active,
 11377,,Tyrell Shavers,BUF,WR,RWR,4,Active,
-11600,,Ja'Tavion Sanders,CAR,TE,TE,5,Active,
+11600,,Ja'Tavion Sanders,CAR,TE,TE,4,Active,
 12713,,Andy Borregales,NE,K,K,1,Active,
 9230,,Tanner McKee,PHI,QB,QB,3,Active,
 5008,00-0034798,Durham Smythe,BAL,TE,TE,5,Inactive,IR
@@ -876,7 +876,7 @@ DEN,,Denver Broncos,DEN,DEF,,,,
 13437,,Noah Whittington,HOU,RB,RB,7,Active,Out
 KC,,Kansas City Chiefs,KC,DEF,,,,
 6992,,Michael Warren,DET,RB,,,Inactive,
-13200,,Max Hurleman,PIT,WR,SWR,12,Active,
+13200,,Max Hurleman,PIT,WR,SWR,11,Active,
 7716,,John Bates,WAS,TE,TE,3,Active,
 13333,,Deion Burks,IND,WR,LWR,3,Active,
 13949,,Damon Bankston,MIN,RB,,,Active,
