@@ -369,6 +369,16 @@ VX.player = function () {
   h('p', { class: 'note' }, 'Opp Rank = next defense vs his position for that stat (1st = toughest). Line = his L10 median (estimate).'));
   avgCard.classList.add('vx-avg');
   cards.push(avgCard);
+  // NBA / CFB / CBB: the NFL Player Stats layout (stat picker, line, seasons, games without, chart, game log, history, position vs defense)
+  let ps = null;
+  if (sp !== 'nfl') {
+    ps = vPlayerStats(sp, p, U, nx);
+    cards.push(ps.stats, ps.more);
+    tRC(root, h('div', { class: 'vx-stack' }, cards));
+    ps.mount();
+    if (sp === 'nba') vShotsLoad().then((ok) => { if (ok && S.view === 'player') { const c = vShotPlayerCard(p, opp), a = root.querySelector('.vx-avg'); if (c && a && !root.querySelector('.vx-shotp')) { c.classList.add('vx-shotp'); a.after(c); } } });
+    return;
+  }
   if (!p.old) cards.push(vWoCard(sp, p));
   // game log
   const last10 = p.logs.slice(-12).reverse();
@@ -797,4 +807,186 @@ function vWoCard(sp, p) {
     }
   }
   return h('div', { class: 'card vx-card' }, ...kids);
+}
+
+// ================================================================= PLAYER STATS (NBA / CFB / CBB): same layout as the NFL Player Stats page
+// pick a stat, set a line, This Season / This + Last, games without, hit tiles, chart, game log, history vs the opponent,
+// and a collapsible "(position) vs (defense)" table of every game a player at his position had against the next opponent.
+S.vPs = S.vPs || { stat: null, line: null, seas: null, wo: [], key: '', pdWin: 'both', pdDepth: null, pdFor: '' };
+const V_PS_BB = [...T_BB, ['stl', 'Steals'], ['blk', 'Blocks'], ['tov', 'Turnovers'], ['min', 'Minutes']];
+const V_PS_LAB = { min: 'Min', stl: 'Stl', blk: 'Blk', tov: 'TO', pr: 'Pts + Reb', pa: 'Pts + Ast', ra: 'Reb + Ast', sb: 'Stl + Blk', fpts: 'Fantasy Pts',
+  completions: 'Comp', attempts: 'Att', passing_interceptions: 'INT', long_rush: 'Long Rush', long_reception: 'Long Rec', carries: 'Carries' };
+const vPsLbl = (sp, k) => V_PS_LAB[k] || vStatLbl(sp, k);
+function vPsStats(sp, pos) {
+  if (isBB(sp)) return V_PS_BB.map((x) => x[0]).filter((k) => k !== 'fpts' || (sp === 'nba' && S.fantasy));
+  return tStats(sp, pos).map((x) => x[0]).filter((k) => !String(k).startsWith('fp'));
+}
+function vPsCols(sp, pos) {
+  if (isBB(sp)) return ['min', 'pts', 'reb', 'ast', 'fg3m', 'stl', 'blk', 'pra', 'pr', 'pa'];
+  return { QB: ['completions', 'attempts', 'passing_yards', 'passing_tds', 'passing_interceptions', 'carries', 'rushing_yards', 'rushing_tds'],
+    RB: ['carries', 'rushing_yards', 'rushing_tds', 'long_rush', 'receptions', 'receiving_yards', 'rush_rec_yds'] }[pos]
+    || ['receptions', 'receiving_yards', 'receiving_tds', 'long_reception', 'rushing_yards'];
+}
+const vPsOk = (r) => String(r.player).trim() !== 'Team';
+// game r: did every chosen teammate sit out? (box scores: no row = didn't play; a teammate not on the team that season doesn't count)
+function vPsWo(sp, logs, team, mates) {
+  const X = SPX[sp](), per = mates.map((m) => {
+    const rows = (X.byPid.get(String(m)) || []).filter((r) => r.team === team);
+    const seasons = new Map();
+    rows.forEach((r) => { const s = seasons.get(r.season); const w = String(r.date || r.week).padStart(10, '0'); if (!s) seasons.set(r.season, { first: w, ks: new Set([String(r.game_id)]) }); else { s.ks.add(String(r.game_id)); if (w < s.first) s.first = w; } });
+    const other = (X.byPid.get(String(m)) || []).some((r) => r.team !== team);
+    return { seasons, other };
+  });
+  return logs.map((r) => {
+    let out = 0, inn = 0;
+    const when = String(r.date || r.week).padStart(10, '0');
+    per.forEach((m) => {
+      const s = m.seasons.get(r.season);
+      if (!s) return;
+      if (s.ks.has(String(r.game_id))) inn++;
+      else if (!m.other || when >= s.first) out++;
+    });
+    return { r, st: out === per.length ? 'without' : inn === per.length ? 'with' : null };
+  });
+}
+function vPsTable(name, cols, rows, opts) { const t = newTable(); t.classList.add('dvp'); table(t, name, cols, rows, opts); return t; }
+const vPsRkCls = (n) => (v) => (v == null || !n ? 'rk' : (v - 1) / Math.max(1, n - 1) <= 0.25 ? 'rk rk-r' : (v - 1) / Math.max(1, n - 1) >= 0.75 ? 'rk rk-g' : 'rk');
+
+function vPlayerStats(sp, p, U, nx) {
+  const X = SPX[sp](), st = S.vPs, key = `${sp}|${p.pid}`;
+  const keys = vPsStats(sp, p.pos);
+  if (st.key !== key) { st.key = key; st.line = null; st.wo = []; if (!keys.includes(st.stat)) st.stat = null; }
+  if (!st.stat || !keys.includes(st.stat)) { st.stat = keys.includes(T_MAIN[p.pos]) ? T_MAIN[p.pos] : keys[0]; st.line = null; }
+  if (!st.seas) st.seas = sp === 'cbb' && X.early ? 'both' : 'cur';
+  const stat = st.stat, both = st.seas === 'both', lbl = vPsLbl(sp, stat);
+  const seasons = both ? [U.season, U.season - 1] : [U.season];
+  const allLogs = (X.byPid.get(String(p.pid)) || X.byPid.get(Number(p.pid)) || p.logs).filter((r) => seasons.includes(r.season));
+  const rerender = () => render();
+  // teammates (this season) for the picker
+  const mates = U.players.filter((m) => m.team === p.team && m.pid !== p.pid && m.logs.some((r) => r.team === p.team))
+    .map((m) => ({ m, v: mean(m.logs.map((r) => tVal(r, T_MAIN[m.pos])).filter((x) => x != null)) || 0 }))
+    .sort((a, b) => b.v - a.v).map((x) => x.m);
+  st.wo = st.wo.filter((id) => mates.some((m) => m.pid === id));
+  const chosen = st.wo.map((id) => mates.find((m) => m.pid === id));
+  const wo = chosen.length > 0, names = chosen.map((m) => m.name).join(' + ');
+  const tagged = wo ? vPsWo(sp, allLogs.filter((r) => r.team === p.team), p.team, st.wo) : null;
+  const games = wo ? tagged.filter((x) => x.st === 'without').map((x) => x.r) : allLogs;
+  const vals = games.map((r) => tVal(r, stat)).filter((v) => v != null);
+  const avg = mean(vals);
+  if (st.line == null) st.line = lineFor(avg);
+  const line = st.line;
+  const hit = (a) => ({ o: a.filter((v) => v > line).length, n: a.length, pu: a.filter((v) => v === line).length });
+  const fmtHit = (x) => (x.n ? `${x.o}/${x.n}` : '—');
+  const pctHit = (x) => (x.n ? ` (${Math.round((x.o / (x.n - x.pu || 1)) * 100)}%)` : '');
+  const hs = hit(vals), h5 = hit(vals.slice(-5)), h3 = hit(vals.slice(-3));
+  const opp = nx && nx.opp, d = opp ? tDv(sp, opp, p.pos, stat) : null;
+  const tiles = [[fmtHit(hs), `Over ${line}${pctHit(hs)}`], [fmtHit(h5), `L5${pctHit(h5)}`], [fmtHit(h3), `L3${pctHit(h3)}`],
+    [show(avg), `Avg ${lbl.toLowerCase()}`], [show(median(vals)), 'Median'], [vals.length ? `${show(Math.min(...vals))}–${show(Math.max(...vals))}` : '—', 'Low–high']];
+  if (isBB(sp) && stat !== 'min') tiles.push([show(mean(games.map((r) => r.min).filter((v) => v != null))), 'Avg min']);
+  if (d) tiles.push([show(d.pg), `${opp} allows to ${p.pos}s/g (${ordinal(d.rank)} of ${d.n})`]);
+  // controls
+  const lineInp = h('input', { class: 'num vx-ps-line', type: 'number', step: '0.5', value: String(line), 'aria-label': 'Prop line',
+    onchange: (e) => { const v = parseFloat(e.target.value); if (!Number.isNaN(v) && v !== st.line) { st.line = v; rerender(); } },
+    onkeydown: (e) => { if (e.key === 'Enter') e.target.blur(); } });
+  const sel = h('select', { 'aria-label': 'Stat', onchange: (e) => { st.stat = e.target.value; st.line = null; rerender(); } },
+    ...keys.map((k) => h('option', { value: k, selected: k === stat ? '' : null }, vPsLbl(sp, k))));
+  const dl = `vps-${sp}`;
+  const find = h('input', { class: 'search', type: 'search', list: dl, placeholder: 'Search player', 'aria-label': 'Find player',
+    onchange: (e) => { const v = e.target.value.trim().toLowerCase(); const m = U.players.find((x) => `${x.name} (${x.pos}, ${x.team})`.toLowerCase() === v) || U.players.find((x) => x.name.toLowerCase() === v) || U.players.find((x) => x.name.toLowerCase().includes(v)); if (m) go(`player/${sp}/${m.pid}`); } });
+  const seasSeg = vSeg([['cur', 'This Season'], ['both', 'This + Last']], st.seas, (v) => { st.seas = v; st.line = null; rerender(); }, 'Seasons');
+  const woDl = `vpswo-${sp}`;
+  const woInp = h('input', { class: 'search', type: 'search', list: woDl, placeholder: 'Add a teammate who sat out', 'aria-label': 'Filter to games a teammate missed',
+    onchange: (e) => { const m = mates.find((x) => `${x.name} (${x.pos})` === e.target.value || x.name.toLowerCase() === e.target.value.trim().toLowerCase()); if (m && !st.wo.includes(m.pid)) { st.wo.push(m.pid); rerender(); } } });
+  const woBox = h('div', { class: `wo${wo ? ' wo-on' : ''}` }, h('span', { class: 'lbl' }, 'Games without'), woInp,
+    h('datalist', { id: woDl }, ...mates.map((m) => h('option', { value: `${m.name} (${m.pos})` }))),
+    h('div', { class: 'chips' }, ...chosen.map((m) => h('span', { class: 'chip' }, `Without ${m.name}`, h('button', { type: 'button', 'aria-label': 'Remove', onclick: () => { st.wo = st.wo.filter((x) => x !== m.pid); rerender(); } }, '×')))),
+    !wo ? h('span', { class: 'vx-wo-quick' }, ...mates.slice(0, 4).map((m) => h('button', { type: 'button', class: 'chip', onclick: () => { st.wo.push(m.pid); rerender(); } }, `+ ${m.name}`))) : null);
+  let split = null;
+  if (wo) {
+    const withV = tagged.filter((x) => x.st === 'with').map((x) => tVal(x.r, stat)).filter((v) => v != null);
+    split = h('p', { class: 'summary' }, !vals.length ? `No games${both ? '' : ' this season'} where ${p.name} played and ${names} didn't.${both ? '' : ' Try "This + Last".'}`
+      : [`${lbl} without ${names}: `, h('b', null, `${show(avg)} avg`), ` in ${vals.length} game${vals.length > 1 ? 's' : ''}`,
+        withV.length ? [' · with: ', h('b', null, `${show(mean(withV))} avg`), ` in ${withV.length}`] : null, '.', vals.length < 4 ? ' Small sample, so treat it as a hint, not a trend.' : null]);
+  }
+  const nextTxt = nx ? `Next: ${nx.home ? 'vs' : '@'} ${opp}${nx.implied != null ? ` · ${p.team} implied total ${show(nx.implied)}` : ''}` : 'No game scheduled.';
+  const chartBox = h('div', { class: 'chart vx-ps-chart' });
+  const statsCard = h('div', { class: 'card' },
+    h('div', { class: 'bar' }, h('h2', null, `${p.name} · ${p.pos} · ${p.team}`),
+      h('div', { class: 'controls' }, find, h('datalist', { id: dl }, ...U.players.map((x) => h('option', { value: `${x.name} (${x.pos}, ${x.team})` }))),
+        sel, h('span', { class: 'lbl' }, 'Line'), lineInp, seasSeg)),
+    woBox, split, h('p', { class: 'note' }, nextTxt),
+    h('div', { class: 'stats' }, ...tiles.map(([v, k]) => tile(v, k))),
+    chartBox,
+    h('div', { class: 'legend' }, h('span', { class: 'lg' }, 'Over the line'), h('span', { class: 'lr' }, 'Under the line')));
+  const gx = (r) => (isBB(sp) ? `${both ? `'${String(r.season).slice(2)} ` : ''}${String(r.date || '').slice(5)} ${r.opp}` : `${both ? `'${String(r.season).slice(2)} ` : ''}W${r.week} ${r.opp}`);
+  const chartData = games.map((r) => { const v = tVal(r, stat) ?? 0; return { x: gx(r), y: v, color: v > line ? 'var(--ok)' : v === line ? 'var(--muted)' : 'var(--bad)',
+    tipTitle: `${isBB(sp) ? r.date : `${both ? `${r.season} ` : ''}Week ${r.week}`} ${r.home === 0 ? '@' : 'vs'} ${r.opp}`, tipBody: `${show(v)} ${lbl.toLowerCase()}` }; });
+
+  // ---- game log
+  const ex = vPsCols(sp, p.pos);
+  const statCols = ex.map((k) => ({ f: k, label: vPsLbl(sp, k) }));
+  if (!ex.includes(stat)) statCols.unshift({ f: stat, label: lbl });
+  const hl = (v) => (v == null ? '' : v > line ? 'g' : v < line ? 'r' : '');
+  statCols.forEach((c) => { if (c.f === stat) c.cls = hl; });
+  const fill = (r) => { const o = { ...r }; statCols.forEach((c) => { o[c.f] = tVal(r, c.f); }); return o; };
+  let nRk = null;
+  const glRows = games.map((r) => { const dd = r.season === U.season ? tDv(sp, r.opp, p.pos, stat) : null; if (dd) nRk = dd.n;
+    return { ...fill(r), gkey: `${r.season}|${String(r.date || '').padStart(10, '0')}|${String(r.week || 0).padStart(3, '0')}`, when: isBB(sp) ? String(r.date || '').slice(5) : r.week,
+      oppTxt: `${r.home === 0 ? '@ ' : r.home === 1 ? 'vs ' : ''}${r.opp}`, opp_rank: dd ? dd.rank : null }; });
+  const glCols = [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'when', label: isBB(sp) ? 'Date' : 'Wk', l: true }, { f: 'oppTxt', label: 'Opp', l: true },
+    { f: 'opp_rank', label: 'Opp Rk', cls: vPsRkCls(nRk), fmt: (v) => (v == null ? '—' : ordinal(v)) }, ...statCols];
+  const glCard = h('div', { class: 'card' }, h('div', { class: 'bar' }, h('h2', null, `Game Log${wo ? ` without ${names}` : ''}`)),
+    h('div', { class: 'scroll', style: 'max-height: 32rem' }, vPsTable(`vps-log-${sp}`, glCols, glRows, { sort: { f: 'gkey', dir: 'desc' } })));
+  // ---- history vs next opponent (this season and last)
+  const cards = [glCard];
+  if (opp) {
+    const vs = (X.byPid.get(String(p.pid)) || p.logs).filter((r) => r.opp === opp).map((r) => ({ ...fill(r), when: isBB(sp) ? r.date : `W${r.week}` }));
+    cards.push(h('div', { class: 'card' }, h('h2', null, `History vs ${opp}`), h('p', { class: 'note' }, 'Every game vs this opponent.'),
+      vs.length ? h('div', { class: 'scroll', style: 'max-height: 14rem' }, vPsTable(`vps-vs-${sp}`, [{ f: 'season', label: 'Season' }, { f: 'when', label: isBB(sp) ? 'Date' : 'Wk', l: true }, { f: 'team', label: 'For', l: true }, ...statCols], vs, { sort: { f: 'when', dir: 'desc' } }))
+        : h('p', { class: 'empty' }, 'No games against them in the last two seasons.')));
+    cards.push(vPosVsDef(sp, p, U, opp, stat, line, statCols, fill));
+  }
+  return { stats: h('div', { class: 'joined vx-ps' }, statsCard), more: h('div', { class: 'joined vx-ps-more' }, ...cards), mount: () => bars(chartBox, chartData, { height: 220, line }) };
+}
+
+// every game a player at his position had against the next opponent (collapsible)
+function vPosVsDef(sp, p, U, opp, stat, line, statCols, fill) {
+  const X = SPX[sp](), st = S.vPs, pos = p.pos, bb = isBB(sp);
+  const depths = bb ? [['start', `Starting ${pos}s`], ['all', `All ${pos}s`]] : [['top', `${pos}1`], ['all', `All ${pos}s`]];
+  const main = T_MAIN[pos] || stat;
+  // CFB: who led his team at the position each game (by the position's main stat)
+  let topKey = null;
+  if (!bb) {
+    topKey = new Set(); const best = new Map();
+    X.logs.forEach((r) => { if (!vPsOk(r) || r.position !== pos) return; const k = `${r.game_id}|${r.team}`, v = tVal(r, main) || 0; const b = best.get(k); if (!b || v > b.v) best.set(k, { v, pid: String(r.player_id) }); });
+    best.forEach((b, k) => topKey.add(`${k}|${b.pid}`));
+  }
+  const isTop = (r) => (bb ? r.starter === 1 : topKey.has(`${r.game_id}|${r.team}|${String(r.player_id)}`));
+  if (st.pdFor !== `${sp}|${p.pid}`) {
+    const mine = p.logs; const n = mine.filter(isTop).length;
+    st.pdDepth = n >= mine.length / 2 ? depths[0][0] : 'all'; st.pdFor = `${sp}|${p.pid}`;
+  }
+  const label = depths.find((x) => x[0] === st.pdDepth)[1];
+  const rows = X.logs.filter((r) => vPsOk(r) && r.opp === opp && r.position === pos && (st.pdWin === 'both' || r.season === U.season)
+    && (!bb || (r.min || 0) > 0) && (st.pdDepth === 'all' || isTop(r)))
+    .map((r) => ({ ...fill(r), pid: String(r.player_id), when: bb ? r.date : `${r.season} W${String(r.week).padStart(2, '0')}`, me: String(r.player_id) === String(p.pid) }));
+  const vals = rows.map((r) => r[stat]).filter((v) => v != null);
+  const cur = rows.filter((r) => r.season === U.season).map((r) => r[stat]).filter((v) => v != null);
+  const over = (a) => a.filter((v) => v > line).length, o = over(vals);
+  const title = `${label} vs ${opp} Defense`;
+  const sum = vals.length ? h('p', { class: 'summary' }, `${label} vs ${opp} went over ${line} ${vPsLbl(sp, stat).toLowerCase()} in `, h('b', { class: o / vals.length >= 0.5 ? 'g' : 'r' }, `${o} of ${vals.length}`), ' games',
+    st.pdWin === 'both' && cur.length ? [' (this season ', h('b', null, `${over(cur)} of ${cur.length}`), ')'] : null, '. Average ', h('b', null, show(mean(vals))), ', median ', h('b', null, show(median(vals))), '.') : null;
+  const hl = (v) => (v == null ? '' : v > line ? 'g rk' : v < line ? 'r rk' : 'rk');
+  const cols = [{ f: 'when', label: 'Game', l: true }, { f: 'team', label: 'Team', l: true }, { f: 'player', label: 'Player', l: true }, ...statCols.map((c) => ({ ...c, cls: c.f === stat ? hl : undefined }))];
+  let open = true; try { open = localStorage.getItem('ml-pvd-open') !== '0'; } catch (e) { /* storage off */ }
+  const det = h('details', { class: 'vx-pvd', open: open ? '' : null, ontoggle: (e) => { try { localStorage.setItem('ml-pvd-open', e.target.open ? '1' : '0'); } catch (err) { /* storage off */ } } },
+    h('summary', null, h('h2', null, title), h('span', { class: 'vx-pvd-arrow', 'aria-hidden': 'true' }, '▾')),
+    h('div', { class: 'bar vx-pvd-bar' }, h('p', { class: 'note' }, 'Every game a player at this position had against this opponent.'),
+      h('div', { class: 'controls' }, vSeg(depths, st.pdDepth, (v) => { st.pdDepth = v; render(); }, 'Depth'),
+        vSeg([['both', 'This + Last'], ['cur', 'This Season']], st.pdWin, (v) => { st.pdWin = v; render(); }, 'Seasons'))),
+    sum,
+    rows.length ? h('div', { class: 'scroll', style: 'max-height: 30rem' }, vPsTable(`vps-pd-${sp}`, cols, rows, { sort: { f: 'when', dir: 'desc' }, selected: (r) => r.me,
+      onClick: (r) => { if (r.pid !== String(p.pid)) go(`player/${sp}/${r.pid}`); } })) : h('p', { class: 'empty' }, 'No games to show.'),
+    h('div', { class: 'legend' }, h('span', { class: 'lg' }, 'Over your line'), h('span', { class: 'lr' }, 'Under your line')));
+  return h('div', { class: 'card' }, det);
 }

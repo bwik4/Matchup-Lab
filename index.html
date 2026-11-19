@@ -423,6 +423,13 @@
   td .vx-link:hover, .vx-qt .vx-link:hover { color: var(--accent); }
   .vx-blink { display: inline-flex; text-decoration: none; }
   .vx-stack { display: flex; flex-direction: column; gap: 14px; }
+  details.vx-pvd > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  details.vx-pvd > summary::-webkit-details-marker { display: none; }
+  details.vx-pvd > summary h2 { margin: 0; }
+  .vx-pvd-arrow { color: var(--muted); font-size: 1rem; transition: transform .15s; }
+  details.vx-pvd:not([open]) .vx-pvd-arrow { transform: rotate(-90deg); }
+  .vx-pvd-bar { margin: 8px 0 6px; }
+  .vx-pvd-bar .note { margin: 0; }
   .vx-card > h2 { margin-bottom: 12px; }
   .vx-ptitle { margin: 0; font-size: 1.4rem; }
   .vx-rk { font-weight: 700; font-size: .78rem; }
