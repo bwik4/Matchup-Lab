@@ -142,6 +142,17 @@
   details.skew-notes li { margin: 3px 0; }
   table.t-teams .grp { border-left: 2px solid color-mix(in srgb, var(--fg) 30%, transparent); }
   .wo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 10px; }
+  /* Player Stats header: player | stat + line | seasons | search (far right), games without right under the name */
+  :is(section[data-page="props"] .joined, .vx-ps) > .card:first-child > .bar { flex-wrap: nowrap; justify-content: flex-start; gap: 18px; }
+  :is(section[data-page="props"] .joined, .vx-ps) > .card:first-child > .bar > h2 { flex: 0 1 auto; white-space: nowrap; margin: 0; }
+  :is(section[data-page="props"] .joined, .vx-ps) > .card:first-child > .bar > .controls { flex: 1 1 auto; flex-wrap: nowrap; gap: 10px; }
+  :is(section[data-page="props"] .joined, .vx-ps) > .card:first-child > .bar > .controls > input.search { order: 9; margin-left: auto; width: 240px; max-width: 32%; }
+  :is(section[data-page="props"] .joined, .vx-ps) > .card:first-child > .wo { margin-top: 10px; }
+  @media (max-width: 900px) {
+    :is(section[data-page="props"] .joined, .vx-ps) > .card:first-child > .bar,
+    :is(section[data-page="props"] .joined, .vx-ps) > .card:first-child > .bar > .controls { flex-wrap: wrap; }
+    :is(section[data-page="props"] .joined, .vx-ps) > .card:first-child > .bar > .controls > input.search { margin-left: 0; width: 100%; max-width: none; }
+  }
   .wo input.search { width: min(100%, 16rem); }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 10px; border-radius: 999px; font-size: .8rem;
