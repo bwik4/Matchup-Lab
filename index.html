@@ -623,7 +623,8 @@
   /* game log: a line between every column */
   /* full-width game log: even stat columns instead of a few stretched ones */
   table.t-plog { table-layout: fixed; }
-  table.t-plog th, table.t-plog td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 6px; padding-right: 6px; }
+  table.t-plog th, table.t-plog td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 5px; padding-right: 5px; }
+  table.t-plog th, table.t-plog th button { white-space: normal; line-height: 1.15; }
   .scroll:has(> table.t-plog) { margin: 0 -10px; }
   table.t-plog th + th, table.t-plog td + td { border-left: 1px solid color-mix(in srgb, var(--fg) 16%, transparent); }
 
@@ -2107,8 +2108,10 @@ function renderProps() {
       : ['targets', 'receptions', 'receiving_yards', 'receiving_tds', 'long_reception', 'receiving_air_yards', 'rz_targets', 'target_share'];
   const lab = { receiving_air_yards: 'Air yds', target_share: 'Tgt %', long_completion: 'Long', long_rush: 'Long', long_reception: 'Long rec',
     carries: 'Att', targets: 'Tgts', receptions: 'Rec', rz_carries: 'RZ Att' };
-  const statCols = extra.map((k) => ({ f: k, label: lab[k] || STATS[k] }));
-  if (!extra.includes(stat)) statCols.unshift({ f: stat, label: statLabel(stat) });
+  // short headers get thin columns; the rest stay compact so the name column has room
+  const thin = { carries: '2.6rem', receptions: '2.6rem', long_rush: '2.8rem', long_completion: '2.8rem', targets: '2.8rem', rz_carries: '3.3rem', target_share: '3rem' };
+  const statCols = extra.map((k) => ({ f: k, label: lab[k] || STATS[k], w: thin[k] || '3.2rem' }));
+  if (!extra.includes(stat)) statCols.unshift({ f: stat, label: statLabel(stat), w: '3.2rem' });
   const hl = (v) => (v == null ? '' : v > line ? 'g' : v < line ? 'r' : '');
   statCols.forEach((c) => { if (c.f === stat) c.cls = hl; });
   // opponent ranks are this season's, so they're left blank for last season's games
@@ -2132,11 +2135,11 @@ function renderProps() {
       return { ...r, ...Object.fromEntries(sumKeys.map((k) => [k, c[k]])), target_share: Math.round(ts * 10) / 10, who: c.player.split(' + ').map(last).join(' + '), solo: !team.some((x) => x.depth === 2) };
     });
     const pc = statCols.map((c) => ({ ...c, cls: undefined }));
-    table($('.t-plog'), 'plog-pair', [...(both ? [{ f: 'season', label: 'Season', w: '3.8rem' }] : []), { f: 'week', label: 'Wk', w: '2.4rem' }, { f: 'opp', label: 'Opp', l: true, w: '3.4rem' }, { f: 'who', label: `${p.position}1 + ${p.position}2`, l: true, w: '10.5rem', fmt: (v, r) => (v ? `${v}${r.solo ? ' (only one)' : ''}` : '—') }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp', w: '3.8rem' }, ...pc],
+    table($('.t-plog'), 'plog-pair', [...(both ? [{ f: 'season', label: 'Season', w: '3.8rem' }] : []), { f: 'week', label: 'Wk', w: '2.4rem' }, { f: 'opp', label: 'Opp', l: true, w: '2.8rem' }, { f: 'who', label: `${p.position}1 + ${p.position}2`, l: true, fmt: (v, r) => (v ? `${v}${r.solo ? ' (only one)' : ''}` : '—') }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp', w: '3.2rem' }, ...pc],
       pr, { sort: { f: 'gkey', dir: 'desc' } });
     $('.plog-note').textContent = `His team's top two ${p.position}s each game, added together.`;
   } else {
-    table($('.t-plog'), 'plog', [...(both ? [{ f: 'season', label: 'Season', w: '3.8rem' }] : []), { f: 'week', label: 'Wk', w: '2.4rem' }, { f: 'opp', label: 'Opp', l: true, w: '3.4rem' }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp', w: '3.8rem' }, ...statCols],
+    table($('.t-plog'), 'plog', [...(both ? [{ f: 'season', label: 'Season', w: '3.8rem' }] : []), { f: 'week', label: 'Wk', w: '2.4rem' }, { f: 'opp', label: 'Opp', l: true, w: '2.8rem' }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp', w: '3.2rem' }, ...statCols],
       cur, { sort: { f: 'gkey', dir: 'desc' } });
     $('.plog-note').textContent = '';
   }
