@@ -325,7 +325,8 @@
       "css": {
         "joinT": -14,
         "flatB": true,
-        "free": true
+        "free": true,
+        "row": 14
       }
     },
     {
@@ -344,8 +345,8 @@
       "label": "Input",
       "css": {
         "free": true,
-        "dx": -144,
-        "dy": 0
+        "dx": -100,
+        "dy": 1
       }
     },
     {
@@ -355,7 +356,7 @@
       "label": "Text · \"+ Fernando Mendoza + Brock Bower…\"",
       "css": {
         "free": true,
-        "dx": -144,
+        "dx": -102,
         "dy": 0
       }
     },
@@ -386,8 +387,10 @@
       "label": "Section · \"Games without + Fernando Mendoza…\"",
       "css": {
         "free": true,
-        "dx": 39,
-        "dy": 1
+        "dx": 10,
+        "dy": 8,
+        "width": 88.53,
+        "gap": 14
       }
     }
   ],
