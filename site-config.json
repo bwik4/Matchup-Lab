@@ -378,6 +378,17 @@
       "css": {
         "free": true
       }
+    },
+    {
+      "sp": "nfl",
+      "area": "",
+      "base": "div.card.vx-card > div.wo.vx-wo",
+      "label": "Section · \"Games without + Fernando Mendoza…\"",
+      "css": {
+        "free": true,
+        "dx": 39,
+        "dy": 1
+      }
     }
   ],
   "caseOff": false,
