@@ -371,12 +371,11 @@
       "label": "Section · \"OKC Shai Gilgeous-Alexander G · …\"",
       "flex": false,
       "order": [
-        "div:nth-of-type(6)",
-        "div:nth-of-type(5)",
         "div.card.vx-hero",
+        "div:nth-of-type(4)",
+        "div:nth-of-type(5)",
         "div:nth-of-type(2)",
-        "div.card.vx-card.vx-avg",
-        "div.card.vx-card.vx-shotp"
+        "div.card.vx-card.vx-avg"
       ]
     },
     {
