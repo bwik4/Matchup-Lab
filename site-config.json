@@ -316,6 +316,55 @@
         "dx": 0,
         "dy": -8
       }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "table.t-plog > thead > tr > th.l",
+      "label": "Column header · \"RB1 + RB2\"",
+      "css": {
+        "width": 11.39,
+        "gap": 14,
+        "free": true,
+        "h": 27
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.scroll > table.t-plog",
+      "label": "Table · \"Wk Opp RB1 + RB2 Opp Rk Carries …\"",
+      "css": {
+        "free": true,
+        "h": 288
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "div.scroll > table.t-plog > thead > tr > th:nth-of-type(1)",
+      "label": "Column header · \"Wk\"",
+      "css": {
+        "free": true
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "[data-ek=\"props/plog-title\"] > div.scroll",
+      "label": "Piece · \"Monangai + Swift\"",
+      "css": {
+        "row": 14
+      }
+    },
+    {
+      "sp": "",
+      "area": "",
+      "base": "[data-ek=\"props/p-title+group\"]",
+      "label": "Pick a player + Game log + History vs next opponent + Position vs opponent",
+      "css": {
+        "free": true
+      }
     }
   ],
   "caseOff": false,
