@@ -329,16 +329,18 @@ VX.player = function () {
   const prMain = tProject(sp, p, main);
   const opp = nx && nx.opp;
   // header
-  const hd = h('div', { class: 'card vx-hero', style: `--tc:${TI(p.team).color}` },
-    h('div', { class: 'vx-hero-l' }, vBadge(sp, p.team), h('div', null, h('h2', { class: 'vx-hero-nm' }, p.name),
-      h('div', { class: 'muted' }, `${p.pos} · `, vTeamLink(sp, p.team, TI(p.team).name || p.team), p.old ? ' · not active this season' : ''),
-      p.missed ? h('div', { class: 'vx-warn' }, `Missed his team's last ${p.missed} game${p.missed > 1 ? 's' : ''}`) : null)),
-    h('div', { class: 'vx-hero-r' },
-      nx ? h('div', { class: 'vx-next' }, h('small', null, 'Next'), h('b', null, nx.home ? 'vs ' : '@ ', vTeamLink(sp, nx.opp)), h('small', null, nx.label),
-        nx.g ? h('a', { class: 'vx-link', href: `#${vGameRoute(sp, nx.g)}` }, 'Game Page →') : null) : h('small', { class: 'muted' }, 'No game scheduled'),
+  const hd = h('div', { class: 'card vx-hero vx-hero-b', style: `--tc:${TI(p.team).color}` },
+    h('div', { class: 'vx-hb-l' },
+      h('div', { class: 'vx-hb-id' }, vBadge(sp, p.team), h('div', null, h('h2', { class: 'vx-hero-nm' }, p.name),
+        h('div', { class: 'muted' }, `${p.pos} · `, vTeamLink(sp, p.team, TI(p.team).name || p.team), p.old ? ' · not active this season' : ''),
+        p.missed ? h('div', { class: 'vx-warn' }, `Missed his team's last ${p.missed} game${p.missed > 1 ? 's' : ''}`) : null)),
       h('div', { class: 'vx-actions' }, tStar(sp, p.pid),
         h('button', { type: 'button', onclick: () => tOpenPlayer(sp, p.pid, main) }, sp === 'nfl' ? 'Prop Card' : 'Game Log'),
-        h('button', { type: 'button', onclick: () => { tCmpAdd(sp, p.pid); go('compare'); } }, 'Compare'))));
+        h('button', { type: 'button', onclick: () => { tCmpAdd(sp, p.pid); go('compare'); } }, 'Compare'))),
+    nx ? h('div', { class: 'vx-nextbox' }, h('small', null, `Next Game · ${nx.label}`),
+      h('div', { class: 'vx-nextopp' }, vBadge(sp, nx.opp, 'sm'), h('b', null, nx.home ? 'vs ' : '@ ', vTeamLink(sp, nx.opp, TI(nx.opp).name || nx.opp))),
+      nx.g ? h('a', { class: 'vx-link', href: `#${vGameRoute(sp, nx.g)}` }, 'Game Page →') : null)
+      : h('div', { class: 'vx-nextbox' }, h('small', null, 'No game scheduled')));
   // averages table: season / L10 / L5 / L3 / vs opp / proj / opp rank
   const cards = [hd];
   const avgRows = stats.map((k) => {
@@ -358,10 +360,12 @@ VX.player = function () {
     const sim = tVsSimilar(sp, p, main, opp);
     if (sp === 'nba' && !VSH.ready && !VSH.error) vShotsLoad().then((ok) => { if (ok && S.view === 'player') render(); });
     const es = vPlayerEdges(sp, p, opp);
-    cards.push(vCard(`${opp} Defense vs ${p.pos}`,
+    const dvCard = vCard(`${opp} Defense vs ${p.pos}`,
       h('div', { class: 'vx-dvgrid' }, ...all.map((k) => { const d = tDv(sp, opp, p.pos, k); return d ? h('a', { class: 'vx-dv', href: `#team/${sp}/${encodeURIComponent(opp)}`, style: `--c:${vRkColor(d.rank, d.n)}` }, h('small', null, vStatLbl(sp, k)), h('b', null, show(d.pg)), h('span', null, ordinal(d.rank))) : null; })),
       sim ? h('p', { class: 'note' }, `Vs the ${sim.n} defenses most like ${opp}: ${show(sim.avg)} ${vStatLbl(sp, main)} (`, ...sim.opps.flatMap((o, i) => [i ? ', ' : '', vTeamLink(sp, o)]), ').') : null,
-      es.length ? h('div', { class: 'vx-edges vx-edges-in' }, h('h3', null, `His Edges vs ${opp}`), ...es.map(vEdgeRow)) : null));
+      es.length ? h('div', { class: 'vx-edges vx-edges-in' }, h('h3', null, `His Edges vs ${opp}`), ...es.map(vEdgeRow)) : null);
+    dvCard.classList.add('vx-dvcard');
+    cards.push(dvCard);
   }
   const avgCard = vCard('Averages & Matchup', h('div', { class: 'tblwrap' }, h('table', { class: 'dvp' },
     h('thead', null, h('tr', null, ...['Stat', 'Season', 'L10', 'L3', opp ? `Vs ${opp}` : 'Vs Opp', 'Proj', 'Opp Rank', 'Line · L10 Over', ''].map((x, i) => h('th', { class: i ? '' : 'l' }, x)))),
@@ -379,7 +383,7 @@ VX.player = function () {
     if (sp === 'nba') vShotsLoad().then((ok) => { if (ok && S.view === 'player') { const c = vShotPlayerCard(p, opp), a = root.querySelector('.vx-avg'); if (c && a && !root.querySelector('.vx-shotp')) { c.classList.add('vx-shotp'); a.after(c); } } });
     return;
   }
-  if (!p.old) cards.push(vWoCard(sp, p));
+  if (!p.old) { const wc = vWoCard(sp, p); wc.classList.add('vx-wocard'); cards.push(wc); }
   // game log
   const last10 = p.logs.slice(-12).reverse();
   const glCols = stats.slice(0, 7);
@@ -388,7 +392,9 @@ VX.player = function () {
     h('tbody', null, last10.map((r) => { const d = tDv(sp, r.opp, p.pos, main); return h('tr', null, h('td', { class: 'l' }, isBB(sp) ? String(r.date || '').slice(5) : `${r.season !== U.season ? `${r.season} ` : ''}${r.week}`),
       h('td', null, r.home === 0 ? '@ ' : r.home === 1 ? 'vs ' : '', vTeamLink(sp, r.opp)), h('td', null, d ? vRk(d.rank, d.n) : '—'), ...glCols.map((k) => h('td', null, show(tVal(r, k))))); })))),
   h('button', { type: 'button', class: 'tr-more', onclick: () => openLog(sp === 'nfl' ? 'nfl' : sp, p.pid) }, 'Full Game Log')));
+  cards[cards.length - 1].classList.add('vx-logcard');
   if (sp === 'nfl') cards[cards.length - 1].lastChild.remove(); // NFL log lives on the prop card
+  cards.push(cards.splice(cards.indexOf(avgCard), 1)[0]); // averages last: header, defense, games without + game log, averages
   tRC(root, h('div', { class: 'vx-stack' }, cards));
   if (sp === 'nba') vShotsLoad().then((ok) => { if (ok && S.view === 'player') { const c = vShotPlayerCard(p, opp), a = root.querySelector('.vx-avg'); if (c && a && !root.querySelector('.vx-shotp')) { c.classList.add('vx-shotp'); a.after(c); } } });
   void prMain;
@@ -786,7 +792,7 @@ function vWoCard(sp, p) {
   const dl = `vwo-${p.pid}`.replace(/\W/g, '');
   const inp = h('input', { class: 'search', type: 'search', list: dl, placeholder: 'Add a teammate who sat out', 'aria-label': 'Teammate who sat out',
     onchange: (e) => { const m = mates.find((x) => `${x.name} (${x.pos})` === e.target.value || x.name === e.target.value); if (m && !S.vWo.list.includes(m.pid)) { S.vWo.list.push(m.pid); render(); } } });
-  const picker = h('div', { class: 'wo vx-wo' }, h('span', { class: 'lbl' }, 'Games without'), inp,
+  const picker = h('div', { class: 'wo vx-wo' }, inp,
     h('datalist', { id: dl }, ...mates.map((m) => h('option', { value: `${m.name} (${m.pos})` }))),
     h('div', { class: 'chips' }, ...chosen.map((m) => h('button', { type: 'button', class: 'chip', title: 'Remove', onclick: () => { S.vWo.list = S.vWo.list.filter((x) => x !== m.pid); render(); } }, `${m.name} ✕`))),
     !chosen.length ? h('span', { class: 'vx-wo-quick' }, ...mates.slice(0, 4).map((m) => h('button', { type: 'button', class: 'chip', onclick: () => { S.vWo.list.push(m.pid); render(); } }, `+ ${m.name}`))) : null);

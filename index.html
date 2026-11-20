@@ -527,6 +527,16 @@
   .vx-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .vx-actions button { font: inherit; font-size: .85rem; font-weight: 600; padding: 7px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--item); color: var(--fg); cursor: pointer; }
   @media (max-width: 640px) { .vx-hero-r, .vx-next { align-items: flex-start; } }
+  .vx-hero.vx-hero-b { background: var(--panel); align-items: stretch; }
+  .vx-hb-l { display: flex; flex-direction: column; justify-content: space-between; gap: 14px; }
+  .vx-hb-id { display: flex; gap: 14px; align-items: center; } .vx-hb-id .badge { width: 56px; height: 56px; font-size: 1rem; }
+  .vx-nextbox { display: flex; flex-direction: column; justify-content: center; gap: 5px; min-width: 190px; padding: 12px 16px; border-radius: 12px; background: var(--item); border: 1px solid var(--line); }
+  .vx-nextbox small { color: var(--muted); font-size: .75rem; }
+  .vx-nextopp { display: flex; align-items: center; gap: 8px; } .vx-nextopp b { font-size: 1.05rem; } .vx-nextopp a.vx-link { color: var(--fg); }
+  @media (max-width: 640px) { .vx-nextbox { width: 100%; } }
+  /* games without + game log read as one panel */
+  .vx-stack > .vx-wocard { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  .vx-stack > .vx-wocard + .vx-logcard { margin-top: -15px; border-top-left-radius: 0; border-top-right-radius: 0; }
   .vx-dvgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
   .vx-dv { display: flex; flex-direction: column; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: var(--fg); background: color-mix(in srgb, var(--c) 13%, var(--panel)); border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line)); }
   .vx-dv small { color: var(--muted); font-size: .72rem; } .vx-dv b { font-size: 1.2rem; } .vx-dv span { color: var(--c); font-weight: 700; font-size: .8rem; }
