@@ -392,6 +392,17 @@
         "div.card.vx-card.vx-avg",
         "div.card.vx-card.vx-shotp"
       ]
+    },
+    {
+      "sp": "nfl",
+      "area": "",
+      "base": "div.controls > div.seg.pd-win",
+      "label": "Section · \"This + Last This Season\"",
+      "flex": false,
+      "order": [
+        "button:nth-of-type(2)",
+        "button:nth-of-type(1)"
+      ]
     }
   ]
 }
