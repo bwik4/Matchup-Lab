@@ -19,7 +19,7 @@ sleeper_id,gsis_id,player,team,position,depth_pos,depth,status,injury
 7553,,Kyle Pitts Sr.,ATL,TE,TE,1,Active,
 11304,,E.J. Jenkins,ATL,TE,,,Active,
 19,00-0026158,Joe Flacco,CIN,QB,QB,2,Active,
-4054,00-0033217,Mo Alie-Cox,IND,TE,TE,3,Inactive,IR
+4054,00-0033217,Mo Alie-Cox,IND,TE,TE,4,Inactive,IR
 12848,,Josh Kelly,HOU,WR,,,Active,
 8698,,Jake Tonges,SF,TE,TE,4,Inactive,IR
 12971,,Ke'Shawn Williams,CIN,WR,,,Active,
@@ -164,7 +164,7 @@ IND,,Indianapolis Colts,IND,DEF,,,,
 4046,00-0033873,Patrick Mahomes,KC,QB,QB,1,Active,
 ARI,,Arizona Cardinals,ARI,DEF,,,,
 3286,00-0032775,Demarcus Robinson,SF,WR,LWR,5,Active,
-11608,,Isaiah Williams,NYJ,WR,SWR,4,Active,Questionable
+11608,,Isaiah Williams,NYJ,WR,SWR,4,Active,Out
 12524,,Shedeur Sanders,CLE,QB,QB,3,Active,
 SEA,,Seattle Seahawks,SEA,DEF,,,,
 7564,,Ja'Marr Chase,CIN,WR,LWR,1,Active,
@@ -185,7 +185,7 @@ LV,,Las Vegas Raiders,LV,DEF,,,,
 11633,,Jamari Thrash,TEN,WR,,,Active,
 13964,,Myles Montgomery,NE,RB,RB,7,Inactive,IR
 6386, 00-0035602,Alex Bachman,LA,WR,,,Active,
-4443,00-0033439,Pharaoh Brown,IND,TE,TE,4,Active,
+4443,00-0033439,Pharaoh Brown,IND,TE,TE,3,Active,
 11237,,Jacob Saylors,DET,RB,RB,3,Active,
 8414,,Britain Covey,PHI,WR,SWR,6,Active,Questionable
 8523,,Nick Muse,ATL,TE,TE,4,Active,
@@ -342,7 +342,7 @@ TB,,Tampa Bay Buccaneers,TB,DEF,,,,
 11577,,Will Shipley,PHI,RB,RB,5,Inactive,IR
 12540,,Chimere Dike,TEN,WR,SWR,3,Active,
 CLE,,Cleveland Browns,CLE,DEF,,,,
-13307,,Marlin Klein,HOU,TE,TE,5,Active,
+13307,,Marlin Klein,HOU,TE,TE,4,Active,
 5859, 00-0035676,A.J. Brown,NE,WR,LWR,1,Active,Out
 4034,00-0033280,Christian McCaffrey,SF,RB,RB,1,Active,
 6699, 00-0035645,Gunner Olszewski,NYG,WR,,6,Inactive,IR
@@ -471,7 +471,7 @@ LAR,,Los Angeles Rams,LA,DEF,,,,
 12483,,Jack Bech,LV,WR,SWR,3,Active,
 NO,,New Orleans Saints,NO,DEF,,,,
 13313,,Emmanuel Henderson Jr.,SEA,WR,,,Active,
-7568,,Brevin Jordan,HOU,TE,TE,4,Active,Out
+7568,,Brevin Jordan,HOU,TE,TE,5,Active,Out
 5985, 00-0034981,Foster Moreau,HOU,TE,TE,2,Active,
 GB,,Green Bay Packers,GB,DEF,,,,
 13429,,Seydou Traore,MIA,TE,TE,3,Active,
@@ -549,7 +549,7 @@ GB,,Green Bay Packers,GB,DEF,,,,
 6826,,Cole Kmet,CHI,TE,TE,4,Inactive,IR
 12526,,Tetairoa McMillan,CAR,WR,LWR,1,Active,
 11058,,Blake Grupe,LA,K,K,2,Inactive,IR
-13276,,Omar Cooper Jr.,NYJ,WR,SWR,3,Active,Questionable
+13276,,Omar Cooper Jr.,NYJ,WR,SWR,3,Active,Out
 11210,,Malik Heath,WAS,WR,,,Active,
 13963,,Nick DeGennaro,WAS,WR,,,Active,
 13121,,Ben Yurosek,MIN,TE,TE,3,Active,
