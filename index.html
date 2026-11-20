@@ -623,8 +623,8 @@
   /* game log: a line between every column */
   /* full-width game log: even stat columns instead of a few stretched ones */
   table.t-plog { table-layout: fixed; }
-  table.t-plog th:first-child, table.t-plog td:first-child { width: 3.6rem; }
-  table.t-plog th:nth-child(2), table.t-plog td:nth-child(2) { width: 4.6rem; }
+  table.t-plog th, table.t-plog td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 6px; padding-right: 6px; }
+  .scroll:has(> table.t-plog) { margin: 0 -10px; }
   table.t-plog th + th, table.t-plog td + td { border-left: 1px solid color-mix(in srgb, var(--fg) 16%, transparent); }
 
   /* matchup edges */
@@ -1399,6 +1399,7 @@ function table(el, name, cols, data, opts = {}) {
     const th = document.createElement('th');
     th.className = [c.l ? 'l' : '', c.group ? 'grp' : '', c.rank ? 'rkh' : ''].join(' ').trim();
     if (c.title) th.title = c.title;
+    if (c.w) th.style.width = c.w;
     if (st && st.f === c.f) th.setAttribute('aria-sort', st.dir === 'asc' ? 'ascending' : 'descending');
     const b = document.createElement('button');
     b.textContent = c.label + (st && st.f === c.f ? (st.dir === 'asc' ? ' ↑' : ' ↓') : '');
@@ -2104,7 +2105,8 @@ function renderProps() {
     : p.position === 'K' ? ['k_pts', 'fg_made', 'fg_att', 'fg_long', 'fg_made_40_49', 'fg_made_50', 'pat_made', 'pat_att']
     : p.position === 'RB' ? ['carries', 'rushing_yards', 'rushing_tds', 'long_rush', 'targets', 'target_share', 'receptions', 'receiving_yards', 'long_reception', 'rz_carries']
       : ['targets', 'receptions', 'receiving_yards', 'receiving_tds', 'long_reception', 'receiving_air_yards', 'rz_targets', 'target_share'];
-  const lab = { receiving_air_yards: 'Air yds', target_share: 'Tgt %', long_completion: 'Long', long_rush: 'Long rush', long_reception: 'Long rec' };
+  const lab = { receiving_air_yards: 'Air yds', target_share: 'Tgt %', long_completion: 'Long', long_rush: 'Long', long_reception: 'Long rec',
+    carries: 'Att', targets: 'Tgts', receptions: 'Rec', rz_carries: 'RZ Att' };
   const statCols = extra.map((k) => ({ f: k, label: lab[k] || STATS[k] }));
   if (!extra.includes(stat)) statCols.unshift({ f: stat, label: statLabel(stat) });
   const hl = (v) => (v == null ? '' : v > line ? 'g' : v < line ? 'r' : '');
@@ -2130,11 +2132,11 @@ function renderProps() {
       return { ...r, ...Object.fromEntries(sumKeys.map((k) => [k, c[k]])), target_share: Math.round(ts * 10) / 10, who: c.player.split(' + ').map(last).join(' + '), solo: !team.some((x) => x.depth === 2) };
     });
     const pc = statCols.map((c) => ({ ...c, cls: undefined }));
-    table($('.t-plog'), 'plog-pair', [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'who', label: `${p.position}1 + ${p.position}2`, l: true, fmt: (v, r) => (v ? `${v}${r.solo ? ' (only one)' : ''}` : '—') }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, ...pc],
+    table($('.t-plog'), 'plog-pair', [...(both ? [{ f: 'season', label: 'Season', w: '3.8rem' }] : []), { f: 'week', label: 'Wk', w: '2.4rem' }, { f: 'opp', label: 'Opp', l: true, w: '3.4rem' }, { f: 'who', label: `${p.position}1 + ${p.position}2`, l: true, w: '10.5rem', fmt: (v, r) => (v ? `${v}${r.solo ? ' (only one)' : ''}` : '—') }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp', w: '3.8rem' }, ...pc],
       pr, { sort: { f: 'gkey', dir: 'desc' } });
     $('.plog-note').textContent = `His team's top two ${p.position}s each game, added together.`;
   } else {
-    table($('.t-plog'), 'plog', [...(both ? [{ f: 'season', label: 'Season' }] : []), { f: 'week', label: 'Wk' }, { f: 'opp', label: 'Opp', l: true }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp' }, ...statCols],
+    table($('.t-plog'), 'plog', [...(both ? [{ f: 'season', label: 'Season', w: '3.8rem' }] : []), { f: 'week', label: 'Wk', w: '2.4rem' }, { f: 'opp', label: 'Opp', l: true, w: '3.4rem' }, { f: 'opp_rank', label: 'Opp rk', rank: 'opp', w: '3.8rem' }, ...statCols],
       cur, { sort: { f: 'gkey', dir: 'desc' } });
     $('.plog-note').textContent = '';
   }
