@@ -316,82 +316,6 @@
         "dx": 0,
         "dy": -8
       }
-    },
-    {
-      "sp": "nfl",
-      "area": "",
-      "base": "div.vx-stack > div.card.vx-card",
-      "label": "Section · \"DEN Defense vs TE Rec 7.2 31st R…\"",
-      "css": {
-        "joinT": -14,
-        "flatB": true,
-        "free": true,
-        "row": 14
-      }
-    },
-    {
-      "sp": "nfl",
-      "area": "",
-      "base": "div.wo.vx-wo > span.lbl",
-      "label": "Text · \"Games without\"",
-      "css": {
-        "hide": true
-      }
-    },
-    {
-      "sp": "nfl",
-      "area": "",
-      "base": "div.wo.vx-wo > input.search",
-      "label": "Input",
-      "css": {
-        "free": true,
-        "dx": -100,
-        "dy": 1
-      }
-    },
-    {
-      "sp": "nfl",
-      "area": "",
-      "base": "div.wo.vx-wo > span.vx-wo-quick",
-      "label": "Text · \"+ Fernando Mendoza + Brock Bower…\"",
-      "css": {
-        "free": true,
-        "dx": -102,
-        "dy": 0
-      }
-    },
-    {
-      "sp": "nfl",
-      "area": "",
-      "base": "div.vx-stack > div.card.vx-card > h2",
-      "label": "Title · \"Game Log\"",
-      "css": {
-        "dx": 0,
-        "dy": 0,
-        "mt": -12
-      }
-    },
-    {
-      "sp": "nfl",
-      "area": "",
-      "base": "div.card.vx-card > div.vx-edges.vx-edges-in > h3",
-      "label": "Title · \"His Edges vs DEN\"",
-      "css": {
-        "free": true
-      }
-    },
-    {
-      "sp": "nfl",
-      "area": "",
-      "base": "div.card.vx-card > div.wo.vx-wo",
-      "label": "Section · \"Games without + Fernando Mendoza…\"",
-      "css": {
-        "free": true,
-        "dx": 91,
-        "dy": -4,
-        "width": 88.53,
-        "gap": 14
-      }
     }
   ],
   "caseOff": false,
@@ -447,11 +371,12 @@
       "label": "Section · \"OKC Shai Gilgeous-Alexander G · …\"",
       "flex": false,
       "order": [
-        "div.card.vx-hero",
-        "div:nth-of-type(4)",
+        "div:nth-of-type(6)",
         "div:nth-of-type(5)",
+        "div.card.vx-hero",
         "div:nth-of-type(2)",
-        "div.card.vx-card.vx-avg"
+        "div.card.vx-card.vx-avg",
+        "div.card.vx-card.vx-shotp"
       ]
     },
     {
@@ -483,29 +408,15 @@
     {
       "sp": "nfl",
       "area": "",
-      "base": "div.vx-root > div.vx-stack",
-      "label": "Section · \"LV Michael Mayer TE · Las Vegas …\"",
+      "base": "div.vx-root > div.vx-stack:has(> div.card.vx-avg)",
+      "label": "Section · NFL player page (player header first)",
       "flex": false,
       "order": [
         "div.card.vx-hero",
-        "div:nth-of-type(2)",
         "div:nth-of-type(4)",
         "div:nth-of-type(5)",
+        "div:nth-of-type(2)",
         "div.card.vx-card.vx-avg"
-      ]
-    },
-    {
-      "sp": "nfl",
-      "area": "",
-      "base": "div.card.vx-card > div.wo.vx-wo",
-      "label": "Section · \"Games without + Fernando Mendoza…\"",
-      "flex": false,
-      "order": [
-        "span.lbl",
-        "input.search",
-        "datalist:nth-of-type(1)",
-        "span.vx-wo-quick",
-        "div.chips"
       ]
     }
   ]
