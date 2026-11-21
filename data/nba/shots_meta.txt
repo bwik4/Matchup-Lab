@@ -1,5 +1,5 @@
 season=2027
-games=226
-shots=39927
-through_date=2026-11-19
-built_at=2026-11-20T14:29:15+00:00
+games=235
+shots=41500
+through_date=2026-11-20
+built_at=2026-11-21T14:21:30+00:00
