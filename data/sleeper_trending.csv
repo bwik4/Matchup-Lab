@@ -1,51 +1,51 @@
 type,sleeper_id,count,player,team,position,gsis_id,injury
-add,12540,354483,Chimere Dike,TEN,WR,,
-add,DET,283041,DET,DET,DEF,,
-add,2020,201796,Cairo Santos,CHI,K,00-0031203,
-add,5995,180486,Justice Hill,BAL,RB, 00-0034975,
-add,9482,175887,Michael Mayer,LV,TE,,
-add,12492,165792,Pat Bryant,DEN,WR,,
-add,10219,155925,Chris Rodriguez Jr.,JAX,RB,,
-add,11625,148728,Adonai Mitchell,NYJ,WR,,
-add,5012,146241,Mark Andrews,BAL,TE,00-0034753,
-add,12499,124912,Elic Ayomanor,TEN,WR,,
-add,11783,101960,Ryan Flournoy,DAL,WR,,
-add,6650,96760,Chase McLaughlin,TB,K, 00-0035358,
-add,12533,82125,Jacory Croskey-Merritt,WAS,RB,,IR
-add,4147,77680,Samaje Perine,CIN,RB,00-0033526,
-add,10218,76531,Xavier Hutchinson,HOU,WR,,
-add,11563,74808,Bo Nix,DEN,QB,,
-add,5045,74745,Courtland Sutton,DEN,WR,00-0034348,
-add,12700,74493,Gavin Bartholomew,MIN,TE,,
-add,9480,74124,Brenton Strange,JAX,TE,,
-add,TB,73355,TB,TB,DEF,,
-add,7567,71624,Kenny Gainwell,TB,RB,,
-add,2505,66816,Darren Waller,CAR,TE,00-0031610,Questionable
-add,13269,59792,Fernando Mendoza,LV,QB,,
-add,11539,58336,Jake Bates,DET,K,,
-add,12534,56862,Kyle Monangai,CHI,RB,,
-drop,6130,141489,Devin Singletary,NYG,RB, 00-0035250,
-drop,13424,138152,Seth McGowan,IND,RB,,Out
-drop,12491,131796,Corey Kiner,NE,RB,,
-drop,2747,124890,Jason Myers,SEA,K,00-0031492,
-drop,NE,115948,NE,NE,DEF,,
-drop,13276,111040,Omar Cooper Jr.,NYJ,WR,,Out
-drop,9493,102452,Puka Nacua,LA,WR,,IR
-drop,6083,101115,Matt Gay,LV,K, 00-0035269,Questionable
-drop,2505,89640,Darren Waller,CAR,TE,00-0031610,Questionable
-drop,12718,85932,Konata Mumpfield,LA,WR,,
-drop,3271,83214,Tyler Higbee,LA,TE,00-0033110,
-drop,11834,79387,Devaughn Vele,NO,WR,,
-drop,10218,76636,Xavier Hutchinson,HOU,WR,,
-drop,10219,76275,Chris Rodriguez Jr.,JAX,RB,,
-drop,9756,74115,Jordan Addison,MIN,WR,,Out
-drop,CLE,70294,CLE,CLE,DEF,,
-drop,11624,64044,Xavier Worthy,KC,WR,,
-drop,9482,62955,Michael Mayer,LV,TE,,
-drop,3286,62910,Demarcus Robinson,SF,WR,00-0032775,
-drop,7562,60046,Tutu Atwell,LA,WR,,
-drop,9502,57824,Tank Dell,HOU,WR,,
-drop,7553,55363,Kyle Pitts Sr.,ATL,TE,,
-drop,10232,54729,Michael Wilson,ARI,WR,,IR
-drop,10236,54348,Dalton Kincaid,BUF,TE,,Doubtful
-drop,5849,53624,Kyler Murray,MIN,QB, 00-0035228,Out
+add,12540,287568,Chimere Dike,TEN,WR,,
+add,DET,168543,DET,DET,DEF,,
+add,5995,148563,Justice Hill,BAL,RB, 00-0034975,
+add,11625,144616,Adonai Mitchell,NYJ,WR,,
+add,12492,137832,Pat Bryant,DEN,WR,,
+add,9482,135648,Michael Mayer,LV,TE,,
+add,10219,132795,Chris Rodriguez Jr.,JAX,RB,,
+add,2020,124250,Cairo Santos,CHI,K,00-0031203,
+add,5012,118413,Mark Andrews,BAL,TE,00-0034753,
+add,12499,94320,Elic Ayomanor,TEN,WR,,
+add,11783,74720,Ryan Flournoy,DAL,WR,,
+add,6650,70400,Chase McLaughlin,TB,K, 00-0035358,
+add,12533,67707,Jacory Croskey-Merritt,WAS,RB,,IR
+add,4147,61700,Samaje Perine,CIN,RB,00-0033526,
+add,7567,60616,Kenny Gainwell,TB,RB,,
+add,5045,60606,Courtland Sutton,DEN,WR,00-0034348,
+add,9480,59427,Brenton Strange,JAX,TE,,
+add,12700,55728,Gavin Bartholomew,MIN,TE,,
+add,2505,54108,Darren Waller,CAR,TE,00-0031610,Questionable
+add,TB,52455,TB,TB,DEF,,
+add,11563,51090,Bo Nix,DEN,QB,,
+add,12718,51066,Konata Mumpfield,LA,WR,,
+add,13337,47925,Emmett Johnson,KC,RB,,
+add,12534,44916,Kyle Monangai,CHI,RB,,
+add,13269,42152,Fernando Mendoza,LV,QB,,
+drop,13424,132016,Seth McGowan,IND,RB,,Out
+drop,9493,106750,Puka Nacua,LA,WR,,IR
+drop,13276,105424,Omar Cooper Jr.,NYJ,WR,,Out
+drop,6130,103662,Devin Singletary,NYG,RB, 00-0035250,
+drop,12491,100062,Corey Kiner,NE,RB,,
+drop,6083,78225,Matt Gay,LV,K, 00-0035269,Questionable
+drop,2747,72270,Jason Myers,SEA,K,00-0031492,
+drop,2505,71280,Darren Waller,CAR,TE,00-0031610,Questionable
+drop,10218,70777,Xavier Hutchinson,HOU,WR,,
+drop,NE,69573,NE,NE,DEF,,
+drop,10219,65511,Chris Rodriguez Jr.,JAX,RB,,
+drop,12718,65223,Konata Mumpfield,LA,WR,,
+drop,11834,59171,Devaughn Vele,NO,WR,,
+drop,3271,59058,Tyler Higbee,LA,TE,00-0033110,
+drop,10236,53718,Dalton Kincaid,BUF,TE,,Doubtful
+drop,9482,52587,Michael Mayer,LV,TE,,
+drop,9756,52443,Jordan Addison,MIN,WR,,Out
+drop,9502,47648,Tank Dell,HOU,WR,,
+drop,3286,45450,Demarcus Robinson,SF,WR,00-0032775,
+drop,7562,44310,Tutu Atwell,LA,WR,,
+drop,11624,44307,Xavier Worthy,KC,WR,,
+drop,CLE,42882,CLE,CLE,DEF,,
+drop,5870,40590,Daniel Jones,IND,QB, 00-0035710,
+drop,7553,39641,Kyle Pitts Sr.,ATL,TE,,
+drop,10232,37809,Michael Wilson,ARI,WR,,IR
