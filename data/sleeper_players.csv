@@ -25,6 +25,7 @@ sleeper_id,gsis_id,player,team,position,depth_pos,depth,status,injury
 12971,,Ke'Shawn Williams,CIN,WR,,,Active,
 6016, 00-0035058,Dax Raymond,PIT,TE,,,Active,
 11157,,Brycen Tremayne,CAR,WR,RWR,5,Active,
+8116,,Pierre Strong Jr.,GB,RB,,,Active,
 7585,,Davis Mills,HOU,QB,QB,2,Active,
 2359,00-0032104,Ameer Abdullah,JAX,RB,RB,3,Active,
 5854, 00-0035704,Drew Lock,SEA,QB,QB,1,Active,
@@ -191,7 +192,7 @@ LV,,Las Vegas Raiders,LV,DEF,,,,
 8180,,Jalen Nailor,LV,WR,RWR,2,Active,
 1737,00-0028986,Case Keenum,CHI,QB,QB,2,Active,
 12519,,Luther Burden III,CHI,WR,RWR,1,Active,
-9486,,Dontayvion Wicks,PHI,WR,RWR,6,Active,Out
+9486,,Dontayvion Wicks,PHI,WR,RWR,6,Inactive,IR
 NYJ,,New York Jets,NYJ,DEF,,,,
 13199,,Montorie Foster Jr.,SEA,WR,,,Active,
 12455,,Brashard Smith,KC,RB,RB,5,Inactive,IR
@@ -257,7 +258,7 @@ DAL,,Dallas Cowboys,DAL,DEF,,,,
 7083,,Tyler Huntley,BAL,QB,QB,3,Inactive,IR
 12735,,Caleb Lohner,DEN,TE,TE,5,Inactive,IR
 8137,,George Pickens,DAL,WR,RWR,2,Active,
-8135,,Treylon Burks,WAS,WR,RWR,3,Active,Questionable
+8135,,Treylon Burks,WAS,WR,RWR,3,Active,
 7694,,Tommy Tremble,CAR,TE,TE,2,Active,Questionable
 9484,,Tucker Kraft,GB,TE,TE,1,Active,
 10215,,Jake Haener,NYG,QB,,,Active,
@@ -337,7 +338,7 @@ TB,,Tampa Bay Buccaneers,TB,DEF,,,,
 10224,,Brayden Willis,SF,TE,TE,5,Active,
 8160,,Kenny Pickett,CAR,QB,QB,2,Active,
 9479,,Darnell Washington,PIT,TE,TE,2,Active,
-11577,,Will Shipley,PHI,RB,RB,5,Inactive,IR
+11577,,Will Shipley,PHI,RB,RB,5,Active,Questionable
 12540,,Chimere Dike,TEN,WR,SWR,3,Active,
 CLE,,Cleveland Browns,CLE,DEF,,,,
 13307,,Marlin Klein,HOU,TE,TE,4,Active,
@@ -630,7 +631,7 @@ BUF,,Buffalo Bills,BUF,DEF,,,,
 7611,,Rhamondre Stevenson,NE,RB,RB,1,Active,
 12547,,Kyle Williams,NE,WR,SWR,4,Active,
 3333,00-0033112,Temarrick Hemingway,WAS,TE,,,Active,
-8150,,Kyren Williams,LA,RB,RB,1,Active,
+8150,,Kyren Williams,LA,RB,RB,1,Active,Questionable
 PHI,,Philadelphia Eagles,PHI,DEF,,,,
 8121,,Romeo Doubs,NE,WR,RWR,6,Inactive,IR
 8123,,Hassan Haskins,CLE,RB,,,Active,
