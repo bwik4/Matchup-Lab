@@ -452,8 +452,8 @@
         "div:nth-of-type(5)",
         "div:nth-of-type(6)",
         "div:nth-of-type(7)",
-        "div:nth-of-type(10)",
         "div:nth-of-type(8)",
+        "div:nth-of-type(10)",
         "div:nth-of-type(9)",
         "div:nth-of-type(11)"
       ]
