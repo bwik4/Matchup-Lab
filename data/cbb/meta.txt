@@ -6,4 +6,4 @@ dvp_season=2027
 calibration=1.14
 lg_eff=106.62
 lg_tempo=70.00
-built_at=2026-11-22T14:21:29+00:00
+built_at=2026-11-22T20:23:11+00:00
