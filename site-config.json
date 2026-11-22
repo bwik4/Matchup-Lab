@@ -330,15 +330,6 @@
     {
       "sp": "",
       "area": "",
-      "base": "div.glist > div.gcard",
-      "label": "Section · \"JAX JAX Jaguars 7-2 -6 -112 -274…\"",
-      "css": {
-        "free": true
-      }
-    },
-    {
-      "sp": "",
-      "area": "",
       "base": "div.gcard > div.gfoot > span:nth-of-type(1)",
       "label": "Text · \"3:25 PM\"",
       "css": {
@@ -460,10 +451,10 @@
         "div:nth-of-type(4)",
         "div:nth-of-type(5)",
         "div:nth-of-type(6)",
+        "div:nth-of-type(7)",
         "div:nth-of-type(10)",
         "div:nth-of-type(8)",
         "div:nth-of-type(9)",
-        "div:nth-of-type(7)",
         "div:nth-of-type(11)"
       ]
     }
