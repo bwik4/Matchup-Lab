@@ -3,7 +3,7 @@ JAX,Eric Murray,DB,out,Injured Reserve,Elbow,,2026-11-04T05:20,0,,,,00-0033038,S
 ATL,Cameron Williams,OL,out,Out,Coach's Decision,,2026-11-12T01:00,0,,,,,Sleeper
 ATL,JD Bertrand,LB,out,Injured Reserve,Undisclosed,,2026-08-31T23:35,0,,,,,Sleeper
 HOU,Kayshon Boutte,WR,questionable,Questionable,Hip,,2026-11-20T16:25,0,,,,,Sleeper
-LV,Tim Keenan III,DT,questionable,Questionable,Knee,,2026-11-22T22:40,0,,,,,Sleeper
+LV,Tim Keenan III,DT,questionable,Questionable,Knee,,2026-11-22T23:25,0,,,,,Sleeper
 BAL,Adam Randall,RB,out,Out,Coach's Decision,,2026-11-22T16:45,0,,,,,Sleeper
 SF,Nate Hobbs,CB,out,Injured Reserve,Groin,,2026-11-22T00:30,0,,,,,Sleeper
 CIN,Oren Burks,LB,out,Injured Reserve,Groin,,2026-11-21T20:00,0,,,,00-0034754,Sleeper
@@ -50,7 +50,7 @@ NYJ,Max Mitchell,T,out,Injured Reserve,Concussion,,2026-11-04T02:00,0,,,,,Sleepe
 SEA,Quenton Nelson,OL,out,Out,Knee,,2026-11-14T02:45,0,Surgery,,,00-0034342,Sleeper
 JAX,CJ Williams,WR,out,Out,Coach's Decision,,2026-11-15T16:45,0,,,,,Sleeper
 GB,Collin Oliver,DE,out,Injured Reserve,Undisclosed,,2026-09-01T23:30,0,,,,,Sleeper
-NYG,Greg Newsome II,CB,questionable,Questionable,Ankle,,2026-11-22T21:55,0,,,,,Sleeper
+NYG,Greg Newsome II,CB,questionable,Questionable,Ankle,,2026-11-23T00:00,0,,,,,Sleeper
 CLE,Michael Burton,FB,out,Injured Reserve,Calf,,2026-11-15T08:50,0,,,,00-0031595,Sleeper
 GB,Sean Rhyan,OL,out,Out,Ankle,,2026-11-22T21:50,0,Sprain,,,,Sleeper
 LAC,Tarheeb Still,DB,out,Out,Ankle,,2026-11-22T19:55,0,,,,,Sleeper
@@ -92,7 +92,7 @@ NYJ,Kingsley Jonathan,DT,out,Injured Reserve,Thigh,,2026-10-07T21:50,0,Bruise,,,
 CLE,Noah Igbinoghene,CB,out,Out,Coach's Decision,,2026-09-01T19:50,0,,,,,Sleeper
 HOU,Azeez Al-Shaair,LB,out,Injured Reserve,Groin,,2026-11-17T17:10,0,,,, 00-0035166,Sleeper
 NE,Mike Onwenu,OL,out,Injured Reserve,Ankle,,2026-09-23T00:30,0,Fracture,,,,Sleeper
-LV,Adam Butler,DT,questionable,Questionable,Head,,2026-11-22T22:55,0,,,,00-0033381,Sleeper
+LV,Adam Butler,DT,questionable,Questionable,Head,,2026-11-22T23:25,0,,,,00-0033381,Sleeper
 SEA,Charles Cross,OL,out,Out,Ankle,,2026-11-14T02:40,0,Sprain,,,,Sleeper
 DEN,Duplicate Player,ILB,out,Illness list,,,,0,,,,,Sleeper
 DET,Ennis Rakestraw Jr.,DB,out,Out,Shoulder,,2026-11-22T17:30,0,,,,,Sleeper
@@ -110,14 +110,16 @@ ARI,Trey Benson,RB,out,Injured Reserve,Knee,,2026-10-10T19:55,0,,,,,Sleeper
 KC,Jimmy Holiday,WR,out,Injured Reserve,Undisclosed,,2026-08-31T17:45,0,,,,,Sleeper
 BUF,Mike Danna,DE,out,Out,Coach's Decision,,2026-10-15T05:25,0,,,,,Sleeper
 SEA,Jake Bobo,WR,out,Injured Reserve,Knee,,2026-08-22T18:30,0,,,,,Sleeper
+SF,Demarcus Robinson,WR,out,Out,Coach's Decision,,2026-11-23T00:20,0,,,,00-0032775,Sleeper
 LV,Tristin McCollum,DB,out,Out,Coach's Decision,,2026-04-03T23:10,0,,,,,Sleeper
 NYJ,Isaiah Williams,WR,out,Out,Ribs,,2026-11-20T16:15,0,,,,,Sleeper
 NE,Khalil Jacobs,LB,out,Injured Reserve,Undisclosed,,2026-10-07T17:25,0,,,,,Sleeper
 NYG,Calvin Austin III,WR,out,Injured Reserve,Knee,,2026-08-27T23:35,0,,,,,Sleeper
-LA,Joe Cardona,LS,out,Out,Ankle,,2026-11-15T20:35,0,,,,00-0032228,Sleeper
+LA,Joe Cardona,LS,out,Out,Ankle,,2026-11-23T00:25,0,,,,00-0032228,Sleeper
 WAS,Dyami Brown,WR,out,Injured Reserve,Calf,,2026-11-08T05:25,0,,,,,Sleeper
 TEN,Jaren Kanak,TE,out,Injured Reserve,Pectoral,,2026-08-17T06:05,0,,,,,Sleeper
 DET,Giovanni Manu,OL,out,PUP list,Knee,,2026-08-31T23:15,0,,,,,Sleeper
+LAC,Justin Herbert,QB,questionable,Questionable,Concussion,,2026-11-23T00:45,0,,,,,Sleeper
 ATL,Samson Ebukam,DE,out,Injured Reserve,Hamstring,,2026-11-04T00:40,0,,,,00-0033945,Sleeper
 NE,Myles Montgomery,RB,out,Injured Reserve,Undisclosed,,2026-08-13T23:10,0,,,,,Sleeper
 MIA,Bradley Pinion,P,out,Out,Groin,,2026-11-21T01:25,0,,,,00-0032065,Sleeper
@@ -142,6 +144,7 @@ GB,Jonathan Ford,DL,out,Injured Reserve,Calf,,2026-10-18T03:00,0,,,,,Sleeper
 ARI,James Conner,RB,out,Injured Reserve,Foot,,2026-11-18T21:40,0,,,,00-0033553,Sleeper
 DEN,Brandon Jones,DB,out,Out,Hamstring,,2026-11-22T20:15,0,,,,,Sleeper
 ARI,Zach Carter,DL,out,Injured Reserve,Knee,,2026-11-21T01:40,0,,,,,Sleeper
+LV,JJ Pegues,DT,questionable,Questionable,Forearm,,2026-11-23T00:40,0,,,,,Sleeper
 DEN,Nick Gargiulo,OL,out,PUP list,Knee,,2026-08-31T23:30,0,,,,,Sleeper
 PIT,Alex Highsmith,LB,questionable,Questionable,Ankle,,2026-11-22T19:50,0,,,,,Sleeper
 SF,Isaac Guerendo,RB,out,PUP list,Pectoral,,2026-11-20T00:35,0,Surgery,,,,Sleeper
@@ -155,9 +158,11 @@ CAR,Marco Wilson,CB,out,Out,Coach's Decision,,2026-11-17T07:20,0,,,,,Sleeper
 MIA,Jonah Savaiinaea,OL,questionable,Questionable,Ankle,,2026-11-22T20:00,0,,,,,Sleeper
 LA,Terrance Ferguson,TE,out,Injured Reserve,Ankle,,2026-11-20T18:20,0,Sprain,,,,Sleeper
 CAR,Thomas Incoom,LB,out,Injured Reserve,Calf,,2026-10-24T23:55,0,,,,,Sleeper
+SF,Colton McKivitz,OL,out,Out,Lower Leg,,2026-11-23T02:55,0,,,,,Sleeper
 MIA,Trey Moore,LB,out,Injured Reserve,Ankle,,2026-10-12T19:20,0,Surgery,,,,Sleeper
 MIN,Josh Oliver,TE,out,Injured Reserve,Biceps,,2026-09-30T00:30,0,Surgery,,, 00-0035249,Sleeper
 NYG,Gregory Desrosiers Jr.,RB,out,Out,Coach's Decision,,2026-11-11T03:00,0,,,,,Sleeper
+MIN,Christian Darrisaw,T,questionable,Questionable,Shoulder,,2026-11-23T03:25,0,,,,,Sleeper
 TEN,Dan Moore Jr.,OT,questionable,Questionable,Knee,,2026-11-22T20:40,0,,,,,Sleeper
 NO,Mason Tipton,WR,out,PUP list,Groin,,2026-08-31T18:45,0,,,,,Sleeper
 BAL,Tyler Huntley,QB,out,Injured Reserve,Toe,,2026-11-05T22:00,0,Sprain,,,,Sleeper
@@ -167,11 +172,11 @@ PHI,Andre' Sam,DB,out,Injured Reserve,Foot,,2026-09-01T03:50,0,,,,,Sleeper
 MIN,Donovan Jackson,OL,out,Injured Reserve,Knee - Meniscus,,2026-10-07T00:40,0,Surgery,,,,Sleeper
 BUF,Dorian Williams,LB,out,Out,Calf,,2026-11-20T20:01,0,,,,,Sleeper
 LAC,Keaton Mitchell,RB,questionable,Questionable,Back,,2026-11-22T23:05,0,,,,,Sleeper
-MIA,Chris Bell,WR,questionable,Questionable,Chest,,2026-11-22T20:25,0,,,,,Sleeper
+MIA,Chris Bell,WR,questionable,Questionable,Chest,,2026-11-23T05:35,0,,,,,Sleeper
 PHI,Uar Bernard,DT,out,Out,Undisclosed,,2026-10-10T02:25,0,,,,,Sleeper
 CAR,Bobby Okereke,LB,out,Out,Foot,,2026-11-20T19:25,0,,,, 00-0035687,Sleeper
 SEA,Jarran Reed,DT,questionable,Questionable,Toe,,2026-11-15T22:25,0,,,,00-0032387,Sleeper
-MIN,Jay Ward,DB,questionable,Questionable,Knee,,2026-11-20T21:40,0,,,,,Sleeper
+MIN,Jay Ward,DB,out,Out,Knee,,2026-11-23T00:20,0,,,,,Sleeper
 WAS,Amik Robertson,CB,questionable,Questionable,Ankle,,2026-11-22T00:30,0,,,,,Sleeper
 PIT,Donte Kent,CB,out,PUP list,Undisclosed,,2026-09-01T00:05,0,,,,,Sleeper
 DEN,Tyler Badie,RB,out,Injured Reserve,Thumb,,2026-10-24T23:31,0,,,,,Sleeper
@@ -185,7 +190,6 @@ WAS,Laremy Tunsil,OL,out,Injured Reserve,Triceps,,2026-11-21T01:00,0,Surgery,,,0
 DAL,Kelvin Gilliam,DT,out,Injured Reserve,Triceps,,2026-08-26T00:20,0,,,,,Sleeper
 CAR,Haynes King,QB,out,Out,Coach's Decision,,2026-11-22T17:10,0,,,,,Sleeper
 TB,Easton Stick,QB,out,Out,Coach's Decision,,2026-11-22T17:20,0,,,, 00-0035282,Sleeper
-SF,Mike Evans,WR,questionable,Questionable,Achilles,,2026-11-22T18:05,0,Tendinitis,,,00-0031408,Sleeper
 ARI,Jon Gaines II,OL,out,Out,Ankle,,2026-11-21T01:45,0,,,,,Sleeper
 TEN,James Williams Sr.,DB,out,Injured Reserve,Groin,,2026-11-11T06:00,0,,,,,Sleeper
 TEN,Donnie Ernsberger,TE,questionable,Questionable,,,2021-08-15T00:25,0,,,, 00-0034611,Sleeper
@@ -202,6 +206,7 @@ CLE,Teven Jenkins,OL,out,Injured Reserve,Back,,2026-10-24T18:55,0,,,,,Sleeper
 TB,Mohamed Kamara,DL,out,Injured Reserve,Knee,,2026-09-01T03:55,0,Sprain,,,,Sleeper
 IND,Seth McGowan,RB,out,Out,Hamstring,,2026-11-20T14:00,0,,,,,Sleeper
 LA,Coleman Shelton,OL,questionable,Questionable,Hamstring,,2026-11-17T04:30,0,,,,00-0034114,Sleeper
+LA,Kam Curl,DB,questionable,Questionable,Toe,,2026-11-23T00:20,0,,,,,Sleeper
 IND,Jalen Travis,OT,out,Out,Knee,,2026-11-19T02:00,0,,,,,Sleeper
 GB,Zaire Franklin,LB,out,Out,Shin,,2026-11-22T21:45,0,Fracture,,,00-0034431,Sleeper
 ATL,Avieon Terrell,DB,out,Out,Coach's Decision,,2026-11-01T17:05,0,,,,,Sleeper
@@ -220,10 +225,11 @@ SEA,Avery Smith,CB,out,Out,Coach's Decision,,2026-08-31T01:40,0,,,,,Sleeper
 NYJ,T'Vondre Sweat,DL,out,Injured Reserve,Knee,,2026-10-31T23:45,0,,,,,Sleeper
 NYG,Gunner Olszewski,WR,out,Injured Reserve,Achilles,,2026-06-02T00:15,0,Surgery,,, 00-0035645,Sleeper
 SEA,Terrion Arnold,DB,out,Not active,Undisclosed,,2026-08-29T20:45,0,,,,,Sleeper
+LA,Myles Garrett,DE,questionable,Questionable,Knee,,2026-11-23T00:20,0,,,,00-0033868,Sleeper
 ARI,Paris Johnson Jr.,OL,out,Injured Reserve,Biceps,,2026-10-07T00:35,0,Surgery,,,,Sleeper
 MIA,Jordan Phillips,DL,out,Injured Reserve,Biceps,,2026-11-18T19:25,0,Surgery,,,,Sleeper
 PIT,Gennings Dunker,OT,out,Injured Reserve,Knee,,2026-11-19T02:05,0,,,,,Sleeper
-PHI,Saquon Barkley,RB,questionable,Questionable,Arm,,2026-11-22T23:10,0,,,,00-0034844,Sleeper
+PHI,Saquon Barkley,RB,questionable,Questionable,Arm,,2026-11-23T02:45,0,,,,00-0034844,Sleeper
 BAL,Bilhal Kone,CB,out,Injured Reserve,Lower Body,,2026-08-31T22:50,0,,,,,Sleeper
 SEA,George Holani,RB,out,Out,Knee,,2026-11-16T20:55,0,,,,,Sleeper
 CLE,Nathaniel Watson,LB,out,Out,Knee,,2026-09-23T00:30,0,,,,,Sleeper
@@ -252,11 +258,10 @@ DAL,Jonathan Mingo,WR,out,Out,Ankle,,2026-11-20T22:35,0,,,,,Sleeper
 IND,Riley Leonard,QB,out,Out,Coach's Decision,,2026-11-20T20:36,0,,,,,Sleeper
 DET,Avonte Maddox,CB,out,Injured Reserve,Foot,,2026-09-23T00:35,0,Surgery,,,00-0034377,Sleeper
 DAL,P.J. Locke,DB,out,Out,Concussion,,2026-11-21T01:20,0,,,, 00-0035227,Sleeper
-BUF,DJ Moore,WR,questionable,Questionable,Knee,,2026-11-22T22:10,0,,,,00-0034827,Sleeper
+BUF,DJ Moore,WR,questionable,Questionable,Knee,,2026-11-23T05:45,0,,,,00-0034827,Sleeper
 LAC,Rodney Shelley,CB,out,Injured Reserve,Ankle,,2026-11-22T00:55,0,,,,,Sleeper
 CHI,Braxton Jones,OL,out,Injured Reserve,Knee,,2026-11-05T03:45,0,,,,,Sleeper
 LV,Keyron Crawford,DE,out,Injured Reserve,Ankle,,2026-09-01T22:30,0,,,,,Sleeper
-SF,Luke Gifford,LB,questionable,Questionable,Chest,,2026-11-07T04:35,0,,,, 00-0035413,Sleeper
 TEN,Cor'Dale Flott,DB,questionable,Questionable,Neck,,2026-11-22T19:40,0,,,,,Sleeper
 JAX,DaVon Hamilton,DT,out,Injured Reserve,Knee,,2026-11-04T05:20,0,Strain,,,,Sleeper
 CAR,Isaiah Simmons,DB,out,Injured Reserve,Knee,,2026-11-22T01:01,0,,,,,Sleeper
@@ -266,6 +271,7 @@ PIT,Mason McCormick,OL,out,Injured Reserve,Ankle,,2026-11-19T01:50,0,Dislocated,
 NYG,Nic Jones,CB,out,Out,Coach's Decision,,2026-03-12T17:05,0,,,,,Sleeper
 IND,Bernhard Raimann,OL,out,Out,Concussion,,2026-11-15T18:55,0,,,,,Sleeper
 NYG,Tyrone Tracy Jr.,RB,out,Injured Reserve,Hamstring,,2026-11-18T20:20,0,Strain,,,,Sleeper
+MIN,Max Brosmer,QB,out,Out,Coach's Decision,,2026-11-23T00:10,0,,,,,Sleeper
 CIN,Jalen Davis,CB,out,Injured Reserve,Hamstring,,2026-11-12T21:35,0,,,,00-0034446,Sleeper
 DET,Amen Ogbongbemiga,LB,out,Out,Coach's Decision,,2026-08-11T07:35,0,,,,,Sleeper
 LAC,Tyler Biadasz,C,out,Injured Reserve,Knee,,2026-08-23T17:35,0,,,,,Sleeper
@@ -309,12 +315,13 @@ GB,Javon Hargrave,DT,out,Injured Reserve,Achilles,,2026-10-18T02:00,0,Surgery,,,
 KC,Joe Forson,WR,out,Not active,,,,0,,,,,Sleeper
 NO,Moliki Matavao,TE,out,Injured Reserve,Knee,,2026-08-25T22:45,0,,,,,Sleeper
 NE,Dell Pettus,DB,out,Injured Reserve,Ankle,,2026-09-24T02:30,0,,,,,Sleeper
-SF,Khalid Kareem,DE,questionable,Questionable,Ankle,,2026-09-08T07:30,0,,,,,Sleeper
+SF,Khalid Kareem,DE,out,Out,Ankle,,2026-11-23T00:20,0,,,,,Sleeper
 HOU,Marvin Harrison Jr.,WR,out,Out,Hamstring,,2026-11-18T21:05,0,,,,,Sleeper
 JAX,Matt Dickerson,DE,out,Out,Neck,,2026-11-22T20:10,0,,,,00-0034657,Sleeper
 GB,Zach Bako-Bewele,OL,out,Injured Reserve,Knee,,2026-09-29T00:30,0,Surgery,,,,Sleeper
 SEA,Bud Clark,DB,out,Injured Reserve,Ankle,,2026-08-28T17:00,0,Fracture,,,,Sleeper
 DAL,Malachi Lawrence,DL,out,Injured Reserve,Ankle,,2026-11-07T22:35,0,,,,,Sleeper
+SF,Kurtis Rourke,QB,out,Out,Coach's Decision,,2026-10-11T19:20,0,,,,,Sleeper
 SF,Austen Pleasants,OL,out,Injured Reserve,Knee,,2026-09-01T00:05,0,,,,,Sleeper
 KC,Jared Wiley,TE,out,Injured Reserve,Ankle,,2026-11-19T01:10,0,Fracture,,,,Sleeper
 LV,Brennan Jackson,DE,out,Injured Reserve,Undisclosed,,2026-08-15T19:15,0,,,,,Sleeper
@@ -368,7 +375,6 @@ TEN,Tyjae Spears,RB,out,Injured Reserve,Knee,,2026-11-21T20:35,0,,,,,Sleeper
 LV,Chigozie Anusiem,CB,out,Injured Reserve,Knee,,2026-08-22T20:35,0,,,,,Sleeper
 MIN,Michael Briscoe,WR,out,Out,Undisclosed,,2026-10-28T23:40,0,,,,,Sleeper
 LA,Matthew Caldwell,QB,out,Injured Reserve,Undisclosed,,2026-08-29T22:25,0,,,,,Sleeper
-SF,Upton Stout,CB,questionable,Questionable,Shoulder,,2026-11-20T19:40,0,,,,,Sleeper
 LA,Desjuan Johnson,DT,out,Out,Coach's Decision,,2026-01-18T22:35,0,,,,,Sleeper
 NE,Ben Brown,OG,out,Out,Knee,,2026-11-12T01:45,0,,,,,Sleeper
 TEN,Milo Eifler,LB,out,Injured Reserve,Undisclosed,,2026-08-25T02:30,0,,,,,Sleeper
@@ -402,11 +408,11 @@ DAL,Matt Hennessy,OL,out,Injured Reserve,Neck,,2026-06-18T21:50,0,Surgery,,,,Sle
 PHI,Tank Bigsby,RB,out,Injured Reserve,Abdomen,,2026-10-07T03:55,0,Surgery,,,,Sleeper
 CHI,Kentavius Street,DT,out,Injured Reserve,Knee,,2026-11-05T05:00,0,,,,00-0034320,Sleeper
 IND,Carson Towt,TE,out,Injured Reserve,Undisclosed,,2026-08-19T07:20,0,,,,,Sleeper
-MIN,Isaiah Rodgers,CB,questionable,Questionable,Quadriceps,,2026-11-20T22:30,0,,,,,Sleeper
+MIN,Isaiah Rodgers,CB,out,Out,Quadriceps,,2026-11-23T00:15,0,,,,,Sleeper
 BUF,Joshua Palmer,WR,out,Injured Reserve,Hamstring,,2026-11-11T06:00,0,,,,,Sleeper
 DET,Aidan Hutchinson,DL,out,Injured Reserve,Knee - ACL,,2026-11-18T22:05,0,Surgery,,,,Sleeper
 CHI,Dayo Odeyingbo,DE,out,Injured Reserve,Quadriceps,,2026-11-17T18:35,0,,,,,Sleeper
-LA,Kyren Williams,RB,questionable,Questionable,Toe,,2026-11-21T22:56,0,Soreness,,,,Sleeper
+LA,Kyren Williams,RB,questionable,Questionable,Toe,,2026-11-23T00:30,0,Soreness,,,,Sleeper
 NE,Romeo Doubs,WR,out,Injured Reserve,Shoulder,,2026-10-22T01:35,0,,,,,Sleeper
 HOU,Graham Mertz,QB,out,Injured Reserve,Knee - ACL,,2026-08-16T06:15,0,Surgery,,,,Sleeper
 LV,Dareke Young,WR,questionable,Questionable,Undisclosed,,2026-11-22T23:00,0,,,,,Sleeper
@@ -449,7 +455,7 @@ ARI,Andrew Billings,DT,out,Out,Coach's Decision,,2026-09-24T02:00,0,,,,00-003306
 NYJ,David Onyemata,DT,out,Injured Reserve,Groin,,2026-11-21T01:05,0,,,,00-0033051,Sleeper
 CLE,Jeremiah Owusu-Koramoah,LB,out,PUP list,Neck,,2026-05-08T18:05,0,,,,,Sleeper
 CAR,TeRah Edwards,DL,out,Out,Coach's Decision,,2026-08-31T00:20,0,,,,,Sleeper
-SF,Jordan James,RB,questionable,Questionable,Calf,,2026-11-21T00:50,0,,,,,Sleeper
+JAX,Walker Little,T,questionable,Questionable,Knee,,2026-11-23T00:25,0,,,,,Sleeper
 DET,Khalil Dorsey,CB,questionable,Questionable,Wrist,,2026-11-22T19:15,0,,,,,Sleeper
 LA,Dean Connors,RB,out,Injured Reserve,Hand,,2026-11-04T05:10,0,Surgery,,,,Sleeper
 SF,Brandon Aiyuk,WR,out,Not with team,Knee - ACL + MCL,,2026-11-18T18:45,0,Surgery,,,,Sleeper
@@ -466,6 +472,7 @@ BAL,Emery Jones Jr.,OL,out,Out,Coach's Decision,,2026-06-16T14:20,0,,,,,Sleeper
 JAX,Jared Bartlett,LB,out,Injured Reserve,Leg,,2026-08-08T23:30,0,,,,,Sleeper
 GB,Skyy Moore,WR,questionable,Questionable,Ankle,,2026-11-22T21:45,0,,,,,Sleeper
 NYG,Tremaine Edmunds,LB,out,Injured Reserve,Chest,,2026-10-24T23:36,0,,,,00-0034673,Sleeper
+SF,Enrique Cruz Jr.,OL,out,Out,Coach's Decision,,2026-04-25T20:15,0,,,,,Sleeper
 DAL,Princeton Fant,TE,out,Injured Reserve,Knee - ACL + MCL,,2026-08-07T04:55,0,Surgery,,,,Sleeper
 DET,Keith Abney II,DB,out,Out,Coach's Decision,,2026-04-25T18:50,0,,,,,Sleeper
 GB,Kevin Zeitler,OG,out,Out,Ankle,,2026-11-17T00:40,0,,,,00-0029592,Sleeper
@@ -506,7 +513,7 @@ SEA,Emanuel Wilson,RB,out,Out,Coach's Decision,,2026-11-15T20:00,0,,,,,Sleeper
 TEN,Kendell Brooks,DB,out,Injured Reserve,Undisclosed,,2026-09-01T04:00,0,,,,,Sleeper
 CAR,Cam Jackson,DT,out,Injured Reserve,Knee,,2026-10-14T01:20,0,,,,,Sleeper
 JAX,B.J. Green II,DE,out,Injured Reserve,Elbow,,2026-11-21T01:30,0,,,,,Sleeper
-SF,Dre Greenlaw,LB,questionable,Questionable,Neck,,2026-11-21T00:55,0,,,, 00-0034982,Sleeper
+SF,Dre Greenlaw,LB,out,Out,Neck,,2026-11-23T00:30,0,,,, 00-0034982,Sleeper
 LA,Justin Dedich,OL,out,Injured Reserve,Undisclosed,,2026-11-22T00:30,0,,,,,Sleeper
 IND,Micheal Clemons,DL,out,Injured Reserve,Toe,,2026-09-23T13:40,0,,,,,Sleeper
 MIA,Jared Wayne,WR,out,Out,Quadriceps,,2026-11-20T23:50,0,,,,,Sleeper
@@ -531,11 +538,10 @@ TB,Antoine Winfield Jr.,DB,out,Out,Ankle,,2026-11-22T17:10,0,,,,,Sleeper
 GB,Josh Jacobs,RB,out,Out,Finger,,2026-11-22T21:55,0,Surgery,,, 00-0035700,Sleeper
 LA,Keagen Trost,OL,out,Out,Coach's Decision,,2026-10-18T02:55,0,,,,,Sleeper
 LAC,Isaiah World,OT,out,PUP list,Knee,,2026-08-31T23:30,0,,,,,Sleeper
-SF,Mac Jones,QB,questionable,Questionable,Illness,,2026-11-21T00:45,0,,,,,Sleeper
 PIT,Kaden Wetjen,WR,out,Out,Coach's Decision,,2026-11-22T17:25,0,,,,,Sleeper
 PIT,Drew Allar,QB,out,Out,Coach's Decision,,2026-10-18T16:00,0,,,,,Sleeper
 JAX,Albert Regis,DT,out,Out,Coach's Decision,,2026-10-04T16:45,0,,,,,Sleeper
-LV,Brock Bowers,TE,out,Out,Ankle,,2026-11-22T20:10,0,,,,,Sleeper
+LV,Brock Bowers,TE,out,Out,Ankle,,2026-11-23T01:35,0,,,,,Sleeper
 BUF,Dorian Strong,CB,out,PUP list,Neck,,2026-06-15T15:20,0,,,,,Sleeper
 DET,Tom Kennedy,WR,out,Injured Reserve,Knee - MCL,,2026-10-17T01:55,0,Surgery,,, 00-0035544,Sleeper
 NYG,Darius Alexander,DL,out,Out,Coach's Decision,,2026-06-04T05:40,0,,,,,Sleeper
