@@ -1,51 +1,65 @@
 team,player,position,status,label,detail,return_date,updated,season_out,comment,practice,game,player_id,source
-MEM,Cameron Boozer,,out,Out,Right Ankle Sprain,,2026-11-23_02_15AM,0,,,MEM@CHA,,NBA official report
-MEM,Jerami Grant,,out,Out,Left Calf Strain,,2026-11-23_02_15AM,0,,,MEM@CHA,,NBA official report
-MEM,GG Jackson,,out,Out,Left 5th Metatarsal Fracture,,2026-11-23_02_15AM,0,,,MEM@CHA,,NBA official report
-MEM,Scotty Pippen Jr.,,out,Out,Lumbar Disc Herniation,,2026-11-23_02_15AM,0,,,MEM@CHA,,NBA official report
-MEM,Richie Saunders,,out,Out,Right Knee Surgery,,2026-11-23_02_15AM,0,,,MEM@CHA,,NBA official report
-CHA,Grayson Allen,,out,Out,Concussion Protocol,,2026-11-23_02_15AM,0,,,MEM@CHA,,NBA official report
-CHA,Kon Knueppel,,out,Out,Left Hamstring Strain,,2026-11-23_02_15AM,0,,,MEM@CHA,,NBA official report
-CHA,Brandon Miller,,probable,Probable,Right Knee Contusion / Bone Bruise,,2026-11-23_02_15AM,0,,,MEM@CHA,,NBA official report
-CHA,Dennis Schroder,,out,Out,Left Hamstring Strain,,2026-11-23_02_15AM,0,,,MEM@CHA,,NBA official report
-CHA,Grant Williams,,out,Out,Right Hamstring Injury Management,,2026-11-23_02_15AM,0,,,MEM@CHA,,NBA official report
-POR,Vit Krejci,,out,Out,Left Ankle Fracture,,2026-11-23_02_15AM,0,,,POR@PHI,,NBA official report
-POR,Ja Morant,,out,Out,Left Hamstring Strain,,2026-11-23_02_15AM,0,,,POR@PHI,,NBA official report
-POR,Shaedon Sharpe,,out,Out,Right Meniscus,,2026-11-23_02_15AM,0,,,POR@PHI,,NBA official report
-POR,Chris Youngblood,,out,Out,Right Heel Contusion / Surgery Bone Bruise,,2026-11-23_02_15AM,0,,,POR@PHI,,NBA official report
-PHI,Adem Bona,,probable,Probable,Cervical Spine Sprain,,2026-11-23_02_15AM,0,,,POR@PHI,,NBA official report
-PHI,Jaylen Brown,,probable,Probable,Left Hamstring Strain,,2026-11-23_02_15AM,0,,,POR@PHI,,NBA official report
-PHI,Ariel Hukporti,,out,Out,Right Achilles Tendon Rupture / Tear,,2026-11-23_02_15AM,0,,,POR@PHI,,NBA official report
-PHI,Dean Wade,,probable,Probable,Left Hamstring Injury Management,,2026-11-23_02_15AM,0,,,POR@PHI,,NBA official report
-BKN,Grant Nelson,,probable,Probable,Right Ankle Sprain,,2026-11-23_02_15AM,0,,,BKN@MIN,,NBA official report
-BKN,Nolan Traore,,out,Out,Right Hamstring Strain,,2026-11-23_02_15AM,0,,,BKN@MIN,,NBA official report
-MIN,Jaylen Clark,,out,Out,Right Hamstring Strain,,2026-11-23_02_15AM,0,,,BKN@MIN,,NBA official report
-MIN,Donte DiVincenzo,,out,Out,Right Achilles Tendon Repair / Surgery,,2026-11-23_02_15AM,0,,,BKN@MIN,,NBA official report
-MIN,Anthony Edwards,,out,Out,Right Knee,,2026-11-23_02_15AM,0,,,BKN@MIN,,NBA official report
-MIN,Rocco Zikarsky,,out,Out,Arthroscopy G League - Two-Way,,2026-11-23_02_15AM,0,,,BKN@MIN,,NBA official report
-MIL,Ousmane Dieng,,questionable,Questionable,Left Finger Fracture,,2026-11-23_02_15AM,0,,,MIL@TOR,,NBA official report
-TOR,RJ Barrett,,out,Out,Right Hamstring Strain,,2026-11-23_02_15AM,0,,,MIL@TOR,,NBA official report
-TOR,Kawhi Leonard,,out,Out,Left Knee Injury Management,,2026-11-23_02_15AM,0,,,MIL@TOR,,NBA official report
-TOR,Collin Murray-Boyles,,probable,Probable,Concussion Protocol,,2026-11-23_02_15AM,0,,,MIL@TOR,,NBA official report
-CLE,Evan Mobley,,out,Out,Left Great Toe Sprain,,2026-11-23_02_15AM,0,,,CLE@CHI,,NBA official report
-CLE,Nae'Qwan Tomlin,,out,Out,Low Back Stress Reaction,,2026-11-23_02_15AM,0,,,CLE@CHI,,NBA official report
-CLE,Jaylon Tyson,,probable,Probable,Right Ankle Injury Management,,2026-11-23_02_15AM,0,,,CLE@CHI,,NBA official report
-PHX,Ryan Dunn,,questionable,Questionable,Right Quad Soreness,,2026-11-23_02_15AM,0,,,PHX@NOP,,NBA official report
-PHX,Mark Williams,,out,Out,Left Shoulder Surgery,,2026-11-23_02_15AM,0,,,PHX@NOP,,NBA official report
-NO,Bennedict Mathurin,,out,Out,Left Plantar Fasciitis,,2026-11-23_02_15AM,0,,,PHX@NOP,,NBA official report
-NO,Bryce McGowens,,probable,Probable,Left Elbow Infection,,2026-11-23_02_15AM,0,,,PHX@NOP,,NBA official report
-NO,Trey Murphy III,,probable,Probable,Bilateral Patellar Tendinopathy,,2026-11-23_02_15AM,0,,,PHX@NOP,,NBA official report
-NO,Dejounte Murray,,out,Out,Left Ankle Sprain,,2026-11-23_02_15AM,0,,,PHX@NOP,,NBA official report
-NO,Trendon Watford,,out,Out,Right Ankle Sprain,,2026-11-23_02_15AM,0,,,PHX@NOP,,NBA official report
-NO,Zion Williamson,,probable,Probable,Left Thigh Contusion,,2026-11-23_02_15AM,0,,,PHX@NOP,,NBA official report
-LAC,Bradley Beal,,out,Out,Right Knee Injury Management,,2026-11-23_02_15AM,0,,,LAC@HOU,,NBA official report
-LAC,Jordan Miller,,out,Out,Left Rotator Cuff Surgery,,2026-11-23_02_15AM,0,,,LAC@HOU,,NBA official report
-SA,De'Aaron Fox,,questionable,Questionable,Right Shin Contusion,,2026-11-23_02_15AM,0,,,SAS@SAC,,NBA official report
-SA,Dylan Harper,,out,Out,Left Hip External Rotator Strain,,2026-11-23_02_15AM,0,,,SAS@SAC,,NBA official report
-SA,Tobias Harris,,out,Out,Left Calf Strain,,2026-11-23_02_15AM,0,,,SAS@SAC,,NBA official report
-SA,Jordan McLaughlin,,questionable,Questionable,Left Shoulder Contusion,,2026-11-23_02_15AM,0,,,SAS@SAC,,NBA official report
-SA,Jayden Quaintance,,out,Out,Right Knee Surgery,,2026-11-23_02_15AM,0,,,SAS@SAC,,NBA official report
-SA,Victor Wembanyama,,questionable,Questionable,Bilateral Low Back Tightness,,2026-11-23_02_15AM,0,,,SAS@SAC,,NBA official report
-SAC,Maxime Raynaud,,out,Out,Right Patella Subluxation,,2026-11-23_02_15AM,0,,,SAS@SAC,,NBA official report
-SAC,Ben Simmons,,out,Out,Right Achilles Tendon Repair / Surgery,,2026-11-23_02_15AM,0,,,SAS@SAC,,NBA official report
-LAL,Austin Reaves,,out,Out,Left Heel Contusion / Bone Bruise,,2026-11-23_02_15AM,0,,,UTA@LAL,,NBA official report
+MEM,Cameron Boozer,,out,Out,Right Ankle Sprain,,2026-11-23_03_00PM,0,,,MEM@CHA,,NBA official report
+MEM,Jerami Grant,,out,Out,Left Calf Strain,,2026-11-23_03_00PM,0,,,MEM@CHA,,NBA official report
+MEM,GG Jackson,,out,Out,Left 5th Metatarsal Fracture,,2026-11-23_03_00PM,0,,,MEM@CHA,,NBA official report
+MEM,Scotty Pippen Jr.,,out,Out,Lumbar Disc Herniation,,2026-11-23_03_00PM,0,,,MEM@CHA,,NBA official report
+MEM,Richie Saunders,,out,Out,Right Knee Surgery,,2026-11-23_03_00PM,0,,,MEM@CHA,,NBA official report
+CHA,Grayson Allen,,out,Out,Concussion Protocol,,2026-11-23_03_00PM,0,,,MEM@CHA,,NBA official report
+CHA,Kon Knueppel,,out,Out,Left Hamstring Strain,,2026-11-23_03_00PM,0,,,MEM@CHA,,NBA official report
+CHA,Brandon Miller,,probable,Probable,Right Knee Contusion / Bone Bruise,,2026-11-23_03_00PM,0,,,MEM@CHA,,NBA official report
+CHA,Dennis Schroder,,out,Out,Left Hamstring Strain,,2026-11-23_03_00PM,0,,,MEM@CHA,,NBA official report
+CHA,Grant Williams,,out,Out,Right Hamstring Injury Management,,2026-11-23_03_00PM,0,,,MEM@CHA,,NBA official report
+POR,Vit Krejci,,out,Out,Left Ankle Fracture,,2026-11-23_03_00PM,0,,,POR@PHI,,NBA official report
+POR,Ja Morant,,out,Out,Left Hamstring Strain,,2026-11-23_03_00PM,0,,,POR@PHI,,NBA official report
+POR,Shaedon Sharpe,,out,Out,Right Meniscus,,2026-11-23_03_00PM,0,,,POR@PHI,,NBA official report
+POR,Chris Youngblood,,out,Out,Right Heel Contusion / Surgery Bone Bruise,,2026-11-23_03_00PM,0,,,POR@PHI,,NBA official report
+PHI,Adem Bona,,probable,Probable,Cervical Spine Sprain,,2026-11-23_03_00PM,0,,,POR@PHI,,NBA official report
+PHI,Jaylen Brown,,probable,Probable,Left Hamstring Strain,,2026-11-23_03_00PM,0,,,POR@PHI,,NBA official report
+PHI,Joel Embiid,,questionable,Questionable,Illness,,2026-11-23_03_00PM,0,,,POR@PHI,,NBA official report
+PHI,Ariel Hukporti,,out,Out,Right Achilles Tendon Rupture / Tear,,2026-11-23_03_00PM,0,,,POR@PHI,,NBA official report
+PHI,Dean Wade,,probable,Probable,Left Hamstring Injury Management,,2026-11-23_03_00PM,0,,,POR@PHI,,NBA official report
+BKN,Nolan Traore,,out,Out,Right Hamstring Strain,,2026-11-23_03_00PM,0,,,BKN@MIN,,NBA official report
+MIN,Jaylen Clark,,out,Out,Right Hamstring Strain,,2026-11-23_03_00PM,0,,,BKN@MIN,,NBA official report
+MIN,Donte DiVincenzo,,out,Out,Right Achilles Tendon Repair / Surgery,,2026-11-23_03_00PM,0,,,BKN@MIN,,NBA official report
+MIN,Anthony Edwards,,out,Out,Right Knee Arthroscopy,,2026-11-23_03_00PM,0,,,BKN@MIN,,NBA official report
+TOR,RJ Barrett,,out,Out,Right Hamstring Strain,,2026-11-23_03_00PM,0,,,MIL@TOR,,NBA official report
+TOR,Jaden Bradley,,questionable,Questionable,Right Ankle Sprain,,2026-11-23_03_00PM,0,,,MIL@TOR,,NBA official report
+TOR,Kawhi Leonard,,out,Out,Left Knee Injury Management,,2026-11-23_03_00PM,0,,,MIL@TOR,,NBA official report
+TOR,Collin Murray-Boyles,,probable,Probable,Concussion Protocol,,2026-11-23_03_00PM,0,,,MIL@TOR,,NBA official report
+OKC,Alex Caruso,,out,Out,Right Hip Impingement,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+OKC,Chet Holmgren,,out,Out,Right Knee/ Injury Recovery,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+OKC,Aday Mara,,out,Out,Right Shin Contusion,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+OKC,Thomas Sorber,,out,Out,Right Knee Surgery,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+OKC,Nikola Topic,,out,Out,Left Hip Strain,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+OKC,Cason Wallace,,out,Out,Left Shoulder Surgery,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+OKC,Jalen Williams,,out,Out,Left Ankle Surgery,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+OKC,Jaylin Williams,,out,Out,Low Back Spasms,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+IND,Johnny Furphy,,out,Out,Right ACL Repair / Surgery,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+IND,Tyrese Haliburton,,out,Out,Left Hamstring Strain,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+IND,T.J. McConnell,,out,Out,Left Hamstring Soreness,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+IND,Aaron Nesmith,,out,Out,Right Foot Soreness,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+IND,Ben Sheppard,,out,Out,Left Meniscus Surgery,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+IND,Pascal Siakam,,questionable,Questionable,Left Hip Injury Management,,2026-11-23_03_00PM,0,,,OKC@IND,,NBA official report
+CLE,Evan Mobley,,out,Out,Left Great Toe Sprain,,2026-11-23_03_00PM,0,,,CLE@CHI,,NBA official report
+CLE,Nae'Qwan Tomlin,,out,Out,Low Back Stress Reaction,,2026-11-23_03_00PM,0,,,CLE@CHI,,NBA official report
+CLE,Jaylon Tyson,,probable,Probable,Right Ankle Injury Management,,2026-11-23_03_00PM,0,,,CLE@CHI,,NBA official report
+CHI,Nic Claxton,,questionable,Questionable,Illness,,2026-11-23_03_00PM,0,,,CLE@CHI,,NBA official report
+CHI,Norman Powell,,out,Out,Right Hamstring Strain,,2026-11-23_03_00PM,0,,,CLE@CHI,,NBA official report
+CHI,Jalen Smith,,probable,Probable,Gastrointestinal Illness,,2026-11-23_03_00PM,0,,,CLE@CHI,,NBA official report
+CHI,Caleb Wilson,,out,Out,Right Metacarpal Fracture,,2026-11-23_03_00PM,0,,,CLE@CHI,,NBA official report
+PHX,Mark Williams,,out,Out,Left Shoulder Surgery,,2026-11-23_03_00PM,0,,,PHX@NOP,,NBA official report
+NO,Bennedict Mathurin,,out,Out,Left Plantar Fasciitis,,2026-11-23_03_00PM,0,,,PHX@NOP,,NBA official report
+NO,Dejounte Murray,,out,Out,Left Ankle Sprain,,2026-11-23_03_00PM,0,,,PHX@NOP,,NBA official report
+NO,Trendon Watford,,out,Out,Right Ankle Sprain,,2026-11-23_03_00PM,0,,,PHX@NOP,,NBA official report
+NO,Zion Williamson,,probable,Probable,Left Thigh Contusion,,2026-11-23_03_00PM,0,,,PHX@NOP,,NBA official report
+LAC,Bradley Beal,,out,Out,Right Knee Injury Management,,2026-11-23_03_00PM,0,,,LAC@HOU,,NBA official report
+LAC,Jordan Miller,,out,Out,Left Rotator Cuff Surgery,,2026-11-23_03_00PM,0,,,LAC@HOU,,NBA official report
+SA,De'Aaron Fox,,questionable,Questionable,Right Shin Contusion,,2026-11-23_03_00PM,0,,,SAS@SAC,,NBA official report
+SA,Dylan Harper,,out,Out,Left Hip External Rotator Strain,,2026-11-23_03_00PM,0,,,SAS@SAC,,NBA official report
+SA,Tobias Harris,,out,Out,Left Calf Strain,,2026-11-23_03_00PM,0,,,SAS@SAC,,NBA official report
+SA,Jordan McLaughlin,,questionable,Questionable,Left Shoulder Contusion,,2026-11-23_03_00PM,0,,,SAS@SAC,,NBA official report
+SA,Jayden Quaintance,,out,Out,Right Knee Surgery,,2026-11-23_03_00PM,0,,,SAS@SAC,,NBA official report
+SA,Victor Wembanyama,,questionable,Questionable,Bilateral Low Back Tightness,,2026-11-23_03_00PM,0,,,SAS@SAC,,NBA official report
+SAC,Maxime Raynaud,,out,Out,Right Patella Subluxation,,2026-11-23_03_00PM,0,,,SAS@SAC,,NBA official report
+SAC,Ben Simmons,,out,Out,Right Achilles Tendon Repair / Surgery,,2026-11-23_03_00PM,0,,,SAS@SAC,,NBA official report
+LAL,Austin Reaves,,out,Out,Left Heel Contusion / Bone Bruise,,2026-11-23_03_00PM,0,,,UTA@LAL,,NBA official report
