@@ -951,7 +951,7 @@
   function history() { const now = JSON.stringify(cfg); if (mergeNext) { mergeNext = false; lastSnap = now; return; } if (lastSnap != null && lastSnap !== now) { undoS.push(lastSnap); if (undoS.length > 100) undoS.shift(); redoS.length = 0; } lastSnap = now; }
   function restore(json) {
     cfg = norm(JSON.parse(json)); lastSnap = json; dirty = true;
-    try { localStorage.setItem(LS_DRAFT, JSON.stringify(cfg)); } catch (e) { /* storage off */ }
+    saveDraft();
     applyAll(); repick(); drawPanel(); framePicked = null;
   }
   function undo() { if (!undoS.length) { flash('Nothing to undo'); return; } redoS.push(JSON.stringify(cfg)); restore(undoS.pop()); }
@@ -1163,10 +1163,13 @@
 
   // ---------------- the edit panel ----------------
   let panel = null, tab = 'pick';
+  // a draft remembers which published version it was made on, so an outdated one is never shown
+  const sig = (c) => { const t = JSON.stringify(clean(c)); let x = 5381; for (let i = 0; i < t.length; i++) x = ((x * 33) ^ t.charCodeAt(i)) >>> 0; return `${t.length}.${x}`; };
+  function saveDraft() { try { localStorage.setItem(LS_DRAFT, JSON.stringify({ base: sig(published), cfg })); } catch (e) { /* storage off */ } }
   function changed() {
     dirty = true;
     history();
-    try { localStorage.setItem(LS_DRAFT, JSON.stringify(cfg)); } catch (e) { /* storage off */ }
+    saveDraft();
     applyAll();
     drawPanel();
   }
@@ -1333,7 +1336,7 @@
   function drawPanel() {
     if (!panel) return;
     const body = { pick: pickTab, look: lookTab, layout: layoutTab, text: textTab, save: saveTab }[tab]();
-    const unpub = JSON.stringify(cfg) !== JSON.stringify(published);
+    const unpub = JSON.stringify(clean(cfg)) !== JSON.stringify(published);
     panel.replaceChildren(
       el('div', { class: 'ed-head' }, el('b', null, SANDBOX ? 'Sandbox' : 'Edit site'), unpub && !SANDBOX ? el('span', { class: 'ed-dot', title: 'Unpublished changes' }, '● not published') : null,
         el('button', { type: 'button', class: `ed-sbx${SANDBOX ? ' on' : ''}`, title: SANDBOX ? 'Leave the sandbox and go back to the real site' : 'Open a copy of the site you can change freely', onclick: () => setSandbox(!SANDBOX) }, SANDBOX ? 'Exit Sandbox' : 'Sandbox'),
@@ -1396,7 +1399,7 @@
   // ---------------- banner when a draft is showing outside edit mode ----------------
   let banner = null;
   function drawBanner() {
-    const unpub = JSON.stringify(cfg) !== JSON.stringify(published);
+    const unpub = JSON.stringify(clean(cfg)) !== JSON.stringify(published);
     if (banner) { banner.remove(); banner = null; }
     if (SANDBOX && !editing) {
       banner = el('div', { class: 'ed-ui ed-banner ed-sbx-banner' }, 'Sandbox: changes here never touch the real site. ',
@@ -1531,11 +1534,13 @@
     if (SANDBOX) document.body.classList.add('ed-sandbox');
     let draft = null;
     try { draft = JSON.parse(localStorage.getItem(LS_DRAFT) || 'null'); } catch (e) { draft = null; }
-    if (draft) { cfg = norm(draft); applyAll(); }
     const load = (f) => fetch(`${f}?v=${Date.now()}`, { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
     load(CFG_FILE).then((j) => (j || !SANDBOX ? j : load('site-config.json'))).then((j) => {
       published = clean(norm(j));
-      if (!draft) cfg = clone(published);
+      // keep a draft only if it holds real changes made on top of the version that's live now
+      if (draft && (!draft.base || !draft.cfg || draft.base !== sig(published) || JSON.stringify(clean(norm(draft.cfg))) === JSON.stringify(published))) draft = null;
+      if (draft) cfg = norm(draft.cfg);
+      else { cfg = clone(published); try { localStorage.removeItem(LS_DRAFT); } catch (e) { /* storage off */ } }
       applyAll(); drawBanner();
       if (/[?&#]edit\b/.test(location.search + location.hash)) setEditing(true);
     });
