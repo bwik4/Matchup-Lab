@@ -2,4 +2,4 @@ season=2027
 games=258
 shots=45617
 through_date=2026-11-23
-built_at=2026-11-24T20:28:13+00:00
+built_at=2026-11-24T23:13:24+00:00
