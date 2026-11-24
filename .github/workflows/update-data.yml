@@ -47,4 +47,5 @@ jobs:
           git add data
           git diff --cached --quiet && echo "No changes" && exit 0
           git commit -m "Daily NFL, NBA, CFB + CBB data refresh"
-          git push
+          for i in 1 2 3 4 5; do git pull --rebase -q -X theirs && git push && exit 0; sleep 10; done
+          exit 1

@@ -306,8 +306,10 @@ def build(season, out):
 
     last_week = int(stats["week"].max())
     # the "current" week is the earliest week that still has an unplayed game, so a
-    # mid-week update (e.g. after Thursday night) doesn't skip ahead
-    unplayed = sched[sched["home_score"].isna()]
+    # mid-week update (e.g. after Thursday night) doesn't skip ahead. A game dated before
+    # today whose score just hasn't landed yet (Monday night, read on Tuesday) doesn't hold the week back.
+    today_et = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=5)).strftime("%Y-%m-%d")
+    unplayed = sched[sched["home_score"].isna() & (sched["gameday"].astype(str) >= today_et)]
     upcoming_week = int(unplayed["week"].min()) if len(unplayed) else last_week + 1
 
     skill = add_pbp_usage(stats[stats["position"].isin(POSITIONS)].copy(), pbp)
