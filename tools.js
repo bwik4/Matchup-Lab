@@ -163,10 +163,15 @@ function tFactor(sp, opp, pos, stat) {
   if (d && lg) { const g = d.games || 6, shr = (g * (d.pg / lg) + 4) / (g + 4); f = Math.min(1.25, Math.max(0.75, 1 + 0.5 * (shr - 1))); }
   return { d, f };
 }
+// average of a stat over a run of games; YPC is a rate, so it's total yards over total carries
+function tAvg(logs, stat, n) {
+  if (stat === 'ypc') { const g = logs.filter((r) => Number(r.carries) > 0).slice(n ? -n : 0); const c = g.reduce((a, r) => a + Number(r.carries), 0); return c ? g.reduce((a, r) => a + (Number(r.rushing_yards) || 0), 0) / c : null; }
+  const v = logs.map((r) => tVal(r, stat)).filter((x) => x != null); return mean(n ? v.slice(-n) : v);
+}
 function tProject(sp, p, stat) {
   const U = tUni(sp), vals = p.logs.map((r) => tVal(r, stat)).filter((v) => v != null);
   if (!vals.length) return null;
-  const seas = mean(vals), l5 = mean(vals.slice(-5)), l3 = mean(vals.slice(-3));
+  const seas = tAvg(p.logs, stat), l5 = tAvg(p.logs, stat, 5), l3 = tAvg(p.logs, stat, 3);
   const base = vals.length >= 5 ? 0.6 * seas + 0.4 * l5 : seas;
   const nx = U.next.get(p.team), { d, f } = tFactor(sp, nx && nx.opp, p.pos, stat);
   return { proj: base * f, base, f, d, nx, seas, l5, l3, vals, med: median(vals), floor: tQuant(vals, 0.2), ceil: tQuant(vals, 0.8) };

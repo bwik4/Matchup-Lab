@@ -1307,7 +1307,7 @@ const POS = ['QB', 'RB', 'WR', 'TE', 'K'];
 const STATS = {
   passing_yards: 'Pass yds', attempts: 'Pass att', completions: 'Completions', passing_tds: 'Pass TD',
   passing_interceptions: 'INT', pass_rush_yds: 'Pass+rush yds', sacks_suffered: 'Sacks taken',
-  rushing_yards: 'Rush yds', carries: 'Carries', rushing_tds: 'Rush TD', rush_rec_yds: 'Rush+rec yds',
+  rushing_yards: 'Rush yds', carries: 'Carries', ypc: 'YPC', rushing_tds: 'Rush TD', rush_rec_yds: 'Rush+rec yds',
   receptions: 'Receptions', receiving_yards: 'Rec yds', targets: 'Targets', receiving_tds: 'Rec TD',
   rz_targets: 'RZ targets', rz_carries: 'RZ carries', target_share: 'Target share %',
   long_completion: 'Long completion', long_rush: 'Long rush', long_reception: 'Long reception',
@@ -1316,8 +1316,8 @@ const STATS = {
   pat_made: 'XP made', pat_att: 'XP att',
 };
 const POS_STATS = {
-  QB: ['passing_yards', 'attempts', 'completions', 'passing_tds', 'passing_interceptions', 'long_completion', 'rushing_yards', 'pass_rush_yds'],
-  RB: ['rushing_yards', 'carries', 'rushing_tds', 'long_rush', 'receptions', 'receiving_yards', 'long_reception', 'rush_rec_yds', 'targets', 'rz_carries'],
+  QB: ['passing_yards', 'attempts', 'completions', 'passing_tds', 'passing_interceptions', 'long_completion', 'rushing_yards', 'ypc', 'pass_rush_yds'],
+  RB: ['rushing_yards', 'carries', 'ypc', 'rushing_tds', 'long_rush', 'receptions', 'receiving_yards', 'long_reception', 'rush_rec_yds', 'targets', 'rz_carries'],
   WR: ['receptions', 'receiving_yards', 'targets', 'receiving_tds', 'long_reception', 'rz_targets'],
   TE: ['receptions', 'receiving_yards', 'targets', 'receiving_tds', 'long_reception', 'rz_targets'],
   K: ['k_pts', 'fg_made', 'fg_att', 'fg_made_50', 'fg_long', 'pat_made'],
@@ -2066,7 +2066,7 @@ function renderProps() {
       if (vals.length < 4) split.append(' Small sample, so treat it as a hint, not a trend.');
     }
   }
-  const avg = mean(vals);
+  const avg = stat === 'ypc' ? tAvg(games, 'ypc') : mean(vals);
   if (S.pLine == null) S.pLine = lineFor(avg);
   const lineEl = $('.p-line');
   if (document.activeElement !== lineEl) lineEl.value = S.pLine;
@@ -2101,9 +2101,9 @@ function renderProps() {
     tipTitle: `${both ? `${r.season} ` : ''}Week ${r.week} vs ${r.opp}`, tipBody: `${show(r[stat])} ${statLabel(stat).toLowerCase()}`,
   })), { height: 220, line });
 
-  const extra = p.position === 'QB' ? ['completions', 'attempts', 'passing_yards', 'passing_tds', 'passing_interceptions', 'long_completion', 'carries', 'rushing_yards']
+  const extra = p.position === 'QB' ? ['completions', 'attempts', 'passing_yards', 'passing_tds', 'passing_interceptions', 'long_completion', 'carries', 'rushing_yards', 'ypc']
     : p.position === 'K' ? ['k_pts', 'fg_made', 'fg_att', 'fg_long', 'fg_made_40_49', 'fg_made_50', 'pat_made', 'pat_att']
-    : p.position === 'RB' ? ['carries', 'rushing_yards', 'rushing_tds', 'long_rush', 'targets', 'target_share', 'receptions', 'receiving_yards', 'long_reception', 'rz_carries']
+    : p.position === 'RB' ? ['carries', 'rushing_yards', 'ypc', 'rushing_tds', 'long_rush', 'targets', 'target_share', 'receptions', 'receiving_yards', 'long_reception', 'rz_carries']
       : ['targets', 'receptions', 'receiving_yards', 'receiving_tds', 'long_reception', 'receiving_air_yards', 'rz_targets', 'target_share'];
   const lab = { receiving_air_yards: 'Air yds', target_share: 'Tgt %', long_completion: 'Long', long_rush: 'Long', long_reception: 'Long rec',
     carries: 'Att', targets: 'Tgts', receptions: 'Rec', rz_carries: 'RZ Att' };
@@ -2964,6 +2964,7 @@ function combineTop2(rows, keys) {
       const vs = a.map((x) => x[k]).filter((v) => v != null);
       o[k] = !vs.length ? null : /long/.test(k) ? Math.max(...vs) : Math.round(vs.reduce((t, v) => t + v, 0) * 10) / 10;
     });
+    if (keys.includes('ypc')) { const y = a.reduce((t, x) => t + (x.rushing_yards || 0), 0), c = a.reduce((t, x) => t + (x.carries || 0), 0); o.ypc = c ? Math.round((y / c) * 10) / 10 : null; }
     return o;
   });
 }

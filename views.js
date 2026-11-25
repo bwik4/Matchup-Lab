@@ -347,7 +347,7 @@ VX.player = function () {
     const pr = tProject(sp, p, k); if (!pr) return null;
     const vsOpp = opp ? p.logs.filter((r) => r.opp === opp).map((r) => tVal(r, k)) : [];
     const line = vLine(pr.vals), hit = vHits(pr.vals, line, 10);
-    return h('tr', null, h('td', { class: 'l' }, vStatLbl(sp, k)), h('td', null, show(pr.seas)), h('td', null, show(mean(pr.vals.slice(-10)))), h('td', null, show(pr.l3)),
+    return h('tr', null, h('td', { class: 'l' }, vStatLbl(sp, k)), h('td', null, show(pr.seas)), h('td', null, show(tAvg(p.logs, k, 10))), h('td', null, show(pr.l3)),
       h('td', null, vsOpp.length ? `${show(mean(vsOpp))} (${vsOpp.length})` : '—'),
       h('td', null, h('b', null, nx ? show(pr.proj) : '—')),
       h('td', null, pr.d ? vRkPill(pr.d.rank, pr.d.n) : '—'),

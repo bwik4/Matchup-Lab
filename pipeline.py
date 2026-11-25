@@ -324,6 +324,7 @@ def build(season, out):
     mw = mw.merge(lw, on=["defense", "position", "week"], how="left")
     mw = mw.join(skill.groupby(["opponent_team", "week"])["team"].first().rename("offense"), on=["defense", "week"])
     mw[FP] = mw[FP].round(1)
+    mw["ypc"] = (mw["rushing_yards"] / mw["carries"].replace(0, np.nan)).round(2)  # yards per carry allowed that week
     mw.loc[mw["position"] != "K", KICK + KLONG] = np.nan  # kicking columns only mean something for kickers
     mw.to_csv(f"{out}/matchups_weekly.csv", index=False)
 
@@ -336,7 +337,8 @@ def build(season, out):
         full = pd.MultiIndex.from_product([sorted(mw["defense"].unique()), POSITIONS], names=["defense", "position"])
         tot = tot.reindex(full).fillna(0)
         pg = tot.div(gp, axis=0, level="defense")
-        for stat in MATCHUP_STATS:
+        pg["ypc"] = tot["rushing_yards"] / tot["carries"].replace(0, np.nan)  # a rate: total yards over total carries, not per game
+        for stat in MATCHUP_STATS + ["ypc"]:
             s = pg[stat].round(2).rename("per_game").reset_index()
             # 1 = toughest defense (allows the least), 32 = easiest (allows the most).
             # For interceptions and sacks a defense that forces more is tougher, so flip those.
@@ -350,6 +352,7 @@ def build(season, out):
     # kickers only get kicking stats + fantasy points; everyone else skips the kicking stats
     is_k, kstat = matchups["position"] == "K", matchups["stat"].isin(KICK_STATS)
     matchups = matchups[(is_k & (kstat | matchups["stat"].isin(FP))) | (~is_k & ~kstat)]
+    matchups = matchups[(matchups["stat"] != "ypc") | matchups["position"].isin(["QB", "RB"])]  # YPC only for QBs and RBs
     matchups.to_csv(f"{out}/matchups.csv", index=False)
 
     # ---------------- game logs ----------------
@@ -365,6 +368,7 @@ def build(season, out):
     logs = both[logcols].rename(columns={"player_display_name": "player", "opponent_team": "opp"})
     logs["target_share"] = (logs["target_share"] * 100).round(1)
     logs[FP] = logs[FP].round(1)
+    logs["ypc"] = (logs["rushing_yards"] / logs["carries"].replace(0, np.nan)).round(1)
     logs = logs.sort_values(["season", "week"], ascending=[False, False])
     logs.to_csv(f"{out}/logs.csv", index=False)
 
@@ -503,6 +507,8 @@ def build(season, out):
         games=("week", "nunique"), last_week=("week", "max"), tgt_share=("target_share", "mean"),
         **{c: (c, "mean") for c in avg_cols}).reset_index()
     ps[avg_cols] = ps[avg_cols].round(1)
+    ry = cur.groupby("player_id")[["rushing_yards", "carries"]].sum()
+    ps["ypc"] = ps["player_id"].map((ry["rushing_yards"] / ry["carries"].replace(0, np.nan)).round(1))
     ps["tgt_share"] = (ps["tgt_share"] * 100).round(1)
     ps = ps.merge(nxt, on="team", how="left")
     ps["next_opp"] = ps["next_opp"].fillna("BYE")
