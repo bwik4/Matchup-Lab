@@ -2,4 +2,4 @@ season=2026
 through_week=12
 upcoming_week=13
 fbs_teams=138
-built_at=2026-11-24T23:13:28+00:00
+built_at=2026-11-25T21:52:42+00:00
