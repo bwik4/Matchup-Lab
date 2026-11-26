@@ -1,50 +1,89 @@
 team,player,position,status,label,detail,return_date,updated,season_out,comment,practice,game,player_id,source
-PHI,Joel Embiid,,out,Out,Illness,,2026-11-25_09_45PM,0,,,MIA@PHI,,NBA official report
-PHI,Ariel Hukporti,,out,Out,Right Achilles Tendon Rupture / Tear,,2026-11-25_09_45PM,0,,,MIA@PHI,,NBA official report
-CHI,Norman Powell,,out,Out,Right Hamstring Strain,,2026-11-25_09_45PM,0,,,CHI@CHA,,NBA official report
-CHI,Jalen Smith,,out,Out,Gastrointestinal Illness,,2026-11-25_09_45PM,0,,,CHI@CHA,,NBA official report
-CHI,Caleb Wilson,,out,Out,Right Metacarpal Fracture,,2026-11-25_09_45PM,0,,,CHI@CHA,,NBA official report
-CHA,Grayson Allen,,out,Out,Concussion Protocol,,2026-11-25_09_45PM,0,,,CHI@CHA,,NBA official report
-CHA,Ryan Kalkbrenner,,out,Out,Left Hip Soreness / Tightness,,2026-11-25_09_45PM,0,,,CHI@CHA,,NBA official report
-CHA,Kon Knueppel,,out,Out,Left Hamstring Strain,,2026-11-25_09_45PM,0,,,CHI@CHA,,NBA official report
-CHA,Dennis Schroder,,out,Out,Left Hamstring Strain,,2026-11-25_09_45PM,0,,,CHI@CHA,,NBA official report
-CLE,Evan Mobley,,out,Out,Left Great Toe Sprain,,2026-11-25_09_45PM,0,,,CLE@NYK,,NBA official report
-CLE,Nae'Qwan Tomlin,,out,Out,Low Back Stress Reaction,,2026-11-25_09_45PM,0,,,CLE@NYK,,NBA official report
-NY,OG Anunoby,,out,Out,Left Calf Strain,,2026-11-25_09_45PM,0,,,CLE@NYK,,NBA official report
-NY,Jordan Clarkson,,out,Out,Right Plantar Fasciitis,,2026-11-25_09_45PM,0,,,CLE@NYK,,NBA official report
-NY,Miles McBride,,out,Out,Left Adductor Tightness,,2026-11-25_09_45PM,0,,,CLE@NYK,,NBA official report
-MIN,Jaylen Clark,,out,Out,Right Hamstring Strain,,2026-11-25_09_45PM,0,,,MIN@OKC,,NBA official report
-MIN,Donte DiVincenzo,,out,Out,Right Achilles Tendon Repair / Surgery,,2026-11-25_09_45PM,0,,,MIN@OKC,,NBA official report
-MIN,Anthony Edwards,,out,Out,Right Knee,,2026-11-25_09_45PM,0,,,MIN@OKC,,NBA official report
-MIN,Rocco Zikarsky,,out,Out,Arthroscopy G League - Two-Way,,2026-11-25_09_45PM,0,,,MIN@OKC,,NBA official report
-OKC,Chet Holmgren,,out,Out,Right Knee/ Injury Recovery,,2026-11-25_09_45PM,0,,,MIN@OKC,,NBA official report
-OKC,Aday Mara,,out,Out,Right Shin Contusion,,2026-11-25_09_45PM,0,,,MIN@OKC,,NBA official report
-OKC,Thomas Sorber,,out,Out,Right Knee Surgery,,2026-11-25_09_45PM,0,,,MIN@OKC,,NBA official report
-OKC,Nikola Topic,,out,Out,Left Hip Strain,,2026-11-25_09_45PM,0,,,MIN@OKC,,NBA official report
-OKC,Cason Wallace,,out,Out,Left Shoulder Surgery,,2026-11-25_09_45PM,0,,,MIN@OKC,,NBA official report
-OKC,Jalen Williams,,out,Out,Left Ankle Surgery,,2026-11-25_09_45PM,0,,,MIN@OKC,,NBA official report
-OKC,Jaylin Williams,,out,Out,Low Back Spasms,,2026-11-25_09_45PM,0,,,MIN@OKC,,NBA official report
-BKN,Nolan Traore,,out,Out,Right Hamstring Strain,,2026-11-25_09_45PM,0,,,BKN@MIL,,NBA official report
-LAC,Bradley Beal,,out,Out,Right Knee Injury Management,,2026-11-25_09_45PM,0,,,LAC@MEM,,NBA official report
-LAC,Jordan Miller,,out,Out,Left Rotator Cuff Surgery,,2026-11-25_09_45PM,0,,,LAC@MEM,,NBA official report
-MEM,Cameron Boozer,,out,Out,Right Medial Ankle Sprain,,2026-11-25_09_45PM,0,,,LAC@MEM,,NBA official report
-MEM,Jerami Grant,,out,Out,Left Calf Strain,,2026-11-25_09_45PM,0,,,LAC@MEM,,NBA official report
-MEM,GG Jackson,,out,Out,Left 5th Metatarsal Fracture,,2026-11-25_09_45PM,0,,,LAC@MEM,,NBA official report
-MEM,Scotty Pippen Jr.,,out,Out,Lumbar Disc Herniation,,2026-11-25_09_45PM,0,,,LAC@MEM,,NBA official report
-MEM,Richie Saunders,,out,Out,Right Knee Surgery,,2026-11-25_09_45PM,0,,,LAC@MEM,,NBA official report
-PHX,Mark Williams,,out,Out,Left Shoulder Surgery,,2026-11-25_09_45PM,0,,,PHX@HOU,,NBA official report
-SAC,Zach LaVine,,out,Out,Right Knee Soreness,,2026-11-25_09_45PM,0,,,SAC@GSW,,NBA official report
-SAC,Maxime Raynaud,,out,Out,Right Patella Subluxation,,2026-11-25_09_45PM,0,,,SAC@GSW,,NBA official report
-SAC,Ben Simmons,,out,Out,Right Achilles Tendon Repair / Surgery,,2026-11-25_09_45PM,0,,,SAC@GSW,,NBA official report
-GS,Jimmy Butler III,,out,Out,Right ACL Repair / Surgery,,2026-11-25_09_45PM,0,,,SAC@GSW,,NBA official report
-GS,Stephen Curry,,out,Out,Right Oblique Tear,,2026-11-25_09_45PM,0,,,SAC@GSW,,NBA official report
-GS,Moses Moody,,out,Out,Left Patellar Tendon Repair / Surgery,,2026-11-25_09_45PM,0,,,SAC@GSW,,NBA official report
-GS,Kristaps Porzingis,,out,Out,Not With Team,,2026-11-25_09_45PM,0,,,SAC@GSW,,NBA official report
-SA,De'Aaron Fox,,out,Out,Right Shin Contusion,,2026-11-25_09_45PM,0,,,SAS@POR,,NBA official report
-SA,Dylan Harper,,out,Out,Left Hip External Rotator Strain,,2026-11-25_09_45PM,0,,,SAS@POR,,NBA official report
-SA,Tobias Harris,,out,Out,Left Calf Strain,,2026-11-25_09_45PM,0,,,SAS@POR,,NBA official report
-SA,Jayden Quaintance,,out,Out,Right Knee Surgery,,2026-11-25_09_45PM,0,,,SAS@POR,,NBA official report
-POR,Vit Krejci,,out,Out,Left Ankle Fracture,,2026-11-25_09_45PM,0,,,SAS@POR,,NBA official report
-POR,Ja Morant,,out,Out,Left Hamstring Strain,,2026-11-25_09_45PM,0,,,SAS@POR,,NBA official report
-POR,Shaedon Sharpe,,out,Out,Right Meniscus Surgery,,2026-11-25_09_45PM,0,,,SAS@POR,,NBA official report
-POR,Chris Youngblood,,out,Out,Right Heel Contusion / Bone Bruise,,2026-11-25_09_45PM,0,,,SAS@POR,,NBA official report
+ATL,Jock Landale,C,out,Out,Right Hip (Inflammation),2026-11-27,2026-11-21T22:12Z,0,Landale (hip) won't play Sunday against the Pistons.,,,,ESPN
+ATL,Asa Newell,F,out,Out,Left Toe,2027-03-17,2026-11-17T21:16Z,0,"Newell underwent surgery Tuesday for a plantar plate tear in his left great toe, and he will be re-evaluated in approximately four months, Brad Rowland of the Locked On Podcast Network reports.",,,,ESPN
+ATL,CJ McCollum,G,out,Out,Left Calf (Strain),2026-12-19,2026-11-17T21:08Z,0,"McCollum (calf) will miss at least four weeks, per Brad Rowland of the Locked On Podcast Network.",,,,ESPN
+ATL,Mouhamed Gueye,F,out,Out,Left Foot (Fracture),2026-12-12,2026-11-13T00:06Z,0,"Gueye (foot) is ready to begin on-court activities and will be re-evaluated in four weeks, Brad Rowland of the Locked On Podcast Network reports.",,,,ESPN
+BOS,Mitchell Robinson,C,out,Out,Illness,2026-11-27,2026-11-23T21:09Z,0,"Robinson (illness) is out for Tuesday's game against Washington, Taylor Snow of the Celtics' official site reports.",,,,ESPN
+BKN,Moritz Wagner,C,out,Out,Left Knee (Soreness),2026-11-27,2026-11-26T02:48Z,0,"Wagner (knee) will not return to Wednesday's game against the Bucks, C.J. Holmes of the New York Daily News reports.",,,,ESPN
+BKN,Nolan Traore,G,out,Out,Right Hamstring (Strain),2027-01-27,2026-11-23T15:22Z,0,"Traore will be re-evaluated in approximately 8-10 weeks due to a right hamstring strain, Michael Scotto of HoopsHype.com reports.",,,,ESPN
+CHA,Ryan Kalkbrenner,C,questionable,Day-To-Day,Left Hip (Soreness),2026-11-28,2026-11-26T05:30Z,0,Kalkbrenner (hip) has been ruled out for Wednesday's matchup with Chicago.,,,,ESPN
+CHA,Grayson Allen,G,out,Out,Concussion,2026-11-28,2026-11-25T17:39Z,0,Allen (concussion) has been ruled out for Wednesday's game against Chicago.,,,,ESPN
+CHA,Dennis Schroder,G,out,Out,Left Hamstring (Strain),2026-12-12,2026-11-24T22:32Z,0,Schroder (hamstring) is out for Wednesday's game the Bulls.,,,,ESPN
+CHA,Kon Knueppel,G,out,Out,Left Hamstring (Strain),2026-12-12,2026-11-08T22:31Z,0,Knueppel (hamstring) was diagnosed with a left hamstring strain Sunday and will be re-evaluated in four weeks.,,,,ESPN
+CHI,Jalen Smith,F,questionable,Day-To-Day,Illness,2026-11-28,2026-11-26T05:29Z,0,Smith (illness) is listed as out for Wednesday's game against Charlotte.,,,,ESPN
+CHI,Norman Powell,G,out,Out,Right Hamstring (Strain),2026-11-28,2026-11-22T15:25Z,0,Powell has been diagnosed with a mild right hamstring strain and will be re-evaluated later this week.,,,,ESPN
+CHI,Caleb Wilson,F,out,Out,Right Hand,2026-12-13,2026-11-12T21:35Z,0,"Wilson (hand) is expected to miss four to six weeks, Shams Charania of ESPN reports.",,,,ESPN
+CLE,Nae'Qwan Tomlin,F,out,Out,Back,2026-11-29,2026-11-17T22:18Z,0,Tomlin (back) will remain on the inactive list for Wednesday's game against the Grizzlies.,,,,ESPN
+CLE,Evan Mobley,C,out,Out,Left Toe (Sprain),2026-11-29,2026-11-16T22:06Z,0,"Mobley will receive treatment and participate in rehab after the team confirmed a diagnosis of a right great toe sprain, and he'll be re-evaluated in the next 7-to-10 days.",,,,ESPN
+DAL,Tobi Lawal,F,out,Out,Right Groin,2026-11-27,2026-11-23T23:25Z,0,Lawal (groin) is out for Tuesday's game against Denver.,,,,ESPN
+DAL,Dereck Lively II,C,out,Out,Right Foot (Surgery),2026-11-27,2026-11-20T19:31Z,0,"Head coach Dusty May said Friday that Lively (foot) is moving well and progressing in his recovery, and the big man told May he's ""close"" to returning, Mike Curtis of The Dallas Morning News reports.",,,,ESPN
+DAL,Sergio de Larrea,F,out,Out,Right Knee (Strain),2026-11-27,2026-11-17T22:53Z,0,De Larrea (knee) is listed as out for Wednesday's game against the Warriors.,,,,ESPN
+DAL,Tarik Biberovic,F,out,Out,Right Heel (Inflammation),2026-11-27,2026-11-17T22:42Z,0,Biberovic (heel) is out for Wednesday's game against the Warriors.,,,,ESPN
+DET,Cade Cunningham,G,questionable,Day-To-Day,Knee,2026-11-27,2026-11-25T19:00Z,0,Cunningham (knee) is listed as out for Tuesday's game against Orlando.,,,,ESPN
+DET,Ebuka Okorie,G,out,Out,Left Oblique (Strain),2026-12-13,2026-11-24T18:37Z,0,"The Pistons announced Tuesday that Okorie (oblique) will miss at least two weeks, per Eric Vincent of ClutchPoints.com.",,,,ESPN
+DET,Taurean Prince,F,out,Out,Right Knee (Surgery),2026-12-26,2026-11-24T18:33Z,0,"Prince underwent arthroscopic right knee surgery Nov. 18 and will be re-evaluated in four weeks, Eric Vincent of ClutchPoints.com reports.",,,,ESPN
+DET,Duncan Robinson,F,out,Out,Left Quadriceps (Strain),2026-11-27,2026-11-24T18:30Z,0,"Robinson (quadriceps) is considered day-to-day as he progresses in his rehab, Eric Vincent of ClutchPoints.com reports.",,,,ESPN
+DET,Jalen Duren,C,out,Out,Right Hamstring (Strain),2026-11-30,2026-11-24T18:27Z,0,"Duren (hamstring) is being assigned to the Motor City Cruise on Wednesday for practice as he ramps up for a return, Eric Vincent of ClutchPoints.com reports.",,,,ESPN
+GS,Stephen Curry,G,out,Out,Right Abdomen,2026-12-12,2026-11-26T01:36Z,0,"Curry (abdomen) will be re-evaluated Friday after Thanksgiving, Anthony Slater of ESPN.com reports.",,,,ESPN
+GS,Kristaps Porzingis,C,out,Out,Illness,2027-01-02,2026-11-06T21:26Z,0,Porzingis announced on his social media that he's stepping away from basketball.,,,,ESPN
+GS,Moses Moody,G,out,Out,Left Knee (Surgery),2026-12-01,2026-10-16T16:14Z,0,"Moody (knee) is progressing toward a potential return between December and January after rupturing his left patellar tendon in March, Anthony Slater of ESPN reports.",,,,ESPN
+GS,Jimmy Butler III,F,out,Out,Right Knee (Surgery),2027-01-02,2026-10-16T16:11Z,0,"Butler (knee) could return sometime between January and February as he continues recovering from a torn right ACL, Anthony Slater of ESPN reports.",,,,ESPN
+IND,T.J. McConnell,G,questionable,Day-To-Day,Left Hamstring,2026-11-27,2026-11-24T19:43Z,0,"McConnell (hamstring) was recalled from the G League's Noblesville Boom on Tuesday, Shams Charania of ESPN reports.",,,,ESPN
+IND,Tyrese Haliburton,G,out,Out,Left Hamstring (Strain),2026-12-13,2026-11-24T19:41Z,0,"Haliburton (hamstring) was recalled from the G League's Noblesville Boom on Tuesday, Tony East of Forbes.com reports.",,,,ESPN
+IND,Aaron Nesmith,G,questionable,Day-To-Day,Foot,2026-11-27,2026-11-24T04:40Z,0,Nesmith is out for Monday's game against the Thunder due to right foot soreness.,,,,ESPN
+IND,Larry Nance Jr.,F,questionable,Day-To-Day,Right Ankle (Soreness),2026-11-27,2026-11-24T02:00Z,0,"Nance exited Monday's game against the Thunder due to a sore right ankle and he will not return, Tony East of Forbes.com reports.",,,,ESPN
+IND,Ben Sheppard,G,out,Out,Left Knee,2027-01-02,2026-10-28T21:41Z,0,"Head coach Rick Carlise confirmed Sheppard will miss ""months"" after undergoing surgery to repair a torn meniscus in his left knee, Tony East of Forbes.com reports.",,,,ESPN
+LAC,Bradley Beal,G,out,Out,Right Knee (Inflammation),2026-11-29,2026-10-15T01:03Z,0,"Beal (knee) will not be ready for the start of the regular season, NBA writer Justin Russo reports.",,,,ESPN
+LAL,Austin Reaves,G,out,Out,Left Heel (Bruise),2026-11-27,2026-11-25T20:33Z,0,"Reaves (heel) was a full participant in Wednesday's practice, Daniel Starkand of LakersNation.com reports.",,,,ESPN
+MEM,Zach Edey,C,questionable,Day-To-Day,Left Ankle (Soreness),2026-11-27,2026-11-26T03:43Z,0,"Edey (ankle) did not return to Wednesday's 115-97 win over the Clippers. He finished with seven points (3-4 FG, 1-1 FT), four rebounds, two assists and two blocks across nine minutes.",,,,ESPN
+MEM,Scotty Pippen Jr.,G,out,Out,Back (Soreness),2026-12-12,2026-11-24T23:04Z,0,Pippen (back) is out for Wednesday's game against the Clippers.,,,,ESPN
+MEM,Cameron Boozer,F,out,Out,Right Ankle (Sprain),2026-12-21,2026-11-23T23:07Z,0,"Boozer (ankle) will be re-evaluated in four weeks, Brett Siegel of ClutchPoints.com reports.",,,,ESPN
+MEM,Jerami Grant,F,out,Out,Left Calf,2026-12-12,2026-11-23T04:04Z,0,Grant was diagnosed with a grade 1 left calf strain and will be re-evaluated in two weeks.,,,,ESPN
+MEM,GG Jackson,F,out,Out,Left Foot (Surgery),2027-01-18,2026-11-17T23:18Z,0,Jackson underwent a procedure Wednesday to repair a broken fifth metatarsal in his left foot. He is expected to recover fully and will be re-evaluated in approximately three months.,,,,ESPN
+MEM,Richie Saunders,G,out,Out,Right Knee (Surgery),2026-12-01,2026-11-07T17:24Z,0,"Saunders signed a two-way contract with the Grizzlies on Saturday, Shams Charania of ESPN reports.",,,,ESPN
+MIN,LaMelo Ball,G,questionable,Day-To-Day,Left Ankle,2026-11-27,2026-11-26T03:37Z,0,Ball (ankle) did not return to Wednesday's 113-106 win over the Thunder.,,,,ESPN
+MIN,Donte DiVincenzo,G,out,Out,Right Achilles (Surgery),2027-01-03,2026-11-24T17:10Z,0,"DiVincenzo (Achilles) has been cleared for team basketball activities and is targeting a return to game action in January, Jon Krawczynski of The Athletic reports.",,,,ESPN
+MIN,Jaylen Clark,G,out,Out,Right Hamstring,2026-11-29,2026-11-15T22:40Z,0,Clark (hamstring) has been ruled out for the next two weeks.,,,,ESPN
+MIN,Anthony Edwards,G,out,Out,Right Knee (Surgery),2026-12-21,2026-10-29T18:33Z,0,"Edwards underwent a successful arthroscopic procedure on his right knee Thursday, the Timberwolves announced.",,,,ESPN
+NO,Julian Reese,F,questionable,Day-To-Day,Right Knee,2026-12-01,2026-11-25T16:11Z,0,"The Pelicans transferred Reese from the G League's Laketown Squadron, and he will be available for New Orleans' game against the Warriors on Monday.",,,,ESPN
+NO,Trendon Watford,F,out,Out,Right Ankle (Sprain),2026-11-27,2026-11-21T18:21Z,0,Watford (ankle) is out for Saturday's game against the Spurs.,,,,ESPN
+NO,Bennedict Mathurin,G,out,Out,Left Foot (Plantar Fasciitis),2026-11-27,2026-11-19T21:07Z,0,Mathurin (foot) has been ruled out for Friday's game against the Thunder.,,,,ESPN
+NO,Dejounte Murray,G,out,Out,Ankle,2026-11-27,2026-11-13T20:19Z,0,Murray (ankle) is out for Friday's game against Memphis.,,,,ESPN
+NY,Miles McBride,G,questionable,Day-To-Day,Left Groin (Soreness),2026-11-27,2026-11-26T05:31Z,0,McBride (adductor) has been ruled out for Wednesday's game against the Cavaliers.,,,,ESPN
+NY,Andre Drummond,C,questionable,Day-To-Day,Head,2026-11-27,2026-11-26T03:40Z,0,Drummond (head) did not return to Wednesday's 121-102 win over the Cavaliers.,,,,ESPN
+NY,OG Anunoby,F,out,Out,Left Calf (Soreness),2026-11-27,2026-11-25T23:19Z,0,"Anunoby (calf) participated in on-court work for the first time since sustaining the injury, Ian Begley of SportsNet New York reports.",,,,ESPN
+NY,Jordan Clarkson,G,out,Out,Right Foot (Plantar Fasciitis),2026-11-27,2026-11-24T21:56Z,0,Clarkson (foot) is out for Wednesday's game against Cleveland.,,,,ESPN
+OKC,Nikola Topic,G,out,Out,Left Hip (Strain),2026-11-28,2026-11-24T23:29Z,0,Topic (hip) is listed as out for Wednesday's game versus Minnesota.,,,,ESPN
+OKC,Jaylin Williams,F,out,Out,Back (Spasms),2026-11-28,2026-11-24T23:24Z,0,Williams (back) is listed as out for Wednesday's game against Minnesota.,,,,ESPN
+OKC,Aday Mara,C,out,Out,Right Lower Leg (Bruise),2026-11-28,2026-11-24T23:19Z,0,Mara (leg) is out for Wednesday's game versus the Timberwolves.,,,,ESPN
+OKC,Jalen Williams,G,out,Out,Left Leg (Fracture),2027-03-02,2026-11-23T18:43Z,0,"Williams (ankle) has been ruled out for Monday's game against the Pacers, according to the NBA's official injury report.",,,,ESPN
+OKC,Thomas Sorber,C,out,Out,Knee,2027-01-31,2026-11-18T00:01Z,0,"Sorber underwent an arthroscopic knee procedure Tuesday to address inflammation at the patellofemoral joint in his right knee, and he's expected to return to on-court activities in 6-8 weeks, Steve Mc",,,,ESPN
+OKC,Cason Wallace,G,out,Out,Left Shoulder (Surgery),2027-03-02,2026-10-31T01:16Z,0,"Wallace underwent surgery Friday to repair a torn labrum in his left shoulder and will be re-evaluated before the end of the regular season, Clemente Almanza of USA Today reports.",,,,ESPN
+OKC,Chet Holmgren,C,out,Out,Right Knee,2027-01-02,2026-10-31T01:02Z,0,"Holmgren underwent a biological treatment Friday to address a small patellar tendon tear and will miss at least 8-10 weeks, Nick Crain of Slam reports.",,,,ESPN
+ORL,Jonathan Isaac,F,out,Out,Left Knee,2026-11-29,2026-11-21T21:09Z,0,Isaac (knee) is out for Sunday's game against the Wizards.,,,,ESPN
+ORL,Izaiyah Nelson,F,out,Out,Left Ankle (Surgery),2026-11-29,2026-11-18T17:25Z,0,"Head coach Sean Sweeney said Wednesday that Nelson (ankle) has been doing ""some on-court stuff,"" though Sweeney added that the work has been ""minimal,"" Jason Beede of the Orlando Sentinel reports.",,,,ESPN
+ORL,Noah Penda,F,out,Out,Right Hamstring (Strain),2026-11-29,2026-11-14T17:33Z,0,"Penda (hamstring) is making progress but remains without a timetable to return to game action, Jason Beede of the Orlando Sentinel reports.",,,,ESPN
+ORL,Paolo Banchero,F,out,Out,Right Ankle (Sprain),2026-11-29,2026-10-24T16:47Z,0,"Banchero is expected to be sidelined for the next four-to-six weeks due to a right high-ankle sprain, Shams Charania of ESPN reports.",,,,ESPN
+PHI,Joel Embiid,C,questionable,Day-To-Day,Illness,2026-11-27,2026-11-26T01:06Z,0,"Embiid (illness) is out for Wednesday's game against Miami, Ira Winderman of the South Florida Sun Sentinel reports.",,,,ESPN
+PHI,Jaylen Brown,G,questionable,Day-To-Day,Left Hamstring,2026-11-27,2026-11-26T01:06Z,0,"Brown (hamstring) will receive imaging, and the Sixers will provide an update Thursday, Ky Carlin of USA Today reports.",,,,ESPN
+PHI,Ariel Hukporti,C,out,Out,Right Achilles (Surgery),2027-10-01,2026-10-06T19:17Z,1,"Hukporti has sustained a season-ending ruptured right Achilles tendon, per Shams Charania of ESPN.",,,,ESPN
+POR,Chris Youngblood,G,out,Out,Right Heel (Bruise),2026-11-27,2026-11-20T22:18Z,0,Youngblood (heel) has been ruled out for Saturday's game against the Knicks.,,,,ESPN
+POR,Vit Krejci,G,out,Out,Left Ankle,2027-01-12,2026-11-11T19:56Z,0,"Krejci underwent surgery on his fractured left ankle Wednesday and will be re-evaluated in eight weeks, Brett Siegel of ClutchPoints.com reports.",,,,ESPN
+POR,Ja Morant,G,out,Out,Left Hamstring,2026-12-01,2026-11-08T02:18Z,0,"Head coach Micah Nori said Morant met with a doctor in Los Angeles, who gave him a positive outlook on his recovery from the hamstring injury. While Nori declined to update Morant's timetable, he adde",,,,ESPN
+SAC,Zach LaVine,G,questionable,Day-To-Day,Right Knee (Soreness),2026-11-29,2026-11-26T05:33Z,0,LaVine (knee) is listed as out for Wednesday's game versus the Warriors.,,,,ESPN
+SAC,Maxime Raynaud,C,out,Out,Right Knee (Dislocated),2026-12-02,2026-11-25T21:38Z,0,"Raynaud (knee) was recalled from the G League's Stockton Kings on Wednesday, Marc J. Spears of ESPN.com reports.",,,,ESPN
+SAC,Ben Simmons,G,out,Out,Right Achilles (Surgery),2027-10-01,2026-10-21T04:22Z,1,"Simmons underwent successful surgery Tuesday to repair a torn right Achilles tendon, James Ham of ESPN 1320 Sacramento reports.",,,,ESPN
+SA,De'Aaron Fox,G,questionable,Day-To-Day,Right Lower Leg (Bruise),2026-11-27,2026-11-26T06:01Z,0,"Fox (shin) has been ruled out for Wednesday's game against Portland, Jeff McDonald of the San Antonio Express-News reports.",,,,ESPN
+SA,Dylan Harper,G,out,Out,Hip (Soreness),2026-12-13,2026-11-19T20:07Z,0,"Harper (hip) is expected to miss two to three weeks, Brett Siegel of ClutchPoints.com reports.",,,,ESPN
+SA,Tobias Harris,F,out,Out,Left Calf (Strain),2026-12-03,2026-11-16T19:26Z,0,"Harris (calf) is likely to be sidelined until early December, per Jeff Garcia of KENS 5 San Antonio.",,,,ESPN
+SA,Jayden Quaintance,F,out,Out,Right Knee (Surgery),2026-12-03,2026-10-05T21:43Z,0,"Quaintance has been around the team but has not yet been cleared for basketball activities, Matt Guzman of SI.com reports.",,,,ESPN
+TOR,Kawhi Leonard,F,out,Out,Left Knee (Inflammation),2026-12-03,2026-11-24T21:15Z,0,"Leonard has begun individual on-court workouts following treatment to address swelling in his left knee, and he will be re-evaluated in one week, Marc J. Spears of ESPN.com reports.",,,,ESPN
+TOR,Nate Bittle,C,out,Out,Right Foot (Fracture),2026-11-27,2026-11-22T21:13Z,0,"Bittle (foot) has been ruled out for Monday's game against the Bucks, Blake Murphy of Sportsnet.ca reports.",,,,ESPN
+TOR,RJ Barrett,F,out,Out,Right Hamstring (Strain),2026-12-13,2026-11-19T21:13Z,0,"Barrett has been diagnosed with a right hamstring strain and will be re-evaluated in two weeks, Brett Siegel of ClutchPoints.com reports.",,,,ESPN
+UTAH,Jaxson Hayes,C,questionable,Day-To-Day,Left Knee,2026-11-27,2026-11-24T06:07Z,0,Hayes (knee) has been ruled out for Monday's game against the Lakers.,,,,ESPN
+UTAH,Jusuf Nurkic,C,out,Out,Right Foot (Strain),2026-11-29,2026-11-20T22:40Z,0,Nurkic (foot) has been cleared for on-court work and will be re-evaluated in one week.,,,,ESPN
+UTAH,Lauri Markkanen,F,out,Out,Right Hand (Fracture),2027-01-04,2026-11-11T18:22Z,0,"Markkanen has been diagnosed with a non-displaced fracture in his right hand and will be sidelined for at least one month, Shams Charania of ESPN reports.",,,,ESPN
+UTAH,Jaren Jackson Jr.,F,out,Out,Right Knee,2026-12-14,2026-10-27T19:25Z,0,"Jackson has been diagnosed with a torn MCL in his right knee and will be sidelined for 6-to-8 weeks, per Shams Charania of ESPN.",,,,ESPN
+WSH,Tristan Vukcevic,F,out,Out,Left Hip (Pinched Nerve),2026-11-30,2026-11-23T22:10Z,0,Vukcevic (hip) has been ruled out for Tuesday's game against Boston.,,,,ESPN
+WSH,Reece Beekman,G,out,Out,Shoulder,2026-12-03,2026-11-02T18:22Z,0,The Wizards announced Monday that Beekman sustained a right acromioclavicular joint injury and will be re-evaluated in approximately three weeks.,,,,ESPN
+WSH,Justin Champagnie,F,out,Out,Right Foot,2027-02-25,2026-10-28T18:38Z,0,"Champagnie (foot) is expected to miss several months, per Josh Robbins of The Athletic.",,,,ESPN
